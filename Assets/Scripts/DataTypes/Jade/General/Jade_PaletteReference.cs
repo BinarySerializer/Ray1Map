@@ -39,7 +39,7 @@ namespace R1Engine.Jade {
 			var flags = LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if(!loader.IsBinaryData) flags = LOA_Loader.ReferenceFlags.Log;
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Value, (s, configureAction) => {
 				Value = s.SerializeObject<TEX_Palette>(Value, onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Value));
@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
 				LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (loader.IsBinaryData) {
-					loader.RequestFile(Key, (s, configureAction) => {
+					loader.RequestFile(Key, RRR2Unknown, (s, configureAction) => {
 						RRR2Unknown = s.SerializeObject<TEX_Palette_RRR2_Unknown>(RRR2Unknown, onPreSerialize: f => {
 							configureAction(f);
 						}, name: nameof(Value));

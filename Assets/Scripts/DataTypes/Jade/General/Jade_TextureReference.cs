@@ -43,7 +43,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
 				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
 					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Info));
@@ -65,7 +65,8 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Info, (s, configureAction) => {
+				if (s is BinarySerializer.BinarySerializer && Info == null) return;
 				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
 					configureAction(f); f.IsContent = false; onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Info));
@@ -88,7 +89,8 @@ namespace R1Engine.Jade {
 			if (!Info.HasContent) return this;
 
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Content, (s, configureAction) => {
+				if (s is BinarySerializer.BinarySerializer && Content == null) return;
 				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
 					f.Info = Info;
 					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);

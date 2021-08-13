@@ -3,7 +3,8 @@
 namespace R1Engine.Jade
 {
     public class EVE_ListTracks : Jade_File {
-        public override bool HasHeaderBFFile => true;
+		public override string Export_Extension => "trl";
+		public override bool HasHeaderBFFile => true;
 
         public Jade_Reference<EVE_ListTracks> ListTracks_TRS { get; set; }
         public ushort TracksCount { get; set; }

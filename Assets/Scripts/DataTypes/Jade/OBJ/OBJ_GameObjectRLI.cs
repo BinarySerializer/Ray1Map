@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObjectRLI : Jade_File {
+		public override string Export_Extension => "rli";
 		public Jade_Code RLICode { get; set; }
 		public uint[] VertexRLI { get; set; }
 

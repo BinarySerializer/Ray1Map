@@ -8,7 +8,19 @@ namespace R1Engine.Jade
     // See: GDI_l_AttachWorld & TEX_l_File_Read
     // TEX_l_File_Read reads the texture header, after that GDI_l_AttachWorld resolves some references (for animated textures) and adds palette references
     public class TEX_File : Jade_File {
-        public bool IsContent { get; set; }
+		public override string Export_Extension {
+            get {
+                switch (Type) {
+                    case TexFileType.RawPal: return "tex";
+                    case TexFileType.Raw: return "raw";
+                    case TexFileType.Tga: return "tga";
+                    case TexFileType.Bmp: return "bmp";
+                    case TexFileType.JTX: return "jtx";
+                    default: return null;
+                }
+            }
+        }
+		public bool IsContent { get; set; }
         public bool HasContent
             => (Type != TexFileType.RawPal || (IsRawPalUnsupported(Context) && ContentKey != null)) // On Xbox 360 it resolves the raw texture
             && Type != TexFileType.Procedural
@@ -67,6 +79,9 @@ namespace R1Engine.Jade
 
         public override void SerializeImpl(SerializerObject s) 
         {
+            bool IsWritingUnbinarized = false;
+            if(!Loader.IsBinaryData && s is BinarySerializer.BinarySerializer) IsWritingUnbinarized = true;
+
 			if (!Loader.IsBinaryData)
 				s.Goto(s.CurrentPointer + FileSize - 32);
 

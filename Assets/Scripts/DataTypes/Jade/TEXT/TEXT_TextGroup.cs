@@ -9,6 +9,9 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Text = s.SerializeObjectArray<Jade_GenericReference>(Text, FileSize / 8, name: nameof(Text));
+			if (!Loader.IsBinaryData) {
+				foreach (var txl in Text) txl?.Resolve();
+			}
 		}
 
 		public Jade_GenericReference GetUsedReference(int languageID) {

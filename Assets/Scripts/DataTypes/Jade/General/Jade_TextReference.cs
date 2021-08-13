@@ -23,6 +23,19 @@ namespace R1Engine.Jade {
 		
 		// Dummy resolve method for now
 		public Jade_TextReference Resolve() {
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!loader.IsBinaryData) LoadEditor();
+			return this;
+		}
+
+		public Jade_TextReference LoadEditor(
+			Action<SerializerObject, TEXT_AllText> onPreSerialize = null,
+			Action<SerializerObject, TEXT_AllText> onPostSerialize = null) {
+			for (int languageID = 0; languageID < 32; languageID++) {
+				if (Text.ContainsKey(languageID)) {
+					LoadText(languageID, false, onPreSerialize, onPostSerialize);
+				}
+			}
 			return this;
 		}
 
@@ -37,7 +50,7 @@ namespace R1Engine.Jade {
 			if (IsNull) return this;
 			var textDict = sound ? TextSound : Text;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, GetTextForLanguage(languageID, sound), (s, configureAction) => {
 				textDict[languageID] = s.SerializeObject<TEXT_AllText>(GetTextForLanguage(languageID, sound), onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
 				}, name: sound ? nameof(Text) : nameof(TextSound));

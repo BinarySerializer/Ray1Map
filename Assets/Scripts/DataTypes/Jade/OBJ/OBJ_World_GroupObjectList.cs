@@ -4,6 +4,7 @@ namespace R1Engine.Jade
 {
     public class OBJ_World_GroupObjectList : Jade_File 
     {
+		public override string Export_Extension => "gog";
 		public GroupObject[] GroupObjects { get; set; }
         public bool ResolveObjects { get; set; } = true;
 

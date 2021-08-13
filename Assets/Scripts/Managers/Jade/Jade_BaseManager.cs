@@ -40,6 +40,7 @@ namespace R1Engine {
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
+				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true)),
 			};
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
@@ -453,6 +454,93 @@ namespace R1Engine {
 										};
 										wave.Resolve();
 									}
+									var s = writeContext.Serializer;
+									await loader.LoadLoop(s);
+								}
+							}
+						}
+					}
+				} catch (Exception ex) {
+					if (currentKey == 0) {
+						Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+					} else {
+						Debug.LogError($"Failed to export for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
+					}
+				}
+
+
+				// Unload textures
+				await Controller.WaitIfNecessary();
+				await Resources.UnloadUnusedAssets();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+				GC.WaitForPendingFinalizers();
+				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(2000);
+				}
+			}
+
+			Debug.Log($"Finished export");
+		}
+		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string outputDir, bool useComplexNames) {
+			var parsedSounds = new HashSet<uint>();
+
+			var levIndex = 0;
+			uint currentKey = 0;
+			Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
+
+			foreach (var lev in LevelInfos) {
+				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type.HasValue ?? false) {
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+						levIndex++;
+						continue;
+					}
+				}
+
+				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+
+				try {
+					using (var context = new R1Context(settings)) {
+						currentKey = 0;
+						await LoadFilesAsync(context);
+						await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
+
+						LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+						var worlds = actualLoader.LoadedWorlds;
+
+						string worldName = null;
+						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+							throw new NotImplementedException("Not yet implemented for Montreal");
+						} else {
+							foreach (var w in worlds) {
+								await ExportUnbinarized(w);
+							}
+						}
+
+						async UniTask ExportUnbinarized(WOR_World world) {
+							if(world != null) {
+								Debug.Log($"Loaded level. Exporting unbinarized assets...");
+								await Controller.WaitIfNecessary();
+
+								LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+
+								using (var writeContext = new R1Context(outputDir, settings)) {
+									// Set up loader
+									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+									loader.WrittenFileKeys = writtenFileKeys;
+									writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+									var sndListWrite = new SND_GlobalList();
+									writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
+									var texListWrite = new TEX_GlobalList();
+									writeContext.StoreObject<TEX_GlobalList>(TextureListKey, texListWrite);
+									var aiLinks = context.GetStoredObject<AI_Links>(AIKey);
+									writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
+
+									Jade_Reference<WOR_World> worldRef = new Jade_Reference<WOR_World>(writeContext, new Jade_Key(writeContext, world.Key.Key)) {
+										Value = world
+									};
+									worldRef?.Resolve();
 									var s = writeContext.Serializer;
 									await loader.LoadLoop(s);
 								}
@@ -990,7 +1078,8 @@ namespace R1Engine {
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			var loadFlags = LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound | LoadFlags.Universe;
+			//var loadFlags = LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound | LoadFlags.Universe;
+			var loadFlags = LoadFlags.All;
 			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level), loadFlags);
 
 			stopWatch.Stop();

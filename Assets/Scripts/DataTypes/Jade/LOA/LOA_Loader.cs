@@ -300,7 +300,7 @@ namespace R1Engine.Jade {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
 				bool writeFilesAlreadyInBF = false;
-				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key)) {
+				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key) && currentRef.CurrentValue != null) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
 						var f = Cache[currentRef.Key];
@@ -309,6 +309,7 @@ namespace R1Engine.Jade {
 						//Pointer off_current = s.CurrentPointer;
 						string filename = $"ROOT/Bin/{currentRef.Key.Key:X8}";
 						string extension = null;
+						string newFilename = null;
 
 						string previousState = Controller.DetailedState;
 						Controller.DetailedState = $"{previousState}\n{filename}";
@@ -333,13 +334,16 @@ namespace R1Engine.Jade {
 								currentRef.LoadCallback(s, (f) => {
 									f.Loader = this;
 									extension = f.Export_Extension;
+									newFilename = f.Export_FileBasename;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 								});
 							} finally {
 								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
 									var bytes = memStream.ToArray();
+									if(newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
 									if (extension != null) filename += $".{extension}";
 									Util.ByteArrayToFile(Context.BasePath + "out/" + filename, bytes);
+									WrittenFileKeys[currentRef.Key.Key] = filename;
 									Context.RemoveFile(streamFile);
 								}
 							}
@@ -349,9 +353,15 @@ namespace R1Engine.Jade {
 						//s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					//UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
+		}
+		private static string MakeValidFileName(string name) {
+			string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
+			string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+			return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
 		}
 
 		public void LoadLoopBIN() {
@@ -524,6 +534,7 @@ namespace R1Engine.Jade {
 		public class FileReference {
 			public string Name { get; set; }
 			public Jade_Key Key { get; set; }
+			public Jade_File CurrentValue { get; set; }
 			public ResolveAction LoadCallback { get; set; }
 			public ResolvedAction AlreadyLoadedCallback { get; set; }
 			public bool IsBin { get; set; }
@@ -531,7 +542,7 @@ namespace R1Engine.Jade {
 			public CacheType Cache { get; set; }
 		}
 
-		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false,
+		public void RequestFile(Jade_Key key, Jade_File currentValue, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false,
 			QueueType queue = QueueType.Current,
 			CacheType cache = CacheType.Current,
 			string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
@@ -545,6 +556,7 @@ namespace R1Engine.Jade {
 			var fileRef = new FileReference() {
 				Name = name,
 				Key = key,
+				CurrentValue = currentValue,
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback,
 				Flags = flags,

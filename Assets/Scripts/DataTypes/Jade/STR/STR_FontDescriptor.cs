@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class STR_FontDescriptor : Jade_File {
+		public override string Export_Extension => "fod";
 		public string Header { get; set; }
 		public int Footer { get; set; }
 		public uint MaxCharacter { get; set; }

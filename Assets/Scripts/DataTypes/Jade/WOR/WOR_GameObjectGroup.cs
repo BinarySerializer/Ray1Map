@@ -7,7 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class WOR_GameObjectGroup : Jade_File {
 		public GameObjectRef[] GameObjects { get; set; }
-        public override string Export_Extension => "gal";
+        public override string Export_Extension => "gol";
 
         public override void SerializeImpl(SerializerObject s) {
 			GameObjects = s.SerializeObjectArray<GameObjectRef>(GameObjects, FileSize / (Loader.IsBinaryData ? 4 : 8), name: nameof(GameObjects));

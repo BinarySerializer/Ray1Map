@@ -4,7 +4,8 @@ using System;
 namespace R1Engine.Jade
 {
     public class ANI_Shape : Jade_File {
-        public override bool HasHeaderBFFile => true;
+		public override string Export_Extension => "shp";
+		public override bool HasHeaderBFFile => true;
 
         public byte LastCanal { get; set; } // Max 64
         public ANI_Shape_Canal[] Canals { get; set; }

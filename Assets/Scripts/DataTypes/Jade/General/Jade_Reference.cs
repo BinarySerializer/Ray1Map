@@ -31,7 +31,7 @@ namespace R1Engine.Jade {
 
 			if (IsNull && !ForceResolve) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Value, (s, configureAction) => {
 				SerializeFile(s, configureAction, onPreSerialize, onPostSerialize);
 			}, (f) => {
 				Value = f?.ConvertType<T>();

@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRP_Grp : Jade_File {
+		public override string Export_Extension => "grp";
 		public override bool HasHeaderBFFile => true;
 
 		public Jade_Reference<OBJ_World_GroupObjectList> GroupObjectList { get; set; }

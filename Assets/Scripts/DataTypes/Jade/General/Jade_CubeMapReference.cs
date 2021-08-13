@@ -32,7 +32,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_CubeMap> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, (s, configureAction) => {
+			loader.RequestFile(Key, Value, (s, configureAction) => {
 				Value = s.SerializeObject<TEX_CubeMap>(Value, onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Value));

@@ -3,7 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class COL_GameMaterial : Jade_File {
-        public uint Count { get; set; }
+		public override string Export_Extension => "gam";
+		public uint Count { get; set; }
         public uint[] UInts { get; set; }
         public Material[] Materials { get; set; }
         public PhoenixStruct Phoenix { get; set; }
