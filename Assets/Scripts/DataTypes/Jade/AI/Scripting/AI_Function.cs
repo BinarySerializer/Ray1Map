@@ -23,6 +23,7 @@ namespace R1Engine.Jade {
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
+		public uint BinaryFunctionBufferLength { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
@@ -33,6 +34,7 @@ namespace R1Engine.Jade {
 
 			SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
 			FunctionBufferLength = s.Serialize<uint>(FunctionBufferLength, name: nameof(FunctionBufferLength));
+			if(Loader.IsBinaryData) BinaryFunctionBufferLength = FunctionBufferLength;
 
 			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))) {
 				Nodes = s.SerializeObjectArray<AI_Node>(Nodes, FunctionBufferLength / 8, name: nameof(Nodes));
@@ -67,7 +69,7 @@ namespace R1Engine.Jade {
 				}
 			});
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
-			if (!Loader.SpeedMode && s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize) {
+			if (!Loader.SpeedMode && s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize && !(s is BinarySerializer.BinarySerializer)) {
 				LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
 				Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsCount, name: nameof(Locals));
 			}
@@ -85,6 +87,15 @@ namespace R1Engine.Jade {
 			string path = basePath + "scripts/" + FunctionDef.Name + "_" + s.GetR1Settings().Platform + ".ofcdec";
 			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
 			System.IO.File.WriteAllText(path, b.ToString());
+		}
+
+		protected override void OnChangedIsBinaryData() {
+			base.OnChangedIsBinaryData();
+			if (CurrentIsBinaryData == false && Nodes == null) {
+				FunctionBufferLength = 0;
+			} else if (CurrentIsBinaryData == true && BinaryFunctionBufferLength > 0) {
+				FunctionBufferLength = BinaryFunctionBufferLength;
+			}
 		}
 	}
 }

@@ -7,6 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_ProcList : Jade_File {
 		public override string Export_Extension => "fce";
+		public override string Export_FileBasename => FunctionDef?.Name;
 
 		public ushort ProcsCount { get; set; }
 		public Proc[] Procs { get; set; }
@@ -15,7 +16,16 @@ namespace R1Engine.Jade {
 		public string ProcListString { get; set; }
 		public uint Unknown_04 { get; set; }
 
+		// Custom
+		public AI_FunctionDef FunctionDef { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
+			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
+			if (links.CompiledFunctions.ContainsKey(Key)) {
+				FunctionDef = links.CompiledFunctions[Key];
+				s.Log($"Compiled function found! Function name: {FunctionDef.Name}");
+			}
+
 			ProcsCount = s.Serialize<ushort>(ProcsCount, name: nameof(ProcsCount));
 			Procs = s.SerializeObjectArray<Proc>(Procs, ProcsCount, name: nameof(Procs));
 			Code = s.Serialize<uint>(Code, name: nameof(Code));
@@ -41,6 +51,10 @@ namespace R1Engine.Jade {
 			public byte[] LocalsStringBuffer { get; set; }
 			public AI_Local[] Locals { get; set; }
 
+			// Custom
+			public uint BinaryCode { get; set; }
+			public uint BinaryNodesCount { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
@@ -64,6 +78,26 @@ namespace R1Engine.Jade {
 							LocalsCount = Code2;
 						}
 						Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsCount, name: nameof(Locals));
+					}
+				}
+			}
+		}
+
+
+		protected override void OnChangedIsBinaryData() {
+			base.OnChangedIsBinaryData();
+			if (CurrentIsBinaryData == false) {
+				foreach (var p in Procs) {
+					if (p.Code != 0) p.BinaryCode = p.Code;
+					if (p.NodesCount != 0) p.BinaryNodesCount = p.BinaryNodesCount;
+					p.NodesCount = 0;
+					if(p.Code != (uint)Jade_Code.ACBD) Code = 0;
+				}
+			} else if (CurrentIsBinaryData == true) {
+				foreach (var p in Procs) {
+					if (p.BinaryNodesCount > 0) {
+						p.NodesCount = p.BinaryNodesCount;
+						p.Code = p.BinaryCode;
 					}
 				}
 			}
