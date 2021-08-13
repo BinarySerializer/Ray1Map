@@ -730,12 +730,14 @@ namespace R1Engine
 
             // Load the fixed BIN
             loader.SwitchBlocks(loader.Config.BLOCK_Fix);
+            await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
+            await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
