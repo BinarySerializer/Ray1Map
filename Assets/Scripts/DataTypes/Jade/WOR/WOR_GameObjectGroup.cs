@@ -41,9 +41,9 @@ namespace R1Engine.Jade {
             }
         }
 
-		protected override void OnChangedEditorMode() {
-			base.OnChangedEditorMode();
-            if (CurrentEditorMode == true) {
+		protected override void OnChangedIsBinaryData() {
+			base.OnChangedIsBinaryData();
+            if (CurrentIsBinaryData == false) {
                 FileSize *= 2;
             } else FileSize /= 2;
 		}

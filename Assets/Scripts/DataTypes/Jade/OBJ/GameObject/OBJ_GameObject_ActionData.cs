@@ -29,6 +29,13 @@ namespace R1Engine.Jade {
 				BonesVisu = s.SerializeObjectArray<VisuForBones>(BonesVisu, BonesVisuCount, onPreSerialize: b => b.ActionData = this, name: nameof(BonesVisu));
 			}
 
+			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!Loader.IsBinaryData) {
+				Shape?.Resolve();
+				SkeletonGroup?.Resolve();
+				ListTracks?.Resolve();
+			}
+
 			// This is resolved
 			ActionKit = s.SerializeObject<Jade_Reference<ACT_ActionKit>>(ActionKit, name: nameof(ActionKit))?.Resolve();
 		}

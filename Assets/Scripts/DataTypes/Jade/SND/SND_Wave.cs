@@ -51,8 +51,8 @@ namespace R1Engine.Jade
 					case Type.Dialog: return "wad";
 					case Type.LoadingSound: return "wac";
 					case Type.Music: return "wam";
-					//case Type.Sound: return "wav";
-					case Type.Sound: return "wac";
+					case Type.Sound: return "wav";
+					//case Type.Sound: return "wac";
 					default: return null;
 				}
 			}

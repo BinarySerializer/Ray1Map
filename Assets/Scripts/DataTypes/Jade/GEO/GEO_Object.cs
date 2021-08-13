@@ -9,11 +9,15 @@ namespace R1Engine.Jade {
 					case GRO_Type.GEO:
 					case GRO_Type.GEO_StaticLOD:
 					case GRO_Type.GEO_SubGeometry:
+					case GRO_Type.PAG:
+					case GRO_Type.STR:
 						return "gro";
 					case GRO_Type.MAT_MSM:
 					case GRO_Type.MAT_MTT:
 					case GRO_Type.MAT_SIN:
 						return "grm";
+					case GRO_Type.LIGHT:
+						return "grl";
 					default: return null;
 				}
 			}

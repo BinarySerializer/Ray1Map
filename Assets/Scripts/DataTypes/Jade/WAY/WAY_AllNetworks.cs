@@ -6,6 +6,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class WAY_AllNetworks : Jade_File {
+		public override string Export_Extension => "net";
 		public uint NetworksCount { get; set; }
 		public Entry[] Networks { get; set; }
 

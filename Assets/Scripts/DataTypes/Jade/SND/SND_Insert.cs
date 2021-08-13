@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class SND_Insert : Jade_File {
+		public override string Export_Extension => "ins";
 		public byte[] WaveData { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {

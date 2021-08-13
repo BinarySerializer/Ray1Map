@@ -29,14 +29,16 @@ namespace R1Engine.Jade {
 					Controller.DetailedState = $"Loading world {worldIndex+1}/{Worlds.Length}: {w.Name}";
 					await w.JustAfterLoad(s, hasLoadedWorld);
 
-					foreach (var gao in w.SerializedGameObjects) {
-						var ai = gao?.Extended?.AI?.Value;
-						if (ai != null) {
-							var name = gao.Name.Replace(".gao","");
-							ai?.Vars?.Value?.ExportVarsOverview(w.Name, $"{name}_instance");
-							ai?.Vars?.Value?.ExportIDAStruct(w.Name, $"{name}_instance");
-							ai?.Model?.Value?.Vars?.ExportVarsOverview(w.Name, $"{name}_model");
-							ai?.Model?.Value?.Vars?.ExportIDAStruct(w.Name, $"{name}_model");
+					if (Loader.ShouldExportVars) {
+						foreach (var gao in w.SerializedGameObjects) {
+							var ai = gao?.Extended?.AI?.Value;
+							if (ai != null) {
+								var name = gao.Name.Replace(".gao", "");
+								ai?.Vars?.Value?.ExportVarsOverview(w.Name, $"{name}_instance");
+								ai?.Vars?.Value?.ExportIDAStruct(w.Name, $"{name}_instance");
+								ai?.Model?.Value?.Vars?.ExportVarsOverview(w.Name, $"{name}_model");
+								ai?.Model?.Value?.Vars?.ExportIDAStruct(w.Name, $"{name}_model");
+							}
 						}
 					}
 				}

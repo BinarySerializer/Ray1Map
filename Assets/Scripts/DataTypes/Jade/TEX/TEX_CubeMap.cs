@@ -37,7 +37,7 @@ namespace R1Engine.Jade
                     h.FileSize = 0x20;
                     h.Loader = Loader;
                     h.Key = Key;
-                    h.SetEditorMode();
+                    h.SetIsBinaryData();
                 }, name: nameof(Header));
             }
         }

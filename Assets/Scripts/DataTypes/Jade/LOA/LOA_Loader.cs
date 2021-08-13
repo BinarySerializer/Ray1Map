@@ -31,6 +31,7 @@ namespace R1Engine.Jade {
 		// Writing
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
 		public Dictionary<uint, string> WrittenFileKeys { get; set; } = new Dictionary<uint, string>();
+		public bool ShouldExportVars { get; set; } = false;
 
 		// Loaded objects
 		public WOR_World WorldToLoadIn { get; set; }
@@ -229,7 +230,7 @@ namespace R1Engine.Jade {
 									f.FileSize = fileSize;
 									f.Loader = this;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-									f.SetEditorMode();
+									f.SetIsBinaryData();
 								});
 							}
 						} else {
@@ -278,7 +279,7 @@ namespace R1Engine.Jade {
 									f.FileSize = fileSize;
 									f.Loader = this;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-									f.SetEditorMode();
+									f.SetIsBinaryData();
 								});
 							}
 						} else {
@@ -338,14 +339,14 @@ namespace R1Engine.Jade {
 									extension = f.Export_Extension;
 									newFilename = f.Export_FileBasename;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-									f.SetEditorMode();
+									f.SetIsBinaryData();
 								});
 							} finally {
 								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
 									var bytes = memStream.ToArray();
 									if(newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
 									if (extension != null) filename += $".{extension}";
-									Util.ByteArrayToFile(Context.BasePath + "out/" + filename, bytes);
+									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
 									WrittenFileKeys[currentRef.Key.Key] = filename;
 									Context.RemoveFile(streamFile);
 								}
@@ -504,7 +505,7 @@ namespace R1Engine.Jade {
 						f.Loader = this;
 						f.BinFileHeader = BinFileHeader;
 						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-						f.SetEditorMode();
+						f.SetIsBinaryData();
 					});
 				} else {
 					if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) {

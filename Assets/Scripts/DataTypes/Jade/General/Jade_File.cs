@@ -15,7 +15,7 @@ namespace R1Engine.Jade {
 		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
 		public virtual string Export_Extension => null;
 		public virtual string Export_FileBasename => null;
-		public bool? CurrentEditorMode { get; set; }
+		public bool? CurrentIsBinaryData { get; set; }
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			base.OnPostSerialize(s);
@@ -39,15 +39,15 @@ namespace R1Engine.Jade {
 			} else if(UnknownFileSize) FileSize = (uint)readSize;
 		}
 
-		public void SetEditorMode() {
-			var newEditorMode = Loader.IsBinaryData;
-			var lastEditorMode = CurrentEditorMode;
-			CurrentEditorMode = newEditorMode;
-			var editorModeChanged = lastEditorMode != null && newEditorMode != lastEditorMode;
-			if (editorModeChanged) {
-				OnChangedEditorMode();
+		public void SetIsBinaryData() {
+			var newIsBinaryData = Loader.IsBinaryData;
+			var lastIsBinaryData = CurrentIsBinaryData;
+			CurrentIsBinaryData = newIsBinaryData;
+			var isBinaryDataChanged = lastIsBinaryData != null && newIsBinaryData != lastIsBinaryData;
+			if (isBinaryDataChanged) {
+				OnChangedIsBinaryData();
 			}
 		}
-		protected virtual void OnChangedEditorMode() { }
+		protected virtual void OnChangedIsBinaryData() { }
 	}
 }

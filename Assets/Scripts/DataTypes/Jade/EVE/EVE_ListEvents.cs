@@ -20,7 +20,7 @@ namespace R1Engine.Jade
         {
             EventsCount = s.Serialize<uint>(EventsCount, name: nameof(EventsCount));
 
-            if (Track.DataLength > 0)
+            if (Track.DataLength > 0 && !(s is BinarySerializer.BinarySerializer))
             {
                 // Lookahead
                 s.DoAt(s.CurrentPointer, () => {
@@ -57,7 +57,7 @@ namespace R1Engine.Jade
 
             for (int i = 0; i < Events.Length; i++)
             {
-                Events[i] = s.SerializeObject(Events[i], x =>
+                Events[i] = s.SerializeObject<EVE_Event>(Events[i], x =>
                 {
                     x.ListEvents = this;
                     x.Index = i;

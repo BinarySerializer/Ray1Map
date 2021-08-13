@@ -44,14 +44,15 @@ namespace R1Engine.Jade {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
-				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
+				if(Content == null) Content = Info;
+				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
 					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
-				}, name: nameof(Info));
-				Content = Info;
-				onPostSerialize?.Invoke(s, Info);
+				}, name: nameof(Content));
+				Info = Content;
+				onPostSerialize?.Invoke(s, Content);
 			}, (f) => {
-				Info = f?.ConvertType<TEX_File>();
-				Content = Info;
+				Content = f?.ConvertType<TEX_File>();
+				Info = Content;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureInfo,

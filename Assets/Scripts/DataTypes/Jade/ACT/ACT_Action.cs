@@ -4,7 +4,8 @@ using BinarySerializer;
 namespace R1Engine.Jade
 {
     public class ACT_Action : Jade_File {
-        public override bool HasHeaderBFFile => true;
+		public override string Export_Extension => "act";
+		public override bool HasHeaderBFFile => true;
 
         public byte ActionItemsCount { get; set; }
         public byte ActionItemNumberForLoop { get; set; }

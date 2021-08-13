@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class WAY_AllLinkLists : Jade_File {
+		public override string Export_Extension => "lnk";
 		public override bool HasHeaderBFFile => true;
 
 		public ushort Count { get; set; }

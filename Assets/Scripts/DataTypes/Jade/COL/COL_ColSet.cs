@@ -3,7 +3,9 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class COL_ColSet : Jade_File {
-        public byte ZDxCount { get; set; }
+		public override string Export_Extension => "cmd";
+
+		public byte ZDxCount { get; set; }
         public byte Flag { get; set; }
         public short InstancesCount { get; set; }
         public byte[] AI_Indices { get; set; } // Indices for COL_Instance.Design

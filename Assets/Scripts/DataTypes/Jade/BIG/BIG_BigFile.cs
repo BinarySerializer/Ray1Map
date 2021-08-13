@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using BinarySerializer;
+using System.Collections.Generic;
 
 namespace R1Engine.Jade {
 	public class BIG_BigFile : BinarySerializable {
@@ -19,7 +20,7 @@ namespace R1Engine.Jade {
 		public uint MaxKey { get; set; }
 		public uint Root { get; set; }
 		public int FirstFreeFile { get; set; }
-		public int FirstFreeDIrectory { get; set; }
+		public int FirstFreeDirectory { get; set; }
 		public uint SizeOfFat { get; set; }
 		public uint NumFat { get; set; }
 		public Jade_Key UniverseKey { get; set; } // First file it loads
@@ -37,7 +38,7 @@ namespace R1Engine.Jade {
 				MaxKey = s.Serialize<uint>(MaxKey, name: nameof(MaxKey));
 				Root = s.Serialize<uint>(Root, name: nameof(Root));
 				FirstFreeFile = s.Serialize<int>(FirstFreeFile, name: nameof(FirstFreeFile));
-				FirstFreeDIrectory = s.Serialize<int>(FirstFreeDIrectory, name: nameof(FirstFreeDIrectory));
+				FirstFreeDirectory = s.Serialize<int>(FirstFreeDirectory, name: nameof(FirstFreeDirectory));
 				SizeOfFat = s.Serialize<uint>(SizeOfFat, name: nameof(SizeOfFat));
 				NumFat = s.Serialize<uint>(NumFat, name: nameof(NumFat));
 			});
@@ -94,6 +95,120 @@ namespace R1Engine.Jade {
 			await s.FillCacheForReadAsync(fileSize);
 			action(fileSize);
 			s.Goto(off_current);
+		}
+
+		public static BIG_BigFile Create(BIG_BigFile og, Pointer startPointer,
+			FileInfoForCreate[] files, DirectoryInfoForCreate[] directories, uint paddingBetweenFiles = 0x100) {
+			BIG_BigFile bf = new BIG_BigFile();
+			bf.BIG_gst = "BIG";
+			bf.Context = startPointer.Context;
+			bf.Offset = startPointer;
+			bf.Version = og.Version;
+			bf.SizeOfFat = og.SizeOfFat * 10;
+			bf.MaxFile = (uint)files.Length;
+			bf.MaxDir = (uint)directories.Length;
+			bf.MaxKey = 0;
+			bf.Root = 0;
+			bf.UniverseKey = og.UniverseKey;
+			bf.FirstFreeFile = -1;
+			bf.FirstFreeDirectory = -1;
+
+			bf.FatFilesOffset = startPointer + HeaderLength;
+			bf.NumFat = (uint)(bf.MaxFile / bf.SizeOfFat + (bf.MaxFile % bf.SizeOfFat > 0 ? 1 : 0));
+			bf.FatFiles = new BIG_FatFile[bf.NumFat];
+
+			uint curFileIndex = 0;
+			uint curDirectoryIndex = 0;
+			Pointer curFatOffset = bf.FatFilesOffset;
+			Pointer filesStart = bf.FatFilesOffset + bf.TotalFatFilesLength;
+			Pointer curFileStartOffset = filesStart;
+
+			for (int fatIndex = 0; fatIndex < bf.NumFat; fatIndex++) {
+				var fat = new BIG_FatFile(curFatOffset);
+				bf.FatFiles[fatIndex] = fat;
+
+				uint nextFileIndex = Math.Min(curFileIndex + bf.SizeOfFat, bf.MaxFile);
+				uint nextDirectoryIndex = Math.Min(curDirectoryIndex + bf.SizeOfFat, bf.MaxDir);
+				Pointer nextFatOffset = curFatOffset + BIG_FatFile.HeaderLength
+					+ bf.SizeOfFat * BIG_FatFile.FileReference.StructSize
+					+ bf.SizeOfFat * BIG_FatFile.FileInfo.StructSize(bf)
+					+ bf.SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize;
+				var curFilesInFat = nextFileIndex - curFileIndex;
+				var curDirectoriesInFat = nextDirectoryIndex - curDirectoryIndex;
+				fat.Big = bf;
+				fat.PosFat = fat.Offset + BIG_FatFile.HeaderLength;
+				fat.FirstIndex = curFileIndex;
+				fat.LastIndex = nextFileIndex-1;
+				fat.MaxFile = curFilesInFat;
+				fat.MaxDir = curDirectoriesInFat;
+				if (fatIndex < bf.NumFat - 1) {
+					fat.NextPosFat = (int)(nextFatOffset.AbsoluteOffset - BIG_FatFile.HeaderLength);
+				} else {
+					fat.NextPosFat = -1;
+				}
+				fat.DirectoryInfos = new BIG_FatFile.DirectoryInfo[curDirectoriesInFat];
+				fat.FileInfos = new BIG_FatFile.FileInfo[curFilesInFat];
+				fat.Files = new BIG_FatFile.FileReference[curFilesInFat];
+				for (int dir_i = 0; dir_i < curDirectoriesInFat; dir_i++) {
+					var dir = directories[dir_i + curDirectoryIndex];
+					fat.DirectoryInfos[dir_i] = new BIG_FatFile.DirectoryInfo() {
+						ParentDirectory = dir.ParentIndex,
+						Name = dir.DirectoryName,
+
+						// Not filling these in - not important for Jademap or Jade
+						FirstDirectoryID = -1,
+						FirstFileID = -1,
+						NextDirectory = -1,
+						PreviousDirectory = -1,
+					};
+				}
+				for (int file_i = 0; file_i < curFilesInFat; file_i++) {
+					if (curFileStartOffset.AbsoluteOffset % 256 != 0) {
+						curFileStartOffset = curFileStartOffset + 256 - curFileStartOffset.AbsoluteOffset % 256;
+					}
+					var f = files[file_i + curFileIndex];
+					fat.Files[file_i] = new BIG_FatFile.FileReference() {
+						Key = f.Key,
+						FileOffset = curFileStartOffset
+					};
+					fat.FileInfos[file_i] = new BIG_FatFile.FileInfo() {
+						Name = f.Filename,
+						FileSize = f.FileSize,
+						ParentDirectory = f.DirectoryIndex,
+						NextFile = -1,
+						PreviousFile = -1,
+					};
+					f.Offset = fat.Files[file_i].FileOffset;
+
+					curFileStartOffset = curFileStartOffset + f.FileSize + paddingBetweenFiles + 4; // 4 for the filesize uint
+				}
+				curFatOffset = nextFatOffset;
+				curFileIndex = nextFileIndex;
+				curDirectoryIndex = nextDirectoryIndex;
+			}
+			return bf;
+		}
+		public class FileInfoForCreate {
+			public Jade_Key Key { get; set; }
+			public string Filename { get; set; }
+			public int DirectoryIndex { get; set; }
+			public uint FileSize { get; set; }
+			public byte[] Bytes { get; set; }
+			public Pointer Offset { get; set; }
+
+			// Temporary
+			public FileSource Source { get; set; }
+			public string FullPath { get; set; }
+			public enum FileSource {
+				Unbinarized,
+				Existing,
+				Mod
+			}
+		}
+		public class DirectoryInfoForCreate {
+			public string DirectoryName { get; set; }
+			public int ParentIndex { get; set; }
+			public string FullDirectoryString { get; set; }
 		}
 	}
 }

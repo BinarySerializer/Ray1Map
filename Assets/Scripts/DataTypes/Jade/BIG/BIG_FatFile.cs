@@ -129,5 +129,11 @@ namespace R1Engine.Jade {
 			}
 		}
 
+		public BIG_FatFile() { }
+		public BIG_FatFile(Pointer offset) {
+			Offset = offset;
+			Context = offset.Context;
+		}
+
 	}
 }

@@ -41,6 +41,7 @@ namespace R1Engine {
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true)),
+				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
 			};
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
@@ -567,6 +568,12 @@ namespace R1Engine {
 				}
 			}
 
+			StringBuilder b = new StringBuilder();
+			foreach (var fk in writtenFileKeys) {
+				b.AppendLine($"{fk.Key:X8},{fk.Value}");
+			}
+			File.WriteAllText(Path.Combine(outputDir, "filekeys.txt"), b.ToString());
+
 			Debug.Log($"Finished export");
 		}
 		public async UniTask ExportTexturesUnbinarized(GameSettings settings, string outputDir) {
@@ -706,6 +713,166 @@ namespace R1Engine {
 			}
 		}
 		#endregion
+
+		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir, bool keepAllUnbinarizedFiles) {
+			BIG_BigFile originalBF = null;
+			LOA_Loader originalLoader = null;
+			BIG_BigFile.FileInfoForCreate[] FilesToPack = null;
+			BIG_BigFile.DirectoryInfoForCreate[] DirectoriesToPack = null;
+			using (var readContext = new R1Context(settings)) {
+				await LoadFilesAsync(readContext);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(readContext, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), readContext);
+				readContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				originalLoader = loader;
+				originalBF = bfs[0];
+
+				// Read file keys (unbinarized)
+				string keyListPath = Path.Combine(inputDir, "original/filekeys.txt");
+				Dictionary<uint, string> fileKeysUnbinarized = new Dictionary<uint, string>();
+				{
+					string[] lines = File.ReadAllLines(keyListPath);
+					foreach (var l in lines) {
+						var lineSplit = l.Split(',');
+						if (lineSplit.Length != 2) continue;
+						uint k;
+						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
+							var path = lineSplit[1].Replace('\\', '/');
+							var absolutePath = Path.Combine(inputDir, $"original/files/{path}");
+							if (File.Exists(absolutePath)) {
+								fileKeysUnbinarized[k] = path;
+							}
+						}
+					}
+				}
+
+				// Get file keys (existing in BF)
+				Dictionary<uint, string> fileKeysExisting = new Dictionary<uint, string>();
+				if (keepAllUnbinarizedFiles) {
+					foreach (var fi in originalLoader.FileInfos) {
+						if (fi.Key.Type == Jade_Key.KeyType.Unknown) {
+							fileKeysExisting.Add(fi.Key.Key, fi.Value.FilePath);
+							if (fileKeysUnbinarized.ContainsKey(fi.Key.Key)) fileKeysUnbinarized.Remove(fi.Key.Key);
+						}
+					}
+				}
+
+				// Read file keys (modded)
+				string modKeyListPath = Path.Combine(inputDir, "mod/filekeys.txt");
+				Dictionary<uint, string> fileKeysMod = new Dictionary<uint, string>();
+				if (File.Exists(modKeyListPath)) {
+					string[] lines = File.ReadAllLines(modKeyListPath);
+					foreach (var l in lines) {
+						var lineSplit = l.Split(',');
+						if (lineSplit.Length != 2) continue;
+						uint k;
+						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
+							var path = lineSplit[1].Replace('\\', '/');
+							var absolutePath = Path.Combine(inputDir, $"mod/files/{path}");
+							if (File.Exists(absolutePath)) {
+								fileKeysMod[k] = path;
+								if (fileKeysUnbinarized.ContainsKey(k)) fileKeysUnbinarized.Remove(k);
+								if (fileKeysExisting.ContainsKey(k)) fileKeysExisting.Remove(k);
+							}
+						}
+					}
+				}
+
+				// Read all files
+				FilesToPack =
+					fileKeysUnbinarized.Select(fk => new BIG_BigFile.FileInfoForCreate() {
+						FullPath = fk.Value,
+						Key = new Jade_Key(readContext, fk.Key),
+						Source = BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized,
+						DirectoryIndex = -1,
+					}).Concat(
+					fileKeysExisting.Select(fk => new BIG_BigFile.FileInfoForCreate() {
+						FullPath = fk.Value,
+						Key = new Jade_Key(readContext, fk.Key),
+						Source = BIG_BigFile.FileInfoForCreate.FileSource.Existing,
+						DirectoryIndex = -1,
+					})).Concat(
+					fileKeysMod.Select(fk => new BIG_BigFile.FileInfoForCreate() {
+						FullPath = fk.Value,
+						Key = new Jade_Key(readContext, fk.Key),
+						Source = BIG_BigFile.FileInfoForCreate.FileSource.Mod,
+						DirectoryIndex = -1,
+					})
+					).ToArray();
+
+				// Create directories
+				List<BIG_BigFile.DirectoryInfoForCreate> directories = new List<BIG_BigFile.DirectoryInfoForCreate>();
+				int curDirectoriesCount = 0;
+				foreach (var fileToPack in FilesToPack) {
+					var originalFullPath = fileToPack.FullPath;
+					var currentFullPath = fileToPack.FullPath;
+					Stack<string> pathStrings = new Stack<string>();
+					int currentPathIndexInOriginalFullPath = 0;
+					while (!string.IsNullOrEmpty(currentFullPath) && currentFullPath.Contains('/')) {
+						var firstIndex = currentFullPath.IndexOf('/');
+						var firstFolder = currentFullPath.Substring(0, firstIndex);
+						var dirIndex = directories.FindItemIndex(dir => dir.ParentIndex == fileToPack.DirectoryIndex);
+						if (dirIndex == -1) {
+							directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
+								DirectoryName = firstFolder,
+								FullDirectoryString = originalFullPath.Substring(0, currentPathIndexInOriginalFullPath + firstIndex),
+								ParentIndex = fileToPack.DirectoryIndex,
+							});
+							fileToPack.DirectoryIndex = curDirectoriesCount;
+							curDirectoriesCount++;
+						} else {
+							fileToPack.DirectoryIndex = dirIndex;
+						}
+						currentFullPath = currentFullPath.Substring(firstIndex + 1, currentFullPath.Length - firstIndex - 1);
+					}
+					fileToPack.Filename = currentFullPath;
+				}
+				DirectoriesToPack = directories.ToArray();
+
+				foreach (var file in FilesToPack) {
+					switch (file.Source) {
+						case BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized:
+							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
+							break;
+						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
+							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"mod/files/{file.FullPath}"));
+							break;
+						case BIG_BigFile.FileInfoForCreate.FileSource.Existing:
+							var s = readContext.Deserializer;
+							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
+							reference.Resolve();
+							await loader.LoadLoop(s);
+							file.Bytes = reference.Value.Bytes;
+							break;
+					}
+					file.FileSize = (uint)file.Bytes.Length;
+				}
+			}
+
+			using (Context writeContext = new R1Context(outputDir, settings)) {
+				var targetFilePath = "out.bf";
+				var bfFile = new LinearFile(writeContext, targetFilePath, Endian.Little);
+				writeContext.AddFile(bfFile);
+
+				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack);
+				var s = writeContext.Serializer;
+				s.Goto(bfFile.StartPointer);
+				newBF = s.SerializeObject<BIG_BigFile>(newBF, name: nameof(newBF));
+				newBF.SerializeFatFiles(s);
+
+				foreach (var file in FilesToPack) {
+					s.Goto(file.Offset);
+					s.Serialize<uint>(file.FileSize, name: nameof(file.FileSize));
+					s.SerializeArray<byte>(file.Bytes, file.Bytes.Length, name: nameof(file.Bytes));
+				}
+			}
+		}
 
 		public async UniTask CreateLevelListAsync(GameSettings settings) {
 
@@ -1113,7 +1280,7 @@ namespace R1Engine {
 				await loader.LoadLoop(context.Deserializer); // First resolve universe
 			}
 			// Make export
-			{
+			if(loader.ShouldExportVars) {
 				string worldName = "Univers";
 				string name = "univers";
 				univers?.Value?.Vars?.Value?.ExportVarsOverview(worldName, $"{name}_instance");
