@@ -27,12 +27,25 @@ namespace R1Engine.Jade {
                 LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
                 Reference = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Reference, name: nameof(Reference));
-                if (!Loader.IsBinaryData) Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+                if (!Loader.IsBinaryData) {
+                    Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+                } else {
+                    if (!Reference.IsNull) {
+                        Type = new Jade_FileType() { Extension = ".gao" };
+                    }
+                }
             }
 
             public void Resolve() {
                 Reference?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
             }
         }
-    }
+
+		protected override void OnChangedEditorMode() {
+			base.OnChangedEditorMode();
+            if (CurrentEditorMode == true) {
+                FileSize *= 2;
+            } else FileSize /= 2;
+		}
+	}
 }

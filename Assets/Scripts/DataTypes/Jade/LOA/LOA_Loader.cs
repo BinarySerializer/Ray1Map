@@ -229,6 +229,7 @@ namespace R1Engine.Jade {
 									f.FileSize = fileSize;
 									f.Loader = this;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+									f.SetEditorMode();
 								});
 							}
 						} else {
@@ -277,6 +278,7 @@ namespace R1Engine.Jade {
 									f.FileSize = fileSize;
 									f.Loader = this;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+									f.SetEditorMode();
 								});
 							}
 						} else {
@@ -336,6 +338,7 @@ namespace R1Engine.Jade {
 									extension = f.Export_Extension;
 									newFilename = f.Export_FileBasename;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+									f.SetEditorMode();
 								});
 							} finally {
 								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
@@ -501,6 +504,7 @@ namespace R1Engine.Jade {
 						f.Loader = this;
 						f.BinFileHeader = BinFileHeader;
 						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+						f.SetEditorMode();
 					});
 				} else {
 					if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) {

@@ -37,12 +37,14 @@ namespace R1Engine.Jade {
 					f.Key = Key;
 					f.FileSize = ContainedFileSize;
 					f.Loader = Loader;
+					f.SetEditorMode();
 				}, name: nameof(File));
 			} else {
 				File = s.SerializeObject<SND_Bank>((SND_Bank)File, onPreSerialize: f => {
 					f.Key = Key;
 					f.FileSize = ContainedFileSize;
 					f.Loader = Loader;
+					f.SetEditorMode();
 				}, name: nameof(File));
 			}
         }

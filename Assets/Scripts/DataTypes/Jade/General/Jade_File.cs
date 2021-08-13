@@ -15,6 +15,7 @@ namespace R1Engine.Jade {
 		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
 		public virtual string Export_Extension => null;
 		public virtual string Export_FileBasename => null;
+		public bool? CurrentEditorMode { get; set; }
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			base.OnPostSerialize(s);
@@ -37,5 +38,16 @@ namespace R1Engine.Jade {
 				UnityEngine.Debug.LogWarning($"File {Key} with type {GetType()} was not fully serialized: File Size: {FileSize:X8} / Serialized: {readSize:X8}");
 			} else if(UnknownFileSize) FileSize = (uint)readSize;
 		}
+
+		public void SetEditorMode() {
+			var newEditorMode = Loader.IsBinaryData;
+			var lastEditorMode = CurrentEditorMode;
+			CurrentEditorMode = newEditorMode;
+			var editorModeChanged = lastEditorMode != null && newEditorMode != lastEditorMode;
+			if (editorModeChanged) {
+				OnChangedEditorMode();
+			}
+		}
+		protected virtual void OnChangedEditorMode() { }
 	}
 }

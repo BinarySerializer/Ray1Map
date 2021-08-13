@@ -62,6 +62,7 @@ namespace R1Engine.Jade {
 					f.Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 					f.Key = Key;
 					f.UnknownFileSize = unknownFileSize;
+					f.SetEditorMode();
 				}, onPreSerialize, onPostSerialize);
 				if (!flags.HasFlag(LOA_Loader.ReferenceFlags.DontCache)) {
 					loader.Cache[Key] = Value;
