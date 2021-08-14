@@ -65,7 +65,6 @@ namespace R1Engine
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
-                new GameAction("Extract ULZ blocks", false, true, (input, output) => Extract_ULZAsync(settings, output)),
             };
         }
 
@@ -80,7 +79,7 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
             {
@@ -188,7 +187,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -220,7 +219,7 @@ namespace R1Engine
             var idxData = Load_IDX(context, config);
 
             // Create the loader
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             // Enumerate every bin block
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -262,7 +261,7 @@ namespace R1Engine
                 var sprites_1 = menuSprites?.Sprites_1;
                 var sprites_2 = menuSprites?.Sprites_2;
 
-                if (loader.Config.Version == LoaderConfiguration.GameVersion.DTP_Prototype_19970717)
+                if (loader.GameVersion == LoaderConfiguration.GameVersion.DTP_Prototype_19970717)
                 {
                     for (int fileIndex = 0; fileIndex < loader.LoadedFiles[blockIndex].Length; fileIndex++)
                     {
@@ -513,7 +512,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -599,7 +598,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -647,42 +646,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask Extract_ULZAsync(GameSettings settings, string outputPath)
-        {
-            using var context = new R1Context(settings);
-
-            await LoadFilesAsync(context);
-
-            var s = context.Deserializer;
-
-            s.Goto(context.GetFile(Loader.FilePath_BIN).StartPointer);
-
-            while (s.CurrentFileOffset < s.CurrentLength)
-            {
-                var v = s.Serialize<int>(default);
-
-                if (v != 0x1A7A6C55)
-                    continue;
-
-                var offset = s.CurrentPointer - 4;
-
-                s.DoAt(offset, () =>
-                {
-                    try
-                    {
-                        var bytes = s.DoEncoded(new ULZEncoder(), () => s.SerializeArray<byte>(default, s.CurrentLength));
-
-                        Util.ByteArrayToFile(Path.Combine(outputPath, $"0x{offset.AbsoluteOffset:X8}.bin"), bytes);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error decompressing at {offset} with ex: {ex}");
-                    }
-                });
-            }
-        }
-
-        public abstract LoaderConfiguration GetLoaderConfig(GameSettings settings);
+        public abstract LoaderConfiguration_DTP GetLoaderConfig(GameSettings settings);
 
         public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
@@ -695,7 +659,7 @@ namespace R1Engine
             GameSettings settings = context.GetR1Settings();
             int lev = settings.World;
             int sector = settings.Level;
-            LoaderConfiguration config = GetLoaderConfig(settings);
+            LoaderConfiguration_DTP config = GetLoaderConfig(settings);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
 
@@ -718,7 +682,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData, config);
 
             // Only parse the selected sector
             loader.LevelSector = sector;
@@ -829,7 +793,7 @@ namespace R1Engine
                 cameraClear: camClear);
         }
 
-        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)
+        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader_DTP loader, int sector, float scale)
         {
             var modifiers = loader.LevelData3D.SectorModifiers[sector].Modifiers;
             var texAnimations = modifiers.
@@ -953,7 +917,7 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public (GameObject, bool) Load_ModifierObject(Loader loader, ModifierObject modifier, GameObject gao_3dObjParent, float scale, PS1_TIM[][] texAnimations)
+        public (GameObject, bool) Load_ModifierObject(Loader_DTP loader, ModifierObject modifier, GameObject gao_3dObjParent, float scale, PS1_TIM[][] texAnimations)
         {
             bool isObjAnimated = false;
 
@@ -1083,7 +1047,7 @@ namespace R1Engine
             return (gao_3dObjParent, isObjAnimated);
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader_DTP loader)
         {
             var frameSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
@@ -1108,7 +1072,7 @@ namespace R1Engine
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, frameSets.ToArray());
         }
 
-        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        public List<Unity_Object> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             var objects = new List<Unity_Object>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
@@ -1211,7 +1175,7 @@ namespace R1Engine
             return objects;
         }
 
-        public Unity_CollisionLine[] Load_MovementPaths(Loader loader, int sector, float scale)
+        public Unity_CollisionLine[] Load_MovementPaths(Loader_DTP loader, int sector, float scale)
         {
             var lines = new List<Unity_CollisionLine>();
 
@@ -1233,7 +1197,7 @@ namespace R1Engine
             return lines.ToArray();
         }
 
-        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)
+        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader_DTP loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)
         {
             bool isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
@@ -1512,9 +1476,9 @@ namespace R1Engine
                 z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
         }
 
-        public IDX Load_IDX(Context context, LoaderConfiguration config)
+        public IDX Load_IDX(Context context, LoaderConfiguration_DTP config)
         {
-            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
+            return FileFactory.Read<IDX>(config.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
         }
 
         public void FillTextureFromVRAM(
@@ -1738,7 +1702,7 @@ namespace R1Engine
             return tex;
         }
 
-        public (Texture2D[][], int) GetBackgrounds(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
+        public (Texture2D[][], int) GetBackgrounds(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
         {
             // Get the modifiers
             var layers = modifiers.Where(x => x.IsLayer).ToArray();
@@ -1864,7 +1828,7 @@ namespace R1Engine
             return (textures, animSpeed);
         }
         
-        public Texture2D[] GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
+        public Texture2D[] GetAnimationFrames(Loader_DTP loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
         {
             var textures = new Texture2D[anim.FramesCount];
 
@@ -1911,13 +1875,13 @@ namespace R1Engine
             return textures;
         }
 
-        public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
+        public async UniTask LoadFilesAsync(Context context, LoaderConfiguration_DTP config)
         {
             // The game only loads portions of the BIN at a time
-            await context.AddLinearFileAsync(Loader.FilePath_BIN);
+            await context.AddLinearFileAsync(config.FilePath_BIN);
             
             // The IDX gets loaded into a fixed memory location
-            await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
+            await context.AddMemoryMappedFile(config.FilePath_IDX, 0x80010000);
 
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
@@ -2113,7 +2077,7 @@ namespace R1Engine
             return GetPosition(xPos, yPos, zPos, scale);
         }
 
-        public static void Helper_GenerateCutsceneTextTranslation(Loader loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
+        public static void Helper_GenerateCutsceneTextTranslation(Loader_DTP loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
         {
             var c = loader.LevelPack.CutscenePack.Cutscenes[cutscene];
             var i = (CutsceneInstructionData_DrawText)c.Cutscene_Normal.Instructions[instruction].Data;
