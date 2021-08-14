@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BinarySerializer.KlonoaDTP;
+using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 
 namespace R1Engine

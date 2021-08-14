@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BinarySerializer.KlonoaDTP;
+using BinarySerializer.Klonoa;
 
 namespace R1Engine
 {

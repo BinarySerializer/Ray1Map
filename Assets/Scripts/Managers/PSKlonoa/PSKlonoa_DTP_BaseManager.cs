@@ -9,7 +9,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using BinarySerializer.KlonoaDTP;
+using BinarySerializer.Klonoa;
+using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
