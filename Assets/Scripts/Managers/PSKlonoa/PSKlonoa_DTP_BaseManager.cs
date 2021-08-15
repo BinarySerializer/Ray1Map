@@ -1881,7 +1881,7 @@ namespace R1Engine
             await context.AddLinearFileAsync(config.FilePath_BIN);
             
             // The IDX gets loaded into a fixed memory location
-            await context.AddMemoryMappedFile(config.FilePath_IDX, 0x80010000);
+            await context.AddMemoryMappedFile(config.FilePath_IDX, config.Address_IDX);
 
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
