@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BinarySerializer.KlonoaDTP;
+using BinarySerializer.Klonoa;
 
 namespace R1Engine
 {
@@ -40,7 +40,7 @@ namespace R1Engine
             ("Klonoa's Grand Gale Strategy", 9),
         };
 
-        public override LoaderConfiguration GetLoaderConfig(GameSettings settings) => new LoaderConfiguration_DTP_Prototype_19970717();
+        public override LoaderConfiguration_DTP GetLoaderConfig(GameSettings settings) => new LoaderConfiguration_DTP_Prototype_19970717();
         public override Dictionary<string, char> GetCutsceneTranslationTable => new Dictionary<string, char>();
     }
 }

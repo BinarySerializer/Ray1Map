@@ -13,6 +13,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.PS1"]
 	path = Assets/Scripts/Libraries/BinarySerializer.PS1
 	url = https://github.com/RayCarrot/BinarySerializer.PS1
-[submodule "Assets/Scripts/Libraries/BinarySerializer.KlonoaDTP"]
-	path = Assets/Scripts/Libraries/BinarySerializer.KlonoaDTP
-	url = https://github.com/RayCarrot/BinarySerializer.KlonoaDTP
+[submodule "Assets/Scripts/Libraries/BinarySerializer.Klonoa"]
+	path = Assets/Scripts/Libraries/BinarySerializer.Klonoa
+	url = https://github.com/RayCarrot/BinarySerializer.Klonoa

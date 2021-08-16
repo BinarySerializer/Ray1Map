@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.KlonoaDTP;
+using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 
 namespace R1Engine
