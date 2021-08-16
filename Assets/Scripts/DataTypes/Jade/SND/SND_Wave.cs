@@ -14,11 +14,11 @@ namespace R1Engine.Jade
 		public string FileTypeHeader { get; set; }
 		public SND_WaveChunk_Container[] Chunks { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			SND_GlobalList list = Context.GetStoredObject<SND_GlobalList>(Jade_BaseManager.SoundListKey);
 			list.AddWave(this);
 
-			if (FileSize > 8 && s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR && s.GetR1Settings().Platform == Platform.PC) {
+			if (FileSize > 8 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 				// Serialize wave content
 				Magic = s.SerializeString(Magic, 4, Encoding.ASCII, name: nameof(Magic));
 				OriginalFileSize = s.Serialize<uint>(OriginalFileSize, name: nameof(OriginalFileSize));

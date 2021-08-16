@@ -7,7 +7,7 @@ namespace R1Engine.Jade {
 		public Jade_Code RLICode { get; set; }
 		public uint[] VertexRLI { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			RLICode = s.Serialize<Jade_Code>(RLICode, name: nameof(RLICode));
 			if(RLICode != Jade_Code.RLI)
 				throw new NotImplementedException($"Parsing failed: wrong code {RLICode} in header of {GetType()}");

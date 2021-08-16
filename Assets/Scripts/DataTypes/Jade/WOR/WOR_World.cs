@@ -42,7 +42,7 @@ namespace R1Engine.Jade {
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public TEX_GlobalList TextureList_Montreal { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
 			if (FileType.Type != Jade_FileType.FileType.WOR_World)
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.WOR_World}");

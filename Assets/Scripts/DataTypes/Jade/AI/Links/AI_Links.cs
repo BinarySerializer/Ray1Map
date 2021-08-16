@@ -52,6 +52,7 @@ namespace R1Engine.Jade {
 				case GameModeSelection.RaymanRavingRabbidsPS2:
 				case GameModeSelection.RaymanRavingRabbidsWii:
 				case GameModeSelection.RaymanRavingRabbidsWiiJP:
+				case GameModeSelection.RaymanRavingRabbidsPCUnbinarized:
 					links = new AI_Links_RRR_Wii();
 					break;
 				case GameModeSelection.RaymanRavingRabbidsXbox360:

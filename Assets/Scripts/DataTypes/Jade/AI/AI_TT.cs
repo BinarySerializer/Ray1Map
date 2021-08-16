@@ -12,7 +12,7 @@ namespace R1Engine.Jade {
 		public uint UInt_00 { get; set; }
 		public byte[] Bytes { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			if(Loader.IsBinaryData)
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 			Bytes = s.SerializeArray<byte>(Bytes, FileSize - (Loader.IsBinaryData ? 4 : 0) - HeaderBFFileSize, name: nameof(Bytes));

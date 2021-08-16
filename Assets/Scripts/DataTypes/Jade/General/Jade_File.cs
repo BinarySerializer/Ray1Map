@@ -15,6 +15,7 @@ namespace R1Engine.Jade {
 		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
 		public virtual string Export_Extension => null;
 		public virtual string Export_FileBasename => null;
+		public string Export_OriginalFilename { get; set; }
 		public bool? CurrentIsBinaryData { get; set; }
 
 		protected override void OnPostSerialize(SerializerObject s) {
@@ -28,6 +29,14 @@ namespace R1Engine.Jade {
 				HeaderBFFile = s.SerializeObject<LOA_HeaderBFFile>(HeaderBFFile, name: nameof(HeaderBFFile));
 			}
 		}
+
+		public override void SerializeImpl(SerializerObject s) {
+			if (FileSize > 0 || UnknownFileSize) {
+				SerializeFile(s);
+			}
+		}
+
+		protected abstract void SerializeFile(SerializerObject s);
 
 		public virtual T ConvertType<T>() where T : Jade_File {
 			return (T)this; // Override this method for more complex types

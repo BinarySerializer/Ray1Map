@@ -6,7 +6,7 @@ namespace R1Engine.Jade
     {
         public byte[] Bytes { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        protected override void SerializeFile(SerializerObject s)
         {
 			Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
 		}

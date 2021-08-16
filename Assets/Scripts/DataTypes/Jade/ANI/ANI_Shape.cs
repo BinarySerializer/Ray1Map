@@ -10,7 +10,7 @@ namespace R1Engine.Jade
         public byte LastCanal { get; set; } // Max 64
         public ANI_Shape_Canal[] Canals { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        protected override void SerializeFile(SerializerObject s)
         {
             LastCanal = s.Serialize<byte>(LastCanal, name: nameof(LastCanal));
             Canals = s.SerializeObjectArray(Canals, Math.Min((byte)64, LastCanal), name: nameof(Canals));

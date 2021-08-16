@@ -30,7 +30,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			// Serialize file inline
 			if (Type.Type == Jade_FileType.FileType.SND_Metabank) {
 				File = s.SerializeObject<SND_Metabank>((SND_Metabank)File, onPreSerialize: f => {

@@ -9,7 +9,7 @@ namespace R1Engine.Jade
 		public Jade_Key Montreal_Key { get; set; }
         public BaseColor[] Colors { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Loader.IsBinaryData)
                 Montreal_Key = s.SerializeObject<Jade_Key>(Montreal_Key, name: nameof(Montreal_Key));
             uint size = Montreal_Key != null ? FileSize - 4 : FileSize;

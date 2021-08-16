@@ -517,6 +517,7 @@ namespace R1Engine {
 							foreach (var w in worlds) {
 								await ExportUnbinarized(w);
 							}
+							await ExportRest();
 						}
 
 						async UniTask ExportUnbinarized(WOR_World world) {
@@ -542,6 +543,50 @@ namespace R1Engine {
 										Value = world
 									};
 									worldRef?.Resolve();
+									var s = writeContext.Serializer;
+									await loader.LoadLoop(s);
+								}
+							}
+						}
+
+
+						async UniTask ExportRest() {
+							Debug.Log($"Checking for unexported unbinarized assets...");
+							await Controller.WaitIfNecessary();
+
+							LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+
+							using (var writeContext = new R1Context(outputDir, settings)) {
+								// Set up loader
+								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+								loader.WrittenFileKeys = writtenFileKeys;
+								writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+								var sndListWrite = new SND_GlobalList();
+								writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
+								var texListWrite = new TEX_GlobalList();
+								writeContext.StoreObject<TEX_GlobalList>(TextureListKey, texListWrite);
+								var aiLinks = context.GetStoredObject<AI_Links>(AIKey);
+								writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
+									
+								bool foundUnserializedElement = false;
+								foreach (var containedInTotalCache in actualLoader.TotalCache) {
+									if (!writtenFileKeys.ContainsKey(containedInTotalCache.Key) && !loader.FileInfos.ContainsKey(containedInTotalCache.Key)) {
+										foundUnserializedElement = true;
+										var element = containedInTotalCache.Value;
+										switch (element) {
+											case TEXT_TextList txl:
+												Jade_Reference<TEXT_TextList> txlRef = new Jade_Reference<TEXT_TextList>(writeContext, new Jade_Key(writeContext, txl.Key.Key)) {
+													Value = txl
+												};
+												txlRef?.Resolve();
+												break;
+											default:
+												throw new Exception($"New unserialized element type: {element.GetType()}");
+										}
+
+									}
+								}
+								if (foundUnserializedElement) {
 									var s = writeContext.Serializer;
 									await loader.LoadLoop(s);
 								}
@@ -764,21 +809,29 @@ namespace R1Engine {
 				}
 
 				// Read file keys (modded)
-				string modKeyListPath = Path.Combine(inputDir, "mod/filekeys.txt");
-				Dictionary<uint, string> fileKeysMod = new Dictionary<uint, string>();
-				if (File.Exists(modKeyListPath)) {
-					string[] lines = File.ReadAllLines(modKeyListPath);
-					foreach (var l in lines) {
-						var lineSplit = l.Split(',');
-						if (lineSplit.Length != 2) continue;
-						uint k;
-						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
-							var path = lineSplit[1].Replace('\\', '/');
-							var absolutePath = Path.Combine(inputDir, $"mod/files/{path}");
-							if (File.Exists(absolutePath)) {
-								fileKeysMod[k] = path;
-								if (fileKeysUnbinarized.ContainsKey(k)) fileKeysUnbinarized.Remove(k);
-								if (fileKeysExisting.ContainsKey(k)) fileKeysExisting.Remove(k);
+				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
+				var modDirectory = Path.Combine(inputDir, "mod");
+				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
+					string modKeyListPath = Path.Combine(modDir, "filekeys.txt");
+					if (File.Exists(modKeyListPath)) {
+						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
+						mods.Add(mod);
+						string[] lines = File.ReadAllLines(modKeyListPath);
+						foreach (var l in lines) {
+							var lineSplit = l.Split(',');
+							if (lineSplit.Length != 2) continue;
+							uint k;
+							if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
+								var path = lineSplit[1].Replace('\\', '/');
+								var absolutePath = Path.Combine(modDir, $"files/{path}");
+								if (File.Exists(absolutePath)) {
+									mod.Value[k] = path;
+									if (fileKeysUnbinarized.ContainsKey(k)) fileKeysUnbinarized.Remove(k);
+									if (fileKeysExisting.ContainsKey(k)) fileKeysExisting.Remove(k);
+									foreach (var otherMod in mods) {
+										if(otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) otherMod.Value.Remove(k);
+									}
+								}
 							}
 						}
 					}
@@ -787,24 +840,28 @@ namespace R1Engine {
 				// Read all files
 				FilesToPack =
 					fileKeysUnbinarized.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = fk.Value,
+						FullPath = fk.Value ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized,
 						DirectoryIndex = -1,
 					}).Concat(
 					fileKeysExisting.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = fk.Value,
+						FullPath = fk.Value ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Existing,
 						DirectoryIndex = -1,
-					})).Concat(
-					fileKeysMod.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = fk.Value,
+					})).ToArray();
+
+				foreach (var mod in mods) {
+					FilesToPack = FilesToPack.Concat(mod.Value.Select(fk => new BIG_BigFile.FileInfoForCreate() {
+						FullPath = fk.Value ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Mod,
+						ModDirectory = mod.Key,
 						DirectoryIndex = -1,
 					})
 					).ToArray();
+				}
 
 				// Create directories
 				List<BIG_BigFile.DirectoryInfoForCreate> directories = new List<BIG_BigFile.DirectoryInfoForCreate>();
@@ -841,14 +898,53 @@ namespace R1Engine {
 							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
-							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"mod/files/{file.FullPath}"));
+							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPath}"));
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Existing:
 							var s = readContext.Deserializer;
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
-							reference.Resolve();
+							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await loader.LoadLoop(s);
 							file.Bytes = reference.Value.Bytes;
+
+							/*if (file.Bytes.Length >= 0x3966C0 - 2
+								&& file.Bytes[0] == 0x52 && file.Bytes[1] == 0x49 && file.Bytes[2] == 0x46 && file.Bytes[3] == 0x46 // RIFF
+								&& file.Bytes[8] == 0x57 && file.Bytes[9] == 0x41 && file.Bytes[10] == 0x56 && file.Bytes[11] == 0x45) { // WAVE
+
+								// TODO: Keep the music files intact, but just replace them now
+								if (loader.FileInfos[file.Key].FileName != null) {
+									var extension = Path.GetExtension(loader.FileInfos[file.Key].FileName);
+									var smaller = loader.FileInfos.FirstOrDefault(smollerfile => smollerfile.Value.FileName != null
+									&& Path.GetExtension(smollerfile.Value.FileName) == extension
+									&& smollerfile.Value.FatFileInfo.FileSize > 8
+									&& smollerfile.Value.FatFileInfo.FileSize < 0x3966C0 - 0x1000);
+									reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, smaller.Key);
+									reference.Resolve();
+									await loader.LoadLoop(s);
+									file.Bytes = reference.Value.Bytes;
+								}
+							}*/
+
+							/*if (file.Bytes.Length >= 12
+								&& file.Bytes[0] == 0x52 && file.Bytes[1] == 0x49 && file.Bytes[2] == 0x46 && file.Bytes[3] == 0x46 // RIFF
+								&& file.Bytes[8] == 0x57 && file.Bytes[9] == 0x41 && file.Bytes[10] == 0x56 && file.Bytes[11] == 0x45) { // WAVE
+								var actualSize = file.Bytes[4] | file.Bytes[5] << 8 | file.Bytes[6] << 16 | file.Bytes[7] << 24;
+								var bytes = file.Bytes;
+								Array.Resize<byte>(ref bytes, actualSize + 8);
+								file.Bytes = bytes;
+							}*/
+
+							/*if (loader.FileInfos.ContainsKey(file.Key)) {
+								if (loader.FileInfos[file.Key].FatFileInfo != null && loader.FileInfos[file.Key].FatFileInfo.Name != null) {
+									var fileSize = loader.FileInfos[file.Key].FatFileInfo.FileSize;
+									if (fileSize != 0 && file.Bytes.Length > fileSize) {
+										var bytes = file.Bytes;
+										Array.Resize<byte>(ref bytes, (int)fileSize);
+										file.Bytes = bytes;
+									}
+
+								}
+							}*/
 							break;
 					}
 					file.FileSize = (uint)file.Bytes.Length;
@@ -870,6 +966,8 @@ namespace R1Engine {
 					s.Goto(file.Offset);
 					s.Serialize<uint>(file.FileSize, name: nameof(file.FileSize));
 					s.SerializeArray<byte>(file.Bytes, file.Bytes.Length, name: nameof(file.Bytes));
+					s.Goto(file.NameOffset);
+					s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
 				}
 			}
 		}
@@ -1093,7 +1191,7 @@ namespace R1Engine {
 				Controller.DetailedState = $"Loading text";
 				for (int languageID = 0; languageID < 32; languageID++) {
 					var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
-					if(!loader.FileInfos.ContainsKey(binKey)) continue;
+					if (!loader.FileInfos.ContainsKey(binKey)) continue;
 					bool hasSound = false;
 					loader.BeginSpeedMode(binKey, serializeAction: async s => {
 						Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
@@ -1105,17 +1203,19 @@ namespace R1Engine {
 								await loader.LoadLoopBINAsync();
 								if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
 									var text = world.Text.GetTextForLanguage(languageID, hasSound);
-									foreach (var txg in text.Text) {
-										txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-										await loader.LoadLoopBINAsync();
-										var group = (TEXT_TextGroup)txg.Value;
-										if(group == null) continue;
-										var usedRef = group.GetUsedReference(languageID);
-										usedRef?.Resolve(onPreSerialize: (_, txl) => {
-											((TEXT_TextList)txl).HasSound = false;
-										},
-										cache: LOA_Loader.CacheType.Text);
-										await loader.LoadLoopBINAsync();
+									if (text.Text != null) {
+										foreach (var txg in text.Text) {
+											txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+											await loader.LoadLoopBINAsync();
+											var group = (TEXT_TextGroup)txg.Value;
+											if (group == null) continue;
+											var usedRef = group.GetUsedReference(languageID);
+											usedRef?.Resolve(onPreSerialize: (_, txl) => {
+												((TEXT_TextList)txl).HasSound = false;
+											},
+											cache: LOA_Loader.CacheType.Text);
+											await loader.LoadLoopBINAsync();
+										}
 									}
 								}
 							}
@@ -1141,37 +1241,39 @@ namespace R1Engine {
 									if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
 										var textNoSound = world.Text.GetTextForLanguage(languageID, false);
 										var textSound = world.Text.GetTextForLanguage(languageID, hasSound);
-										for (int j = 0; j < textSound.Text.Length; j++) {
-											var txg = textSound.Text[j];
-											var txgNoSound = textNoSound.Text[j];
-											txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-											await loader.LoadLoopBINAsync();
-											var group = (TEXT_TextGroup)txg.Value;
-											if (group == null) continue;
-											var usedRef = group.GetUsedReference(languageID);
+										if (textSound.Text != null) {
+											for (int j = 0; j < textSound.Text.Length; j++) {
+												var txg = textSound.Text[j];
+												var txgNoSound = textNoSound.Text[j];
+												txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+												await loader.LoadLoopBINAsync();
+												var group = (TEXT_TextGroup)txg.Value;
+												if (group == null) continue;
+												var usedRef = group.GetUsedReference(languageID);
 
-											var groupNoSound = (TEXT_TextGroup)txgNoSound.Value;
-											if(groupNoSound == null) continue;
-											if ((group?.Key?.Key ?? 0) != (groupNoSound?.Key?.Key ?? 0))
-												throw new Exception($"TXG keys do not match between text bins: NS{groupNoSound?.Key} : S{group?.Key}");
-											var usedRefNoSound = groupNoSound.GetUsedReference(languageID);
-											if((usedRef?.Key?.Key ?? 0) != (usedRefNoSound?.Key?.Key ?? 0))
-												throw new Exception($"TXL keys do not match between text bins: NS{usedRefNoSound?.Key} : S{usedRef?.Key}");
-											if(usedRefNoSound.Value == null) continue;
-											var txlNoSound = (TEXT_TextList)usedRefNoSound.Value;
+												var groupNoSound = (TEXT_TextGroup)txgNoSound.Value;
+												if (groupNoSound == null) continue;
+												if ((group?.Key?.Key ?? 0) != (groupNoSound?.Key?.Key ?? 0))
+													throw new Exception($"TXG keys do not match between text bins: NS{groupNoSound?.Key} : S{group?.Key}");
+												var usedRefNoSound = groupNoSound.GetUsedReference(languageID);
+												if ((usedRef?.Key?.Key ?? 0) != (usedRefNoSound?.Key?.Key ?? 0))
+													throw new Exception($"TXL keys do not match between text bins: NS{usedRefNoSound?.Key} : S{usedRef?.Key}");
+												if (usedRefNoSound.Value == null) continue;
+												var txlNoSound = (TEXT_TextList)usedRefNoSound.Value;
 
-											usedRef?.Resolve(onPreSerialize: (_, txl) => {
-												((TEXT_TextList)txl).HasSound = true;
-												((TEXT_TextList)txl).TXLNoSound = txlNoSound;
-											},
-											cache: LOA_Loader.CacheType.TextSound,
-											flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-											await loader.LoadLoopBINAsync();
+												usedRef?.Resolve(onPreSerialize: (_, txl) => {
+													((TEXT_TextList)txl).HasSound = true;
+													((TEXT_TextList)txl).TXLNoSound = txlNoSound;
+												},
+												cache: LOA_Loader.CacheType.TextSound,
+												flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+												await loader.LoadLoopBINAsync();
 
-											if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
-												soundTexts.Add(soundTxl);
+												if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
+													soundTexts.Add(soundTxl);
+												}
+
 											}
-
 										}
 									}
 								}
@@ -1186,6 +1288,26 @@ namespace R1Engine {
 						loader.Caches[LOA_Loader.CacheType.TextSound]?.Clear();
 					}
 				}
+				// Fill in missing text references
+				/*for (int languageID_main = 0; languageID_main < 32; languageID_main++) {
+					for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+						var w = worldList?.Value?.Worlds[i]?.Value;
+						if (w != null) {
+							var world = (WOR_World)w;
+							var alltext = world.Text?.GetTextForLanguage(languageID_main, false);
+							if (alltext != null) {
+								foreach (var txg_generic in alltext.Text) {
+									if(txg_generic == null || txg_generic.Value == null) continue;
+									var txg = (TEXT_TextGroup)txg_generic.Value;
+									foreach (var txl_generic in txg.Text) {
+										if(txl_generic == null || txl_generic.Value == null) continue;
+
+									}
+								}
+							}
+						}
+					}
+				}*/
 			}
 
 			if (loadFlags.HasFlag(LoadFlags.Sounds)) {

@@ -19,10 +19,10 @@ namespace R1Engine.Jade
         public int Int_1C { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
-            uint FileSize = Texture.FileSize;
-            if(s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && FileSize > 0x50) FileSize = 0x50;
-            if (!(FileSize > 0x50 || FileSize % 4 != 0)) {
-                var byteCount = Texture.Loader.IsBinaryData ? (FileSize - (s.CurrentPointer - Texture.Offset)) : (FileSize - 0x20);
+            uint ContentSize = Texture.ContentSize;
+            if(s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && ContentSize > 0x30) ContentSize = 0x30;
+            if (!(ContentSize > 0x30 || ContentSize % 4 != 0)) {
+                var byteCount = ContentSize;
                 var count = byteCount / 12 + ((byteCount % 12 >= 4) ? 1 : 0);
                 var startPtr = s.CurrentPointer;
                 Slots = s.SerializeObjectArray<Slot>(Slots, count, onPreSerialize:
@@ -34,7 +34,7 @@ namespace R1Engine.Jade
             } else {
                 throw new BinarySerializableException(this, $"Invalid {nameof(TEX_Content_RawPal)}");
             }
-            if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && FileSize < Texture.FileSize) {
+            if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && ContentSize < Texture.ContentSize) {
                 UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
                 if (UInt_00 != 0) {
                     Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));

@@ -16,6 +16,9 @@ namespace R1Engine.Jade
         public TEXPRO_Photo Photo { get; set; }
         public TEXPRO_Mpeg Mpeg { get; set; }
 
+        // Custom
+        public int EditorSizeDifference => Photo != null && FileSize > 12 ? 4 : 0;
+
         public override void SerializeImpl(SerializerObject s) {
             UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));

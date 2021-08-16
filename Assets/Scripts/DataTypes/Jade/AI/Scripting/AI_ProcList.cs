@@ -14,12 +14,12 @@ namespace R1Engine.Jade {
 		public uint Code { get; set; }
 		public uint ProcListStringLength { get; set; }
 		public string ProcListString { get; set; }
-		public uint Unknown_04 { get; set; }
+		public uint SourceFileKey { get; set; }
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];
@@ -32,9 +32,9 @@ namespace R1Engine.Jade {
 			if (Code == (uint)Jade_Code.Code6660) {
 				ProcListStringLength = s.Serialize<uint>(ProcListStringLength, name: nameof(ProcListStringLength));
 				ProcListString = s.SerializeString(ProcListString, length: ProcListStringLength, encoding: Jade_BaseManager.Encoding, name: nameof(ProcListString));
-				Unknown_04 = s.Serialize<uint>(Unknown_04, name: nameof(Unknown_04));
+				SourceFileKey = s.Serialize<uint>(SourceFileKey, name: nameof(SourceFileKey));
 			} else {
-				Unknown_04 = Code;
+				SourceFileKey = Code;
 			}
 		}
 

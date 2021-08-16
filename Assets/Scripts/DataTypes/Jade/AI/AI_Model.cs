@@ -14,7 +14,7 @@ namespace R1Engine.Jade {
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];

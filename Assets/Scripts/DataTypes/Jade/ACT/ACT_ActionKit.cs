@@ -7,7 +7,7 @@ namespace R1Engine.Jade
 		public override string Export_Extension => "ack";
 		public ActionRef[] Actions { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
             Actions = s.SerializeObjectArray(Actions, FileSize / (Loader.IsBinaryData ? 4 : 8), name: nameof(Actions));
         }

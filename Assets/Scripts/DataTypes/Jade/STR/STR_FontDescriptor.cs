@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public Character[] Characters { get; set; }
 		public CharacterAC[] CharacterACs { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			Header = s.SerializeString(Header, 8, encoding: Jade_BaseManager.Encoding, name: nameof(Header));
 			if (Header != "FONTDESC") throw new Exception($"Parsing failed: File at {Offset} was not of type {GetType()}");
 			s.DoAt(Offset + FileSize - 4, () => {

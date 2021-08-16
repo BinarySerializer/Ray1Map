@@ -24,7 +24,7 @@ namespace R1Engine.Jade
         public byte[] Content { get; set; }
         public TEX_Content_Animated_Dummy Content_Animated { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
             if (FileSize >= 32 && (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) || !Loader.IsBinaryData || FileSize >= 36)) {
                 if (!Loader.IsBinaryData)

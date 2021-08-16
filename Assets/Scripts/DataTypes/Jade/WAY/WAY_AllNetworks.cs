@@ -10,7 +10,7 @@ namespace R1Engine.Jade {
 		public uint NetworksCount { get; set; }
 		public Entry[] Networks { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				NetworksCount = s.Serialize<uint>(NetworksCount, name: nameof(NetworksCount));
 			} else {

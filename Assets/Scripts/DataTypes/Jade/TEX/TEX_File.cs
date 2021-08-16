@@ -77,11 +77,8 @@ namespace R1Engine.Jade
         public DDS Content_DDS { get; set; }
         public byte[] Content { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
-            bool IsWritingUnbinarized = false;
-            if(!Loader.IsBinaryData && s is BinarySerializer.BinarySerializer) IsWritingUnbinarized = true;
-
 			if (!Loader.IsBinaryData)
 				s.Goto(s.CurrentPointer + FileSize - 32);
 
@@ -238,6 +235,7 @@ namespace R1Engine.Jade
                         lists.FontDescriptors[keyForTexture] = FontDesc;
                     }
                 }
+                if (!Loader.IsBinaryData) s.Goto(s.CurrentPointer + 0x20);
             }
         }
 
@@ -292,5 +290,18 @@ namespace R1Engine.Jade
             BPP_24 = 0x20,
             BPP_32 = 0x10,
         }
+
+		protected override void OnChangedIsBinaryData() {
+			base.OnChangedIsBinaryData();
+            var sizeDiff = 0;
+            if (Content_Animated != null) sizeDiff += Content_Animated.EditorSizeDifference;
+            if (Content_Procedural != null) sizeDiff += Content_Procedural.EditorSizeDifference;
+
+            if (CurrentIsBinaryData == true) {
+                FileSize += (uint)sizeDiff;
+            } else if (CurrentIsBinaryData == false) {
+                FileSize -= (uint)sizeDiff;
+            }
+		}
 	}
 }

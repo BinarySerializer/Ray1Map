@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
 	public class DARE_InaudibleSector : Jade_File {
 		public Reference[] WorldKeys { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			var count = FileSize >> (Loader.IsBinaryData ? 2 : 3);
 			WorldKeys = s.SerializeObjectArray<Reference>(WorldKeys, count, name: nameof(WorldKeys));
 		}

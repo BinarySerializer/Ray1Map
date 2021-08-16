@@ -19,7 +19,7 @@ namespace R1Engine.Jade
 
         public COL_EventObject EventObject { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             Material = s.SerializeObject<Jade_Reference<COL_GameMaterial>>(Material, name: nameof(Material))?.Resolve();
             Type = s.Serialize<COL_ZoneShape>(Type, name: nameof(Type));
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));

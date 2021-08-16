@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public uint Editor_UInt_08 { get; set; }
 		public uint Editor_UInt_0C { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			GroupObjectList = s.SerializeObject<Jade_Reference<OBJ_World_GroupObjectList>>(GroupObjectList, name: nameof(GroupObjectList))?.Resolve();
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			if (!Loader.IsBinaryData) {

@@ -9,7 +9,7 @@ namespace R1Engine.Jade
         public DDS DDS { get; set; }
         public TEX_File Header { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        protected override void SerializeFile(SerializerObject s)
         {
             DDS_Header = s.SerializeObject<DDS_Header>(DDS_Header, name: nameof(DDS_Header));
             DDS = s.SerializeObject<DDS>(DDS, x =>

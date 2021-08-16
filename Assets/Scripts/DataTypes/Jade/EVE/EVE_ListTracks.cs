@@ -13,7 +13,7 @@ namespace R1Engine.Jade
         public EVE_Track[] Tracks { get; set; }
         public ushort Montreal_Version { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        protected override void SerializeFile(SerializerObject s)
         {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
 				ListTracks_TRS = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(ListTracks_TRS, name: nameof(ListTracks_TRS));

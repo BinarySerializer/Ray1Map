@@ -8,7 +8,7 @@ namespace R1Engine.Jade
 		public GroupObject[] GroupObjects { get; set; }
         public bool ResolveObjects { get; set; } = true;
 
-		public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
 			var fileEnd = Offset + FileSize;
 			GroupObjects = s.SerializeObjectArrayUntil(GroupObjects, x => s.CurrentAbsoluteOffset >= fileEnd.AbsoluteOffset, onPreSerialize: go => go.List = this, name: nameof(GroupObjects));

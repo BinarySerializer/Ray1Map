@@ -11,9 +11,12 @@ namespace R1Engine.Jade {
 		public uint Count { get; set; }
 		public TEXT_OneText[] Text { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			if (Loader.IsBinaryData && HasSound && TXLNoSound != null) {
 				TXLNoSound.SerializeSoundData(s);
+				//HasSound = TXLNoSound.HasSound;
+				Count = TXLNoSound.Count;
+				Text = TXLNoSound.Text;
 			} else {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				Text = s.SerializeObjectArray<TEXT_OneText>(Text, Count, onPreSerialize: ot => ot.HasSound = HasSound, name: nameof(Text));

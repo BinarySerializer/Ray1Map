@@ -6,7 +6,7 @@ namespace R1Engine.Jade {
 		public override string Export_Extension => "ins";
 		public byte[] WaveData { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			// TODO: Maybe properly parse this later on
 			WaveData = s.SerializeArray<byte>(WaveData, FileSize, name: nameof(WaveData));
 		}

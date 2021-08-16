@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
 	public class WOR_WorldList : Jade_File {
 		public Jade_GenericReference[] Worlds { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			Worlds = s.SerializeObjectArray<Jade_GenericReference>(Worlds, FileSize / 8, name: nameof(Worlds));
 		}
 

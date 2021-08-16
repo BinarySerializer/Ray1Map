@@ -12,7 +12,7 @@ namespace R1Engine.Jade
         public ushort Counter { get; set; }
         public ACT_ActionItem[] ActionItems { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
             ActionItemsCount = s.Serialize<byte>(ActionItemsCount, name: nameof(ActionItemsCount));
             ActionItemNumberForLoop = s.Serialize<byte>(ActionItemNumberForLoop, name: nameof(ActionItemNumberForLoop));

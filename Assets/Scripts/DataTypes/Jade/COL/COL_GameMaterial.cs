@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
         public Material[] Materials { get; set; }
         public PhoenixStruct Phoenix { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             Count = s.Serialize<uint>(Count, name: nameof(Count));
             UInts = s.SerializeArray<uint>(UInts, Count, name: nameof(UInts));
             Materials = s.SerializeObjectArray<Material>(Materials, Count, name: nameof(Materials));

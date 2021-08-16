@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
         public byte[] AI_Indices { get; set; } // Indices for COL_Instance.Design
         public COL_ZDx[] ZDx { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             ZDxCount = s.Serialize<byte>(ZDxCount, name: nameof(ZDxCount));
             Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
             if(!Loader.IsBinaryData) InstancesCount = s.Serialize<short>(InstancesCount, name: nameof(InstancesCount));

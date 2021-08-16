@@ -98,13 +98,17 @@ namespace R1Engine.Jade {
 		}
 
 		public static BIG_BigFile Create(BIG_BigFile og, Pointer startPointer,
-			FileInfoForCreate[] files, DirectoryInfoForCreate[] directories, uint paddingBetweenFiles = 0x100) {
+			FileInfoForCreate[] files, DirectoryInfoForCreate[] directories, uint paddingBetweenFiles = 0x100,
+			bool writeFilenameInPadding = true, bool increaseSizeOfFat = true) {
 			BIG_BigFile bf = new BIG_BigFile();
 			bf.BIG_gst = "BIG";
 			bf.Context = startPointer.Context;
 			bf.Offset = startPointer;
 			bf.Version = og.Version;
-			bf.SizeOfFat = og.SizeOfFat * 10;
+			bf.SizeOfFat = og.SizeOfFat;
+			if (increaseSizeOfFat) {
+				bf.SizeOfFat = (uint)Math.Max(directories.Length, files.Length);
+			}
 			bf.MaxFile = (uint)files.Length;
 			bf.MaxDir = (uint)directories.Length;
 			bf.MaxKey = 0;
@@ -163,10 +167,15 @@ namespace R1Engine.Jade {
 					};
 				}
 				for (int file_i = 0; file_i < curFilesInFat; file_i++) {
-					if (curFileStartOffset.AbsoluteOffset % 256 != 0) {
-						curFileStartOffset = curFileStartOffset + 256 - curFileStartOffset.AbsoluteOffset % 256;
-					}
 					var f = files[file_i + curFileIndex];
+					if (writeFilenameInPadding) {
+						f.NameOffset = curFileStartOffset;
+						curFileStartOffset += f.Filename.Length + 3;
+					}
+					// Align files with 16. Not really necessary, but nice.
+					if (curFileStartOffset.AbsoluteOffset % 16 != 0) {
+						curFileStartOffset = curFileStartOffset + 16 - curFileStartOffset.AbsoluteOffset % 16;
+					}
 					fat.Files[file_i] = new BIG_FatFile.FileReference() {
 						Key = f.Key,
 						FileOffset = curFileStartOffset
@@ -195,9 +204,11 @@ namespace R1Engine.Jade {
 			public uint FileSize { get; set; }
 			public byte[] Bytes { get; set; }
 			public Pointer Offset { get; set; }
+			public Pointer NameOffset { get; set; }
 
 			// Temporary
 			public FileSource Source { get; set; }
+			public string ModDirectory { get; set; }
 			public string FullPath { get; set; }
 			public enum FileSource {
 				Unbinarized,

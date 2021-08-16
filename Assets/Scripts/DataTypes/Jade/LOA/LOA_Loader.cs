@@ -18,6 +18,7 @@ namespace R1Engine.Jade {
 		public LinkedList<FileReference> LoadQueue => LoadQueues[CurrentQueueType];
 		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
 		public Dictionary<CacheType, Dictionary<Jade_Key, Jade_File>> Caches { get; private set; } = new Dictionary<CacheType, Dictionary<Jade_Key, Jade_File>>();
+		public Dictionary<Jade_Key, Jade_File> TotalCache { get; private set; } = new Dictionary<Jade_Key, Jade_File>();
 		public Dictionary<Jade_Key, Jade_File> Cache => Caches[CurrentCacheType];
 		public bool IsBinaryData => SpeedMode && ReadMode == Read.Binary;
 		public bool SpeedMode { get; set; } = true;
@@ -192,50 +193,53 @@ namespace R1Engine.Jade {
 						Controller.DetailedState = $"{previousState}\n{f}";
 						await s.FillCacheForReadAsync(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
+
+						string regionName = f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}";
 						if (fileSize != 0) {
 							await s.FillCacheForReadAsync(fileSize);
 
 							// Add region
-							string regionName = f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}";
 							off_target.File.AddRegion(off_target.FileOffset + 4, fileSize, regionName);
+						}
 
-							if (currentRef.IsBin && Bin != null) {
-								if (IsCompressed) {
-									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
-										filename: regionName);
-									Bin.CurrentPosition = Bin.StartPosition;
-									s.Goto(Bin.StartPosition);
-									uint decompressedLength = s.CurrentLength32;
-									Bin.Serializer = s;
-									Bin.TotalSize = decompressedLength;
-									if (Bin?.SerializeAction != null) {
-										await Bin.SerializeAction(s);
-									} else {
-										await LoadLoopBINAsync();
-									}
-									//LoadLoopBIN_End();
-									s.EndEncoded(Bin.CurrentPosition);
+						if (currentRef.IsBin && Bin != null) {
+							if (IsCompressed) {
+								Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
+									filename: regionName);
+								Bin.CurrentPosition = Bin.StartPosition;
+								s.Goto(Bin.StartPosition);
+								uint decompressedLength = s.CurrentLength32;
+								Bin.Serializer = s;
+								Bin.TotalSize = decompressedLength;
+								if (Bin?.SerializeAction != null) {
+									await Bin.SerializeAction(s);
 								} else {
-									Bin.Serializer = s;
-									Bin.TotalSize = fileSize;
-									if (Bin?.SerializeAction != null) {
-										await Bin.SerializeAction(s);
-									} else {
-										await LoadLoopBINAsync();
-									}
+									await LoadLoopBINAsync();
 								}
+								//LoadLoopBIN_End();
+								s.EndEncoded(Bin.CurrentPosition);
 							} else {
-								currentRef.LoadCallback(s, (f) => {
-									f.Key = currentRef.Key;
-									f.FileSize = fileSize;
-									f.Loader = this;
-									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-									f.SetIsBinaryData();
-								});
+								Bin.Serializer = s;
+								Bin.TotalSize = fileSize;
+								if (Bin?.SerializeAction != null) {
+									await Bin.SerializeAction(s);
+								} else {
+									await LoadLoopBINAsync();
+								}
 							}
 						} else {
-							if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = null;
+							currentRef.LoadCallback(s, (f) => {
+								f.Key = currentRef.Key;
+								f.FileSize = fileSize;
+								f.Loader = this;
+								if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
+									TotalCache[f.Key] = f;
+								}
+								if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+								f.SetIsBinaryData();
+							});
 						}
+
 						await Controller.WaitIfNecessary();
 						Controller.DetailedState = previousState;
 						s.Goto(off_current);
@@ -270,21 +274,23 @@ namespace R1Engine.Jade {
 						string previousState = Controller.DetailedState;
 						Controller.DetailedState = $"{previousState}\n{f}";
 						var fileSize = s.CurrentLength32;
-						if (fileSize != 0) {
-							if (currentRef.IsBin && Bin != null) {
-								throw new NotImplementedException($"Loading raw bin files is not supported");
-							} else {
-								currentRef.LoadCallback(s, (f) => {
-									f.Key = currentRef.Key;
-									f.FileSize = fileSize;
-									f.Loader = this;
-									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-									f.SetIsBinaryData();
-								});
-							}
+
+						if (currentRef.IsBin && Bin != null) {
+							throw new NotImplementedException($"Loading raw bin files is not supported");
 						} else {
-							if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[currentRef.Key] = null;
+							currentRef.LoadCallback(s, (f) => {
+								f.Key = currentRef.Key;
+								f.FileSize = fileSize;
+								f.Loader = this;
+								f.Export_OriginalFilename = filename;
+								if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
+									TotalCache[f.Key] = f;
+								}
+								if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+								f.SetIsBinaryData();
+							});
 						}
+
 						await Controller.WaitIfNecessary();
 						Controller.DetailedState = previousState;
 						s.Goto(off_current);
@@ -313,6 +319,7 @@ namespace R1Engine.Jade {
 						string filename = $"ROOT/Bin/{currentRef.Key.Key:X8}";
 						string extension = null;
 						string newFilename = null;
+						string originalFilename = null;
 
 						string previousState = Controller.DetailedState;
 						Controller.DetailedState = $"{previousState}\n{filename}";
@@ -338,14 +345,19 @@ namespace R1Engine.Jade {
 									f.Loader = this;
 									extension = f.Export_Extension;
 									newFilename = f.Export_FileBasename;
+									originalFilename = f.Export_OriginalFilename;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 									f.SetIsBinaryData();
 								});
 							} finally {
 								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
 									var bytes = memStream.ToArray();
-									if(newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
-									if (extension != null) filename += $".{extension}";
+									if (originalFilename != null) {
+										filename = originalFilename;
+									} else {
+										if (newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
+										if (extension != null) filename += $".{extension}";
+									}
 									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
 									WrittenFileKeys[currentRef.Key.Key] = filename;
 									Context.RemoveFile(streamFile);
@@ -498,20 +510,18 @@ namespace R1Engine.Jade {
 						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - Bin.StartPosition);
 					}
 				}
-				if (FileSize != 0 || currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
-					currentRef.LoadCallback(s, (f) => {
-						f.Key = currentRef.Key;
-						f.FileSize = FileSize;
-						f.Loader = this;
-						f.BinFileHeader = BinFileHeader;
-						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-						f.SetIsBinaryData();
-					});
-				} else {
-					if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) {
-						Cache[currentRef.Key] = null;
+				currentRef.LoadCallback(s, (f) => {
+					f.Key = currentRef.Key;
+					f.FileSize = FileSize;
+					f.Loader = this;
+					f.BinFileHeader = BinFileHeader;
+					if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
+						TotalCache[f.Key] = f;
 					}
-				}
+					if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+					f.SetIsBinaryData();
+				});
+
 				if (ReadBinFileHeader && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					s.Goto(Bin.CurrentPosition); // count size uint and actual file
 				} else {

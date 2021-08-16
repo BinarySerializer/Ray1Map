@@ -39,7 +39,7 @@ namespace R1Engine.Jade {
 			if (IsArrayElement || Var.Info.ArrayLength == 1) {
 				switch (Var.Type) {
 					case AI_VarType.Bool:
-						ValueInt = ValueBool ? 1 : 0;
+						//ValueInt = ValueBool ? 1 : 0;
 						ValueInt = s.Serialize<int>(ValueInt, name: nameof(ValueInt));
 						ValueBool = ValueInt != 0;
 						break;

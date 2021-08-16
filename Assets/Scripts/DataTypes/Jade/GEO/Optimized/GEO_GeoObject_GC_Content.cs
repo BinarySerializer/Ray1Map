@@ -33,7 +33,7 @@ namespace R1Engine.Jade {
 			?? false;
 		public Element_DisplayList[] Elements { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			DeadBabe = s.Serialize<Jade_Code>(DeadBabe, name: nameof(DeadBabe));
 			if (DeadBabe != Jade_Code.DEADBABE)
 				throw new BinarySerializableException(this, $"Expected code {Jade_Code.DEADBABE} but got {DeadBabe}");

@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
 		public ushort Count { get; set; }
 		public ushort UseLongFormat { get; set; }
 		public LinkList[] LinkLists { get; set; }
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			s.SerializeBitValues<uint>(bitFunc => {
 				Count = (ushort)bitFunc(Count, 16, name: nameof(Count));
 				UseLongFormat = (ushort)bitFunc(UseLongFormat, 16, name: nameof(UseLongFormat));

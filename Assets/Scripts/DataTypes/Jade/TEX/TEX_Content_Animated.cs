@@ -7,14 +7,14 @@ namespace R1Engine.Jade
     public class TEX_Content_Animated : BinarySerializable {
         public TEX_File Texture { get; set; }
 
-        public Frame[] References { get; set; }
-
         public uint UInt_00 { get; set; }
         public short Flags { get; set; }
         public byte FramesCount { get; set; }
         public byte Byte_07_Editor { get; set; }
 
         public Frame[] Frames { get; set; }
+        
+        public int EditorSizeDifference => Frames != null ? 1 + FramesCount * 2 : 0;
 
         public override void SerializeImpl(SerializerObject s) {
             uint FileSize = (uint)(Texture.FileSize - (s.CurrentPointer - Texture.Offset));

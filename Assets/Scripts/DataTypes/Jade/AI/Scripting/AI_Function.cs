@@ -18,14 +18,14 @@ namespace R1Engine.Jade {
 		public byte[] StringBuffer { get; set; }
 		public string[] Strings { get; set; }
 		public Dictionary<long, int> StringOffsetToIndex { get; set; }
-		public uint LocalsCount { get; set; }
+		public uint LocalsBufferLength { get; set; }
 		public AI_Local[] Locals { get; set; }
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
 		public uint BinaryFunctionBufferLength { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];
@@ -48,30 +48,32 @@ namespace R1Engine.Jade {
 			} else {
 				StringBufferLength = FileSize - (uint)(s.CurrentPointer - Offset);
 			}
-			Pointer stringBufferStart = s.CurrentPointer;
-			s.DoAt(stringBufferStart, () => {
-				if (Strings == null) {
-					List<string> strings = new List<string>();
-					StringOffsetToIndex = new Dictionary<long, int>();
-					Pointer targetPointer = s.CurrentPointer + StringBufferLength;
-					int ind = 0;
-					while (s.CurrentPointer.AbsoluteOffset < targetPointer.AbsoluteOffset) {
-						long stringoffset = s.CurrentPointer.AbsoluteOffset - stringBufferStart.AbsoluteOffset;
-						StringOffsetToIndex[stringoffset] = ind;
-						strings.Add(s.SerializeString(default, encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{ind}]"));
-						ind++;
+			if (!(s is BinarySerializer.BinarySerializer)) {
+				Pointer stringBufferStart = s.CurrentPointer;
+				s.DoAt(stringBufferStart, () => {
+					if (Strings == null) {
+						List<string> strings = new List<string>();
+						StringOffsetToIndex = new Dictionary<long, int>();
+						Pointer targetPointer = s.CurrentPointer + StringBufferLength;
+						int ind = 0;
+						while (s.CurrentPointer.AbsoluteOffset < targetPointer.AbsoluteOffset) {
+							long stringoffset = s.CurrentPointer.AbsoluteOffset - stringBufferStart.AbsoluteOffset;
+							StringOffsetToIndex[stringoffset] = ind;
+							strings.Add(s.SerializeString(default, encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{ind}]"));
+							ind++;
+						}
+						Strings = strings.ToArray();
+					} else {
+						for (int i = 0; i < Strings.Length; i++) {
+							Strings[i] = s.SerializeString(Strings[i], encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{i}]");
+						}
 					}
-					Strings = strings.ToArray();
-				} else {
-					for (int i = 0; i < Strings.Length; i++) {
-						Strings[i] = s.SerializeString(Strings[i], encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{i}]");
-					}
-				}
-			});
+				});
+			}
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
-			if (!Loader.SpeedMode && s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize && !(s is BinarySerializer.BinarySerializer)) {
-				LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
-				Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsCount, name: nameof(Locals));
+			if (/*!Loader.SpeedMode && */s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize/* && !(s is BinarySerializer.BinarySerializer)*/) {
+				LocalsBufferLength = s.Serialize<uint>(LocalsBufferLength, name: nameof(LocalsBufferLength));
+				Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsBufferLength / 40, name: nameof(Locals));
 			}
 			//if (!Loader.IsBinaryData) ExportScript(s);
 		}

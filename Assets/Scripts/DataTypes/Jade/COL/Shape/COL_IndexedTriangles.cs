@@ -28,7 +28,7 @@ namespace R1Engine.Jade
             ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
             Elements = s.SerializeObjectArray<COL_ElementIndexedTriangles>(Elements, ElementsCount, name: nameof(Elements));
 
-            if (((Flags & 0x80) != 0 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) && Loader.IsBinaryData)
+            if (((Flags & 0x80) != 0 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) /*&& Loader.IsBinaryData*/)
             {
                 foreach (var element in Elements) {
                     element.SerializeProx(s);

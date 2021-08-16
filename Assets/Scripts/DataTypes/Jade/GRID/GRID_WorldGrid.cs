@@ -29,7 +29,7 @@ namespace R1Engine.Jade {
 		public byte Byte_Editor_1F { get; set; }
 		public int[] Grid { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			if (!Loader.IsBinaryData) {
 				PointerGroups = s.Serialize<uint>(PointerGroups, name: nameof(PointerGroups));
 				PointerRealGroups = s.Serialize<uint>(PointerRealGroups, name: nameof(PointerRealGroups));

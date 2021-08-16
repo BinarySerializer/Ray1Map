@@ -8,6 +8,10 @@ namespace R1Engine.Jade {
 		public bool IsNull => LineNumber == -1 && FileKey.IsNull;
 
 		public override void SerializeImpl(SerializerObject s) {
+			if (FileKey == null) {
+				LineNumber = -1;
+				FileKey = new Jade_Key(Context, 0xFFFFFFFF);
+			}
 			LineNumber = s.Serialize<int>(LineNumber, name: nameof(LineNumber));
 			FileKey = s.SerializeObject<Jade_Key>(FileKey, name: nameof(FileKey));
 		}

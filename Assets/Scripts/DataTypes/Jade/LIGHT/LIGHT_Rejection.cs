@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 		public uint V2_Count { get; set; }
 		public EntryV2[] V2_Entries { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			if (Version < 2) {
 				V0_Entries = s.SerializeObjectArrayUntil<Entry>(V0_Entries, e => e.Int_00 == -1, name: nameof(V0_Entries));

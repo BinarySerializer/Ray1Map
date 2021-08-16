@@ -31,7 +31,7 @@ namespace R1Engine.Jade {
 		// Custom
 		public AI_Var[] Vars { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 					s.SerializeBitValues<int>(bitFunc => {

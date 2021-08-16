@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
         public byte MaxLOD { get; set; }
         public byte MinLOD { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             ColSet = s.SerializeObject<Jade_Reference<COL_ColSet>>(ColSet, name: nameof(ColSet))?.Resolve();
             if ((FileSize - HeaderBFFileSize) == 4) return;
 

@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 	public class GEO_XenonPack : Jade_File {
 		public byte[] Bytes { get; set; } // Game reads this as a byte array, then parses the buffer. Seems to be big endian
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
 		}
 	}

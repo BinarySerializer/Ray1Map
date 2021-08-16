@@ -12,7 +12,7 @@ namespace R1Engine.Jade
         public byte CustomBits2 { get; set; }
         public Jade_Reference<COL_Cob>[] Cobs { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
+        protected override void SerializeFile(SerializerObject s) 
         {
             if (FileSize - HeaderBFFileSize == 4)
             {

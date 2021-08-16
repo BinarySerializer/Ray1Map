@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 		public uint Count { get; set; }
         public SoundRef[] References { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
 
             var endPtr = Offset + FileSize;
             References = s.SerializeObjectArrayUntil<SoundRef>(References,

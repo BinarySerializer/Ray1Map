@@ -6,7 +6,7 @@ namespace R1Engine.Jade {
         public uint Count { get; set; }
         public SoundRef[] References { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        protected override void SerializeFile(SerializerObject s) {
             Count = FileSize / 8;
             if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && Loader.IsBinaryData) {
                 Count = s.Serialize<uint>(Count, name: nameof(Count));

@@ -5,7 +5,7 @@ namespace R1Engine.Jade {
 	public class GRID_CompressedGrid : Jade_File {
 		public Group[] Groups { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
 			Pointer endPtr = Offset + FileSize;
 			Groups = s.SerializeObjectArrayUntil<Group>(
 				Groups,

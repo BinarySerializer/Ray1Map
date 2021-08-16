@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -122,12 +123,12 @@ namespace R1Engine
         public override GameAction[] GetGameActions(GameSettings settings) {
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
-                new GameAction("Import Rayman Soundbank", true, true, (input, output) => ImportRaymanSoundbank(settings, input, output)),
+                new GameAction("Import files for reference", true, true, (input, output) => ImportSpecificReference(settings, input, output)),
 			}).ToArray();
         }
 
 
-        public async UniTask ImportRaymanSoundbank(GameSettings settings, string inputDir, string outputDir) {
+        public async UniTask ImportSpecificReference(GameSettings settings, string inputDir, string outputDir) {
             // Read key list
             string keyListPath = Path.Combine(inputDir, "keylist.txt");
             string[] lines = File.ReadAllLines(keyListPath);
@@ -141,16 +142,22 @@ namespace R1Engine
 
             }
 
-
             // Step 1: Load files to be loaded
-            uint rayFullSnkKey = 0x2C0008EF;
-            Jade_Reference<SND_UnknownBank> bank = null;
+            uint[] soundbankKeys = new uint[] {
+                0x2C0008EF, // Rayman full
+                0x2C00170B, // Lums full
+                0x870043F8, // Aigle
+                0x2C0007D5, // Araignée
+                0x2C000B17, // Mana
+                0x2C000A9C, // MiniRobot
+            };
+            Jade_Reference<SND_UnknownBank>[] banks = new Jade_Reference<SND_UnknownBank>[soundbankKeys.Length];
             using (var context = new R1Context(inputDir, settings)) {
                 //await LoadFilesAsync(context);
 
                 // Set up loader
-                LOA_Loader loader = new LOA_Loader(new BIG_BigFile[0], context);
-                context.StoreObject<LOA_Loader>(LoaderKey, loader);
+                LOA_Loader actualLoader = new LOA_Loader(new BIG_BigFile[0], context);
+                context.StoreObject<LOA_Loader>(LoaderKey, actualLoader);
 
                 // Set up texture list
                 TEX_GlobalList texList = new TEX_GlobalList();
@@ -163,67 +170,44 @@ namespace R1Engine
                 BinarySerializer.SerializerObject s = context.Deserializer;
 
                 // Resolve Soundbank
-                bank = new Jade_Reference<SND_UnknownBank>(context, new Jade_Key(context, rayFullSnkKey));
-                bank.Resolve();
-                await loader.LoadLoop_RawFiles(s, fileKeys);
-                
-                // Set up loader
-                loader = new LOA_Loader(new BIG_BigFile[0], context);
-                context.StoreObject<LOA_Loader>(LoaderKey, loader);
-
-                // Set up texture list
-                texList = new TEX_GlobalList();
-                context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
-
-                // Set up sound list
-                sndList = new SND_GlobalList();
-                context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
-
-                s = context.Serializer;
-
-                // Resolve Soundbank
-                bank.Resolve();
-                await loader.LoadLoop(s);
-            }
-
-            return;
-            // Step 2: Iterate over all the levels
-            var levIndex = 0;
-            uint currentKey = 0;
-            foreach (var lev in LevelInfos) {
-                // If there are WOL files, there are also raw WOW files. It's better to process those one by one.
-                if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
-                    levIndex++;
-                    continue;
+                for (int i = 0; i < banks.Length; i++) {
+                    banks[i] = new Jade_Reference<SND_UnknownBank>(context, new Jade_Key(context, soundbankKeys[i]));
+                    banks[i].Resolve();
                 }
+                await actualLoader.LoadLoop_RawFiles(s, fileKeys);
 
-                Debug.Log($"Importing soundbank into level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+                Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
 
-                try {
-                    using (var context = new R1Context(settings)) {
-                        currentKey = 0;
-                        await LoadFilesAsync(context);
-                        await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Sounds);
+                using (var writeContext = new R1Context(outputDir, settings)) {
+                    // Set up loader
+                    LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+                    loader.WrittenFileKeys = writtenFileKeys;
+                    writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+                    var sndListWrite = new SND_GlobalList();
+                    writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
+                    var texListWrite = new TEX_GlobalList();
+                    writeContext.StoreObject<TEX_GlobalList>(TextureListKey, texListWrite);
+                    var aiLinks = context.GetStoredObject<AI_Links>(AIKey);
+                    writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
+
+                    for (int i = 0; i < banks.Length; i++) {
+                        var bankRef = new Jade_Reference<SND_UnknownBank>(writeContext, new Jade_Key(writeContext, soundbankKeys[i])) {
+                            Value = banks[i].Value
+                        };
+                        bankRef?.Resolve();
                     }
-                } catch (Exception ex) {
-                    if (currentKey == 0) {
-                        Debug.LogError($"Failed to import for level {lev.MapName}: {ex.ToString()}");
-                    } else {
-                        Debug.LogError($"Failed to import for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
-                    }
+                    s = writeContext.Serializer;
+                    await loader.LoadLoop(s);
                 }
 
 
-                // Unload textures
-                await Controller.WaitIfNecessary();
-                await Resources.UnloadUnusedAssets();
-
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
-                GC.WaitForPendingFinalizers();
-                if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
-                    await UniTask.Delay(2000);
+                StringBuilder b = new StringBuilder();
+                foreach (var fk in writtenFileKeys) {
+                    b.AppendLine($"{fk.Key:X8},{fk.Value}");
                 }
-                break;
+                File.WriteAllText(Path.Combine(outputDir, "filekeys.txt"), b.ToString());
+
+                Debug.Log($"Finished export");
             }
         }
     }

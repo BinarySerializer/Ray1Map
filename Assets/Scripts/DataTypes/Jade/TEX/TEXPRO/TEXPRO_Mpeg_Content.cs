@@ -14,7 +14,7 @@ namespace R1Engine.Jade
 			Offset.File.AddRegion(Offset.FileOffset, 4, $"{GetType().Name}_{Key:X8}");
 		}
 
-		public override void SerializeImpl(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
             UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
         }
 	}
