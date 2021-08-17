@@ -1048,9 +1048,9 @@ namespace R1Engine
 
         public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader_DTP loader)
         {
-            var frameSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
+            var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
-            // Enumerate each frame set
+            // Enumerate each sprite set
             for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
                 Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteSets.Length}";
@@ -1062,13 +1062,15 @@ namespace R1Engine
                 if (frames == null)
                     continue;
 
-                // Create the frame textures
-                var frameTextures = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
+                // Create the sprites
+                var sprites = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
 
-                frameSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(frameTextures, i));
+                var set = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.SpriteSets, i);
+
+                spriteSets.Add(set);
             }
 
-            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, frameSets.ToArray());
+            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
         public List<Unity_Object> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
