@@ -464,8 +464,7 @@ namespace R1Engine
                             speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
                             center: true, 
                             trim: false, 
-                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"), 
-                            frameRate: 30);
+                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"));
                     }
                 }
 
@@ -570,7 +569,7 @@ namespace R1Engine
 
                                 if (bgTex.Length > 1)
                                 {
-                                    Util.ExportAnimAsGif(bgTex, animSpeed * 2, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
+                                    Util.ExportAnimAsGif(bgTex, animSpeed, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
                                 }
                                 else
                                 {
@@ -774,7 +773,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: objManager,
                 eventData: objects,
-                framesPerSecond: 30,
+                framesPerSecond: 60,
                 collisionLines: paths,
                 isometricData: new Unity_IsometricData
                 {
@@ -1414,7 +1413,6 @@ namespace R1Engine
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.animatedTextureSpeed = 2; // TODO: Is this correct?
                             animTex.animatedTextures = animTextures;
                         }
 
@@ -1802,6 +1800,9 @@ namespace R1Engine
 
                             var cell = cel.Cells[cellIndex];
 
+                            if (cell.ABE)
+                                Debug.LogWarning($"CEL ABE flag is set!");
+
                             FillTextureFromVRAM(
                                 tex: tex,
                                 vram: loader.VRAM,
@@ -1888,14 +1889,13 @@ namespace R1Engine
         }
 
         // [BINBlock][SecondaryType (for type 41)]
-        // All speeds are estimations and may not be accurate
         public Dictionary<int, Dictionary<int, (Vector3Int, int)?>> ModifierObjectsRotations { get; } = new Dictionary<int, Dictionary<int, (Vector3Int, int)?>>()
         {
             [3] = new Dictionary<int, (Vector3Int, int)?>()
             {
-                [1] = (new Vector3Int(0, 1, 0), 292), // Wind
-                [5] = (new Vector3Int(0, 0, 1), 60), // Small windmill
-                [6] = (new Vector3Int(0, 0, 1), 16), // Big windmill
+                [1] = (new Vector3Int(0, 1, 0), 128), // Wind // TODO: Reverse dir
+                [5] = (new Vector3Int(0, 0, 1), 27), // Small windmill
+                [6] = (new Vector3Int(0, 0, 1), 8), // Big windmill
             }
         };
 
