@@ -62,7 +62,7 @@ namespace R1Engine
 
                     Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
                                      $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                     $"{String.Join(Environment.NewLine, modifier.DataFiles.Select(x => ByteArrayExtensions.ToHexString(x.Raw, align: 16, maxLines: 16)))}");
+                                     $"{String.Join(Environment.NewLine, modifier.DataFiles.Select(x => ByteArrayExtensions.ToHexString(x.Unknown, align: 16, maxLines: 16)))}");
                     return;
                 }
 

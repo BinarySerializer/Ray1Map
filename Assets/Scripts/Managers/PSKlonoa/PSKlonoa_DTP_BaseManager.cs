@@ -741,7 +741,12 @@ namespace R1Engine
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+                ElementAtOrDefault(sector)?.Modifiers.
+                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient || 
+                           x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
+                Select(x => x.Data_Clear).
+                ToArray();
 
             // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
@@ -1569,8 +1574,8 @@ namespace R1Engine
 
             // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
             // the same length and speed (which they do in Klonoa)
-            var framesLength = palScrolls.Any() ? palScrolls.First().Data_23.Length : 1;
-            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_23.Speed : 0;
+            var framesLength = palScrolls.Any() ? palScrolls.First().Data_PaletteScroll.Length : 1;
+            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_PaletteScroll.Speed : 0;
 
             // Create the textures array for the backgrounds and their frames
             var textures = new Texture2D[layers.Length][];
@@ -1613,7 +1618,7 @@ namespace R1Engine
                 // Update VRAM with each palette scroll modifier
                 if (frameIndex > 0)
                 {
-                    foreach (var palMod in palScrolls.Select(x => x.Data_23))
+                    foreach (var palMod in palScrolls.Select(x => x.Data_PaletteScroll))
                     {
                         var pal = loader.VRAM.GetPixels8(0, 0, palMod.XPosition * 2, palMod.YPosition, 32);
 
