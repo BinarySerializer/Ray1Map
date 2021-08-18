@@ -1,4 +1,6 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Klonoa;
+using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using System;
@@ -9,8 +11,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using BinarySerializer.Klonoa;
-using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -794,53 +794,89 @@ namespace R1Engine
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader_DTP loader, int sector, float scale)
         {
-            var modifiers = loader.LevelData3D.SectorModifiers[sector].Modifiers;
-            var texAnimations = modifiers.
-                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
-                SelectMany(x => x.DataFiles).
-                Where(x => x.TextureAnimation != null).
-                Select(x => x.TextureAnimation.Files).
-                ToArray();
-            var uvScrollAnimations = modifiers.
-                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
-                SelectMany(x => x.DataFiles).
-                Where(x => x.UVScrollAnimation != null).
-                SelectMany(x => x.UVScrollAnimation.UVOffsets).
-                ToArray();
-
             var layers = new List<Unity_Layer>();
+            var parent3d = Controller.obj.levelController.editor.layerTiles;
+
+            Controller.DetailedState = "Loading modifiers";
+            await Controller.WaitIfNecessary();
+
+            var gao_3dObjParent = new GameObject("3D Objects");
+            gao_3dObjParent.transform.localPosition = Vector3.zero;
+            gao_3dObjParent.transform.localRotation = Quaternion.identity;
+            gao_3dObjParent.transform.localScale = Vector3.one;
+
+            // Load the modifiers first so we get the texture and scroll animations
+            var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorModifiers[sector].Modifiers);
+            modifiersLoader.Load();
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
 
             // Load backgrounds
-            if (loader.BackgroundPack != null && loader.BackgroundPack.BackgroundModifiersFiles.Files.Length > sector)
-            {
-                var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
-
-                Texture2D[][] bgTextures;
-                int bgAnimSpeed;
-
-                // Get the background textures
-                (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
-
-                // Add the backgrounds
-                layers.AddRange(bgTextures.Select((t, i) => new Unity_Layer_Texture
-                {
-                    Name = $"Background {i}", 
-                    ShortName = $"BG{i}", 
-                    Textures = t, 
-                    AnimSpeed = bgAnimSpeed,
-                }));
-            }
+            var backgrounds = Load_Layers_Backgrounds(loader, sector);
+            layers.AddRange(backgrounds);
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
+            // Load level object
+            var levelObj = Load_Layers_LevelObject(loader, parent3d, modifiersLoader, sector, scale);
+            layers.Add(levelObj);
+
+            Controller.DetailedState = "Loading collision";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load collision
+
+            // Add layer for 3D objects last
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: modifiersLoader.IsAnimated)
+            {
+                Name = "3D Objects",
+                ShortName = $"3DO",
+                Graphics = gao_3dObjParent
+            });
+            gao_3dObjParent.transform.SetParent(parent3d.transform);
+
+            // Log some debug info
+            Debug.Log($"MAP INFO{Environment.NewLine}" +
+                      $"{modifiersLoader.TextureAnimations.Count} texture animations{Environment.NewLine}" +
+                      $"{modifiersLoader.ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                      $"Modifiers:{Environment.NewLine}\t" +
+                      $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
+
+            return layers.ToArray();
+        }
+
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, int sector)
+        {
+            // Load backgrounds
+            if (loader.BackgroundPack == null || loader.BackgroundPack.BackgroundModifiersFiles.Files.Length <= sector)
+                return Enumerable.Empty<Unity_Layer>();
+
+            var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
+
+            Texture2D[][] bgTextures;
+            int bgAnimSpeed;
+
+            // Get the background textures
+            (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
+
+            // Add the backgrounds
+            return bgTextures.Select((t, i) => new Unity_Layer_Texture
+            {
+                Name = $"Background {i}",
+                ShortName = $"BG{i}",
+                Textures = t,
+                AnimSpeed = bgAnimSpeed,
+            });
+        }
+
+        public Unity_Layer Load_Layers_LevelObject(Loader_DTP loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
+        {
             GameObject obj;
             bool isAnimated;
 
-            (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations);
+            (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", modifiersLoader.TextureAnimations, modifiersLoader.ScrollAnimations);
 
             var levelBounds = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
 
@@ -852,8 +888,8 @@ namespace R1Engine
             // Correctly center object
             //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
-            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
-            layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
+            obj.transform.SetParent(parent.transform);
+            return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
                 Name = "Map",
                 ShortName = "MAP",
@@ -861,189 +897,7 @@ namespace R1Engine
                 Collision = null,
                 Dimensions = layerDimensions,
                 DisableGraphicsWhenCollisionIsActive = true
-            });
-            obj.transform.SetParent(parent3d);
-
-            Controller.DetailedState = "Loading 3D objects";
-            await Controller.WaitIfNecessary();
-
-            GameObject gao_3dObjParent = null;
-
-            bool isObjAnimated = false;
-
-            foreach (var modifier in modifiers)
-            {
-                if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
-                    continue;
-
-                if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_40 || modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
-                {
-                    bool animated;
-
-                    (gao_3dObjParent, animated) = Load_ModifierObject(loader, modifier, gao_3dObjParent, scale, texAnimations);
-
-                    if (animated)
-                        isObjAnimated = true;
-                }
-                else
-                {
-                    Debug.LogWarning($"Skipped unsupported modifier object of primary type {modifier.PrimaryType}");
-                }
-            }
-
-            Debug.Log($"MAP INFO{Environment.NewLine}" +
-                      $"{texAnimations.Length} texture animations{Environment.NewLine}" +
-                      $"{uvScrollAnimations.Length} UV scroll animations{Environment.NewLine}" +
-                      $"Modifiers:{Environment.NewLine}\t" +
-                      $"{String.Join($"{Environment.NewLine}\t", modifiers.Take(modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} {String.Join(", ", x.DataFiles?.Select(d => d.DeterminedType.ToString()) ?? new string[0])}"))}");
-
-            if (gao_3dObjParent != null)
-            {
-                layers.Add(new Unity_Layer_GameObject(true, isAnimated: isObjAnimated)
-                {
-                    Name = "3D Objects",
-                    ShortName = $"3DO",
-                    Graphics = gao_3dObjParent
-                });
-                gao_3dObjParent.transform.SetParent(parent3d);
-            }
-
-            Controller.DetailedState = "Loading collision";
-            await Controller.WaitIfNecessary();
-
-            // TODO: Load collision
-
-            return layers.ToArray();
-        }
-
-        public (GameObject, bool) Load_ModifierObject(Loader_DTP loader, ModifierObject modifier, GameObject gao_3dObjParent, float scale, PS1_TIM[][] texAnimations)
-        {
-            bool isObjAnimated = false;
-
-            // Some objects only have a single position without a rotation
-            var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
-            
-            // Objects can have transform info. This is 2-dimensional as it can effect individual objects in the TMD and have multiple "frames"
-            // obj positions/rotations. We assume that if it effects multiple objects it does not animate and is only for their relative positions.
-            var objTransform = modifier.DataFiles.FirstOrDefault(x => x.Transform?.Info?.ObjectsCount > 1)?.Transform;
-
-            var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null && !(x.Transform?.Info?.ObjectsCount > 1))?.Transform;
-
-            var transformPositions = transform?.Positions.Positions;
-            var transformRotations = transform?.Rotations.Rotations;
-
-            // The minecart has multiple transforms with animations for how it travels, so we combine them
-            if (transform == null)
-            {
-                var transforms = modifier.DataFiles.FirstOrDefault(x => x.Transforms != null)?.Transforms;
-
-                transformPositions = transforms?.Files.SelectMany(x => x.Positions.Positions).ToArray();
-                transformRotations = transforms?.Files.SelectMany(x => x.Rotations.Rotations).ToArray();
-            }
-
-            var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
-
-            var constantRotation = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                ? ModifierObjectsRotations.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                : null;
-            var posOffset = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                : null;
-
-            var index = 0;
-
-            foreach (var tmd in tmdFiles)
-            {
-                if (gao_3dObjParent == null)
-                {
-                    gao_3dObjParent = new GameObject("3D Objects");
-                    gao_3dObjParent.transform.localPosition = Vector3.zero;
-                    gao_3dObjParent.transform.localRotation = Quaternion.identity;
-                    gao_3dObjParent.transform.localScale = Vector3.one;
-                }
-
-                GameObject gameObj;
-                bool isAnimated;
-
-                (gameObj, isAnimated) = CreateGameObject(
-                    tmd: tmd,
-                    loader: loader,
-                    scale: scale,
-                    name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}",
-                    texAnimations: texAnimations,
-                    scrollUVs: new int[0],
-                    positions: objTransform?.Positions.Positions[0].Select(x => GetPositionVector(x, Vector3.zero, scale)).ToArray(),
-                    rotations: objTransform?.Rotations.Rotations[0].Select(x => GetQuaternion(x)).ToArray());
-
-                if (isAnimated)
-                    isObjAnimated = true;
-
-                Vector3 defaultPos = Vector3.zero;
-                Quaternion defaultRotation = Quaternion.identity;
-
-                if (pos != null)
-                {
-                    defaultPos = GetPositionVector(pos, posOffset, scale);
-                }
-                else if (transformPositions != null)
-                {
-                    defaultPos = GetPositionVector(transformPositions[0][0], posOffset, scale);
-                    defaultRotation = GetQuaternion(transformRotations[0][0]);
-                }
-
-                gameObj.transform.localPosition = defaultPos;
-                gameObj.transform.localRotation = defaultRotation;
-                gameObj.transform.SetParent(gao_3dObjParent.transform);
-
-                if (transformPositions?.Length > 1)
-                {
-                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                    mtComponent.animatedTransform = gameObj.transform;
-                    var positions = transformPositions?.Select(x => GetPositionVector(x[0], posOffset, scale)).ToArray() ?? new Vector3[0];
-                    var rotations = transformRotations?.Select(x => GetQuaternion(x[0])).ToArray() ?? new Quaternion[0];
-                    var frameCount = Math.Max(positions.Length, rotations.Length);
-                    mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-                    for (int i = 0; i < frameCount; i++)
-                    {
-                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                        {
-                            Position = positions.Length > i ? positions[i] : defaultPos,
-                            Rotation = rotations.Length > i ? rotations[i] : defaultRotation,
-                            Scale = Vector3.one
-                        };
-                    }
-                }
-
-                if (constantRotation != null)
-                {
-                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                    mtComponent.animatedTransform = gameObj.transform;
-
-                    var rotationPerFrame = constantRotation.Value.Item2;
-                    var count = 0x1000 / rotationPerFrame;
-
-                    mtComponent.frames = new AnimatedTransformComponent.Frame[count];
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        var degrees = GetRotationInDegrees(i * rotationPerFrame);
-
-                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                        {
-                            Position = defaultPos,
-                            Rotation = defaultRotation * Quaternion.Euler(
-                                x: degrees * constantRotation.Value.Item1.x,
-                                y: degrees * constantRotation.Value.Item1.y,
-                                z: degrees * constantRotation.Value.Item1.z),
-                            Scale = Vector3.one
-                        };
-                    }
-                }
-
-                index++;
-            }
-
-            return (gao_3dObjParent, isObjAnimated);
+            };
         }
 
         public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader_DTP loader)
@@ -1144,7 +998,12 @@ namespace R1Engine
             }));
 
             // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
+                Where(x => x.DataFiles != null).
+                SelectMany(x => x.DataFiles).
+                Where(x => x.ScenerySprites != null).
+                SelectMany(x => x.ScenerySprites.Positions).
+                Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
             {
                 Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
             }));
@@ -1198,7 +1057,7 @@ namespace R1Engine
             return lines.ToArray();
         }
 
-        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader_DTP loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)
+        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader_DTP loader, float scale, string name, IList<PS1_TIM[]> texAnimations, IList<UVScrollAnimation_File> scrollAnimations, Vector3[] positions = null, Quaternion[] rotations = null)
         {
             bool isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
@@ -1423,7 +1282,7 @@ namespace R1Engine
                         mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
 
                         // Check for UV scroll animations
-                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                        if (packet.UV.Any(x => scrollAnimations.SelectMany(x => x.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
@@ -1889,27 +1748,6 @@ namespace R1Engine
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
         }
-
-        // [BINBlock][SecondaryType (for type 41)]
-        public Dictionary<int, Dictionary<int, (Vector3Int, int)?>> ModifierObjectsRotations { get; } = new Dictionary<int, Dictionary<int, (Vector3Int, int)?>>()
-        {
-            [3] = new Dictionary<int, (Vector3Int, int)?>()
-            {
-                [1] = (new Vector3Int(0, 1, 0), 128), // Wind // TODO: Reverse dir
-                [5] = (new Vector3Int(0, 0, 1), 27), // Small windmill
-                [6] = (new Vector3Int(0, 0, 1), 8), // Big windmill
-            }
-        };
-
-        // [BINBlock][SecondaryType (for type 41)]
-        // Some objects offset their positions
-        public Dictionary<int, Dictionary<int, Vector3Int>> ModifierObjectsPositionOffsets { get; } = new Dictionary<int, Dictionary<int, Vector3Int>>()
-        {
-            [3] = new Dictionary<int, Vector3Int>()
-            {
-                [1] = new Vector3Int(0, 182, 0), // Wind
-            }
-        };
 
         public static ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
         {
