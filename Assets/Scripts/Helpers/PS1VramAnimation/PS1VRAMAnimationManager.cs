@@ -59,7 +59,7 @@ namespace R1Engine
 
         public class AnimatedTexture
         {
-            public AnimatedTexture(int width, int height, bool clear, Action<Texture2D> loadTextureAction, VRAMAnimation[] animations)
+            public AnimatedTexture(int width, int height, bool clear, Action<Texture2D> loadTextureAction, PS1VRAMAnimation[] animations)
             {
                 if (!animations.Any())
                     throw new Exception("Animated texture must have at least one animation");
@@ -91,83 +91,8 @@ namespace R1Engine
 
             public Texture2D[] Textures { get; }
             public Action<Texture2D> LoadTextureAction { get; }
-            public VRAMAnimation[] Animations { get; }
+            public PS1VRAMAnimation[] Animations { get; }
             public int Speed { get; }
-        }
-
-        public class VRAMAnimation
-        {
-            public VRAMAnimation(RectInt region, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = true;
-                Region = region;
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(PS1_VRAMRegion region, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = true;
-                Region = RectIntFromVRAMRegion(region);
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(RectInt[] regions, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = regions;
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(IEnumerable<PS1_VRAMRegion> regions, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = regions.Select(RectIntFromVRAMRegion).ToArray();
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(PS1_TIM[] timFiles, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = timFiles.Select(x => RectIntFromVRAMRegion(x.Region)).ToArray();
-                Frames = timFiles.Select(x => x.ImgData).ToArray();
-                Speed = speed;
-                PingPong = pingPong;
-            }
-
-            public bool UsesSingleRegion { get; }
-            public RectInt Region { get; }
-            public RectInt[] Regions { get; }
-            public byte[][] Frames { get; }
-            public int Speed { get; }
-            public bool PingPong { get; }
-            private int? _key;
-            public int Key => _key ??= Speed | (PingPong ? 1 : 0) << 15 | (Frames.Length << 16);
-
-            public int ActualLength => PingPong ? Frames.Length + (Frames.Length - 2) : Frames.Length;
-
-            private static RectInt RectIntFromVRAMRegion(PS1_VRAMRegion region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
-
-            private int GetFrameIndex(int frameIndex)
-            {
-                if (frameIndex < Frames.Length)
-                    return frameIndex;
-                else if (PingPong)
-                    return Frames.Length - 1 - (frameIndex - Frames.Length);
-                else
-                    throw new IndexOutOfRangeException($"Frame index is out of range");
-            }
-
-            public bool Overlaps(RectInt region)
-            {
-                if (UsesSingleRegion)
-                    return Region.Overlaps(region);
-                else
-                    return Regions.Any(x => x.Overlaps(region));
-            }
         }
     }
 }

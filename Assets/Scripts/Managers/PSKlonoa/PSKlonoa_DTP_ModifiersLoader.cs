@@ -25,8 +25,8 @@ namespace R1Engine
             BG_Layers = new List<Texture2D[]>();
             BG_Clears = new List<BackgroundModifierData_Clear>();
             Anim_Manager = new PS1VRAMAnimationManager();
-            Anim_TextureAnimations = new List<PS1VRAMAnimationManager.VRAMAnimation>();
-            Anim_PaletteAnimations = new List<PS1VRAMAnimationManager.VRAMAnimation>();
+            Anim_TextureAnimations = new List<PS1VRAMAnimation>();
+            Anim_PaletteAnimations = new List<PS1VRAMAnimation>();
             Anim_ScrollAnimations = new List<UVScrollAnimation_File>();
         }
 
@@ -49,8 +49,8 @@ namespace R1Engine
 
         // Animations
         public PS1VRAMAnimationManager Anim_Manager { get; }
-        public List<PS1VRAMAnimationManager.VRAMAnimation> Anim_TextureAnimations { get; }
-        public List<PS1VRAMAnimationManager.VRAMAnimation> Anim_PaletteAnimations { get; }
+        public List<PS1VRAMAnimation> Anim_TextureAnimations { get; }
+        public List<PS1VRAMAnimation> Anim_PaletteAnimations { get; }
         public List<UVScrollAnimation_File> Anim_ScrollAnimations { get; }
 
         public async UniTask LoadAsync()
@@ -187,7 +187,7 @@ namespace R1Engine
                         if (loop != LoadLoop.Animations)
                             return;
 
-                        Anim_TextureAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
                     } 
                     break;
 
@@ -203,7 +203,7 @@ namespace R1Engine
                             var region = anim.VRAMRegions[i];
                             var palettes = anim.Files[i].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
-                            Anim_PaletteAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
+                            Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
                         }
                     }
                     break;
@@ -389,7 +389,7 @@ namespace R1Engine
                         }
 
                         var region = new RectInt(scroll.XPosition * 2, scroll.YPosition, 32, 1);
-                        Anim_PaletteAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(region, frames, scroll.Speed, false));
+                        Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, frames, scroll.Speed, false));
                     }
                     break;
 
@@ -410,7 +410,7 @@ namespace R1Engine
             }
         }
 
-        public PS1VRAMAnimationManager.VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
+        public PS1VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
         {
             return Anim_PaletteAnimations.Where(x => x.Overlaps(palRegion)).Concat(Anim_TextureAnimations.Where(x => x.Overlaps(textureRegion))).ToArray();
         }
