@@ -860,6 +860,7 @@ namespace R1Engine
             if (IncludeDebugInfo)
             {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
+                          $"{modifiersLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
                           $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
                           $"Modifiers:{Environment.NewLine}\t" +
                           $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
@@ -1245,10 +1246,7 @@ namespace R1Engine
                         // Identify the texture based on the palette and texture page
                         int key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
 
-                        // Identify an animated texture based on the previous key and the page offset
-                        long animKey = (long) key | (long) rect.x << 32 | (long) rect.y << 40;
-
-                        if (!textureAnimCache.ContainsKey(animKey))
+                        if (!textureAnimCache.ContainsKey(key))
                         {
                             var is8bit = packet.TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
                             var textureRegion = new RectInt(packet.TSB.TX * PS1_VRAM.PageWidth + rect.x / (is8bit ? 1 : 2), packet.TSB.TY * PS1_VRAM.PageHeight + rect.y, rect.width / (is8bit ? 1 : 2), rect.height);
@@ -1265,11 +1263,11 @@ namespace R1Engine
                                     GetTexture(packet, loader.VRAM, tex);
                                 }, vramAnims);
                                 modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
-                                textureAnimCache.Add(animKey, animatedTexture);
+                                textureAnimCache.Add(key, animatedTexture);
                             }
                             else
                             {
-                                textureAnimCache.Add(animKey, null);
+                                textureAnimCache.Add(key, null);
                             }
                         }
 
@@ -1278,7 +1276,7 @@ namespace R1Engine
 
                         var t = textureCache[key];
 
-                        var animTextures = textureAnimCache[animKey];
+                        var animTextures = textureAnimCache[key];
 
                         if (animTextures != null)
                         {
