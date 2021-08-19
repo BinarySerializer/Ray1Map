@@ -1097,11 +1097,52 @@ namespace R1Engine
             Vector3[] positions = null, Quaternion[] rotations = null)
         {
             bool isAnimated = false;
-            var textureCache = new Dictionary<int, Texture2D>();
-            var textureAnimCache = new Dictionary<long, PS1VRAMAnimationManager.AnimatedTexture>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
+
+            var vramTextures = new HashSet<PS1VRAMTexture>();
+            var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
+
+            // Get texture bounds
+            foreach (PS1_TMD_Packet packet in tmd.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
+            {
+                var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
+
+                var overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
+
+                if (overlappingTex != null)
+                {
+                    overlappingTex.ExpandWithBounds(tex);
+                    vramTexturesLookup.Add(packet, overlappingTex);
+                }
+                else
+                {
+                    vramTextures.Add(tex);
+                    vramTexturesLookup.Add(packet, tex);
+                }
+            }
+
+            // Create textures
+            foreach (PS1VRAMTexture vramTex in vramTextures)
+            {
+                // Create the default texture
+                vramTex.SetTexture(vramTex.GetTexture(loader.VRAM));
+
+                // Check if the texture is animated
+                PS1VRAMAnimation[] vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion);
+
+                if (!vramAnims.Any()) 
+                    continue;
+                
+                var animatedTexture = new PS1VRAMAnimatedTexture(vramTex.Bounds.width, vramTex.Bounds.height, true, tex =>
+                {
+                    vramTex.GetTexture(loader.VRAM, tex);
+                }, vramAnims);
+                
+                modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
+                vramTex.SetAnimatedTexture(animatedTexture);
+            }
 
             // Create each object
             for (var objIndex = 0; objIndex < tmd.Objects.Length; objIndex++)
@@ -1111,19 +1152,6 @@ namespace R1Engine
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
-                Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
-
-                RectInt getRect(PS1_TMD_UV[] uv)
-                {
-                    int xMin = uv.Min(x => x.U);
-                    int xMax = uv.Max(x => x.U) + 1;
-                    int yMin = uv.Min(x => x.V);
-                    int yMax = uv.Max(x => x.V) + 1;
-                    int w = xMax - xMin;
-                    int h = yMax - yMin;
-
-                    return new RectInt(xMin, yMin, w, h);
-                }
 
                 GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
 
@@ -1218,10 +1246,8 @@ namespace R1Engine
 
                     unityMesh.SetColors(colors);
 
-                    if (packet.UV != null)
-                        unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
-
-                    if(normals == null) unityMesh.RecalculateNormals();
+                    if (normals == null) 
+                        unityMesh.RecalculateNormals();
 
                     GameObject gao = new GameObject($"Packet_{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
@@ -1241,57 +1267,29 @@ namespace R1Engine
                     // Add texture
                     if (packet.Mode.TME)
                     {
-                        var rect = getRect(packet.UV);
+                        var tex = vramTexturesLookup[packet];
 
-                        // Identify the texture based on the palette and texture page
-                        int key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
-
-                        if (!textureAnimCache.ContainsKey(key))
+                        unityMesh.SetUVs(0, packet.UV.Select(uv =>
                         {
-                            var is8bit = packet.TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
-                            var textureRegion = new RectInt(packet.TSB.TX * PS1_VRAM.PageWidth + rect.x / (is8bit ? 1 : 2), packet.TSB.TY * PS1_VRAM.PageHeight + rect.y, rect.width / (is8bit ? 1 : 2), rect.height);
-                            var palLength = (is8bit ? 256 : 16) * 2;
-                            var palRegion = new RectInt(packet.CBA.ClutX * 2 * 16, packet.CBA.ClutY, palLength, 1);
+                            var u = uv.U - tex.Bounds.x;
+                            var v = uv.V - tex.Bounds.y;
 
-                            var vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(textureRegion, palRegion);
+                            return new Vector2(u / (float)(tex.Bounds.width - 1), v / (float)(tex.Bounds.height - 1));
+                        }).ToArray());
 
-                            if (vramAnims.Any())
-                            {
-                                var dimensions = GetVRAMPageDimensions(packet.TSB);
-                                var animatedTexture = new PS1VRAMAnimationManager.AnimatedTexture(dimensions.x, dimensions.y, true, tex =>
-                                {
-                                    GetTexture(packet, loader.VRAM, tex);
-                                }, vramAnims);
-                                modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
-                                textureAnimCache.Add(key, animatedTexture);
-                            }
-                            else
-                            {
-                                textureAnimCache.Add(key, null);
-                            }
-                        }
-
-                        if (!textureCache.ContainsKey(key))
-                            textureCache.Add(key, GetTexture(packet, loader.VRAM));
-
-                        var t = textureCache[key];
-
-                        var animTextures = textureAnimCache[key];
-
-                        if (animTextures != null)
+                        if (tex.AnimatedTexture != null)
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.animatedTextures = animTextures.Textures;
-                            animTex.animatedTextureSpeed = animTextures.Speed;
+                            animTex.animatedTextures = tex.AnimatedTexture.Textures;
+                            animTex.animatedTextureSpeed = tex.AnimatedTexture.Speed;
                         }
 
-                        t.wrapMode = TextureWrapMode.Repeat;
-                        mr.material.SetTexture("_MainTex", t);
+                        mr.material.SetTexture("_MainTex", tex.Texture);
 
                         if (IncludeDebugInfo)
-                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {animTextures != null}";
+                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
                         if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
@@ -1352,7 +1350,7 @@ namespace R1Engine
             return FileFactory.Read<IDX>(config.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
         }
 
-        public void FillTextureFromVRAM(
+        public static void FillTextureFromVRAM(
             Texture2D tex,
             PS1_VRAM vram,
             int width, int height,
@@ -1969,6 +1967,99 @@ namespace R1Engine
             public int Scale { get; }
             public int PalOffsetX { get; }
             public int PalOffsetY { get; }
+        }
+
+        public class PS1VRAMTexture
+        {
+            public PS1VRAMTexture(PS1_TSB tsb, PS1_CBA cba, PS1_TMD_UV[] uvs)
+            {
+                TSB = tsb;
+                CBA = cba;
+
+                int xMin = uvs.Min(x => x.U);
+                int xMax = uvs.Max(x => x.U) + 1;
+                int yMin = uvs.Min(x => x.V);
+                int yMax = uvs.Max(x => x.V) + 1;
+                int w = xMax - xMin;
+                int h = yMax - yMin;
+
+                Bounds = new RectInt(xMin, yMin, w, h);
+
+                bool is8bit = TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
+                TextureRegion = new RectInt(TSB.TX * PS1_VRAM.PageWidth + Bounds.x / (is8bit ? 1 : 2), TSB.TY * PS1_VRAM.PageHeight + Bounds.y, Bounds.width / (is8bit ? 1 : 2), Bounds.height);
+
+                int palLength = (is8bit ? 256 : 16) * 2;
+                PaletteRegion = new RectInt(CBA.ClutX * 2 * 16, CBA.ClutY, palLength, 1);
+            }
+
+            public PS1_TSB TSB { get; }
+            public PS1_CBA CBA { get; }
+            public RectInt Bounds { get; protected set; }
+            public RectInt TextureRegion { get; }
+            public RectInt PaletteRegion { get; }
+            public Texture2D Texture { get; protected set; }
+            public PS1VRAMAnimatedTexture AnimatedTexture { get; protected set; }
+
+            public bool HasOverlap(PS1VRAMTexture b)
+            {
+                if (b.TSB.TP != TSB.TP ||
+                    b.TSB.TX != TSB.TX ||
+                    b.TSB.TY != TSB.TY ||
+                    b.CBA.ClutX != CBA.ClutX ||
+                    b.CBA.ClutY != CBA.ClutY)
+                    return false;
+
+                return Bounds.Overlaps(b.Bounds);
+            }
+
+            public Texture2D GetTexture(PS1_VRAM vram, Texture2D tex = null)
+            {
+                PS1_TIM.TIM_ColorFormat colFormat = TSB.TP switch
+                {
+                    PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
+                    PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
+                    PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                    _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {TSB.TP}")
+                };
+
+                tex ??= TextureHelpers.CreateTexture2D(Bounds.width, Bounds.height, clear: true);
+                tex.wrapMode = TextureWrapMode.Repeat;
+
+                PSKlonoa_DTP_BaseManager.FillTextureFromVRAM(
+                    tex: tex,
+                    vram: vram,
+                    width: Bounds.width,
+                    height: Bounds.height,
+                    colorFormat: colFormat,
+                    texX: 0,
+                    texY: 0,
+                    clutX: CBA.ClutX * 16,
+                    clutY: CBA.ClutY,
+                    texturePageX: TSB.TX,
+                    texturePageY: TSB.TY,
+                    texturePageOffsetX: Bounds.x,
+                    texturePageOffsetY: Bounds.y,
+                    flipY: true);
+
+                tex.Apply();
+
+                return tex;
+            }
+
+            public void SetTexture(Texture2D tex)
+            {
+                Texture = tex;
+            }
+
+            public void SetAnimatedTexture(PS1VRAMAnimatedTexture tex)
+            {
+                AnimatedTexture = tex;
+            }
+
+            public void ExpandWithBounds(PS1VRAMTexture b)
+            {
+                Bounds = new RectInt(Math.Min(Bounds.x, b.Bounds.x), Math.Min(Bounds.y, b.Bounds.y), Math.Max(Bounds.width, b.Bounds.width), Math.Max(Bounds.height, b.Bounds.height));
+            }
         }
     }
 }

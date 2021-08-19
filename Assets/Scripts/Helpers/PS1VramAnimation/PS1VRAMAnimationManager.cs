@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -11,17 +9,17 @@ namespace R1Engine
     {
         public PS1VRAMAnimationManager()
         {
-            AnimatedTextures = new Dictionary<int, HashSet<AnimatedTexture>>();
+            AnimatedTextures = new Dictionary<int, HashSet<PS1VRAMAnimatedTexture>>();
         }
 
-        public Dictionary<int, HashSet<AnimatedTexture>> AnimatedTextures { get; }
+        public Dictionary<int, HashSet<PS1VRAMAnimatedTexture>> AnimatedTextures { get; }
 
-        public void AddAnimatedTexture(AnimatedTexture tex)
+        public void AddAnimatedTexture(PS1VRAMAnimatedTexture tex)
         {
             var key = tex.Animations.First().Key;
 
             if (!AnimatedTextures.ContainsKey(key))
-                AnimatedTextures.Add(key, new HashSet<AnimatedTexture>());
+                AnimatedTextures.Add(key, new HashSet<PS1VRAMAnimatedTexture>());
 
             AnimatedTextures[key].Add(tex);
         }
@@ -55,44 +53,6 @@ namespace R1Engine
 
                 index++;
             }
-        }
-
-        public class AnimatedTexture
-        {
-            public AnimatedTexture(int width, int height, bool clear, Action<Texture2D> loadTextureAction, PS1VRAMAnimation[] animations)
-            {
-                if (!animations.Any())
-                    throw new Exception("Animated texture must have at least one animation");
-
-                var firstAnim = animations.First();
-
-                if (animations.Any(x => x.Key != firstAnim.Key))
-                    throw new Exception("Animated texture can't have animations with different keys");
-
-                Textures = new Texture2D[firstAnim.ActualLength];
-                LoadTextureAction = loadTextureAction;
-                Animations = animations;
-                Speed = firstAnim.Speed;
-
-                for (int i = 0; i < firstAnim.Frames.Length; i++)
-                    Textures[i] = TextureHelpers.CreateTexture2D(width, height, clear: clear);
-
-                if (firstAnim.PingPong)
-                {
-                    var sourceIndex = firstAnim.Frames.Length - 1;
-
-                    for (int i = firstAnim.Frames.Length; i < Textures.Length; i++)
-                    {
-                        Textures[i] = Textures[sourceIndex];
-                        sourceIndex--;
-                    }
-                }
-            }
-
-            public Texture2D[] Textures { get; }
-            public Action<Texture2D> LoadTextureAction { get; }
-            public PS1VRAMAnimation[] Animations { get; }
-            public int Speed { get; }
         }
     }
 }
