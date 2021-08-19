@@ -865,6 +865,8 @@ namespace R1Engine
                           $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
             }
 
+            await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+
             return layers.ToArray();
         }
 
@@ -1095,7 +1097,7 @@ namespace R1Engine
         {
             bool isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
-            var textureAnimCache = new Dictionary<long, (Texture2D[], int)>();
+            var textureAnimCache = new Dictionary<long, PS1VRAMAnimationManager.AnimatedTexture>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
@@ -1257,12 +1259,17 @@ namespace R1Engine
 
                             if (vramAnims.Any())
                             {
-                                Texture2D[] textures = modifiersLoader.Anim_DoAnimated(vramAnims, loader.VRAM, () => GetTexture(packet, loader.VRAM));
-                                textureAnimCache.Add(animKey, (textures, vramAnims.First().Speed));
+                                var dimensions = GetVRAMPageDimensions(packet.TSB);
+                                var animatedTexture = new PS1VRAMAnimationManager.AnimatedTexture(dimensions.x, dimensions.y, true, tex =>
+                                {
+                                    GetTexture(packet, loader.VRAM, tex);
+                                }, vramAnims);
+                                modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
+                                textureAnimCache.Add(animKey, animatedTexture);
                             }
                             else
                             {
-                                textureAnimCache.Add(animKey, (null, 0));
+                                textureAnimCache.Add(animKey, null);
                             }
                         }
 
@@ -1273,22 +1280,20 @@ namespace R1Engine
 
                         var animTextures = textureAnimCache[animKey];
 
-                        var hasAnim = animTextures.Item1 != null && animTextures.Item2 != 0;
-
-                        if (hasAnim)
+                        if (animTextures != null)
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.animatedTextures = animTextures.Item1;
-                            animTex.animatedTextureSpeed = animTextures.Item2;
+                            animTex.animatedTextures = animTextures.Textures;
+                            animTex.animatedTextureSpeed = animTextures.Speed;
                         }
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
 
                         if (IncludeDebugInfo)
-                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {hasAnim}";
+                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {animTextures != null}";
 
                         // Check for UV scroll animations
                         if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
@@ -1423,7 +1428,7 @@ namespace R1Engine
             return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
         }
 
-        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram)
+        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram, Texture2D tex = null)
         {
             if (!packet.Mode.TME)
                 throw new Exception($"Packet has no texture");
@@ -1435,21 +1440,15 @@ namespace R1Engine
                 PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
                 _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
             };
-            int width = packet.TSB.TP switch
-            {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
-                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
-                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-            };
 
-            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
+            var dimensions = GetVRAMPageDimensions(packet.TSB);
+            tex ??= TextureHelpers.CreateTexture2D(dimensions.x, dimensions.y, clear: true);
 
             FillTextureFromVRAM(
                 tex: tex,
                 vram: vram,
-                width: width,
-                height: 256,
+                width: dimensions.x,
+                height: dimensions.y,
                 colorFormat: colFormat,
                 texX: 0,
                 texY: 0,
@@ -1466,6 +1465,19 @@ namespace R1Engine
             tex.Apply();
 
             return tex;
+        }
+        
+        public Vector2Int GetVRAMPageDimensions(PS1_TSB tsb)
+        {
+            int width = tsb.TP switch
+            {
+                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_VRAM.PageWidth * 2,
+                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_VRAM.PageWidth,
+                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_VRAM.PageWidth / 2,
+                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {tsb.TP}")
+            };
+
+            return new Vector2Int(width, PS1_VRAM.PageHeight);
         }
 
         public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)

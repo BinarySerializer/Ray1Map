@@ -22,11 +22,12 @@ namespace R1Engine
             BackgroundModifiers = backgroundModifiers;
 
             GameObj_Objects = new List<GameObject>();
-            Anim_TextureAnimations = new List<VRAMAnimation>();
-            Anim_PaletteAnimations = new List<VRAMAnimation>();
-            Anim_ScrollAnimations = new List<UVScrollAnimation_File>();
             BG_Layers = new List<Texture2D[]>();
             BG_Clears = new List<BackgroundModifierData_Clear>();
+            Anim_Manager = new PS1VRAMAnimationManager();
+            Anim_TextureAnimations = new List<PS1VRAMAnimationManager.VRAMAnimation>();
+            Anim_PaletteAnimations = new List<PS1VRAMAnimationManager.VRAMAnimation>();
+            Anim_ScrollAnimations = new List<UVScrollAnimation_File>();
         }
 
         public PSKlonoa_DTP_BaseManager Manager { get; }
@@ -47,8 +48,9 @@ namespace R1Engine
         public BackgroundModifierData_SetLightState BG_LightState { get; set; }
 
         // Animations
-        public List<VRAMAnimation> Anim_TextureAnimations { get; }
-        public List<VRAMAnimation> Anim_PaletteAnimations { get; }
+        public PS1VRAMAnimationManager Anim_Manager { get; }
+        public List<PS1VRAMAnimationManager.VRAMAnimation> Anim_TextureAnimations { get; }
+        public List<PS1VRAMAnimationManager.VRAMAnimation> Anim_PaletteAnimations { get; }
         public List<UVScrollAnimation_File> Anim_ScrollAnimations { get; }
 
         public async UniTask LoadAsync()
@@ -185,7 +187,7 @@ namespace R1Engine
                         if (loop != LoadLoop.Animations)
                             return;
 
-                        Anim_TextureAnimations.Add(new VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
                     } 
                     break;
 
@@ -201,7 +203,7 @@ namespace R1Engine
                             var region = anim.VRAMRegions[i];
                             var palettes = anim.Files[i].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
-                            Anim_PaletteAnimations.Add(new VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
+                            Anim_PaletteAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
                         }
                     }
                     break;
@@ -387,7 +389,7 @@ namespace R1Engine
                         }
 
                         var region = new RectInt(scroll.XPosition * 2, scroll.YPosition, 32, 1);
-                        Anim_PaletteAnimations.Add(new VRAMAnimation(region, frames, scroll.Speed, false));
+                        Anim_PaletteAnimations.Add(new PS1VRAMAnimationManager.VRAMAnimation(region, frames, scroll.Speed, false));
                     }
                     break;
 
@@ -408,116 +410,15 @@ namespace R1Engine
             }
         }
 
-        public VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
+        public PS1VRAMAnimationManager.VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
         {
             return Anim_PaletteAnimations.Where(x => x.Overlaps(palRegion)).Concat(Anim_TextureAnimations.Where(x => x.Overlaps(textureRegion))).ToArray();
-        }
-
-        public T[] Anim_DoAnimated<T>(VRAMAnimation[] anims, PS1_VRAM vram, Func<T> func)
-        {
-            if (!anims.Any()) throw new Exception("Can't perform animated VRAM loop with no animations");
-
-            var speed = anims.First().Speed;
-            var length = anims.First().Frames.Length;
-            var pingPong = anims.First().PingPong;
-
-            if (anims.Skip(1).Any(x => x.Speed != speed)) throw new Exception("Animation speeds do not match");
-            if (anims.Skip(1).Any(x => x.Frames.Length != length)) throw new Exception("Animation lengths do not match");
-            if (anims.Skip(1).Any(x => x.PingPong != pingPong)) throw new Exception("Animation ping pong does not match");
-
-            var frameObjects = new T[pingPong ? length + (length - 2) : length];
-
-            for (int i = 0; i < length; i++)
-            {
-                foreach (VRAMAnimation anim in anims)
-                {
-                    var region = anim.UsesSingleRegion ? anim.Region : anim.Regions[i];
-                    vram.AddDataAt(0, 0, region.x, region.y, anim.Frames[i], region.width, region.height);
-                }
-
-                frameObjects[i] = func();
-            }
-
-            // Copy previous objects if the animation loops back
-            if (pingPong)
-            {
-                var sourceIndex = length - 1;
-
-                for (int i = length; i < frameObjects.Length; i++)
-                {
-                    frameObjects[i] = frameObjects[sourceIndex];
-                    sourceIndex--;
-                }
-            }
-
-            return frameObjects;
         }
 
         public enum LoadLoop
         {
             Animations = 0,
             Objects = 1,
-        }
-
-        public class VRAMAnimation
-        {
-            public VRAMAnimation(RectInt region, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = true;
-                Region = region;
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(PS1_VRAMRegion region, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = true;
-                Region = RectIntFromVRAMRegion(region);
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(RectInt[] regions, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = regions;
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(IEnumerable<PS1_VRAMRegion> regions, byte[][] frames, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = regions.Select(RectIntFromVRAMRegion).ToArray();
-                Frames = frames;
-                Speed = speed;
-                PingPong = pingPong;
-            }
-            public VRAMAnimation(PS1_TIM[] timFiles, int speed, bool pingPong)
-            {
-                UsesSingleRegion = false;
-                Regions = timFiles.Select(x => RectIntFromVRAMRegion(x.Region)).ToArray();
-                Frames = timFiles.Select(x => x.ImgData).ToArray();
-                Speed = speed;
-                PingPong = pingPong;
-            }
-
-            public bool UsesSingleRegion { get; }
-            public RectInt Region { get; }
-            public RectInt[] Regions { get; }
-            public byte[][] Frames { get; }
-            public int Speed { get; }
-            public bool PingPong { get; }
-
-            private static RectInt RectIntFromVRAMRegion(PS1_VRAMRegion region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
-
-            public bool Overlaps(RectInt region)
-            {
-                if (UsesSingleRegion)
-                    return Region.Overlaps(region);
-                else
-                    return Regions.Any(x => x.Overlaps(region));
-            }
         }
     }
 }
