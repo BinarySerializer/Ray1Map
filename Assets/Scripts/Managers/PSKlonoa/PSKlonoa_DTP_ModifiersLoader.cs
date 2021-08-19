@@ -5,23 +5,28 @@ using BinarySerializer;
 using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
 {
     public class PSKlonoa_DTP_ModifiersLoader
     {
-        public PSKlonoa_DTP_ModifiersLoader(PSKlonoa_DTP_BaseManager manager, Loader_DTP loader, float scale, GameObject parentObject, ModifierObject[] modifiers)
+        public PSKlonoa_DTP_ModifiersLoader(PSKlonoa_DTP_BaseManager manager, Loader_DTP loader, float scale, GameObject parentObject, ModifierObject[] modifiers, BackgroundModifierObject[] backgroundModifiers)
         {
             Manager = manager;
             Loader = loader;
             Scale = scale;
             ParentObject = parentObject;
             Modifiers = modifiers;
+            BackgroundModifiers = backgroundModifiers;
 
-            GameObjects = new List<GameObject>();
-            TextureAnimations = new List<PS1_TIM[]>();
-            ScrollAnimations = new List<UVScrollAnimation_File>();
+            GameObj_Objects = new List<GameObject>();
+            Anim_TextureAnimations = new List<VRAMAnimation>();
+            Anim_PaletteAnimations = new List<VRAMAnimation>();
+            Anim_ScrollAnimations = new List<UVScrollAnimation_File>();
+            BG_Layers = new List<Texture2D[]>();
+            BG_Clears = new List<BackgroundModifierData_Clear>();
         }
 
         public PSKlonoa_DTP_BaseManager Manager { get; }
@@ -29,23 +34,51 @@ namespace R1Engine
         public float Scale { get; }
         public GameObject ParentObject { get; }
         public ModifierObject[] Modifiers { get; }
+        public BackgroundModifierObject[] BackgroundModifiers { get; }
 
-        public bool IsAnimated { get; set; }
-        public List<GameObject> GameObjects { get; }
-        public List<PS1_TIM[]> TextureAnimations { get; }
-        public List<UVScrollAnimation_File> ScrollAnimations { get; }
+        // Game objects
+        public bool GameObj_IsAnimated { get; set; }
+        public List<GameObject> GameObj_Objects { get; }
+        
+        // Backgrounds
+        public bool HasHUD { get; set; }
+        public List<Texture2D[]> BG_Layers { get; }
+        public List<BackgroundModifierData_Clear> BG_Clears { get; }
+        public BackgroundModifierData_SetLightState BG_LightState { get; set; }
 
-        public void Load()
+        // Animations
+        public List<VRAMAnimation> Anim_TextureAnimations { get; }
+        public List<VRAMAnimation> Anim_PaletteAnimations { get; }
+        public List<UVScrollAnimation_File> Anim_ScrollAnimations { get; }
+
+        public async UniTask LoadAsync()
         {
             // Loop twice, ensuring all texture animations are loaded before the objects
             for (int i = 0; i < 2; i++)
             {
-                foreach (var modifier in Modifiers)
-                    LoadModifier(modifier, i);
+                for (var modifierIndex = 0; modifierIndex < Modifiers.Length; modifierIndex++)
+                {
+                    var modifier = Modifiers[modifierIndex];
+
+                    Controller.DetailedState = $"Loading modifier {modifierIndex + 1}/{Modifiers.Length} (loop {i + 1}/2)";
+                    await Controller.WaitIfNecessary();
+
+                    GameObj_LoadModifier(modifier, (LoadLoop)i);
+                }
+
+                for (var modifierIndex = 0; modifierIndex < BackgroundModifiers.Length; modifierIndex++)
+                {
+                    var modifier = BackgroundModifiers[modifierIndex];
+
+                    Controller.DetailedState = $"Loading background modifier {modifierIndex + 1}/{BackgroundModifiers.Length} (loop {i + 1}/2)";
+                    await Controller.WaitIfNecessary();
+
+                    BG_LoadModifier(modifier, (LoadLoop)i);
+                }
             }
         }
 
-        public void LoadModifier(ModifierObject modifier, int loop)
+        public void GameObj_LoadModifier(ModifierObject modifier, LoadLoop loop)
         {
             if (modifier.PrimaryType == PrimaryObjectType.Invalid ||
                 modifier.PrimaryType == PrimaryObjectType.None ||
@@ -56,104 +89,121 @@ namespace R1Engine
             switch (modifier.GlobalModifierType)
             {
                 case GlobalModifierType.Unknown:
-                {
-                    if (loop != 0)
-                        return;
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
 
-                    Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
-                                     $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                     $"{String.Join(Environment.NewLine, modifier.DataFiles.Select(x => ByteArrayExtensions.ToHexString(x.Unknown, align: 16, maxLines: 16)))}");
-                    return;
-                }
+                        Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
+                                         $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
+                                         $"{String.Join(Environment.NewLine, modifier.DataFiles.Select(x => ByteArrayExtensions.ToHexString(x.Unknown, align: 16, maxLines: 16)))}");
+                        return;
+                    }
 
                 case GlobalModifierType.WindSwirl:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    var obj_0 = Load_TMD(modifier, modifier.DataFiles[0].TMD);
-                    var obj_1 = Load_TMD(modifier, modifier.DataFiles[1].TMD, index: 1);
+                        var obj_0 = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
+                        var obj_1 = GameObj_LoadTMD(modifier, modifier.DataFiles[1].TMD, index: 1);
 
-                    var pos = modifier.DataFiles[2].Position;
+                        var pos = modifier.DataFiles[2].Position;
 
-                    ApplyPosition(obj_0, pos, new Vector3Int(0, 182, 0));
-                    ApplyPosition(obj_1, pos);
-                    ApplyConstantRotation(obj_0, modifier.RotationAttribute);
-                } 
+                        GameObj_ApplyPosition(obj_0, pos, new Vector3Int(0, 182, 0));
+                        GameObj_ApplyPosition(obj_1, pos);
+                        GameObj_ApplyConstantRotation(obj_0, modifier.RotationAttribute);
+                    } 
                     break;
 
                 case GlobalModifierType.BigWindmill:
                 case GlobalModifierType.SmallWindmill:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    var obj = Load_TMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
-                    ApplyConstantRotation(obj, modifier.RotationAttribute);
-                }
+                        var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
+                        GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
+                    }
                     break;
 
                 case GlobalModifierType.MovingPlatform:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    Load_TMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform);
-                }
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform);
+                    }
                     break;
 
                 case GlobalModifierType.RoadSign:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    Load_TMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
-                } 
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
+                    } 
                     break;
 
                 case GlobalModifierType.ScrollAnimation:
-                {
-                    if (loop != 0)
-                        return;
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
 
-                    ScrollAnimations.Add(modifier.DataFiles[0].UVScrollAnimation);
-                } 
+                        Anim_ScrollAnimations.Add(modifier.DataFiles[0].UVScrollAnimation);
+                    } 
                     break;
 
                 case GlobalModifierType.Object:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    Load_TMD(modifier, modifier.DataFiles[0].TMD);
-                }
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
+                    }
                     break;
 
                 case GlobalModifierType.LevelModelSection:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    Load_TMD(modifier, modifier.DataFiles[0].TMD);
-                } 
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
+                    } 
                     break;
 
                 case GlobalModifierType.ScenerySprites:
-                {
-                    if (loop != 1)
-                        return;
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
 
-                    // TODO: Get correct sprites to show
-                }
+                        // TODO: Get correct sprites to show
+                    }
                     break;
 
                 case GlobalModifierType.TextureAnimation:
-                {
-                    if (loop != 0)
-                        return;
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
 
-                    TextureAnimations.Add(modifier.DataFiles[0].TextureAnimation.Files);
-                } 
+                        Anim_TextureAnimations.Add(new VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
+                    } 
+                    break;
+
+                case GlobalModifierType.PaletteAnimation:
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
+
+                        var anim = modifier.DataFiles[0].PaletteAnimation;
+
+                        for (int i = 0; i < anim.Files.Length; i++)
+                        {
+                            var region = anim.VRAMRegions[i];
+                            var palettes = anim.Files[i].Files;
+                            var colors = palettes.Select(x => x.Colors).ToArray();
+                            Anim_PaletteAnimations.Add(new VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
+                        }
+                    }
                     break;
 
                 case GlobalModifierType.Special:
@@ -163,8 +213,7 @@ namespace R1Engine
             }
         }
 
-        // TODO: Apply TMD modifications after creating
-        public GameObject Load_TMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0)
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -177,13 +226,13 @@ namespace R1Engine
                 loader: Loader,
                 scale: Scale,
                 name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType} ({modifier.GlobalModifierType})",
-                texAnimations: TextureAnimations,
-                scrollAnimations: new UVScrollAnimation_File[0],
+                modifiersLoader: this,
+                isPrimaryObj: false,
                 positions: localTransform?.Positions.Positions[0].Select(x => Manager.GetPositionVector(x, Vector3.zero, Scale)).ToArray(),
                 rotations: localTransform?.Rotations.Rotations[0].Select(x => Manager.GetQuaternion(x)).ToArray());
 
             if (isAnimated)
-                IsAnimated = true;
+                GameObj_IsAnimated = true;
 
             if (absoluteTransform != null)
             {
@@ -223,16 +272,16 @@ namespace R1Engine
                 }
             }
 
-            GameObjects.Add(gameObj);
+            GameObj_Objects.Add(gameObj);
             return gameObj;
         }
 
-        public void ApplyPosition(GameObject obj, ObjPosition pos, Vector3? posOffset = null)
+        public void GameObj_ApplyPosition(GameObject obj, ObjPosition pos, Vector3? posOffset = null)
         {
             obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
         }
 
-        public void ApplyConstantRotation(GameObject obj, ModifierRotationAttribute rot)
+        public void GameObj_ApplyConstantRotation(GameObject obj, ModifierRotationAttribute rot)
         {
             if (obj == null) 
                 throw new ArgumentNullException(nameof(obj));
@@ -263,6 +312,211 @@ namespace R1Engine
                         z: rot.Axis == ModifierRotationAttribute.RotAxis.Z ? degrees * 1 : 0),
                     Scale = Vector3.one
                 };
+            }
+        }
+
+        public void BG_LoadModifier(BackgroundModifierObject modifier, LoadLoop loop)
+        {
+            switch (modifier.Type)
+            {
+                case BackgroundModifierObject.BackgroundModifierType.HUD:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        HasHUD = true;
+                    }
+                    break;
+
+                case BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19:
+                case BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_22:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        // TODO: Load layer
+                    }
+                    break;
+
+                case BackgroundModifierObject.BackgroundModifierType.Clear_Gradient:
+                case BackgroundModifierObject.BackgroundModifierType.Clear:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        BG_Clears.Add(modifier.Data_Clear);
+                    }
+                    break;
+
+                case BackgroundModifierObject.BackgroundModifierType.PaletteScroll:
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
+
+                        BackgroundModifierData_PaletteScroll scroll = modifier.Data_PaletteScroll;
+                        PS1_VRAM vram = Loader.VRAM;
+
+                        var frames = new byte[scroll.Length][];
+                        var pal = vram.GetPixels8(0, 0, scroll.XPosition * 2, scroll.YPosition, 32);
+
+                        frames[0] = pal;
+
+                        for (int i = 1; i < frames.Length; i++)
+                        {
+                            // Clone the array to avoid modifying the previous frames
+                            pal = (byte[])pal.Clone();
+
+                            var firstColor_0 = pal[0];
+                            var firstColor_1 = pal[1];
+
+                            var index = scroll.StartIndex;
+                            var endIndex = index + scroll.Length;
+
+                            do
+                            {
+                                pal[index * 2] = pal[(index + 1) * 2];
+                                pal[index * 2 + 1] = pal[(index + 1) * 2 + 1];
+
+                                index += 1;
+                            } while (index < endIndex);
+
+                            pal[(endIndex - 1) * 2] = firstColor_0;
+                            pal[(endIndex - 1) * 2 + 1] = firstColor_1;
+
+                            frames[i] = pal;
+                        }
+
+                        var region = new RectInt(scroll.XPosition * 2, scroll.YPosition, 32, 1);
+                        Anim_PaletteAnimations.Add(new VRAMAnimation(region, frames, scroll.Speed, false));
+                    }
+                    break;
+
+                case BackgroundModifierObject.BackgroundModifierType.SetLightState:
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
+
+                        BG_LightState = modifier.Data_SetLightState;
+                    }
+                    break;
+
+                case BackgroundModifierObject.BackgroundModifierType.Unknown_1:
+                case BackgroundModifierObject.BackgroundModifierType.Reset:
+                default:
+                    // Do nothing
+                    break;
+            }
+        }
+
+        public VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
+        {
+            return Anim_PaletteAnimations.Where(x => x.Overlaps(palRegion)).Concat(Anim_TextureAnimations.Where(x => x.Overlaps(textureRegion))).ToArray();
+        }
+
+        public T[] Anim_DoAnimated<T>(VRAMAnimation[] anims, PS1_VRAM vram, Func<T> func)
+        {
+            if (!anims.Any()) throw new Exception("Can't perform animated VRAM loop with no animations");
+
+            var speed = anims.First().Speed;
+            var length = anims.First().Frames.Length;
+            var pingPong = anims.First().PingPong;
+
+            if (anims.Skip(1).Any(x => x.Speed != speed)) throw new Exception("Animation speeds do not match");
+            if (anims.Skip(1).Any(x => x.Frames.Length != length)) throw new Exception("Animation lengths do not match");
+            if (anims.Skip(1).Any(x => x.PingPong != pingPong)) throw new Exception("Animation ping pong does not match");
+
+            var frameObjects = new T[pingPong ? length + (length - 2) : length];
+
+            for (int i = 0; i < length; i++)
+            {
+                foreach (VRAMAnimation anim in anims)
+                {
+                    var region = anim.UsesSingleRegion ? anim.Region : anim.Regions[i];
+                    vram.AddDataAt(0, 0, region.x, region.y, anim.Frames[i], region.width, region.height);
+                }
+
+                frameObjects[i] = func();
+            }
+
+            // Copy previous objects if the animation loops back
+            if (pingPong)
+            {
+                var sourceIndex = length - 1;
+
+                for (int i = length; i < frameObjects.Length; i++)
+                {
+                    frameObjects[i] = frameObjects[sourceIndex];
+                    sourceIndex--;
+                }
+            }
+
+            return frameObjects;
+        }
+
+        public enum LoadLoop
+        {
+            Animations = 0,
+            Objects = 1,
+        }
+
+        public class VRAMAnimation
+        {
+            public VRAMAnimation(RectInt region, byte[][] frames, int speed, bool pingPong)
+            {
+                UsesSingleRegion = true;
+                Region = region;
+                Frames = frames;
+                Speed = speed;
+                PingPong = pingPong;
+            }
+            public VRAMAnimation(PS1_VRAMRegion region, byte[][] frames, int speed, bool pingPong)
+            {
+                UsesSingleRegion = true;
+                Region = RectIntFromVRAMRegion(region);
+                Frames = frames;
+                Speed = speed;
+                PingPong = pingPong;
+            }
+            public VRAMAnimation(RectInt[] regions, byte[][] frames, int speed, bool pingPong)
+            {
+                UsesSingleRegion = false;
+                Regions = regions;
+                Frames = frames;
+                Speed = speed;
+                PingPong = pingPong;
+            }
+            public VRAMAnimation(IEnumerable<PS1_VRAMRegion> regions, byte[][] frames, int speed, bool pingPong)
+            {
+                UsesSingleRegion = false;
+                Regions = regions.Select(RectIntFromVRAMRegion).ToArray();
+                Frames = frames;
+                Speed = speed;
+                PingPong = pingPong;
+            }
+            public VRAMAnimation(PS1_TIM[] timFiles, int speed, bool pingPong)
+            {
+                UsesSingleRegion = false;
+                Regions = timFiles.Select(x => RectIntFromVRAMRegion(x.Region)).ToArray();
+                Frames = timFiles.Select(x => x.ImgData).ToArray();
+                Speed = speed;
+                PingPong = pingPong;
+            }
+
+            public bool UsesSingleRegion { get; }
+            public RectInt Region { get; }
+            public RectInt[] Regions { get; }
+            public byte[][] Frames { get; }
+            public int Speed { get; }
+            public bool PingPong { get; }
+
+            private static RectInt RectIntFromVRAMRegion(PS1_VRAMRegion region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
+
+            public bool Overlaps(RectInt region)
+            {
+                if (UsesSingleRegion)
+                    return Region.Overlaps(region);
+                else
+                    return Regions.Any(x => x.Overlaps(region));
             }
         }
     }

@@ -20,6 +20,8 @@ namespace R1Engine
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
+        private static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
+
         public virtual (string, int)[] Levels => new (string, int)[]
         {
             ("FIX", 0),
@@ -209,6 +211,7 @@ namespace R1Engine
             }
         }
 
+        // TODO: Add BG export to this to correctly animate everything - also re-include modifiers objects, seems to be missing now?
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
@@ -651,8 +654,8 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
-            var stopWatch = Stopwatch.StartNew();
-            var startupLog = new StringBuilder();
+            var stopWatch = IncludeDebugInfo ? Stopwatch.StartNew() : null;
+            var startupLog = IncludeDebugInfo ? new StringBuilder() : null;
 
             // Get settings
             GameSettings settings = context.GetR1Settings();
@@ -660,12 +663,12 @@ namespace R1Engine
             int sector = settings.Level;
             LoaderConfiguration_DTP config = GetLoaderConfig(settings);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
 
             // Load the files
             await LoadFilesAsync(context, config);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
 
             Controller.DetailedState = "Loading IDX";
             await Controller.WaitIfNecessary();
@@ -673,7 +676,7 @@ namespace R1Engine
             // Load the IDX
             IDX idxData = Load_IDX(context, config);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
             ArchiveFile.AddToParsedArchiveFiles = true;
 
@@ -697,14 +700,14 @@ namespace R1Engine
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
 
             Controller.DetailedState = "Loading level data";
             await Controller.WaitIfNecessary();
@@ -712,33 +715,33 @@ namespace R1Engine
             // Load hard-coded level data
             loader.ProcessLevelData();
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
             const float scale = 64f;
 
             // Load the layers
             Unity_Layer[] layers = await Load_LayersAsync(loader, sector, scale);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
             Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
             List<Unity_Object> objects = Load_Objects(loader, sector, scale, objManager);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
             var paths = Load_MovementPaths(loader, sector, scale);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
             var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
@@ -752,26 +755,29 @@ namespace R1Engine
             if (bgClear?.Any() == true)
                 camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
-            var str = new StringBuilder();
-
-            foreach (var archive in ArchiveFile.ParsedArchiveFiles)
+            if (IncludeDebugInfo)
             {
-                for (int i = 0; i < archive.Value.Length; i++)
+                var str = new StringBuilder();
+
+                foreach (var archive in ArchiveFile.ParsedArchiveFiles)
                 {
-                    if (!archive.Value[i])
-                        str.AppendLine($"{archive.Key.Offset}: ({archive.Key.GetType().Name}) File #{i}");
+                    for (int i = 0; i < archive.Value.Length; i++)
+                    {
+                        if (!archive.Value[i])
+                            str.AppendLine($"{archive.Key.Offset}: ({archive.Key.GetType().Name}) File #{i}");
+                    }
                 }
+
+                Debug.Log($"Unparsed BIN files:{Environment.NewLine}" +
+                          $"{str}");
+
+                stopWatch.Stop();
+
+                Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
+                          $"{startupLog}");
             }
-
-            Debug.Log($"Unparsed BIN files:{Environment.NewLine}" +
-                      $"{str}");
-
-            stopWatch.Stop();
-
-            Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
-                      $"{startupLog}");
 
             return new Unity_Level(
                 layers: layers,
@@ -810,9 +816,17 @@ namespace R1Engine
             gao_3dObjParent.transform.localRotation = Quaternion.identity;
             gao_3dObjParent.transform.localScale = Vector3.one;
 
-            // Load the modifiers first so we get the texture and scroll animations
-            var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorModifiers[sector].Modifiers);
-            modifiersLoader.Load();
+            // Load the modifiers first so we get the VRAM animations
+            var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorModifiers[sector].Modifiers, loader.BackgroundPack.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers);
+            await modifiersLoader.LoadAsync();
+
+            if (IncludeDebugInfo)
+            {
+                Debug.Log($"TEXTURE ANIMATIONS:{Environment.NewLine}" +
+                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                Debug.Log($"PALETTE ANIMATIONS:{Environment.NewLine}" +
+                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+            }
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
@@ -834,7 +848,7 @@ namespace R1Engine
             // TODO: Load collision
 
             // Add layer for 3D objects last
-            layers.Add(new Unity_Layer_GameObject(true, isAnimated: modifiersLoader.IsAnimated)
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: modifiersLoader.GameObj_IsAnimated)
             {
                 Name = "3D Objects",
                 ShortName = $"3DO",
@@ -843,11 +857,13 @@ namespace R1Engine
             gao_3dObjParent.transform.SetParent(parent3d.transform);
 
             // Log some debug info
-            Debug.Log($"MAP INFO{Environment.NewLine}" +
-                      $"{modifiersLoader.TextureAnimations.Count} texture animations{Environment.NewLine}" +
-                      $"{modifiersLoader.ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
-                      $"Modifiers:{Environment.NewLine}\t" +
-                      $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
+            if (IncludeDebugInfo)
+            {
+                Debug.Log($"MAP INFO{Environment.NewLine}" +
+                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                          $"Modifiers:{Environment.NewLine}\t" +
+                          $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
+            }
 
             return layers.ToArray();
         }
@@ -881,7 +897,13 @@ namespace R1Engine
             GameObject obj;
             bool isAnimated;
 
-            (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", modifiersLoader.TextureAnimations, modifiersLoader.ScrollAnimations);
+            (obj, isAnimated) = CreateGameObject(
+                tmd: loader.LevelPack.Sectors[sector].LevelModel, 
+                loader: loader, 
+                scale: scale, 
+                name: "Map", 
+                modifiersLoader: modifiersLoader, 
+                isPrimaryObj: true);
 
             var levelBounds = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
 
@@ -1062,11 +1084,18 @@ namespace R1Engine
             return lines.ToArray();
         }
 
-        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader_DTP loader, float scale, string name, IList<PS1_TIM[]> texAnimations, IList<UVScrollAnimation_File> scrollAnimations, Vector3[] positions = null, Quaternion[] rotations = null)
+        public (GameObject, bool) CreateGameObject(
+            PS1_TMD tmd, 
+            Loader_DTP loader, 
+            float scale, 
+            string name, 
+            PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
+            bool isPrimaryObj,
+            Vector3[] positions = null, Quaternion[] rotations = null)
         {
             bool isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
-            var textureAnimCache = new Dictionary<long, Texture2D[]>();
+            var textureAnimCache = new Dictionary<long, (Texture2D[], int)>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
@@ -1109,7 +1138,6 @@ namespace R1Engine
                     //if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
                     //    Debug.LogWarning($"Packet has light source");
 
-                    // TODO: Implement other types
                     if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
                     {
                         Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
@@ -1212,58 +1240,29 @@ namespace R1Engine
                     {
                         var rect = getRect(packet.UV);
 
-                        var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
+                        // Identify the texture based on the palette and texture page
+                        int key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
+
+                        // Identify an animated texture based on the previous key and the page offset
                         long animKey = (long) key | (long) rect.x << 32 | (long) rect.y << 40;
 
                         if (!textureAnimCache.ContainsKey(animKey))
                         {
-                            PS1_TIM[] foundAnim = null;
+                            var is8bit = packet.TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
+                            var textureRegion = new RectInt(packet.TSB.TX * PS1_VRAM.PageWidth + rect.x / (is8bit ? 1 : 2), packet.TSB.TY * PS1_VRAM.PageHeight + rect.y, rect.width / (is8bit ? 1 : 2), rect.height);
+                            var palLength = (is8bit ? 256 : 16) * 2;
+                            var palRegion = new RectInt(packet.CBA.ClutX * 2 * 16, packet.CBA.ClutY, palLength, 1);
 
-                            // Check if the texture region falls within an animated area
-                            foreach (var anim in texAnimations)
+                            var vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(textureRegion, palRegion);
+
+                            if (vramAnims.Any())
                             {
-                                foreach (var tim in anim)
-                                {
-                                    // Check the page
-                                    if ((tim.XPos * 2) / PS1_VRAM.PageWidth == packet.TSB.TX &&
-                                        tim.YPos / PS1_VRAM.PageHeight == packet.TSB.TY)
-                                    {
-                                        var is4Bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_4;
-
-                                        var timRect = new RectInt(
-                                            xMin: ((tim.XPos * 2) % PS1_VRAM.PageWidth) * (is4Bit ? 2 : 1),
-                                            yMin: (tim.YPos % PS1_VRAM.PageHeight),
-                                            width: tim.Width * 2 * (is4Bit ? 2 : 1),
-                                            height: tim.Height);
-
-                                        // Check page offset
-                                        if (rect.Overlaps(timRect))
-                                        {
-                                            foundAnim = anim;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (foundAnim != null)
-                                    break;
-                            }
-
-                            if (foundAnim != null)
-                            {
-                                var textures = new Texture2D[foundAnim.Length];
-
-                                for (int i = 0; i < textures.Length; i++)
-                                {
-                                    loader.AddToVRAM(foundAnim[i]);
-                                    textures[i] = GetTexture(packet, loader.VRAM);
-                                }
-
-                                textureAnimCache.Add(animKey, textures);
+                                Texture2D[] textures = modifiersLoader.Anim_DoAnimated(vramAnims, loader.VRAM, () => GetTexture(packet, loader.VRAM));
+                                textureAnimCache.Add(animKey, (textures, vramAnims.First().Speed));
                             }
                             else
                             {
-                                textureAnimCache.Add(animKey, null);
+                                textureAnimCache.Add(animKey, (null, 0));
                             }
                         }
 
@@ -1274,20 +1273,25 @@ namespace R1Engine
 
                         var animTextures = textureAnimCache[animKey];
 
-                        if (animTextures != null)
+                        var hasAnim = animTextures.Item1 != null && animTextures.Item2 != 0;
+
+                        if (hasAnim)
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.animatedTextures = animTextures;
+                            animTex.animatedTextures = animTextures.Item1;
+                            animTex.animatedTextureSpeed = animTextures.Item2;
                         }
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
+
+                        if (IncludeDebugInfo)
+                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {hasAnim}";
 
                         // Check for UV scroll animations
-                        if (packet.UV.Any(x => scrollAnimations.SelectMany(x => x.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                        if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
@@ -1301,8 +1305,8 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public Bounds GetDimensions(PS1_TMD tmd, float scale) {
-            Bounds b = new Bounds();
+        public Bounds GetDimensions(PS1_TMD tmd, float scale) 
+        {
             var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
             var min = new Vector3(verts.Min(v => v.X), verts.Min(v => v.Y), verts.Min(v => v.Z)) / scale;
             var max = new Vector3(verts.Max(v => v.X), verts.Max(v => v.Y), verts.Max(v => v.Z)) / scale;
@@ -1407,7 +1411,7 @@ namespace R1Engine
 
         public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
         {
-            if (tim.XPos == 0 && tim.YPos == 0)
+            if (tim.Region.XPos == 0 && tim.Region.YPos == 0)
                 return null;
 
             var pal = noPal ? null : palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
@@ -1416,7 +1420,7 @@ namespace R1Engine
                 for (int i = 0; i < pal.Length; i++)
                     pal[i].a = i == 0 ? 0 : 1;
 
-            return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
+            return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
         }
 
         public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram)
@@ -1583,35 +1587,6 @@ namespace R1Engine
             for (int i = 0; i < textures.Length; i++)
                 textures[i] = new Texture2D[framesLength];
 
-            // Load VRAM data
-            for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
-            {
-                var tim = bg.TIMFiles.Files[tileSetIndex];
-
-                // The game hard-codes this
-                if (tileSetIndex == 0)
-                {
-                    tim.Clut.XPos = 0x130;
-                    tim.Clut.YPos = 0x1F0;
-                    tim.Clut.Width = 0x10;
-                    tim.Clut.Height = 0x10;
-                }
-                else if (tileSetIndex == 1)
-                {
-                    tim.XPos = 0x1C0;
-                    tim.YPos = 0x100;
-                    tim.Width = 0x40;
-                    tim.Height = 0x100;
-
-                    tim.Clut.XPos = 0x120;
-                    tim.Clut.YPos = 0x1F0;
-                    tim.Clut.Width = 0x10;
-                    tim.Clut.Height = 0x10;
-                }
-
-                loader.AddToVRAM(tim);
-            }
-
             // Create the background frames
             for (int frameIndex = 0; frameIndex < framesLength; frameIndex++)
             {
@@ -1679,8 +1654,8 @@ namespace R1Engine
                                 texY: mapY * map.CellHeight,
                                 clutX: cell.ClutX * 16,
                                 clutY: cell.ClutY,
-                                texturePageOriginX: tim.XPos,
-                                texturePageOriginY: tim.YPos,
+                                texturePageOriginX: tim.Region.XPos,
+                                texturePageOriginY: tim.Region.YPos,
                                 texturePageOffsetX: cell.XOffset,
                                 texturePageOffsetY: cell.YOffset);
                         }
