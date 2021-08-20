@@ -22,11 +22,12 @@ namespace R1Engine
             BackgroundModifiers = backgroundModifiers;
 
             GameObj_Objects = new List<GameObject>();
-            BG_Layers = new List<Texture2D[]>();
+            BG_Layers = new List<BackgroundLayer>();
             BG_Clears = new List<BackgroundModifierData_Clear>();
             Anim_Manager = new PS1VRAMAnimationManager();
             Anim_TextureAnimations = new List<PS1VRAMAnimation>();
             Anim_PaletteAnimations = new List<PS1VRAMAnimation>();
+            Anim_BGPaletteAnimations = new List<PS1VRAMAnimation>();
             Anim_ScrollAnimations = new List<UVScrollAnimation_File>();
         }
 
@@ -43,7 +44,7 @@ namespace R1Engine
         
         // Backgrounds
         public bool HasHUD { get; set; }
-        public List<Texture2D[]> BG_Layers { get; }
+        public List<BackgroundLayer> BG_Layers { get; }
         public List<BackgroundModifierData_Clear> BG_Clears { get; }
         public BackgroundModifierData_SetLightState BG_LightState { get; set; }
 
@@ -51,6 +52,7 @@ namespace R1Engine
         public PS1VRAMAnimationManager Anim_Manager { get; }
         public List<PS1VRAMAnimation> Anim_TextureAnimations { get; }
         public List<PS1VRAMAnimation> Anim_PaletteAnimations { get; }
+        public List<PS1VRAMAnimation> Anim_BGPaletteAnimations { get; }
         public List<UVScrollAnimation_File> Anim_ScrollAnimations { get; }
 
         public async UniTask LoadAsync()
@@ -97,7 +99,7 @@ namespace R1Engine
 
                         Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
                                          $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                         $"{String.Join(Environment.NewLine, modifier.DataFiles.Select(x => ByteArrayExtensions.ToHexString(x.Unknown, align: 16, maxLines: 16)))}");
+                                         $"{String.Join(Environment.NewLine, modifier.DataFiles?.Select(x => x.Unknown.ToHexString(align: 16, maxLines: 16)) ?? new string[0])}");
                         return;
                     }
 
@@ -336,7 +338,9 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        // TODO: Load layer
+                        var (frames, speed) = Manager.GetBackgroundFrames(Loader, this, Loader.BackgroundPack, modifier);
+
+                        BG_Layers.Add(new BackgroundLayer(modifier, frames, speed));
                     }
                     break;
 
@@ -389,7 +393,7 @@ namespace R1Engine
                         }
 
                         var region = new RectInt(scroll.XPosition * 2, scroll.YPosition, 32, 1);
-                        Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, frames, scroll.Speed, false));
+                        Anim_BGPaletteAnimations.Add(new PS1VRAMAnimation(region, frames, scroll.Speed, false));
                     }
                     break;
 
@@ -410,15 +414,34 @@ namespace R1Engine
             }
         }
 
-        public PS1VRAMAnimation[] Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
+        public IEnumerable<PS1VRAMAnimation> Anim_GetAnimationsFromRegion(RectInt textureRegion, RectInt palRegion)
         {
-            return Anim_PaletteAnimations.Where(x => x.Overlaps(palRegion)).Concat(Anim_TextureAnimations.Where(x => x.Overlaps(textureRegion))).ToArray();
+            return Anim_PaletteAnimations.Where(x => x.Overlaps(palRegion)).Concat(Anim_TextureAnimations.Where(x => x.Overlaps(textureRegion)));
+        }
+
+        public IEnumerable<PS1VRAMAnimation> Anim_GetBGAnimationsFromRegion(RectInt palRegion)
+        {
+            return Anim_BGPaletteAnimations.Where(x => x.Overlaps(palRegion));
         }
 
         public enum LoadLoop
         {
             Animations = 0,
             Objects = 1,
+        }
+
+        public class BackgroundLayer
+        {
+            public BackgroundLayer(BackgroundModifierObject modifierObject, Texture2D[] frames, int speed)
+            {
+                ModifierObject = modifierObject;
+                Frames = frames;
+                Speed = speed;
+            }
+
+            public BackgroundModifierObject ModifierObject { get; }
+            public Texture2D[] Frames { get; }
+            public int Speed { get; }
         }
     }
 }

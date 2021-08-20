@@ -65,7 +65,6 @@ namespace R1Engine
                 new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
                 new GameAction("Extract Code", false, true, (input, output) => Extract_CodeAsync(settings, output)),
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
-                new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
             };
         }
@@ -211,7 +210,6 @@ namespace R1Engine
             }
         }
 
-        // TODO: Add BG export to this to correctly animate everything - also re-include modifiers objects, seems to be missing now?
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
@@ -230,6 +228,9 @@ namespace R1Engine
                 // Load the BIN
                 loader.SwitchBlocks(blockIndex);
                 loader.LoadAndProcessBINBlock();
+
+                if (blockIndex >= config.BLOCK_FirstLevel)
+                    loader.ProcessLevelData();
 
                 // WORLD MAP SPRITES
                 var wldMap = loader.GetLoadedFile<WorldMap_ArchiveFile>();
@@ -339,21 +340,116 @@ namespace R1Engine
                         var tim = timArchive.Files[i];
                         exportTex(
                             getTex: () => GetTexture(tim),
-                            blockName:
-                            $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
+                            blockName: $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
                             name: $"{fileIndex} - {i}");
                     }
                 }
 
-                // BACKGROUND TEXTURES
+                // MODIFIER TEXTURES
+                if (loader.LevelData3D != null)
+                {
+                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorModifiers.Length; sectorIndex++)
+                    {
+                        var sectorModifiers = loader.LevelData3D.SectorModifiers[sectorIndex].Modifiers;
+
+                        for (int modifierIndex = 0; modifierIndex < sectorModifiers.Length; modifierIndex++)
+                        {
+                            var modifier = sectorModifiers[modifierIndex];
+
+                            if (modifier.DataFiles == null)
+                                continue;
+
+                            for (int dataFileIndex = 0; dataFileIndex < modifier.DataFiles.Length; dataFileIndex++)
+                            {
+                                var dataFile = modifier.DataFiles[dataFileIndex];
+
+                                if (dataFile.Pre_FileType == GlobalModifierFileType.TIM)
+                                {
+                                    exportTex(
+                                        getTex: () => GetTexture(dataFile.TIM),
+                                        blockName: $"{blockIndex} - ModifierTextures",
+                                        name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex}");
+                                }
+                                else if (dataFile.Pre_FileType == GlobalModifierFileType.TextureAnimation)
+                                {
+                                    var texAnim = dataFile.TextureAnimation;
+
+                                    for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
+                                    {
+                                        exportTex(
+                                            getTex: () => GetTexture(texAnim.Files[texIndex]),
+                                            blockName: $"{blockIndex} - ModifierTextures",
+                                            name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex} - {texIndex}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // BACKGROUND TEXTURES (TILE SETS)
                 var bgPack = loader.BackgroundPack;
                 for (var i = 0; i < bgPack?.TIMFiles.Files.Length; i++)
                 {
                     var tim = bgPack.TIMFiles.Files[i];
                     exportTex(
                         getTex: () => GetTexture(tim, noPal: true),
-                        blockName: $"{blockIndex} - Background",
+                        blockName: $"{blockIndex} - BackgroundTileSets",
                         name: $"{i}");
+                }
+
+                // BACKGROUND ANIMATIONS (MAPS)
+                if (bgPack != null)
+                {
+                    var exportedLayers = new HashSet<BackgroundModifierObject>();
+
+                    for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundModifiersFiles.Files.Length; sectorIndex++)
+                    {
+                        var modifiers = bgPack.BackgroundModifiersFiles.Files[sectorIndex].Modifiers.Where(x => !exportedLayers.Contains(x)).ToArray();
+                        var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, 0, null, new ModifierObject[0], modifiers);
+
+                        // Load to get the backgrounds with their animations
+                        await modifiersLoader.LoadAsync();
+                        await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+
+                        // Export every layer
+                        foreach (PSKlonoa_DTP_ModifiersLoader.BackgroundLayer layer in modifiersLoader.BG_Layers)
+                        {
+                            exportedLayers.Add(layer.ModifierObject);
+                            export(layer.Frames, layer.Speed, layer.ModifierObject.BGDIndex);
+                        }
+                    }
+
+                    // Export unused layers
+                    for (int bgdIndex = 0; bgdIndex < bgPack.BGDFiles.Files.Length; bgdIndex++)
+                    {
+                        if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
+                            continue;
+
+                        var tex = GetTexture(loader, bgPack, new BackgroundModifierObject()
+                        {
+                            Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
+                            BGDIndex = bgdIndex,
+                            CELIndex = 0,
+                        });
+
+                        export(new Texture2D[]
+                        {
+                            tex
+                        }, 0, bgdIndex);
+                    }
+
+                    void export(IList<Texture2D> frames, int speed, int index)
+                    {
+                        if (frames.Count > 1)
+                        {
+                            Util.ExportAnimAsGif(frames, speed, false, false, Path.Combine(outputPath, $"{blockIndex} - Backgrounds", $"{index}.gif"));
+                        }
+                        else
+                        {
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - Backgrounds", $"{index}.png"), frames[0].EncodeToPNG());
+                        }
+                    }
                 }
 
                 // SPRITE SETS
@@ -366,7 +462,7 @@ namespace R1Engine
 
                     // Enumerate every sprite
                     for (int spriteIndex = 0; spriteIndex < spriteSet.Files.Length - 1; spriteIndex++)
-                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - Sprites", spriteSetIndex, spriteIndex, 0, 500);
+                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - SpriteSets", spriteSetIndex, spriteIndex, 0, 500);
                 }
 
                 // SPRITE SET PLAYER SPRITES
@@ -462,6 +558,12 @@ namespace R1Engine
                         if (animFrames == null)
                             continue;
 
+                        if (animFrames.Any(x => x == null))
+                        {
+                            Debug.LogWarning($"At least one animation frame is null");
+                            continue;
+                        }
+
                         Util.ExportAnimAsGif(
                             frames: animFrames, 
                             speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
@@ -502,92 +604,6 @@ namespace R1Engine
                 {
                     Debug.LogWarning($"Error exporting sprite frame: {ex}");
                 }
-            }
-        }
-
-        public async UniTask Extract_BackgroundsAsync(GameSettings settings, string outputPath)
-        {
-            using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
-            await LoadFilesAsync(context, config);
-
-            // Load the IDX
-            var idxData = Load_IDX(context, config);
-
-            var loader = Loader_DTP.Create(context, idxData, config);
-
-            // Enumerate every entry
-            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
-            {
-                loader.SwitchBlocks(blockIndex);
-
-                // Process each BIN file
-                loader.LoadBINFiles((cmd, i) =>
-                {
-                    try
-                    {
-                        // Check the file type
-                        if (cmd.FILE_Type != IDXLoadCommand.FileType.Archive_BackgroundPack)
-                            return;
-
-                        // Read the data
-                        var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
-
-                        var exportedMaps = new bool[bg.BGDFiles.Files.Length];
-
-                        // Export for each sector
-                        foreach (var modifiersFile in bg.BackgroundModifiersFiles.Files)
-                            export(modifiersFile.Modifiers.Where(x => !x.IsLayer || !exportedMaps[x.BGDIndex]).ToArray());
-
-                        // Export unreferenced backgrounds
-                        for (int j = 0; j < exportedMaps.Length; j++)
-                        {
-                            if (!exportedMaps[j])
-                            {
-                                export(new BackgroundModifierObject[]
-                                {
-                                    new BackgroundModifierObject
-                                    {
-                                        Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
-                                        BGDIndex = j,
-                                        CELIndex = 0,
-                                    }
-                                });
-                            }
-                        }
-
-                        void export(BackgroundModifierObject[] modifiers)
-                        {
-                            Texture2D[][] textures;
-                            int animSpeed;
-
-                            (textures, animSpeed) = GetBackgrounds(loader, bg, modifiers);
-
-                            for (int texIndex = 0; texIndex < textures.Length; texIndex++)
-                            {
-                                var bgTex = textures[texIndex];
-                                var bgIndex = modifiers.Where(x => x.IsLayer).ElementAt(texIndex).BGDIndex;
-
-                                exportedMaps[bgIndex] = true;
-
-                                if (bgTex.Length > 1)
-                                {
-                                    Util.ExportAnimAsGif(bgTex, animSpeed, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
-                                }
-                                else
-                                {
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), bgTex[0].EncodeToPNG());
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error exporting with ex: {ex}");
-                    }
-                });
-
-                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
             }
         }
 
@@ -832,7 +848,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load backgrounds
-            var backgrounds = Load_Layers_Backgrounds(loader, sector);
+            var backgrounds = Load_Layers_Backgrounds(loader, modifiersLoader);
             layers.AddRange(backgrounds);
 
             Controller.DetailedState = "Loading level geometry";
@@ -871,27 +887,18 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, int sector)
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader)
         {
-            // Load backgrounds
-            if (loader.BackgroundPack == null || loader.BackgroundPack.BackgroundModifiersFiles.Files.Length <= sector)
-                return Enumerable.Empty<Unity_Layer>();
-
-            var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
-
-            Texture2D[][] bgTextures;
-            int bgAnimSpeed;
-
             // Get the background textures
-            (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
+            var bgLayers = modifiersLoader.BG_Layers;
 
             // Add the backgrounds
-            return bgTextures.Select((t, i) => new Unity_Layer_Texture
+            return bgLayers.Select((t, i) => new Unity_Layer_Texture
             {
                 Name = $"Background {i}",
                 ShortName = $"BG{i}",
-                Textures = t,
-                AnimSpeed = bgAnimSpeed,
+                Textures = t.Frames,
+                AnimSpeed = t.Speed,
             });
         }
 
@@ -1130,7 +1137,7 @@ namespace R1Engine
                 vramTex.SetTexture(vramTex.GetTexture(loader.VRAM));
 
                 // Check if the texture is animated
-                PS1VRAMAnimation[] vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion);
+                var vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion).ToArray();
 
                 if (!vramAnims.Any()) 
                     continue;
@@ -1424,58 +1431,6 @@ namespace R1Engine
             return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
         }
 
-        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram, Texture2D tex = null)
-        {
-            if (!packet.Mode.TME)
-                throw new Exception($"Packet has no texture");
-
-            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch
-            {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
-                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-            };
-
-            var dimensions = GetVRAMPageDimensions(packet.TSB);
-            tex ??= TextureHelpers.CreateTexture2D(dimensions.x, dimensions.y, clear: true);
-
-            FillTextureFromVRAM(
-                tex: tex,
-                vram: vram,
-                width: dimensions.x,
-                height: dimensions.y,
-                colorFormat: colFormat,
-                texX: 0,
-                texY: 0,
-                clutX: packet.CBA.ClutX * 16,
-                clutY: packet.CBA.ClutY,
-                texturePageX: packet.TSB.TX,
-                texturePageY: packet.TSB.TY,
-                texturePageOriginX: 0,
-                texturePageOriginY: 0,
-                texturePageOffsetX: 0,
-                texturePageOffsetY: 0,
-                flipY: true);
-
-            tex.Apply();
-
-            return tex;
-        }
-        
-        public Vector2Int GetVRAMPageDimensions(PS1_TSB tsb)
-        {
-            int width = tsb.TP switch
-            {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_VRAM.PageWidth * 2,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_VRAM.PageWidth,
-                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_VRAM.PageWidth / 2,
-                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {tsb.TP}")
-            };
-
-            return new Vector2Int(width, PS1_VRAM.PageHeight);
-        }
-
         public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
         {
             Util.TileEncoding encoding;
@@ -1578,106 +1533,100 @@ namespace R1Engine
             return tex;
         }
 
-        public (Texture2D[][], int) GetBackgrounds(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
+        public (Texture2D[], int) GetBackgroundFrames(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer)
         {
-            // Get the modifiers
-            var layers = modifiers.Where(x => x.IsLayer).ToArray();
-            var palScrolls = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.PaletteScroll).ToArray();
+            var celIndex = layer.CELIndex;
+            var bgIndex = layer.BGDIndex;
 
-            // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
-            // the same length and speed (which they do in Klonoa)
-            var framesLength = palScrolls.Any() ? palScrolls.First().Data_PaletteScroll.Length : 1;
-            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_PaletteScroll.Speed : 0;
+            var tim = bg.TIMFiles.Files[celIndex];
+            var cel = bg.CELFiles.Files[celIndex];
+            var map = bg.BGDFiles.Files[bgIndex];
 
-            // Create the textures array for the backgrounds and their frames
-            var textures = new Texture2D[layers.Length][];
+            bool is8bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_8;
+            int palLength = (is8bit ? 256 : 16) * 2;
 
-            for (int i = 0; i < textures.Length; i++)
-                textures[i] = new Texture2D[framesLength];
+            var anims = new HashSet<PS1VRAMAnimation>();
 
-            // Create the background frames
-            for (int frameIndex = 0; frameIndex < framesLength; frameIndex++)
+            if (modifiersLoader.Anim_BGPaletteAnimations.Any())
             {
-                // Update VRAM with each palette scroll modifier
-                if (frameIndex > 0)
+                foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
                 {
-                    foreach (var palMod in palScrolls.Select(x => x.Data_PaletteScroll))
-                    {
-                        var pal = loader.VRAM.GetPixels8(0, 0, palMod.XPosition * 2, palMod.YPosition, 32);
+                    var region = new RectInt((clut & 0x3F) * 16 * 2, clut >> 6, palLength, 1);
 
-                        var firstColor_0 = pal[0];
-                        var firstColor_1 = pal[1];
-                        
-                        var index = palMod.StartIndex;
-                        var endIndex = index + palMod.Length;
-                        
-                        do
-                        {
-                            pal[index * 2] = pal[(index + 1) * 2];
-                            pal[index * 2 + 1] = pal[(index + 1) * 2 + 1];
+                    foreach (var anim in modifiersLoader.Anim_GetBGAnimationsFromRegion(region))
+                        anims.Add(anim);
 
-                            index += 1;
-                        } while (index < endIndex);
-
-                        pal[(endIndex - 1) * 2] = firstColor_0;
-                        pal[(endIndex - 1) * 2 + 1] = firstColor_1;
-
-                        loader.VRAM.AddDataAt(0, 0, palMod.XPosition * 2, palMod.YPosition, pal, 32, 1);
-                    }
-                }
-
-                // Create the frame for each background
-                for (int layerIndex = 0; layerIndex < layers.Length; layerIndex++)
-                {
-                    var celIndex = layers[layerIndex].CELIndex;
-                    var bgIndex = layers[layerIndex].BGDIndex;
-
-                    var tim = bg.TIMFiles.Files[celIndex];
-                    var cel = bg.CELFiles.Files[celIndex];
-                    var map = bg.BGDFiles.Files[bgIndex];
-
-                    var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-                    for (int mapY = 0; mapY < map.MapHeight; mapY++)
-                    {
-                        for (int mapX = 0; mapX < map.MapWidth; mapX++)
-                        {
-                            var cellIndex = map.Map[mapY * map.MapWidth + mapX];
-
-                            if (cellIndex == 0xFF)
-                                continue;
-
-                            var cell = cel.Cells[cellIndex];
-
-                            if (cell.ABE)
-                                Debug.LogWarning($"CEL ABE flag is set!");
-
-                            FillTextureFromVRAM(
-                                tex: tex,
-                                vram: loader.VRAM,
-                                width: map.CellWidth,
-                                height: map.CellHeight,
-                                colorFormat: tim.ColorFormat,
-                                texX: mapX * map.CellWidth,
-                                texY: mapY * map.CellHeight,
-                                clutX: cell.ClutX * 16,
-                                clutY: cell.ClutY,
-                                texturePageOriginX: tim.Region.XPos,
-                                texturePageOriginY: tim.Region.YPos,
-                                texturePageOffsetX: cell.XOffset,
-                                texturePageOffsetY: cell.YOffset);
-                        }
-                    }
-
-                    tex.Apply();
-
-                    textures[layerIndex][frameIndex] = tex;
+                    if (anims.Count == modifiersLoader.Anim_BGPaletteAnimations.Count)
+                        break;
                 }
             }
 
-            return (textures, animSpeed);
+            if (!anims.Any())
+                return (new Texture2D[]
+                {
+                    GetTexture(loader, bg, layer)
+                }, 0);
+
+            var width = map.MapWidth * map.CellWidth;
+            var height = map.MapHeight * map.CellHeight;
+
+            var animatedTex = new PS1VRAMAnimatedTexture(width, height, true, tex =>
+            {
+                GetTexture(loader, bg, layer, tex);
+            }, anims.ToArray());
+
+            modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
+
+            return (animatedTex.Textures, animatedTex.Speed);
         }
-        
+
+        public Texture2D GetTexture(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer, Texture2D tex = null)
+        {
+            var celIndex = layer.CELIndex;
+            var bgIndex = layer.BGDIndex;
+
+            var tim = bg.TIMFiles.Files[celIndex];
+            var cel = bg.CELFiles.Files[celIndex];
+            var map = bg.BGDFiles.Files[bgIndex];
+
+            tex ??= TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
+
+            for (int mapY = 0; mapY < map.MapHeight; mapY++)
+            {
+                for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                {
+                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
+
+                    if (cellIndex == 0xFF)
+                        continue;
+
+                    var cell = cel.Cells[cellIndex];
+
+                    if (cell.ABE)
+                        Debug.LogWarning($"CEL ABE flag is set!");
+
+                    FillTextureFromVRAM(
+                        tex: tex,
+                        vram: loader.VRAM,
+                        width: map.CellWidth,
+                        height: map.CellHeight,
+                        colorFormat: tim.ColorFormat,
+                        texX: mapX * map.CellWidth,
+                        texY: mapY * map.CellHeight,
+                        clutX: cell.ClutX * 16,
+                        clutY: cell.ClutY,
+                        texturePageOriginX: tim.Region.XPos,
+                        texturePageOriginY: tim.Region.YPos,
+                        texturePageOffsetX: cell.XOffset,
+                        texturePageOffsetY: cell.YOffset);
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+
         public Texture2D[] GetAnimationFrames(Loader_DTP loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
         {
             var textures = new Texture2D[anim.FramesCount];
