@@ -99,7 +99,7 @@ namespace R1Engine
 
                         Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
                                          $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                         $"{String.Join(Environment.NewLine, modifier.DataFiles?.Select(x => x.Unknown.ToHexString(align: 16, maxLines: 16)) ?? new string[0])}");
+                                         $"{String.Join(Environment.NewLine, modifier.DataFiles?.Select(x => x.Unknown?.ToHexString(align: 16, maxLines: 16)) ?? new string[0])}");
                         return;
                     }
 
@@ -145,6 +145,24 @@ namespace R1Engine
                             return;
 
                         GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
+                    } 
+                    break;
+
+                case GlobalModifierType.TiltRock:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform);
+                    } 
+                    break;
+
+                case GlobalModifierType.Minecart:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransforms: modifier.DataFiles[3].Transforms.Files, localTransform: modifier.DataFiles[5].Transform);
                     } 
                     break;
 
@@ -219,6 +237,14 @@ namespace R1Engine
 
         public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0)
         {
+            return GameObj_LoadTMD(modifier, tmd, localTransform, absoluteTransform == null ? null : new ObjTransform_ArchiveFile[]
+            {
+                absoluteTransform
+            }, index);
+        }
+
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0)
+        {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
             
@@ -238,13 +264,10 @@ namespace R1Engine
             if (isAnimated)
                 GameObj_IsAnimated = true;
 
-            if (absoluteTransform != null)
+            if (absoluteTransforms != null && absoluteTransforms.Any())
             {
-                if (tmd.ObjectsCount > 1)
-                    Debug.LogWarning($"An absolute transform was used on a TMD with multiple objects!");
-
-                gameObj.transform.localPosition = Manager.GetPositionVector(absoluteTransform.Positions.Positions[0][0], null, Scale);
-                gameObj.transform.localRotation = Manager.GetQuaternion(absoluteTransform.Rotations.Rotations[0][0]);
+                gameObj.transform.localPosition = Manager.GetPositionVector(absoluteTransforms[0].Positions.Positions[0][0], null, Scale);
+                gameObj.transform.localRotation = Manager.GetQuaternion(absoluteTransforms[0].Rotations.Rotations[0][0]);
             }
             else
             {
@@ -254,13 +277,13 @@ namespace R1Engine
 
             gameObj.transform.SetParent(ParentObject.transform);
 
-            if (absoluteTransform?.Positions.Positions.Length > 1)
+            if (absoluteTransforms?.FirstOrDefault()?.Positions.Positions.Length > 1)
             {
                 var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                 mtComponent.animatedTransform = gameObj.transform;
 
-                var positions = absoluteTransform.Positions.Positions.Select(x => Manager.GetPositionVector(x[0], null, Scale)).ToArray();
-                var rotations = absoluteTransform.Rotations.Rotations.Select(x => Manager.GetQuaternion(x[0])).ToArray();
+                var positions = absoluteTransforms.SelectMany(x => x.Positions.Positions).Select(x => Manager.GetPositionVector(x[0], null, Scale)).ToArray();
+                var rotations = absoluteTransforms.SelectMany(x => x.Rotations.Rotations).Select(x => Manager.GetQuaternion(x[0])).ToArray();
 
                 var frameCount = Math.Max(positions.Length, rotations.Length);
                 mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];

@@ -1304,7 +1304,7 @@ namespace R1Engine
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.scrollV = -0.5f;
+                            animTex.scrollV = -2f;
                         }
                     }
                 }
