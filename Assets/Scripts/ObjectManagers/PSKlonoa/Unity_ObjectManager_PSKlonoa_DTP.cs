@@ -15,9 +15,10 @@ namespace R1Engine
 
         public class SpriteSet
         {
-            public SpriteSet(Sprite[] sprites, int index)
+            public SpriteSet(Sprite[] sprites, SpritesType type, int index)
             {
                 Sprites = sprites;
+                Type = type;
                 Index = index;
                 Animations = Sprites.Select((x, i) => new Unity_ObjAnimation
                 {
@@ -37,9 +38,17 @@ namespace R1Engine
             }
 
             public Sprite[] Sprites { get; }
+            public SpritesType Type { get; }
             public Unity_ObjAnimation[] Animations { get; }
             public int Index { get; }
             public string DisplayName => $"{Index}";
+        }
+
+        public enum SpritesType
+        {
+            SpriteSets,
+            Cutscene,
+            Player,
         }
     }
 }

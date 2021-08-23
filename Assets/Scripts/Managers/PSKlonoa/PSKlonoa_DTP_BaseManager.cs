@@ -1,4 +1,6 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Klonoa;
+using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using System;
@@ -9,8 +11,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using BinarySerializer.Klonoa;
-using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -19,6 +19,8 @@ namespace R1Engine
     public abstract class PSKlonoa_DTP_BaseManager : BaseGameManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
+
+        private static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
 
         public virtual (string, int)[] Levels => new (string, int)[]
         {
@@ -63,7 +65,6 @@ namespace R1Engine
                 new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
                 new GameAction("Extract Code", false, true, (input, output) => Extract_CodeAsync(settings, output)),
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
-                new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
             };
         }
@@ -228,6 +229,9 @@ namespace R1Engine
                 loader.SwitchBlocks(blockIndex);
                 loader.LoadAndProcessBINBlock();
 
+                if (blockIndex >= config.BLOCK_FirstLevel)
+                    loader.ProcessLevelData();
+
                 // WORLD MAP SPRITES
                 var wldMap = loader.GetLoadedFile<WorldMap_ArchiveFile>();
                 if (wldMap != null)
@@ -336,21 +340,116 @@ namespace R1Engine
                         var tim = timArchive.Files[i];
                         exportTex(
                             getTex: () => GetTexture(tim),
-                            blockName:
-                            $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
+                            blockName: $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
                             name: $"{fileIndex} - {i}");
                     }
                 }
 
-                // BACKGROUND TEXTURES
+                // MODIFIER TEXTURES
+                if (loader.LevelData3D != null)
+                {
+                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorModifiers.Length; sectorIndex++)
+                    {
+                        var sectorModifiers = loader.LevelData3D.SectorModifiers[sectorIndex].Modifiers;
+
+                        for (int modifierIndex = 0; modifierIndex < sectorModifiers.Length; modifierIndex++)
+                        {
+                            var modifier = sectorModifiers[modifierIndex];
+
+                            if (modifier.DataFiles == null)
+                                continue;
+
+                            for (int dataFileIndex = 0; dataFileIndex < modifier.DataFiles.Length; dataFileIndex++)
+                            {
+                                var dataFile = modifier.DataFiles[dataFileIndex];
+
+                                if (dataFile.Pre_FileType == GlobalModifierFileType.TIM)
+                                {
+                                    exportTex(
+                                        getTex: () => GetTexture(dataFile.TIM),
+                                        blockName: $"{blockIndex} - ModifierTextures",
+                                        name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex}");
+                                }
+                                else if (dataFile.Pre_FileType == GlobalModifierFileType.TextureAnimation)
+                                {
+                                    var texAnim = dataFile.TextureAnimation;
+
+                                    for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
+                                    {
+                                        exportTex(
+                                            getTex: () => GetTexture(texAnim.Files[texIndex]),
+                                            blockName: $"{blockIndex} - ModifierTextures",
+                                            name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex} - {texIndex}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // BACKGROUND TEXTURES (TILE SETS)
                 var bgPack = loader.BackgroundPack;
                 for (var i = 0; i < bgPack?.TIMFiles.Files.Length; i++)
                 {
                     var tim = bgPack.TIMFiles.Files[i];
                     exportTex(
                         getTex: () => GetTexture(tim, noPal: true),
-                        blockName: $"{blockIndex} - Background",
+                        blockName: $"{blockIndex} - BackgroundTileSets",
                         name: $"{i}");
+                }
+
+                // BACKGROUND ANIMATIONS (MAPS)
+                if (bgPack != null)
+                {
+                    var exportedLayers = new HashSet<BackgroundModifierObject>();
+
+                    for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundModifiersFiles.Files.Length; sectorIndex++)
+                    {
+                        var modifiers = bgPack.BackgroundModifiersFiles.Files[sectorIndex].Modifiers.Where(x => !exportedLayers.Contains(x)).ToArray();
+                        var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, 0, null, new ModifierObject[0], modifiers);
+
+                        // Load to get the backgrounds with their animations
+                        await modifiersLoader.LoadAsync();
+                        await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+
+                        // Export every layer
+                        foreach (PSKlonoa_DTP_ModifiersLoader.BackgroundLayer layer in modifiersLoader.BG_Layers)
+                        {
+                            exportedLayers.Add(layer.ModifierObject);
+                            export(layer.Frames, layer.Speed, layer.ModifierObject.BGDIndex);
+                        }
+                    }
+
+                    // Export unused layers
+                    for (int bgdIndex = 0; bgdIndex < bgPack.BGDFiles.Files.Length; bgdIndex++)
+                    {
+                        if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
+                            continue;
+
+                        var tex = GetTexture(loader, bgPack, new BackgroundModifierObject()
+                        {
+                            Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
+                            BGDIndex = bgdIndex,
+                            CELIndex = 0,
+                        });
+
+                        export(new Texture2D[]
+                        {
+                            tex
+                        }, 0, bgdIndex);
+                    }
+
+                    void export(IList<Texture2D> frames, int speed, int index)
+                    {
+                        if (frames.Count > 1)
+                        {
+                            Util.ExportAnimAsGif(frames, speed, false, false, Path.Combine(outputPath, $"{blockIndex} - Backgrounds", $"{index}.gif"));
+                        }
+                        else
+                        {
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - Backgrounds", $"{index}.png"), frames[0].EncodeToPNG());
+                        }
+                    }
                 }
 
                 // SPRITE SETS
@@ -363,7 +462,7 @@ namespace R1Engine
 
                     // Enumerate every sprite
                     for (int spriteIndex = 0; spriteIndex < spriteSet.Files.Length - 1; spriteIndex++)
-                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - Sprites", spriteSetIndex, spriteIndex, 0, 500);
+                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - SpriteSets", spriteSetIndex, spriteIndex, 0, 500);
                 }
 
                 // SPRITE SET PLAYER SPRITES
@@ -459,13 +558,18 @@ namespace R1Engine
                         if (animFrames == null)
                             continue;
 
+                        if (animFrames.Any(x => x == null))
+                        {
+                            Debug.LogWarning($"At least one animation frame is null");
+                            continue;
+                        }
+
                         Util.ExportAnimAsGif(
                             frames: animFrames, 
                             speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
                             center: true, 
                             trim: false, 
-                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"), 
-                            frameRate: 30);
+                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"));
                     }
                 }
 
@@ -500,92 +604,6 @@ namespace R1Engine
                 {
                     Debug.LogWarning($"Error exporting sprite frame: {ex}");
                 }
-            }
-        }
-
-        public async UniTask Extract_BackgroundsAsync(GameSettings settings, string outputPath)
-        {
-            using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
-            await LoadFilesAsync(context, config);
-
-            // Load the IDX
-            var idxData = Load_IDX(context, config);
-
-            var loader = Loader_DTP.Create(context, idxData, config);
-
-            // Enumerate every entry
-            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
-            {
-                loader.SwitchBlocks(blockIndex);
-
-                // Process each BIN file
-                loader.LoadBINFiles((cmd, i) =>
-                {
-                    try
-                    {
-                        // Check the file type
-                        if (cmd.FILE_Type != IDXLoadCommand.FileType.Archive_BackgroundPack)
-                            return;
-
-                        // Read the data
-                        var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
-
-                        var exportedMaps = new bool[bg.BGDFiles.Files.Length];
-
-                        // Export for each sector
-                        foreach (var modifiersFile in bg.BackgroundModifiersFiles.Files)
-                            export(modifiersFile.Modifiers.Where(x => !x.IsLayer || !exportedMaps[x.BGDIndex]).ToArray());
-
-                        // Export unreferenced backgrounds
-                        for (int j = 0; j < exportedMaps.Length; j++)
-                        {
-                            if (!exportedMaps[j])
-                            {
-                                export(new BackgroundModifierObject[]
-                                {
-                                    new BackgroundModifierObject
-                                    {
-                                        Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
-                                        BGDIndex = j,
-                                        CELIndex = 0,
-                                    }
-                                });
-                            }
-                        }
-
-                        void export(BackgroundModifierObject[] modifiers)
-                        {
-                            Texture2D[][] textures;
-                            int animSpeed;
-
-                            (textures, animSpeed) = GetBackgrounds(loader, bg, modifiers);
-
-                            for (int texIndex = 0; texIndex < textures.Length; texIndex++)
-                            {
-                                var bgTex = textures[texIndex];
-                                var bgIndex = modifiers.Where(x => x.IsLayer).ElementAt(texIndex).BGDIndex;
-
-                                exportedMaps[bgIndex] = true;
-
-                                if (bgTex.Length > 1)
-                                {
-                                    Util.ExportAnimAsGif(bgTex, animSpeed * 2, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
-                                }
-                                else
-                                {
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), bgTex[0].EncodeToPNG());
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error exporting with ex: {ex}");
-                    }
-                });
-
-                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
             }
         }
 
@@ -652,8 +670,8 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
-            var stopWatch = Stopwatch.StartNew();
-            var startupLog = new StringBuilder();
+            var stopWatch = IncludeDebugInfo ? Stopwatch.StartNew() : null;
+            var startupLog = IncludeDebugInfo ? new StringBuilder() : null;
 
             // Get settings
             GameSettings settings = context.GetR1Settings();
@@ -661,12 +679,12 @@ namespace R1Engine
             int sector = settings.Level;
             LoaderConfiguration_DTP config = GetLoaderConfig(settings);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
 
             // Load the files
             await LoadFilesAsync(context, config);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
 
             Controller.DetailedState = "Loading IDX";
             await Controller.WaitIfNecessary();
@@ -674,7 +692,7 @@ namespace R1Engine
             // Load the IDX
             IDX idxData = Load_IDX(context, config);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
             ArchiveFile.AddToParsedArchiveFiles = true;
 
@@ -698,14 +716,14 @@ namespace R1Engine
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
 
             Controller.DetailedState = "Loading level data";
             await Controller.WaitIfNecessary();
@@ -713,68 +731,76 @@ namespace R1Engine
             // Load hard-coded level data
             loader.ProcessLevelData();
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
             const float scale = 64f;
 
             // Load the layers
             Unity_Layer[] layers = await Load_LayersAsync(loader, sector, scale);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
             Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
             List<Unity_Object> objects = Load_Objects(loader, sector, scale, objManager);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
             var paths = Load_MovementPaths(loader, sector, scale);
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+                ElementAtOrDefault(sector)?.Modifiers.
+                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient || 
+                           x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
+                Select(x => x.Data_Clear).
+                ToArray();
 
             // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
                 camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
 
-            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
-            var str = new StringBuilder();
-
-            foreach (var archive in ArchiveFile.ParsedArchiveFiles)
+            if (IncludeDebugInfo)
             {
-                for (int i = 0; i < archive.Value.Length; i++)
+                var str = new StringBuilder();
+
+                foreach (var archive in ArchiveFile.ParsedArchiveFiles)
                 {
-                    if (!archive.Value[i])
-                        str.AppendLine($"{archive.Key.Offset}: ({archive.Key.GetType().Name}) File #{i}");
+                    for (int i = 0; i < archive.Value.Length; i++)
+                    {
+                        if (!archive.Value[i])
+                            str.AppendLine($"{archive.Key.Offset}: ({archive.Key.GetType().Name}) File #{i}");
+                    }
                 }
+
+                Debug.Log($"Unparsed BIN files:{Environment.NewLine}" +
+                          $"{str}");
+
+                stopWatch.Stop();
+
+                Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
+                          $"{startupLog}");
             }
-
-            Debug.Log($"Unparsed BIN files:{Environment.NewLine}" +
-                      $"{str}");
-
-            stopWatch.Stop();
-
-            Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
-                      $"{startupLog}");
 
             return new Unity_Level(
                 layers: layers,
                 cellSize: 16,
                 objManager: objManager,
                 eventData: objects,
-                framesPerSecond: 30,
+                framesPerSecond: 60,
                 collisionLines: paths,
                 isometricData: new Unity_IsometricData
                 {
@@ -795,53 +821,99 @@ namespace R1Engine
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader_DTP loader, int sector, float scale)
         {
-            var modifiers = loader.LevelData3D.SectorModifiers[sector].Modifiers;
-            var texAnimations = modifiers.
-                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
-                SelectMany(x => x.DataFiles).
-                Where(x => x.TextureAnimation != null).
-                Select(x => x.TextureAnimation.Files).
-                ToArray();
-            var uvScrollAnimations = modifiers.
-                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
-                SelectMany(x => x.DataFiles).
-                Where(x => x.UVScrollAnimation != null).
-                SelectMany(x => x.UVScrollAnimation.UVOffsets).
-                ToArray();
-
             var layers = new List<Unity_Layer>();
+            var parent3d = Controller.obj.levelController.editor.layerTiles;
+
+            Controller.DetailedState = "Loading modifiers";
+            await Controller.WaitIfNecessary();
+
+            var gao_3dObjParent = new GameObject("3D Objects");
+            gao_3dObjParent.transform.localPosition = Vector3.zero;
+            gao_3dObjParent.transform.localRotation = Quaternion.identity;
+            gao_3dObjParent.transform.localScale = Vector3.one;
+
+            // Load the modifiers first so we get the VRAM animations
+            var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorModifiers[sector].Modifiers, loader.BackgroundPack.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers);
+            await modifiersLoader.LoadAsync();
+
+            if (IncludeDebugInfo)
+            {
+                Debug.Log($"TEXTURE ANIMATIONS:{Environment.NewLine}" +
+                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                Debug.Log($"PALETTE ANIMATIONS:{Environment.NewLine}" +
+                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+            }
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
 
             // Load backgrounds
-            if (loader.BackgroundPack != null && loader.BackgroundPack.BackgroundModifiersFiles.Files.Length > sector)
-            {
-                var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
-
-                Texture2D[][] bgTextures;
-                int bgAnimSpeed;
-
-                // Get the background textures
-                (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
-
-                // Add the backgrounds
-                layers.AddRange(bgTextures.Select((t, i) => new Unity_Layer_Texture
-                {
-                    Name = $"Background {i}", 
-                    ShortName = $"BG{i}", 
-                    Textures = t, 
-                    AnimSpeed = bgAnimSpeed,
-                }));
-            }
+            var backgrounds = Load_Layers_Backgrounds(loader, modifiersLoader);
+            layers.AddRange(backgrounds);
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
+            // Load level object
+            var levelObj = Load_Layers_LevelObject(loader, parent3d, modifiersLoader, sector, scale);
+            layers.Add(levelObj);
+
+            Controller.DetailedState = "Loading collision";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load collision
+
+            // Add layer for 3D objects last
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: modifiersLoader.GameObj_IsAnimated)
+            {
+                Name = "3D Objects",
+                ShortName = $"3DO",
+                Graphics = gao_3dObjParent
+            });
+            gao_3dObjParent.transform.SetParent(parent3d.transform);
+
+            // Log some debug info
+            if (IncludeDebugInfo)
+            {
+                Debug.Log($"MAP INFO{Environment.NewLine}" +
+                          $"{modifiersLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
+                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                          $"Modifiers:{Environment.NewLine}\t" +
+                          $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
+            }
+
+            await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+
+            return layers.ToArray();
+        }
+
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader)
+        {
+            // Get the background textures
+            var bgLayers = modifiersLoader.BG_Layers;
+
+            // Add the backgrounds
+            return bgLayers.Select((t, i) => new Unity_Layer_Texture
+            {
+                Name = $"Background {i}",
+                ShortName = $"BG{i}",
+                Textures = t.Frames,
+                AnimSpeed = t.Speed,
+            });
+        }
+
+        public Unity_Layer Load_Layers_LevelObject(Loader_DTP loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
+        {
             GameObject obj;
             bool isAnimated;
 
-            (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations);
+            (obj, isAnimated) = CreateGameObject(
+                tmd: loader.LevelPack.Sectors[sector].LevelModel, 
+                loader: loader, 
+                scale: scale, 
+                name: "Map", 
+                modifiersLoader: modifiersLoader, 
+                isPrimaryObj: true);
 
             var levelBounds = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
 
@@ -853,8 +925,8 @@ namespace R1Engine
             // Correctly center object
             //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
-            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
-            layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
+            obj.transform.SetParent(parent.transform);
+            return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
                 Name = "Map",
                 ShortName = "MAP",
@@ -862,196 +934,14 @@ namespace R1Engine
                 Collision = null,
                 Dimensions = layerDimensions,
                 DisableGraphicsWhenCollisionIsActive = true
-            });
-            obj.transform.SetParent(parent3d);
-
-            Controller.DetailedState = "Loading 3D objects";
-            await Controller.WaitIfNecessary();
-
-            GameObject gao_3dObjParent = null;
-
-            bool isObjAnimated = false;
-
-            foreach (var modifier in modifiers)
-            {
-                if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
-                    continue;
-
-                if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_40 || modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
-                {
-                    bool animated;
-
-                    (gao_3dObjParent, animated) = Load_ModifierObject(loader, modifier, gao_3dObjParent, scale, texAnimations);
-
-                    if (animated)
-                        isObjAnimated = true;
-                }
-                else
-                {
-                    Debug.LogWarning($"Skipped unsupported modifier object of primary type {modifier.PrimaryType}");
-                }
-            }
-
-            Debug.Log($"MAP INFO{Environment.NewLine}" +
-                      $"{texAnimations.Length} texture animations{Environment.NewLine}" +
-                      $"{uvScrollAnimations.Length} UV scroll animations{Environment.NewLine}" +
-                      $"Modifiers:{Environment.NewLine}\t" +
-                      $"{String.Join($"{Environment.NewLine}\t", modifiers.Take(modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} {String.Join(", ", x.DataFiles?.Select(d => d.DeterminedType.ToString()) ?? new string[0])}"))}");
-
-            if (gao_3dObjParent != null)
-            {
-                layers.Add(new Unity_Layer_GameObject(true, isAnimated: isObjAnimated)
-                {
-                    Name = "3D Objects",
-                    ShortName = $"3DO",
-                    Graphics = gao_3dObjParent
-                });
-                gao_3dObjParent.transform.SetParent(parent3d);
-            }
-
-            Controller.DetailedState = "Loading collision";
-            await Controller.WaitIfNecessary();
-
-            // TODO: Load collision
-
-            return layers.ToArray();
-        }
-
-        public (GameObject, bool) Load_ModifierObject(Loader_DTP loader, ModifierObject modifier, GameObject gao_3dObjParent, float scale, PS1_TIM[][] texAnimations)
-        {
-            bool isObjAnimated = false;
-
-            // Some objects only have a single position without a rotation
-            var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
-            
-            // Objects can have transform info. This is 2-dimensional as it can effect individual objects in the TMD and have multiple "frames"
-            // obj positions/rotations. We assume that if it effects multiple objects it does not animate and is only for their relative positions.
-            var objTransform = modifier.DataFiles.FirstOrDefault(x => x.Transform?.Info?.ObjectsCount > 1)?.Transform;
-
-            var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null && !(x.Transform?.Info?.ObjectsCount > 1))?.Transform;
-
-            var transformPositions = transform?.Positions.Positions;
-            var transformRotations = transform?.Rotations.Rotations;
-
-            // The minecart has multiple transforms with animations for how it travels, so we combine them
-            if (transform == null)
-            {
-                var transforms = modifier.DataFiles.FirstOrDefault(x => x.Transforms != null)?.Transforms;
-
-                transformPositions = transforms?.Files.SelectMany(x => x.Positions.Positions).ToArray();
-                transformRotations = transforms?.Files.SelectMany(x => x.Rotations.Rotations).ToArray();
-            }
-
-            var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
-
-            var constantRotation = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                ? ModifierObjectsRotations.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                : null;
-            var posOffset = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                : null;
-
-            var index = 0;
-
-            foreach (var tmd in tmdFiles)
-            {
-                if (gao_3dObjParent == null)
-                {
-                    gao_3dObjParent = new GameObject("3D Objects");
-                    gao_3dObjParent.transform.localPosition = Vector3.zero;
-                    gao_3dObjParent.transform.localRotation = Quaternion.identity;
-                    gao_3dObjParent.transform.localScale = Vector3.one;
-                }
-
-                GameObject gameObj;
-                bool isAnimated;
-
-                (gameObj, isAnimated) = CreateGameObject(
-                    tmd: tmd,
-                    loader: loader,
-                    scale: scale,
-                    name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}",
-                    texAnimations: texAnimations,
-                    scrollUVs: new int[0],
-                    positions: objTransform?.Positions.Positions[0].Select(x => GetPositionVector(x, Vector3.zero, scale)).ToArray(),
-                    rotations: objTransform?.Rotations.Rotations[0].Select(x => GetQuaternion(x)).ToArray());
-
-                if (isAnimated)
-                    isObjAnimated = true;
-
-                Vector3 defaultPos = Vector3.zero;
-                Quaternion defaultRotation = Quaternion.identity;
-
-                if (pos != null)
-                {
-                    defaultPos = GetPositionVector(pos, posOffset, scale);
-                }
-                else if (transformPositions != null)
-                {
-                    defaultPos = GetPositionVector(transformPositions[0][0], posOffset, scale);
-                    defaultRotation = GetQuaternion(transformRotations[0][0]);
-                }
-
-                gameObj.transform.localPosition = defaultPos;
-                gameObj.transform.localRotation = defaultRotation;
-                gameObj.transform.SetParent(gao_3dObjParent.transform);
-
-                if (transformPositions?.Length > 1)
-                {
-                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                    mtComponent.animatedTransform = gameObj.transform;
-                    var positions = transformPositions?.Select(x => GetPositionVector(x[0], posOffset, scale)).ToArray() ?? new Vector3[0];
-                    var rotations = transformRotations?.Select(x => GetQuaternion(x[0])).ToArray() ?? new Quaternion[0];
-                    var frameCount = Math.Max(positions.Length, rotations.Length);
-                    mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-                    for (int i = 0; i < frameCount; i++)
-                    {
-                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                        {
-                            Position = positions.Length > i ? positions[i] : defaultPos,
-                            Rotation = rotations.Length > i ? rotations[i] : defaultRotation,
-                            Scale = Vector3.one
-                        };
-                    }
-                }
-
-                if (constantRotation != null)
-                {
-                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                    mtComponent.animatedTransform = gameObj.transform;
-
-                    var rotationPerFrame = constantRotation.Value.Item2;
-                    var count = 0x1000 / rotationPerFrame;
-
-                    mtComponent.frames = new AnimatedTransformComponent.Frame[count];
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        var degrees = GetRotationInDegrees(i * rotationPerFrame);
-
-                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                        {
-                            Position = defaultPos,
-                            Rotation = defaultRotation * Quaternion.Euler(
-                                x: degrees * constantRotation.Value.Item1.x,
-                                y: degrees * constantRotation.Value.Item1.y,
-                                z: degrees * constantRotation.Value.Item1.z),
-                            Scale = Vector3.one
-                        };
-                    }
-                }
-
-                index++;
-            }
-
-            return (gao_3dObjParent, isObjAnimated);
+            };
         }
 
         public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader_DTP loader)
         {
-            var frameSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
+            var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
-            // Enumerate each frame set
+            // Enumerate each sprite set
             for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
                 Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteSets.Length}";
@@ -1063,13 +953,15 @@ namespace R1Engine
                 if (frames == null)
                     continue;
 
-                // Create the frame textures
-                var frameTextures = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
+                // Create the sprites
+                var sprites = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
 
-                frameSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(frameTextures, i));
+                var set = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.SpriteSets, i);
+
+                spriteSets.Add(set);
             }
 
-            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, frameSets.ToArray());
+            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
         public List<Unity_Object> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
@@ -1143,7 +1035,12 @@ namespace R1Engine
             }));
 
             // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
+                Where(x => x.DataFiles != null).
+                SelectMany(x => x.DataFiles).
+                Where(x => x.ScenerySprites != null).
+                SelectMany(x => x.ScenerySprites.Positions).
+                Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
             {
                 Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
             }));
@@ -1197,14 +1094,62 @@ namespace R1Engine
             return lines.ToArray();
         }
 
-        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader_DTP loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)
+        public (GameObject, bool) CreateGameObject(
+            PS1_TMD tmd, 
+            Loader_DTP loader, 
+            float scale, 
+            string name, 
+            PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
+            bool isPrimaryObj,
+            Vector3[] positions = null, Quaternion[] rotations = null)
         {
             bool isAnimated = false;
-            var textureCache = new Dictionary<int, Texture2D>();
-            var textureAnimCache = new Dictionary<long, Texture2D[]>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
+
+            var vramTextures = new HashSet<PS1VRAMTexture>();
+            var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
+
+            // Get texture bounds
+            foreach (PS1_TMD_Packet packet in tmd.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
+            {
+                var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
+
+                var overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
+
+                if (overlappingTex != null)
+                {
+                    overlappingTex.ExpandWithBounds(tex);
+                    vramTexturesLookup.Add(packet, overlappingTex);
+                }
+                else
+                {
+                    vramTextures.Add(tex);
+                    vramTexturesLookup.Add(packet, tex);
+                }
+            }
+
+            // Create textures
+            foreach (PS1VRAMTexture vramTex in vramTextures)
+            {
+                // Create the default texture
+                vramTex.SetTexture(vramTex.GetTexture(loader.VRAM));
+
+                // Check if the texture is animated
+                var vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion).ToArray();
+
+                if (!vramAnims.Any()) 
+                    continue;
+                
+                var animatedTexture = new PS1VRAMAnimatedTexture(vramTex.Bounds.width, vramTex.Bounds.height, true, tex =>
+                {
+                    vramTex.GetTexture(loader.VRAM, tex);
+                }, vramAnims);
+                
+                modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
+                vramTex.SetAnimatedTexture(animatedTexture);
+            }
 
             // Create each object
             for (var objIndex = 0; objIndex < tmd.Objects.Length; objIndex++)
@@ -1214,19 +1159,6 @@ namespace R1Engine
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
-                Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
-
-                RectInt getRect(PS1_TMD_UV[] uv)
-                {
-                    int xMin = uv.Min(x => x.U);
-                    int xMax = uv.Max(x => x.U) + 1;
-                    int yMin = uv.Min(x => x.V);
-                    int yMax = uv.Max(x => x.V) + 1;
-                    int w = xMax - xMin;
-                    int h = yMax - yMin;
-
-                    return new RectInt(xMin, yMin, w, h);
-                }
 
                 GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
 
@@ -1244,7 +1176,6 @@ namespace R1Engine
                     //if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
                     //    Debug.LogWarning($"Packet has light source");
 
-                    // TODO: Implement other types
                     if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
                     {
                         Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
@@ -1322,10 +1253,8 @@ namespace R1Engine
 
                     unityMesh.SetColors(colors);
 
-                    if (packet.UV != null)
-                        unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
-
-                    if(normals == null) unityMesh.RecalculateNormals();
+                    if (normals == null) 
+                        unityMesh.RecalculateNormals();
 
                     GameObject gao = new GameObject($"Packet_{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
@@ -1345,90 +1274,37 @@ namespace R1Engine
                     // Add texture
                     if (packet.Mode.TME)
                     {
-                        var rect = getRect(packet.UV);
+                        var tex = vramTexturesLookup[packet];
 
-                        var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
-                        long animKey = (long) key | (long) rect.x << 32 | (long) rect.y << 40;
-
-                        if (!textureAnimCache.ContainsKey(animKey))
+                        unityMesh.SetUVs(0, packet.UV.Select(uv =>
                         {
-                            PS1_TIM[] foundAnim = null;
+                            var u = uv.U - tex.Bounds.x;
+                            var v = uv.V - tex.Bounds.y;
 
-                            // Check if the texture region falls within an animated area
-                            foreach (var anim in texAnimations)
-                            {
-                                foreach (var tim in anim)
-                                {
-                                    // Check the page
-                                    if ((tim.XPos * 2) / PS1_VRAM.PageWidth == packet.TSB.TX &&
-                                        tim.YPos / PS1_VRAM.PageHeight == packet.TSB.TY)
-                                    {
-                                        var is4Bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_4;
+                            return new Vector2(u / (float)(tex.Bounds.width - 1), v / (float)(tex.Bounds.height - 1));
+                        }).ToArray());
 
-                                        var timRect = new RectInt(
-                                            xMin: ((tim.XPos * 2) % PS1_VRAM.PageWidth) * (is4Bit ? 2 : 1),
-                                            yMin: (tim.YPos % PS1_VRAM.PageHeight),
-                                            width: tim.Width * 2 * (is4Bit ? 2 : 1),
-                                            height: tim.Height);
-
-                                        // Check page offset
-                                        if (rect.Overlaps(timRect))
-                                        {
-                                            foundAnim = anim;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (foundAnim != null)
-                                    break;
-                            }
-
-                            if (foundAnim != null)
-                            {
-                                var textures = new Texture2D[foundAnim.Length];
-
-                                for (int i = 0; i < textures.Length; i++)
-                                {
-                                    loader.AddToVRAM(foundAnim[i]);
-                                    textures[i] = GetTexture(packet, loader.VRAM);
-                                }
-
-                                textureAnimCache.Add(animKey, textures);
-                            }
-                            else
-                            {
-                                textureAnimCache.Add(animKey, null);
-                            }
-                        }
-
-                        if (!textureCache.ContainsKey(key))
-                            textureCache.Add(key, GetTexture(packet, loader.VRAM));
-
-                        var t = textureCache[key];
-
-                        var animTextures = textureAnimCache[animKey];
-
-                        if (animTextures != null)
+                        if (tex.AnimatedTexture != null)
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.animatedTextureSpeed = 2; // TODO: Is this correct?
-                            animTex.animatedTextures = animTextures;
+                            animTex.animatedTextures = tex.AnimatedTexture.Textures;
+                            animTex.animatedTextureSpeed = tex.AnimatedTexture.Speed;
                         }
 
-                        t.wrapMode = TextureWrapMode.Repeat;
-                        mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
+                        mr.material.SetTexture("_MainTex", tex.Texture);
+
+                        if (IncludeDebugInfo)
+                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
-                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                        if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.scrollV = -0.5f;
+                            animTex.scrollV = -2f;
                         }
                     }
                 }
@@ -1437,8 +1313,8 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public Bounds GetDimensions(PS1_TMD tmd, float scale) {
-            Bounds b = new Bounds();
+        public Bounds GetDimensions(PS1_TMD tmd, float scale) 
+        {
             var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
             var min = new Vector3(verts.Min(v => v.X), verts.Min(v => v.Y), verts.Min(v => v.Z)) / scale;
             var max = new Vector3(verts.Max(v => v.X), verts.Max(v => v.Y), verts.Max(v => v.Z)) / scale;
@@ -1481,7 +1357,7 @@ namespace R1Engine
             return FileFactory.Read<IDX>(config.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
         }
 
-        public void FillTextureFromVRAM(
+        public static void FillTextureFromVRAM(
             Texture2D tex,
             PS1_VRAM vram,
             int width, int height,
@@ -1543,7 +1419,7 @@ namespace R1Engine
 
         public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
         {
-            if (tim.XPos == 0 && tim.YPos == 0)
+            if (tim.Region.XPos == 0 && tim.Region.YPos == 0)
                 return null;
 
             var pal = noPal ? null : palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
@@ -1552,52 +1428,7 @@ namespace R1Engine
                 for (int i = 0; i < pal.Length; i++)
                     pal[i].a = i == 0 ? 0 : 1;
 
-            return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
-        }
-
-        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram)
-        {
-            if (!packet.Mode.TME)
-                throw new Exception($"Packet has no texture");
-
-            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch
-            {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
-                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-            };
-            int width = packet.TSB.TP switch
-            {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
-                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
-                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-            };
-
-            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
-
-            FillTextureFromVRAM(
-                tex: tex,
-                vram: vram,
-                width: width,
-                height: 256,
-                colorFormat: colFormat,
-                texX: 0,
-                texY: 0,
-                clutX: packet.CBA.ClutX * 16,
-                clutY: packet.CBA.ClutY,
-                texturePageX: packet.TSB.TX,
-                texturePageY: packet.TSB.TY,
-                texturePageOriginX: 0,
-                texturePageOriginY: 0,
-                texturePageOffsetX: 0,
-                texturePageOffsetY: 0,
-                flipY: true);
-
-            tex.Apply();
-
-            return tex;
+            return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
         }
 
         public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
@@ -1702,132 +1533,100 @@ namespace R1Engine
             return tex;
         }
 
-        public (Texture2D[][], int) GetBackgrounds(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
+        public (Texture2D[], int) GetBackgroundFrames(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer)
         {
-            // Get the modifiers
-            var layers = modifiers.Where(x => x.IsLayer).ToArray();
-            var palScrolls = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.PaletteScroll).ToArray();
+            var celIndex = layer.CELIndex;
+            var bgIndex = layer.BGDIndex;
 
-            // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
-            // the same length and speed (which they do in Klonoa)
-            var framesLength = palScrolls.Any() ? palScrolls.First().Data_23.Length : 1;
-            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_23.Speed : 0;
+            var tim = bg.TIMFiles.Files[celIndex];
+            var cel = bg.CELFiles.Files[celIndex];
+            var map = bg.BGDFiles.Files[bgIndex];
 
-            // Create the textures array for the backgrounds and their frames
-            var textures = new Texture2D[layers.Length][];
+            bool is8bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_8;
+            int palLength = (is8bit ? 256 : 16) * 2;
 
-            for (int i = 0; i < textures.Length; i++)
-                textures[i] = new Texture2D[framesLength];
+            var anims = new HashSet<PS1VRAMAnimation>();
 
-            // Load VRAM data
-            for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
+            if (modifiersLoader.Anim_BGPaletteAnimations.Any())
             {
-                var tim = bg.TIMFiles.Files[tileSetIndex];
-
-                // The game hard-codes this
-                if (tileSetIndex == 0)
+                foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
                 {
-                    tim.Clut.XPos = 0x130;
-                    tim.Clut.YPos = 0x1F0;
-                    tim.Clut.Width = 0x10;
-                    tim.Clut.Height = 0x10;
-                }
-                else if (tileSetIndex == 1)
-                {
-                    tim.XPos = 0x1C0;
-                    tim.YPos = 0x100;
-                    tim.Width = 0x40;
-                    tim.Height = 0x100;
+                    var region = new RectInt((clut & 0x3F) * 16 * 2, clut >> 6, palLength, 1);
 
-                    tim.Clut.XPos = 0x120;
-                    tim.Clut.YPos = 0x1F0;
-                    tim.Clut.Width = 0x10;
-                    tim.Clut.Height = 0x10;
-                }
+                    foreach (var anim in modifiersLoader.Anim_GetBGAnimationsFromRegion(region))
+                        anims.Add(anim);
 
-                loader.AddToVRAM(tim);
-            }
-
-            // Create the background frames
-            for (int frameIndex = 0; frameIndex < framesLength; frameIndex++)
-            {
-                // Update VRAM with each palette scroll modifier
-                if (frameIndex > 0)
-                {
-                    foreach (var palMod in palScrolls.Select(x => x.Data_23))
-                    {
-                        var pal = loader.VRAM.GetPixels8(0, 0, palMod.XPosition * 2, palMod.YPosition, 32);
-
-                        var firstColor_0 = pal[0];
-                        var firstColor_1 = pal[1];
-                        
-                        var index = palMod.StartIndex;
-                        var endIndex = index + palMod.Length;
-                        
-                        do
-                        {
-                            pal[index * 2] = pal[(index + 1) * 2];
-                            pal[index * 2 + 1] = pal[(index + 1) * 2 + 1];
-
-                            index += 1;
-                        } while (index < endIndex);
-
-                        pal[(endIndex - 1) * 2] = firstColor_0;
-                        pal[(endIndex - 1) * 2 + 1] = firstColor_1;
-
-                        loader.VRAM.AddDataAt(0, 0, palMod.XPosition * 2, palMod.YPosition, pal, 32, 1);
-                    }
-                }
-
-                // Create the frame for each background
-                for (int layerIndex = 0; layerIndex < layers.Length; layerIndex++)
-                {
-                    var celIndex = layers[layerIndex].CELIndex;
-                    var bgIndex = layers[layerIndex].BGDIndex;
-
-                    var tim = bg.TIMFiles.Files[celIndex];
-                    var cel = bg.CELFiles.Files[celIndex];
-                    var map = bg.BGDFiles.Files[bgIndex];
-
-                    var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-                    for (int mapY = 0; mapY < map.MapHeight; mapY++)
-                    {
-                        for (int mapX = 0; mapX < map.MapWidth; mapX++)
-                        {
-                            var cellIndex = map.Map[mapY * map.MapWidth + mapX];
-
-                            if (cellIndex == 0xFF)
-                                continue;
-
-                            var cell = cel.Cells[cellIndex];
-
-                            FillTextureFromVRAM(
-                                tex: tex,
-                                vram: loader.VRAM,
-                                width: map.CellWidth,
-                                height: map.CellHeight,
-                                colorFormat: tim.ColorFormat,
-                                texX: mapX * map.CellWidth,
-                                texY: mapY * map.CellHeight,
-                                clutX: cell.ClutX * 16,
-                                clutY: cell.ClutY,
-                                texturePageOriginX: tim.XPos,
-                                texturePageOriginY: tim.YPos,
-                                texturePageOffsetX: cell.XOffset,
-                                texturePageOffsetY: cell.YOffset);
-                        }
-                    }
-
-                    tex.Apply();
-
-                    textures[layerIndex][frameIndex] = tex;
+                    if (anims.Count == modifiersLoader.Anim_BGPaletteAnimations.Count)
+                        break;
                 }
             }
 
-            return (textures, animSpeed);
+            if (!anims.Any())
+                return (new Texture2D[]
+                {
+                    GetTexture(loader, bg, layer)
+                }, 0);
+
+            var width = map.MapWidth * map.CellWidth;
+            var height = map.MapHeight * map.CellHeight;
+
+            var animatedTex = new PS1VRAMAnimatedTexture(width, height, true, tex =>
+            {
+                GetTexture(loader, bg, layer, tex);
+            }, anims.ToArray());
+
+            modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
+
+            return (animatedTex.Textures, animatedTex.Speed);
         }
-        
+
+        public Texture2D GetTexture(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer, Texture2D tex = null)
+        {
+            var celIndex = layer.CELIndex;
+            var bgIndex = layer.BGDIndex;
+
+            var tim = bg.TIMFiles.Files[celIndex];
+            var cel = bg.CELFiles.Files[celIndex];
+            var map = bg.BGDFiles.Files[bgIndex];
+
+            tex ??= TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
+
+            for (int mapY = 0; mapY < map.MapHeight; mapY++)
+            {
+                for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                {
+                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
+
+                    if (cellIndex == 0xFF)
+                        continue;
+
+                    var cell = cel.Cells[cellIndex];
+
+                    if (cell.ABE)
+                        Debug.LogWarning($"CEL ABE flag is set!");
+
+                    FillTextureFromVRAM(
+                        tex: tex,
+                        vram: loader.VRAM,
+                        width: map.CellWidth,
+                        height: map.CellHeight,
+                        colorFormat: tim.ColorFormat,
+                        texX: mapX * map.CellWidth,
+                        texY: mapY * map.CellHeight,
+                        clutX: cell.ClutX * 16,
+                        clutY: cell.ClutY,
+                        texturePageOriginX: tim.Region.XPos,
+                        texturePageOriginY: tim.Region.YPos,
+                        texturePageOffsetX: cell.XOffset,
+                        texturePageOffsetY: cell.YOffset);
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+
         public Texture2D[] GetAnimationFrames(Loader_DTP loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
         {
             var textures = new Texture2D[anim.FramesCount];
@@ -1886,28 +1685,6 @@ namespace R1Engine
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
         }
-
-        // [BINBlock][SecondaryType (for type 41)]
-        // All speeds are estimations and may not be accurate
-        public Dictionary<int, Dictionary<int, (Vector3Int, int)?>> ModifierObjectsRotations { get; } = new Dictionary<int, Dictionary<int, (Vector3Int, int)?>>()
-        {
-            [3] = new Dictionary<int, (Vector3Int, int)?>()
-            {
-                [1] = (new Vector3Int(0, 1, 0), 292), // Wind
-                [5] = (new Vector3Int(0, 0, 1), 60), // Small windmill
-                [6] = (new Vector3Int(0, 0, 1), 16), // Big windmill
-            }
-        };
-
-        // [BINBlock][SecondaryType (for type 41)]
-        // Some objects offset their positions
-        public Dictionary<int, Dictionary<int, Vector3Int>> ModifierObjectsPositionOffsets { get; } = new Dictionary<int, Dictionary<int, Vector3Int>>()
-        {
-            [3] = new Dictionary<int, Vector3Int>()
-            {
-                [1] = new Vector3Int(0, 182, 0), // Wind
-            }
-        };
 
         public static ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
         {
@@ -2139,6 +1916,99 @@ namespace R1Engine
             public int Scale { get; }
             public int PalOffsetX { get; }
             public int PalOffsetY { get; }
+        }
+
+        public class PS1VRAMTexture
+        {
+            public PS1VRAMTexture(PS1_TSB tsb, PS1_CBA cba, PS1_TMD_UV[] uvs)
+            {
+                TSB = tsb;
+                CBA = cba;
+
+                int xMin = uvs.Min(x => x.U);
+                int xMax = uvs.Max(x => x.U) + 1;
+                int yMin = uvs.Min(x => x.V);
+                int yMax = uvs.Max(x => x.V) + 1;
+                int w = xMax - xMin;
+                int h = yMax - yMin;
+
+                Bounds = new RectInt(xMin, yMin, w, h);
+
+                bool is8bit = TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
+                TextureRegion = new RectInt(TSB.TX * PS1_VRAM.PageWidth + Bounds.x / (is8bit ? 1 : 2), TSB.TY * PS1_VRAM.PageHeight + Bounds.y, Bounds.width / (is8bit ? 1 : 2), Bounds.height);
+
+                int palLength = (is8bit ? 256 : 16) * 2;
+                PaletteRegion = new RectInt(CBA.ClutX * 2 * 16, CBA.ClutY, palLength, 1);
+            }
+
+            public PS1_TSB TSB { get; }
+            public PS1_CBA CBA { get; }
+            public RectInt Bounds { get; protected set; }
+            public RectInt TextureRegion { get; }
+            public RectInt PaletteRegion { get; }
+            public Texture2D Texture { get; protected set; }
+            public PS1VRAMAnimatedTexture AnimatedTexture { get; protected set; }
+
+            public bool HasOverlap(PS1VRAMTexture b)
+            {
+                if (b.TSB.TP != TSB.TP ||
+                    b.TSB.TX != TSB.TX ||
+                    b.TSB.TY != TSB.TY ||
+                    b.CBA.ClutX != CBA.ClutX ||
+                    b.CBA.ClutY != CBA.ClutY)
+                    return false;
+
+                return Bounds.Overlaps(b.Bounds);
+            }
+
+            public Texture2D GetTexture(PS1_VRAM vram, Texture2D tex = null)
+            {
+                PS1_TIM.TIM_ColorFormat colFormat = TSB.TP switch
+                {
+                    PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
+                    PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
+                    PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                    _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {TSB.TP}")
+                };
+
+                tex ??= TextureHelpers.CreateTexture2D(Bounds.width, Bounds.height, clear: true);
+                tex.wrapMode = TextureWrapMode.Repeat;
+
+                PSKlonoa_DTP_BaseManager.FillTextureFromVRAM(
+                    tex: tex,
+                    vram: vram,
+                    width: Bounds.width,
+                    height: Bounds.height,
+                    colorFormat: colFormat,
+                    texX: 0,
+                    texY: 0,
+                    clutX: CBA.ClutX * 16,
+                    clutY: CBA.ClutY,
+                    texturePageX: TSB.TX,
+                    texturePageY: TSB.TY,
+                    texturePageOffsetX: Bounds.x,
+                    texturePageOffsetY: Bounds.y,
+                    flipY: true);
+
+                tex.Apply();
+
+                return tex;
+            }
+
+            public void SetTexture(Texture2D tex)
+            {
+                Texture = tex;
+            }
+
+            public void SetAnimatedTexture(PS1VRAMAnimatedTexture tex)
+            {
+                AnimatedTexture = tex;
+            }
+
+            public void ExpandWithBounds(PS1VRAMTexture b)
+            {
+                Bounds = new RectInt(Math.Min(Bounds.x, b.Bounds.x), Math.Min(Bounds.y, b.Bounds.y), Math.Max(Bounds.width, b.Bounds.width), Math.Max(Bounds.height, b.Bounds.height));
+            }
         }
     }
 }
