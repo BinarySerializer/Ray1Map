@@ -8,9 +8,9 @@ namespace R1Engine.Jade {
 		public float VOffset { get; set; }
 		public uint LayersCount { get; set; }
 
-		public uint Type13_UInt_0 { get; set; }
-		public uint Type13_UInt_1 { get; set; }
-		public uint Type21_UInt_0 { get; set; }
+		public uint FurFlags { get; set; }
+		public uint ExLineColor { get; set; }
+		public uint FurNearLod { get; set; }
 		public float Type25_Float_0 { get; set; }
 		public float Type25_Float_1 { get; set; }
 
@@ -27,10 +27,10 @@ namespace R1Engine.Jade {
 			LayersCount = s.Serialize<uint>(LayersCount, name: nameof(LayersCount));
 
 			if (Version >= 13) {
-				Type13_UInt_0 = s.Serialize<uint>(Type13_UInt_0, name: nameof(Type13_UInt_0));
-				Type13_UInt_1 = s.Serialize<uint>(Type13_UInt_1, name: nameof(Type13_UInt_1));
+				FurFlags = s.Serialize<uint>(FurFlags, name: nameof(FurFlags));
+				ExLineColor = s.Serialize<uint>(ExLineColor, name: nameof(ExLineColor));
 			}
-			if (Version >= 21) Type21_UInt_0 = s.Serialize<uint>(Type21_UInt_0, name: nameof(Type21_UInt_0));
+			if (Version >= 21) FurNearLod = s.Serialize<uint>(FurNearLod, name: nameof(FurNearLod));
 			if (Version >= 25) {
 				Type25_Float_0 = s.Serialize<float>(Type25_Float_0, name: nameof(Type25_Float_0));
 				Type25_Float_1 = s.Serialize<float>(Type25_Float_1, name: nameof(Type25_Float_1));
