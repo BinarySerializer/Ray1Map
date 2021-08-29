@@ -16,45 +16,45 @@ using BinarySerializer;
 using BinarySerializer.Ray1;
 
 namespace R1Engine {
-	public class R1Jaguar_MidiWriter {
-		public void Write(JAG_MusicDescriptor file, string outPath) {
+    public class R1Jaguar_MidiWriter {
+        public void Write(JAG_MusicDescriptor file, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
-			Track t = new Track();
-			s.Add(CreateTrack(file));
-			// This plugin doesn't overwrite files
-			if (File.Exists(outPath)) {
-				File.Delete(outPath);
-			}
-			s.Save(outPath);
+            Track t = new Track();
+            s.Add(CreateTrack(file));
+            // This plugin doesn't overwrite files
+            if (File.Exists(outPath)) {
+                File.Delete(outPath);
+            }
+            s.Save(outPath);
 #endif
         }
 
 #if ISWINDOWS
         private Track CreateTrack(JAG_MusicDescriptor jagFile) {
-			Track t = new Track();
-			TempoChangeBuilder b = new TempoChangeBuilder();
-			b.Tempo = 22000;
-			b.Build();
-			t.Insert(0, b.Result);
-			ChannelMessageBuilder builder = new ChannelMessageBuilder();
+            Track t = new Track();
+            TempoChangeBuilder b = new TempoChangeBuilder();
+            b.Tempo = 22000;
+            b.Build();
+            t.Insert(0, b.Result);
+            ChannelMessageBuilder builder = new ChannelMessageBuilder();
             Dictionary<int, int> curNoteOnChannel = new Dictionary<int, int>();
-			int timeScale = 1;
-			for (int i = 0; i < jagFile.MusicData.Length; i++) {
-				JAG_MusicData e = jagFile.MusicData[i];
-				if (e.Time != int.MaxValue) {
-					int channelByte = BitHelpers.ExtractBits(e.Command, 8, 24);
-					if (channelByte == 0x7F) { // special point in the song
-						int idByte = BitHelpers.ExtractBits(e.Command, 8, 0);
-						if (idByte == 0xFF && i >= jagFile.MusicData.Length - 2) { // End point
-							t.EndOfTrackOffset = e.Time / timeScale;
-							break;
-						} else {
-							// Loop point, or command to return to loop point
-						}
-					} else {
-						int channel = BitHelpers.ExtractBits(e.Command, 4, 26);
-						int command = BitHelpers.ExtractBits(e.Command, 1, 31);
+            int timeScale = 1;
+            for (int i = 0; i < jagFile.MusicData.Length; i++) {
+                JAG_MusicData e = jagFile.MusicData[i];
+                if (e.Time != int.MaxValue) {
+                    int channelByte = BitHelpers.ExtractBits(e.Command, 8, 24);
+                    if (channelByte == 0x7F) { // special point in the song
+                        int idByte = BitHelpers.ExtractBits(e.Command, 8, 0);
+                        if (idByte == 0xFF && i >= jagFile.MusicData.Length - 2) { // End point
+                            t.EndOfTrackOffset = e.Time / timeScale;
+                            break;
+                        } else {
+                            // Loop point, or command to return to loop point
+                        }
+                    } else {
+                        int channel = BitHelpers.ExtractBits(e.Command, 4, 26);
+                        int command = BitHelpers.ExtractBits(e.Command, 1, 31);
                         if (command == 1) {
                             // Note off
                             if (curNoteOnChannel.ContainsKey(channel)) {
@@ -74,41 +74,54 @@ namespace R1Engine {
 
                             // Program change
                             int instrument = BitHelpers.ExtractBits(e.Command, 5, 21);
-                            if (PercussionInstruments[instrument] != Percussion.None) {
+                            if (Patches[instrument].GetType() == typeof(Percussion)) {
                                 builder.MidiChannel = 9;
                             } else {
                                 builder.MidiChannel = channel;
                                 builder.Command = ChannelCommand.ProgramChange;
-                                builder.Data1 = GeneralMidiInstruments[instrument] == Instrument.None ? 0 : (int)GeneralMidiInstruments[instrument];
-                                if (GeneralMidiInstruments[instrument] == Instrument.Sitar) Controller.print("unknown @ " + jagFile.MusicDataPointer);
+                                builder.Data1 = (Instrument)Patches[instrument] == Instrument.None ? 0 : (int)(Instrument)Patches[instrument];
+                                //if (GeneralMidiInstruments[instrument] == Instrument.Sitar) Controller.print("unknown @ " + jagFile.MusicDataPointer);
                                 builder.Build();
                                 t.Insert(e.Time / timeScale, builder.Result);
                             }
 
                             // Note on
                             builder.Command = ChannelCommand.NoteOn;
-                            int freq = BitHelpers.ExtractBits(e.Command, 13, 8);
+                            //int freq = BitHelpers.ExtractBits(e.Command, 13, 8);
+                            int freq = BitHelpers.ExtractBits(e.Command, 14, 7);
                             int vel = BitHelpers.ExtractBits(e.Command, 7, 0);
                             //bool hasVelocity = BitHelpers.ExtractBits(e.Command, 1, 7) == 1;
-                            builder.Data1 = GetMidiPitch(freq, 349f);
+                            //builder.Data1 = GetMidiPitch(freq, 349f);
+                            builder.Data1 = GetMidiPitch(freq, 699);
                             //builder.Data2 = UnityEngine.Mathf.RoundToInt(127f * (vel / 7f));
-                            float velf = ((vel + 1) / 128f); // hack
-                            int veli = Mathf.RoundToInt(velf * 127f);
+                            //float velf = ((vel + 1) / 128f); // hack
+                            /*float velf = (vel / 127f);
+                            int veli = Mathf.RoundToInt(velf * 127f);*/
+                            int veli = vel;
                             /*if (!hasVelocity) {
                                 veli = 127;
                             }*/
-                            if (PercussionInstruments[instrument] != Percussion.None) {
+                            /*if (PercussionInstruments[instrument] != Percussion.None) {
                                 builder.Data1 = (int)PercussionInstruments[instrument];
                                 builder.Data2 = PercussionInstruments[instrument] == Percussion.None ? 0 : veli;
                                 curNoteOnChannel[channel] = builder.Data1 + 128;
                             } else {
                                 builder.Data2 = GeneralMidiInstruments[instrument] == Instrument.None ? 0 : veli;
                                 curNoteOnChannel[channel] = builder.Data1;
+                            }*/
+                            if (Patches[instrument].GetType() == typeof(Percussion)) {
+                                builder.Data1 = (int)(Percussion)Patches[instrument];
+                                builder.Data2 = (Percussion)Patches[instrument] == Percussion.None ? 0 : veli;
+                                curNoteOnChannel[channel] = builder.Data1 + 128;
+                            } else {
+                                builder.Data2 = (Instrument)Patches[instrument] == Instrument.None ? 0 : veli;
+                                curNoteOnChannel[channel] = builder.Data1;
                             }
+
                             builder.Build();
                             t.Insert(e.Time / timeScale, builder.Result);
                         } else {
-							builder.Command = ChannelCommand.NoteOff;
+                            builder.Command = ChannelCommand.NoteOff;
                             int note = curNoteOnChannel.TryGetValue(channel, out int val) ? val : 0;
                             if (note >= 128) {
                                 builder.MidiChannel = 9;
@@ -123,81 +136,44 @@ namespace R1Engine {
                             builder.Build();
                             t.Insert(e.Time / timeScale, builder.Result);
                         }
-					}
-				}
-			}
-			return t;
-		}
+                    }
+                }
+            }
+            return t;
+        }
 
-		private static Instrument[] GeneralMidiInstruments = new Instrument[] {
-			Instrument.AcousticBass,
-			Instrument.StringEnsemble1,
-			Instrument.TaikoDrum,
-			Instrument.Clarinet,
-			Instrument.SteelDrums,
-			Instrument.Woodblock,
-			Instrument.Celesta, // Also good: whistle
-			Instrument.Woodblock,
-			Instrument.SynthBass2,
-			Instrument.AcousticGrandPiano,
-			Instrument.Woodblock,
-			Instrument.SynthDrum,
-			Instrument.DrawbarOrgan,
-			Instrument.OrchestralHarp,
-			Instrument.Vibraphone,
-			Instrument.Xylophone,
-			Instrument.Celesta,
-			Instrument.Oboe,
-			Instrument.OverdrivenGuitar,
-			Instrument.AltoSax,
-			Instrument.PizzicatoStrings,
-			Instrument.DistortionGuitar, // Actually this
-			Instrument.OrchestraHit,
-			Instrument.FX1Rain,
-			Instrument.Cello,
-			Instrument.Viola,
-			Instrument.Pad1NewAge,
-			Instrument.Marimba,
-			Instrument.TaikoDrum,
-			Instrument.Sitar,
-			Instrument.Sitar,
-			Instrument.Sitar,
-		};
-        private static Percussion[] PercussionInstruments = new Percussion[] {
-            Percussion.None,
-            Percussion.None,
-            Percussion.LowTom,
-            Percussion.None,
-            Percussion.SplashCymbal,
-            Percussion.HiBongo,
-            Percussion.None,
-            Percussion.MuteHiConga,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
-            Percussion.Cowbell,
-            Percussion.None,
-            Percussion.None,
-            Percussion.None,
+        private static Enum[] Patches = new Enum[] {
+            Instrument.AcousticBass,
+            Instrument.Clarinet,
+            Instrument.TaikoDrum, // Kick2
+            Instrument.AcousticGrandPiano,
+            Percussion.ElectricSnare,
+            Instrument.Woodblock, // cng1
+            Percussion.OpenHiConga, // perkcng2
+			Instrument.Woodblock, // cng3
+            Instrument.FretlessBass,
+            Instrument.ElectricPiano1,
+            Percussion.PedalHiHat, // hihato2
+            Percussion.ClosedHiHat,
+            Instrument.PercussiveOrgan,
+            Instrument.OrchestralHarp, // acnlngtr //Instrument.AcousticGuitarNylon,
+            Instrument.RockOrgan,
+            Instrument.Xylophone, //116fa103
+            Instrument.Kalimba,
+            Instrument.Contrabass,
+            Instrument.Vibraphone,
+            Instrument.Oboe,
+            Instrument.PizzicatoStrings,
+            Instrument.DistortionGuitar,
+            Instrument.SynthBrass1,
+            Instrument.Vibraphone, // vibe
+            Instrument.Cello,
+            Instrument.SopranoSax,
+            Instrument.Sitar,
+            Instrument.Xylophone,
+            Instrument.MelodicTom,
+            Instrument.TaikoDrum, // hulotte
         };
-
         private int GetMidiPitch(int freq, float tuning = 440f) {
 			// See https://anotherproducer.com/online-tools-for-musicians/frequency-to-pitch-calculator/
 			// default pitch = F5, so 699

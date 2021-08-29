@@ -627,29 +627,29 @@ namespace R1Engine
         public async UniTask ConvertMusicAsync(GameSettings settings, string outputPath)
         {
             // Create a context
-            using var context = new R1Context(settings);
+            using (var context = new R1Context(settings)) {
 
-            // Get a deserializer
-            var s = context.Deserializer;
+                // Get a deserializer
+                var s = context.Deserializer;
 
-            // Add the file
-            await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+                // Add the file
+                var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+                s.Goto(file.StartPointer);
 
-            s.DoAt(s.GetPreDefinedPointer(JAG_DefinedPointer.Music), () => 
-            {
-                // Read the music table
-                JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
-                // Immediately after this: pointer to sample buffer?
+                s.DoAt(s.GetPreDefinedPointer(JAG_DefinedPointer.Music), () => {
+                    // Read the music table
+                    JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
+                    // Immediately after this: pointer to sample buffer?
 
-                // For each entry
-                R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
-                for (int i = 0; i < MusicTable.Length; i++) 
-                {
-                    w.Write(MusicTable[i],
-                        Path.Combine(outputPath,
-                            $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid"));
-                }
-            });
+                    // For each entry
+                    R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
+                    for (int i = 0; i < MusicTable.Length; i++) {
+                        w.Write(MusicTable[i],
+                            Path.Combine(outputPath,
+                                $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid"));
+                    }
+                });
+            }
         }
 
         public virtual async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
