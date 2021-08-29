@@ -1346,10 +1346,10 @@ namespace R1Engine
 
         public Quaternion GetQuaternion(int rotX, int rotY, int rotZ)
         {
-            return Quaternion.Euler(
-                x: -GetRotationInDegrees(rotX),
-                y: GetRotationInDegrees(rotY),
-                z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
+            return 
+                Quaternion.Euler(-GetRotationInDegrees(rotX), 0, 0) *
+                Quaternion.Euler(0, GetRotationInDegrees(rotY), 0) *
+                Quaternion.Euler(0, 0, -GetRotationInDegrees(rotZ));
         }
 
         public IDX Load_IDX(Context context, LoaderConfiguration_DTP config)
