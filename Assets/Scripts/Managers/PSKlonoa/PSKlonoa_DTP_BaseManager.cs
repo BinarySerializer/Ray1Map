@@ -1022,9 +1022,9 @@ namespace R1Engine
 
                 // If the path index is -1 then the position is absolute, otherwise it's relative
                 if (x.MovementPath == -1)
-                    pos = GetPosition(x.XPos.Value, x.YPos.Value, x.ZPos.Value, scale);
+                    pos = GetPosition(x.Position.X.Value, x.Position.Y.Value, x.Position.Z.Value, scale);
                 else
-                    pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
+                    pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.Position.Y.Value, 0), scale);
 
                 var spriteInfo = GetSprite_Collectible(x);
 
@@ -1038,11 +1038,11 @@ namespace R1Engine
             objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
                 Where(x => x.DataFiles != null).
                 SelectMany(x => x.DataFiles).
-                Where(x => x.ScenerySprites != null || x.LightObject?.LightVectors != null).
-                SelectMany(x => (x.LightObject?.LightVectors ?? x.ScenerySprites).Positions).
+                Where(x => x.ScenerySprites != null || x.LightObject?.LightPositions != null).
+                SelectMany(x => (x.LightObject?.LightPositions ?? x.ScenerySprites).Positions[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
             {
-                Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
+                Position = GetPosition(x.X, x.Y, x.Z, scale),
             }));
 
             var wpIndex = objects.Count;
@@ -1372,12 +1372,12 @@ namespace R1Engine
             return new Bounds(center, max-min);
         }
 
-        public Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
+        public Vector3 GetPositionVector(KlonoaVector16 pos, Vector3? posOffset, float scale)
         {
             if (posOffset == null)
-                return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                return new Vector3(pos.X / scale, -pos.Y / scale, pos.Z / scale);
             else
-                return new Vector3((pos.XPos + posOffset.Value.x) / scale, -(pos.YPos + posOffset.Value.y) / scale, (pos.ZPos + posOffset.Value.z) / scale);
+                return new Vector3((pos.X + posOffset.Value.x) / scale, -(pos.Y + posOffset.Value.y) / scale, (pos.Z + posOffset.Value.z) / scale);
         }
 
         public float GetRotationInDegrees(int value)

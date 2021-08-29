@@ -317,7 +317,7 @@ namespace R1Engine
             return gameObj;
         }
 
-        public void GameObj_ApplyPosition(GameObject obj, ObjPosition pos, Vector3? posOffset = null)
+        public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, Vector3? posOffset = null)
         {
             obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
         }
