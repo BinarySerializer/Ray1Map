@@ -1038,8 +1038,8 @@ namespace R1Engine
             objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
                 Where(x => x.DataFiles != null).
                 SelectMany(x => x.DataFiles).
-                Where(x => x.ScenerySprites != null).
-                SelectMany(x => x.ScenerySprites.Positions).
+                Where(x => x.ScenerySprites != null || x.LightObject?.LightVectors != null).
+                SelectMany(x => (x.LightObject?.LightVectors ?? x.ScenerySprites).Positions).
                 Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
             {
                 Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
@@ -1101,7 +1101,7 @@ namespace R1Engine
             string name, 
             PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
             bool isPrimaryObj,
-            Vector3[] positions = null, Quaternion[] rotations = null)
+            ObjTransform_ArchiveFile transform = null)
         {
             bool isAnimated = false;
 
@@ -1165,8 +1165,10 @@ namespace R1Engine
                 gameObject.transform.SetParent(gaoParent.transform);
                 gameObject.transform.localScale = Vector3.one;
 
-                gameObject.transform.localPosition = positions?[objIndex] ?? Vector3.zero;
-                gameObject.transform.rotation = rotations?[objIndex] ?? Quaternion.identity;
+                var isTransformAnimated = ApplyTransform(gameObject, transform, scale);
+
+                if (isTransformAnimated)
+                    isAnimated = true;
 
                 // Add each primitive
                 for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
@@ -1311,6 +1313,53 @@ namespace R1Engine
             }
 
             return (gaoParent, isAnimated);
+        }
+
+        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile transform, float scale) => 
+            ApplyTransform(gameObj, transform == null ? null : new ObjTransform_ArchiveFile[]
+            {
+                transform
+            }, scale);
+        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale)
+        {
+            if (transforms != null && transforms.Any())
+            {
+                gameObj.transform.localPosition = GetPositionVector(transforms[0].Positions.Positions[0][0], null, scale);
+                gameObj.transform.localRotation = GetQuaternion(transforms[0].Rotations.Rotations[0][0]);
+            }
+            else
+            {
+                gameObj.transform.localPosition = Vector3.zero;
+                gameObj.transform.localRotation = Quaternion.identity;
+            }
+
+            if (transforms?.FirstOrDefault()?.Positions.Positions.Length > 1)
+            {
+                var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
+                mtComponent.animatedTransform = gameObj.transform;
+
+                var positions = transforms.SelectMany(x => x.Positions.Positions).Select(x => GetPositionVector(x[0], null, scale)).ToArray();
+                var rotations = transforms.SelectMany(x => x.Rotations.Rotations).Select(x => GetQuaternion(x[0])).ToArray();
+
+                var frameCount = Math.Max(positions.Length, rotations.Length);
+                mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
+
+                for (int i = 0; i < frameCount; i++)
+                {
+                    mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                    {
+                        Position = positions[i],
+                        Rotation = rotations[i],
+                        Scale = Vector3.one
+                    };
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public Bounds GetDimensions(PS1_TMD tmd, float scale) 
@@ -1691,8 +1740,8 @@ namespace R1Engine
             // TODO: Some enemies have palette swaps. This is done by modifying the x and y palette offsets (by default they are 0 and 500). For example the shielded Moo enemies in Vision 1-2
 
             // There are 42 object types (0-41). The graphics index is an index to an array of functions for displaying the graphics. The game
-            // normally doesn't directly use the graphics index as it sometimes modifies it, but it appears the value initially set in the object
-            // data will always match the correct sprite to show, so we can use that.
+            // normally doesn't directly use the graphics index as it sometimes modifies it, but it appears the value initially set
+            // in the object data will always match the correct sprite to show, so we can use that.
             var graphicsIndex = obj.GraphicsIndex;
 
             // Usually the graphics index matches the sprite set index (minus 1), but some are special cases, and since we don't want to show the
@@ -1732,7 +1781,7 @@ namespace R1Engine
                 31 => new ObjSpriteInfo(30, 157),
                 32 => new ObjSpriteInfo(31, 16),
 
-                35 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo
+                35 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
                 36 => new ObjSpriteInfo(1, 0, scale: 2),
                 37 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
 
