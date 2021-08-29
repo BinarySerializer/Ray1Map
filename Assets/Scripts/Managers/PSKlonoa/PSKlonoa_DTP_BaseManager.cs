@@ -2026,7 +2026,7 @@ namespace R1Engine
                 tex ??= TextureHelpers.CreateTexture2D(Bounds.width, Bounds.height, clear: true);
                 tex.wrapMode = TextureWrapMode.Repeat;
 
-                PSKlonoa_DTP_BaseManager.FillTextureFromVRAM(
+                FillTextureFromVRAM(
                     tex: tex,
                     vram: vram,
                     width: Bounds.width,
@@ -2059,7 +2059,15 @@ namespace R1Engine
 
             public void ExpandWithBounds(PS1VRAMTexture b)
             {
-                Bounds = new RectInt(Math.Min(Bounds.x, b.Bounds.x), Math.Min(Bounds.y, b.Bounds.y), Math.Max(Bounds.width, b.Bounds.width), Math.Max(Bounds.height, b.Bounds.height));
+                var minX = Math.Min(Bounds.x, b.Bounds.x);
+                var minY = Math.Min(Bounds.y, b.Bounds.y);
+                var maxX = Math.Max(Bounds.x + Bounds.width, b.Bounds.x + b.Bounds.width);
+                var maxY = Math.Max(Bounds.y + Bounds.height, b.Bounds.y + b.Bounds.height);
+                Bounds = new RectInt(
+                    minX,
+                    minY,
+                    maxX - minX,
+                    maxY - minY);
             }
         }
     }
