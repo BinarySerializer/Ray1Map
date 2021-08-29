@@ -99,7 +99,7 @@ namespace R1Engine
 
                         Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
                                          $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                         $"{String.Join(Environment.NewLine, modifier.DataFiles?.Select(x => x.Unknown?.ToHexString(align: 16, maxLines: 16)) ?? new string[0])}");
+                                         $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", modifier.DataFiles?.Select(dataFile => $"Length: {dataFile.Unknown?.Length} bytes{Environment.NewLine}{dataFile.Unknown?.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
                         return;
                     }
 
@@ -164,6 +164,46 @@ namespace R1Engine
 
                         GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransforms: modifier.DataFiles[3].Transforms.Files, localTransform: modifier.DataFiles[5].Transform);
                     } 
+                    break;
+
+                case GlobalModifierType.RongoLango:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
+                    } 
+                    break;
+
+                case GlobalModifierType.Bell:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
+                        GameObj_ApplyPosition(obj, modifier.DataFiles[1].Position);
+                    }
+                    break;
+
+                case GlobalModifierType.LockedDoor:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform, localTransform: modifier.DataFiles[2].Transform);
+                    }
+                    break;
+
+                case GlobalModifierType.Light:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        var data = modifier.DataFiles[0].LightObject;
+
+                        if (data.TMD != null)
+                            GameObj_LoadTMD(modifier, data.TMD);
+                    }
                     break;
 
                 case GlobalModifierType.ScrollAnimation:
@@ -258,52 +298,26 @@ namespace R1Engine
                 name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType} ({modifier.GlobalModifierType})",
                 modifiersLoader: this,
                 isPrimaryObj: false,
-                positions: localTransform?.Positions.Positions[0].Select(x => Manager.GetPositionVector(x, Vector3.zero, Scale)).ToArray(),
-                rotations: localTransform?.Rotations.Rotations[0].Select(x => Manager.GetQuaternion(x)).ToArray());
+                transform: localTransform);
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
 
-            if (absoluteTransforms != null && absoluteTransforms.Any())
-            {
-                gameObj.transform.localPosition = Manager.GetPositionVector(absoluteTransforms[0].Positions.Positions[0][0], null, Scale);
-                gameObj.transform.localRotation = Manager.GetQuaternion(absoluteTransforms[0].Rotations.Rotations[0][0]);
-            }
-            else
-            {
-                gameObj.transform.localPosition = Vector3.zero;
-                gameObj.transform.localRotation = Quaternion.identity;
-            }
+            // Apply the absolute transform
+            isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale);
 
+            if (isAnimated)
+                GameObj_IsAnimated = true;
+
+            // Set the parent object
             gameObj.transform.SetParent(ParentObject.transform);
 
-            if (absoluteTransforms?.FirstOrDefault()?.Positions.Positions.Length > 1)
-            {
-                var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                mtComponent.animatedTransform = gameObj.transform;
-
-                var positions = absoluteTransforms.SelectMany(x => x.Positions.Positions).Select(x => Manager.GetPositionVector(x[0], null, Scale)).ToArray();
-                var rotations = absoluteTransforms.SelectMany(x => x.Rotations.Rotations).Select(x => Manager.GetQuaternion(x[0])).ToArray();
-
-                var frameCount = Math.Max(positions.Length, rotations.Length);
-                mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-
-                for (int i = 0; i < frameCount; i++)
-                {
-                    mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                    {
-                        Position = positions[i],
-                        Rotation = rotations[i],
-                        Scale = Vector3.one
-                    };
-                }
-            }
-
             GameObj_Objects.Add(gameObj);
+
             return gameObj;
         }
 
-        public void GameObj_ApplyPosition(GameObject obj, ObjPosition pos, Vector3? posOffset = null)
+        public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, Vector3? posOffset = null)
         {
             obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
         }
