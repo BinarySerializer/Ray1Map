@@ -1165,7 +1165,7 @@ namespace R1Engine
                 gameObject.transform.SetParent(gaoParent.transform);
                 gameObject.transform.localScale = Vector3.one;
 
-                var isTransformAnimated = ApplyTransform(gameObject, transform, scale);
+                var isTransformAnimated = ApplyTransform(gameObject, transform, scale, objIndex: objIndex);
 
                 if (isTransformAnimated)
                     isAnimated = true;
@@ -1315,17 +1315,20 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile transform, float scale) => 
+        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile transform, float scale, int objIndex = 0) => 
             ApplyTransform(gameObj, transform == null ? null : new ObjTransform_ArchiveFile[]
             {
                 transform
-            }, scale);
-        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale)
+            }, scale, objIndex);
+        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale, int objIndex = 0)
         {
+            if (transforms?.Any() == true && transforms[0].Positions.Positions[0].Length == 1)
+                objIndex = 0;
+
             if (transforms != null && transforms.Any())
             {
-                gameObj.transform.localPosition = GetPositionVector(transforms[0].Positions.Positions[0][0], null, scale);
-                gameObj.transform.localRotation = GetQuaternion(transforms[0].Rotations.Rotations[0][0]);
+                gameObj.transform.localPosition = GetPositionVector(transforms[0].Positions.Positions[0][objIndex], null, scale);
+                gameObj.transform.localRotation = GetQuaternion(transforms[0].Rotations.Rotations[0][objIndex]);
             }
             else
             {
@@ -1338,8 +1341,8 @@ namespace R1Engine
                 var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                 mtComponent.animatedTransform = gameObj.transform;
 
-                var positions = transforms.SelectMany(x => x.Positions.Positions).Select(x => GetPositionVector(x[0], null, scale)).ToArray();
-                var rotations = transforms.SelectMany(x => x.Rotations.Rotations).Select(x => GetQuaternion(x[0])).ToArray();
+                var positions = transforms.SelectMany(x => x.Positions.Positions).Select(x => GetPositionVector(x[objIndex], null, scale)).ToArray();
+                var rotations = transforms.SelectMany(x => x.Rotations.Rotations).Select(x => GetQuaternion(x[objIndex])).ToArray();
 
                 var frameCount = Math.Max(positions.Length, rotations.Length);
                 mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
