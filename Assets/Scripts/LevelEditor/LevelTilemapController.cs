@@ -59,6 +59,7 @@ namespace R1Engine
         public GameObject collisionLinesGraphics;
         public GameObject collisionLinesCollision;
         public BoxCollider2D[] CollisionLinesCollision;
+        public BoxCollider[] CollisionLinesCollision3D;
 
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
@@ -200,35 +201,61 @@ namespace R1Engine
                 {
                     LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
                     lr.sortingLayerName = "Types";
-                    lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
+                    //lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
+                    lr.gameObject.layer = x.is3D ? LayerMask.NameToLayer("3D Collision Lines") : LayerMask.NameToLayer("Collision Lines");
                     lr.gameObject.transform.SetParent(collisionLinesGraphics.transform);
                     lr.material = Controller.obj.levelEventController.linkLineMaterial;
                     lr.material.color = x.LineColor;
                     lr.positionCount = 2;
-                    lr.widthMultiplier = 0.095f;
+                    lr.widthMultiplier = x.UnityWidth;
 
                     lr.SetPositions(new Vector3[]
                     {
-                        new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_0.z / LevelEditorData.Level.PixelsPerUnit), 
-                        new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_1.z / LevelEditorData.Level.PixelsPerUnit), 
+                        x.GetUnityPosition(0),
+                        x.GetUnityPosition(1),
                     });
 
                     return lr;
                 }).ToArray();
 
                 CollisionLinesCollision = level.CollisionLines.Select((x,i) => {
-                    BoxCollider2D bc = new GameObject("CollisionLine").AddComponent<BoxCollider2D>();
-                    bc.gameObject.layer = LayerMask.NameToLayer("Collision Lines");
-                    bc.gameObject.name = i.ToString();
-                    Vector3 pos0 = new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_0.z / LevelEditorData.Level.PixelsPerUnit);
-                    Vector3 pos1 = new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_1.z / LevelEditorData.Level.PixelsPerUnit);
-                    bc.gameObject.transform.SetParent(collisionLinesCollision.transform);
-                    bc.gameObject.transform.localPosition = Vector3.Lerp(pos0, pos1, 0.5f);
-                    float angle = Mathf.Atan2(pos1.y - pos0.y, pos1.x - pos0.x) * Mathf.Rad2Deg;
-                    bc.gameObject.transform.localRotation = Quaternion.Euler(0,0,angle);
-                    bc.size = new Vector2((pos1-pos0).magnitude,0.2f);
+                    if (x.is3D) {
+                        return null;
+                    } else {
+                        BoxCollider2D bc = new GameObject("CollisionLine").AddComponent<BoxCollider2D>();
+                        bc.gameObject.layer = LayerMask.NameToLayer("Collision Lines");
+                        bc.gameObject.name = i.ToString();
+                        Vector3 pos0 = x.GetUnityPosition(0);
+                        Vector3 pos1 = x.GetUnityPosition(1);
+                        bc.gameObject.transform.SetParent(collisionLinesCollision.transform);
+                        bc.gameObject.transform.localPosition = Vector3.Lerp(pos0, pos1, 0.5f);
+                        float angle = Mathf.Atan2(pos1.y - pos0.y, pos1.x - pos0.x) * Mathf.Rad2Deg;
+                        bc.gameObject.transform.localRotation = Quaternion.Euler(0, 0, angle);
+                        bc.size = new Vector2((pos1 - pos0).magnitude, 0.2f);
 
-                    return bc;
+                        return bc;
+                    }
+                }).ToArray();
+                CollisionLinesCollision3D = level.CollisionLines.Select((x, i) => {
+                    if (x.is3D) {
+                        BoxCollider bc = new GameObject("CollisionLine").AddComponent<BoxCollider>();
+                        bc.gameObject.layer = LayerMask.NameToLayer("3D Collision Lines");
+                        bc.gameObject.name = i.ToString();
+                        Vector3 pos0 = x.GetUnityPosition(0);
+                        Vector3 pos1 = x.GetUnityPosition(1);
+                        bc.gameObject.transform.SetParent(collisionLinesCollision.transform);
+                        bc.gameObject.transform.localPosition = Vector3.Lerp(pos0, pos1, 0.5f);
+                        if (pos1 - pos0 != Vector3.zero) {
+                            bc.gameObject.transform.localRotation = Quaternion.LookRotation(pos1 - pos0, Vector3.up);
+                            bc.size = new Vector3(0.2f, 0.2f, (pos1 - pos0).magnitude);
+                        } else {
+                            bc.size = new Vector3(0.2f, 0.2f, 0.2f);
+                        }
+
+                        return bc;
+                    } else {
+                        return null;
+                    }
                 }).ToArray();
             }
         }

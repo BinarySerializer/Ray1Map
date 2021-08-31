@@ -1047,7 +1047,7 @@ namespace R1Engine
 
             var wpIndex = objects.Count;
             // Temporarily add waypoints at each path block to visualize them
-            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.SelectMany(b => new Unity_Object[]
+            /*objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.SelectMany(b => new Unity_Object[]
             {
                 new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}", objLinks: new int[]
                 {
@@ -1067,7 +1067,7 @@ namespace R1Engine
                         z: b.ZPos + b.DirectionZ * b.BlockLength,
                         scale: scale),
                 }
-            })));
+            })));*/
 
             return objects;
         }
@@ -1075,19 +1075,23 @@ namespace R1Engine
         public Unity_CollisionLine[] Load_MovementPaths(Loader_DTP loader, int sector, float scale)
         {
             var lines = new List<Unity_CollisionLine>();
+            var verticalAdjust = 0.2f;
+            var up = new Vector3(0, 0, verticalAdjust);
 
             foreach (var path in loader.LevelPack.Sectors[sector].MovementPaths.Files)
             {
                 foreach (var pathBlock in path.Blocks)
                 {
-                    var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale);
+                    var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
+                        + up;
                     var end = GetPosition(
                         x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength, 
                         y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength, 
                         z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength, 
-                        scale: scale);
+                        scale: scale)
+                        + up;
 
-                    lines.Add(new Unity_CollisionLine(origin, end));
+                    lines.Add(new Unity_CollisionLine(origin, end) { is3D = true, UnityWidth = 0.5f });
                 }
             }
 

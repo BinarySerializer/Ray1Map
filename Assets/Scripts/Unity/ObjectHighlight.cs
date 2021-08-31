@@ -56,6 +56,23 @@ public class ObjectHighlight : MonoBehaviour {
                     }
                 }
             }
+            if (Controller.obj?.levelController?.controllerTilemap?.CollisionLines != null
+                && LevelEditorData.Level?.CollisionLines != null) {
+                layerMask = 1 << LayerMask.NameToLayer("3D Collision Lines");
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
+                if (hits != null && hits.Length > 0) {
+                    System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
+                    for (int i = 0; i < hits.Length; i++) {
+                        // Hack: identify line through name
+                        if (int.TryParse(hits[i].transform.gameObject.name, out int x)
+                            && x < LevelEditorData.Level.CollisionLines.Length) {
+                            highlightedCollisionLine = LevelEditorData.Level.CollisionLines[x];
+                            break;
+                        }
+                    }
+                }
+            }
         } else {
             if (Settings.ShowObjects) {
                 layerMask = 1 << LayerMask.NameToLayer("Object");

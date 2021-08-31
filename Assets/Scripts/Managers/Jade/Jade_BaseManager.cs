@@ -423,7 +423,7 @@ namespace R1Engine {
 
 						SND_GlobalList sndList = context.GetStoredObject<SND_GlobalList>(SoundListKey);
 
-						string worldName = null;
+						//string worldName = null;
 						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 							throw new NotImplementedException("Not yet implemented for Montreal");
 						} else {
@@ -510,7 +510,7 @@ namespace R1Engine {
 						LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						var worlds = actualLoader.LoadedWorlds;
 
-						string worldName = null;
+						//string worldName = null;
 						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 							throw new NotImplementedException("Not yet implemented for Montreal");
 						} else {
