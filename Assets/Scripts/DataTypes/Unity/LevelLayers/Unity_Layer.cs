@@ -11,5 +11,7 @@ namespace R1Engine {
 		public abstract bool IsAnimated { get; }
 
 		public abstract Vector2Int GetDimensions(int cellSize, int? cellSizeOverrideCollision);
+
+		public Vector3 PositionOffset { get; set; }
 	}
 }

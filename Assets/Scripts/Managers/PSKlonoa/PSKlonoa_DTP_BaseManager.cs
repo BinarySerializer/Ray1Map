@@ -760,7 +760,7 @@ namespace R1Engine
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+            /*var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
                 ElementAtOrDefault(sector)?.Modifiers.
                 Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient || 
                            x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
@@ -769,7 +769,7 @@ namespace R1Engine
 
             // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
-                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());*/
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
@@ -847,8 +847,12 @@ namespace R1Engine
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
 
+            // Load gradients
+            var backgroundsClear = Load_Layers_Gradients(loader, sector, scale);
+            layers.AddRange(backgroundsClear);
+
             // Load backgrounds
-            var backgrounds = Load_Layers_Backgrounds(loader, modifiersLoader);
+            var backgrounds = Load_Layers_Backgrounds(loader, modifiersLoader, scale);
             layers.AddRange(backgrounds);
 
             Controller.DetailedState = "Loading level geometry";
@@ -887,11 +891,92 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader)
+        public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader_DTP loader, int sector, float scale) {
+
+            // Add background modifiers
+            Unity_CameraClear camClear = null;
+            var modifiers = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+                ElementAtOrDefault(sector)?.Modifiers;
+            var bgClear = modifiers?.
+                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient ||
+                           x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
+                Select(x => x.Data_Clear);
+
+            List<Unity_Layer_GameObject> gaoLayers = new List<Unity_Layer_GameObject>();
+            int pixelsPerUnit = 16;
+
+            foreach (var clear in bgClear) {
+                Mesh m = new Mesh();
+                Vector3[] vertices = clear.Entries.Select(e =>
+                    new Vector3(
+                        ((e.XPos_RelativeObj != -1 ? modifiers[e.XPos_RelativeObj].XPos : 0) + e.XPos) / pixelsPerUnit,
+                        -((e.YPos_RelativeObj != -1 ? modifiers[e.YPos_RelativeObj].YPos : 0) + e.YPos) / pixelsPerUnit,
+                        0)).ToArray();
+                Color[] colors = clear.Entries.Select(e =>
+                    e.Color.GetColor()).ToArray();
+                int[] triangles = new int[] {
+                    0, 1, 2, 0, 2, 1,
+                    2, 1, 3, 2, 3, 1,
+                };
+
+                // Compensate for having gradients relative to the camera
+                int screenHeight = 208;
+                int screenWidth = 320;
+                if ((clear.Entries[0].YPos_RelativeObj == -1) != (clear.Entries[3].YPos_RelativeObj == -1)) {
+                    if (clear.Entries[0].YPos_RelativeObj == -1) {
+                        vertices[0] = new Vector3(vertices[0].x, vertices[3].y + (float)screenHeight / pixelsPerUnit, vertices[0].z);
+                    } else {
+                        vertices[3] += new Vector3(0, vertices[0].y, 0);
+                    }
+                }
+                if ((clear.Entries[0].XPos_RelativeObj == -1) != (clear.Entries[3].XPos_RelativeObj == -1)) {
+                    if (clear.Entries[0].XPos_RelativeObj == -1) {
+                        vertices[0] = new Vector3(vertices[3].x -(float)screenWidth / pixelsPerUnit, vertices[0].y, vertices[0].z);
+                    } else {
+                        vertices[3] += new Vector3(vertices[0].x, 0, 0);
+                    }
+                }
+
+                // Use points 0 and 3 only
+                colors[1] = colors[0];
+                colors[2] = colors[3];
+                vertices[1] = new Vector3(vertices[3].x, vertices[0].y, 0);
+                vertices[2] = new Vector3(vertices[0].x, vertices[3].y, 0);
+
+                m.SetVertices(vertices);
+                m.SetColors(colors);
+                m.SetTriangles(triangles, 0);
+                m.RecalculateNormals();
+
+
+                int index = modifiers.FindItemIndex(clearData => clearData.Data_Clear == clear);
+                GameObject gao = new GameObject($"Gradient {index}");
+                MeshFilter mf = gao.AddComponent<MeshFilter>();
+                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                gao.layer = LayerMask.NameToLayer("3D Collision");
+                gao.transform.localScale = new Vector3(1, 1, 1f);
+                //gao.transform.localRotation = Quaternion.identity;
+                gao.transform.localRotation = Quaternion.Euler(90,0,0);
+                gao.transform.localPosition = Vector3.zero;
+                mf.mesh = m;
+                mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                mf.mesh = m;
+
+                gaoLayers.Add(new Unity_Layer_GameObject(false) {
+                    Graphics = gao,
+                    Name = $"Gradient {index}",
+                    ShortName = $"GR{index}"
+                });
+            }
+
+            return gaoLayers;
+        }
+
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, float scale)
         {
             // Get the background textures
             var bgLayers = modifiersLoader.BG_Layers;
-
+            int pixelsPerUnit = 16;
             // Add the backgrounds
             return bgLayers.Select((t, i) => new Unity_Layer_Texture
             {
@@ -899,7 +984,8 @@ namespace R1Engine
                 ShortName = $"BG{i}",
                 Textures = t.Frames,
                 AnimSpeed = t.Speed,
-            });
+                PositionOffset = new Vector3(t.ModifierObject.XPos, -t.ModifierObject.YPos, 0) / pixelsPerUnit
+            }).Reverse();
         }
 
         public Unity_Layer Load_Layers_LevelObject(Loader_DTP loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
