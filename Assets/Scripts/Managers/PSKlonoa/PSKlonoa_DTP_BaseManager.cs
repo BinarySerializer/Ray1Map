@@ -894,7 +894,6 @@ namespace R1Engine
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader_DTP loader, int sector, float scale) {
 
             // Add background modifiers
-            Unity_CameraClear camClear = null;
             var modifiers = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
                 ElementAtOrDefault(sector)?.Modifiers;
             var bgClear = modifiers?.
@@ -953,11 +952,12 @@ namespace R1Engine
                 GameObject gao = new GameObject($"Gradient {index}");
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                gao.layer = LayerMask.NameToLayer("3D Collision");
+                mr.sortingLayerName = "Tiles";
+                gao.layer = LayerMask.NameToLayer("Tiles");
                 gao.transform.localScale = new Vector3(1, 1, 1f);
-                //gao.transform.localRotation = Quaternion.identity;
-                gao.transform.localRotation = Quaternion.Euler(90,0,0);
-                gao.transform.localPosition = Vector3.zero;
+                gao.transform.localRotation = Quaternion.identity;
+                //gao.transform.localRotation = Quaternion.Euler(90,0,0);
+                gao.transform.localPosition = new Vector3(0,0,101); // Puts it right behind the layers
                 mf.mesh = m;
                 mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
                 mf.mesh = m;

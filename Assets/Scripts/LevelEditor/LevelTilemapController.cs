@@ -29,6 +29,8 @@ namespace R1Engine
 
         readonly double GoldenRatio = (1 + Math.Sqrt(5)) / 2;
 
+        const int layerStartZ = 100;
+
         /// <summary>
         /// The events
         /// </summary>
@@ -100,7 +102,7 @@ namespace R1Engine
                 switch (l) {
                     case Unity_Layer_Texture lt:
                         if(lt.Graphics != null) break;
-                        lt.Graphics = Instantiate<SpriteRenderer>(PrefabTextureLayerRenderer, lt.PositionOffset + new Vector3(0, 0, -layerIndex), Quaternion.identity, ParentTextureLayer);
+                        lt.Graphics = Instantiate<SpriteRenderer>(PrefabTextureLayerRenderer, lt.PositionOffset + new Vector3(0, 0, layerStartZ - layerIndex), Quaternion.identity, ParentTextureLayer);
                         lt.Graphics.gameObject.name = lt.Name;
                         lt.InitSprites(LevelEditorData.Level.PixelsPerUnit);
 
@@ -271,7 +273,7 @@ namespace R1Engine
                 if (l is Unity_Layer_Map lm) {
                     var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Collision)) {
-                        lm.CollisionTilemap = Instantiate<Tilemap>(PrefabMapLayerCollision, lm.PositionOffset + new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayerCollision);
+                        lm.CollisionTilemap = Instantiate<Tilemap>(PrefabMapLayerCollision, lm.PositionOffset + new Vector3(0, 0, layerStartZ - i), Quaternion.identity, ParentMapLayerCollision);
                         lm.CollisionTilemap.gameObject.name = $"{lm.Name} - Collision";
                         lm.Collision = lm.CollisionTilemap.GetComponent<TilemapRenderer>();
                         ConfigureCollisionMapLayer(i);
@@ -392,7 +394,7 @@ namespace R1Engine
                     var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Graphics)) {
                         if (lm.Graphics == null) {
-                            lm.Graphics = Instantiate<SpriteRenderer>(PrefabMapLayerRenderer, lm.PositionOffset + new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayer);
+                            lm.Graphics = Instantiate<SpriteRenderer>(PrefabMapLayerRenderer, lm.PositionOffset + new Vector3(0, 0, layerStartZ - i), Quaternion.identity, ParentMapLayer);
                         }
                         lm.Graphics.gameObject.name = $"{lm.Name} - Graphics";
                         ConfigureGraphicsMapLayer(i);
@@ -1020,7 +1022,7 @@ namespace R1Engine
                     int sortingOrderCol = 0;
                     if (!is3D) {
                         // Move map back into original position
-                        pos = new Vector3(0, 0, -i);
+                        pos = new Vector3(0, 0, layerStartZ - i);
                         posCol = pos;
                         q = Quaternion.identity;
                         scale = new Vector3(1,-1,1);
@@ -1051,7 +1053,7 @@ namespace R1Engine
                             pos = cam.transform.TransformPoint(pos);
                             posCol = cam.transform.TransformPoint(posCol);
                         } else {
-                            pos = new Vector3(0, 0, -i);
+                            pos = new Vector3(0, 0, layerStartZ - i);
                             posCol = pos;
                             q = Quaternion.identity;
                             scale = Vector3.one;

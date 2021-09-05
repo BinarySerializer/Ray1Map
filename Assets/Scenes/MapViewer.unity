@@ -2144,6 +2144,7 @@ MonoBehaviour:
   collisionLinesGraphics: {fileID: 1493175584}
   collisionLinesCollision: {fileID: 1380560023}
   CollisionLinesCollision: []
+  CollisionLinesCollision3D: []
   camMaxX: 1
   camMaxY: 1
   additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}
@@ -16921,7 +16922,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1369872172}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 989}
   m_LocalScale: {x: 0, y: 0, z: 1}
   m_Children: []
   m_Father: {fileID: 172781301}
