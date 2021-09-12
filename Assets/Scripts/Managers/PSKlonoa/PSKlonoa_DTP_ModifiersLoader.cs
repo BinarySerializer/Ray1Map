@@ -206,6 +206,21 @@ namespace R1Engine
                     }
                     break;
 
+                case GlobalModifierType.GeyserPlatform:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        var positions = modifier.GeyserPlatformPositions;
+
+                        for (int i = 0; i < positions.Length; i++)
+                        {
+                            var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, index: i);
+                            GameObj_ApplyPosition(obj, positions[i].Position);
+                        }
+                    }
+                    break;
+
                 case GlobalModifierType.ScrollAnimation:
                     {
                         if (loop != LoadLoop.Animations)
@@ -260,10 +275,10 @@ namespace R1Engine
 
                         for (int i = 0; i < anim.Files.Length; i++)
                         {
-                            var region = anim.VRAMRegions[i];
+                            var region = modifier.PaletteAnimationVRAMRegions[i];
                             var palettes = anim.Files[i].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
-                            Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, anim.AnimationInfo.AnimSpeed, true));
+                            Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, modifier.PaletteAnimationInfo.AnimSpeed, true));
                         }
                     }
                     break;
