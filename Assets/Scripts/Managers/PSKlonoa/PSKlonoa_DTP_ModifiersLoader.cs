@@ -230,6 +230,66 @@ namespace R1Engine
                     } 
                     break;
 
+                case GlobalModifierType.VRAMScrollAnimation:
+                    {
+                        if (loop != LoadLoop.Animations)
+                            return;
+
+                        LoaderConfiguration_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
+                        PS1_VRAM vram = Loader.VRAM;
+
+                        // Kind of hacky solution, but works... The game essentially just defines what data gets copied where in VRAM
+                        for (int scrollIndex = 0; scrollIndex < scroll.Length; scrollIndex += 2)
+                        {
+                            // Due to the way the animations are set up we need to group them in two. Each region on the VRAM it updates will
+                            // have two entries defined so it can handle the overflow. Since they both need to run together we group them.
+                            var scroll_0 = scroll[scrollIndex + 0];
+                            var scroll_1 = scroll[scrollIndex + 1];
+
+                            var region = new PS1_VRAMRegion()
+                            {
+                                XPos = (short)Math.Min(scroll_0.DestinationX, scroll_1.DestinationX),
+                                YPos = (short)Math.Min(scroll_0.DestinationY, scroll_1.DestinationY),
+                                Width = scroll_0.Region.Width,
+                                Height = (short)(Math.Max(scroll_0.DestinationY + scroll_0.Region.Height, scroll_1.DestinationY +
+                                    scroll_1.Region.Height) - Math.Min(scroll_0.DestinationY, scroll_1.DestinationY)),
+                            };
+
+                            int framesCount = region.Height / Math.Min(scroll_0.Region.Height, scroll_1.Region.Height);
+
+                            var prevFrame = new byte[region.Width * 2 * region.Height];
+
+                            // Fill out the first state to use
+                            for (int y = 0; y < region.Height; y++)
+                            {
+                                for (int x = 0; x < region.Width * 2; x++)
+                                {
+                                    prevFrame[y * region.Width * 2 + x] = vram.GetPixel8(0, 0, region.XPos * 2 + x, region.YPos + y);
+                                }
+                            }
+
+                            var frames = new byte[framesCount][];
+
+                            var buffer_0 = new byte[scroll_0.Region.Width * 2 * scroll_0.Region.Height];
+                            var buffer_1 = new byte[scroll_1.Region.Width * 2 * scroll_1.Region.Height];
+
+                            // Enumerate every frame
+                            for (int frameIndex = 0; frameIndex < framesCount; frameIndex++)
+                            {
+                                Array.Copy(prevFrame, (scroll_0.Region.YPos - region.YPos) * region.Width * 2, buffer_0, 0, buffer_0.Length);
+                                Array.Copy(prevFrame, (scroll_1.Region.YPos - region.YPos) * region.Width * 2, buffer_1, 0, buffer_1.Length);
+
+                                Array.Copy(buffer_0, 0, prevFrame, (scroll_0.DestinationY - region.YPos) * region.Width * 2, buffer_0.Length);
+                                Array.Copy(buffer_1, 0, prevFrame, (scroll_1.DestinationY - region.YPos) * region.Width * 2, buffer_1.Length);
+
+                                frames[frameIndex] = prevFrame.ToArray();
+                            }
+
+                            Anim_TextureAnimations.Add(new PS1VRAMAnimation(region, frames, scroll_0.AnimSpeed, false));
+                        }
+                    }
+                    break;
+
                 case GlobalModifierType.Object:
                     {
                         if (loop != LoadLoop.Objects)

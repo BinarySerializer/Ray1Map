@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer.PS1;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace R1Engine
         {
             UsesSingleRegion = true;
             Region = region;
-            Frames = frames;
+            RawFrames = frames;
             Speed = speed;
             PingPong = pingPong;
         }
@@ -19,7 +20,15 @@ namespace R1Engine
         {
             UsesSingleRegion = true;
             Region = RectIntFromVRAMRegion(region);
-            Frames = frames;
+            RawFrames = frames;
+            Speed = speed;
+            PingPong = pingPong;
+        }
+        public PS1VRAMAnimation(PS1_VRAMRegion region, Func<byte[]>[] frames, int speed, bool pingPong)
+        {
+            UsesSingleRegion = true;
+            Region = RectIntFromVRAMRegion(region);
+            GeneratedFrames = frames;
             Speed = speed;
             PingPong = pingPong;
         }
@@ -27,7 +36,7 @@ namespace R1Engine
         {
             UsesSingleRegion = false;
             Regions = regions;
-            Frames = frames;
+            RawFrames = frames;
             Speed = speed;
             PingPong = pingPong;
         }
@@ -35,7 +44,7 @@ namespace R1Engine
         {
             UsesSingleRegion = false;
             Regions = regions.Select(RectIntFromVRAMRegion).ToArray();
-            Frames = frames;
+            RawFrames = frames;
             Speed = speed;
             PingPong = pingPong;
         }
@@ -43,21 +52,24 @@ namespace R1Engine
         {
             UsesSingleRegion = false;
             Regions = timFiles.Select(x => RectIntFromVRAMRegion(x.Region)).ToArray();
-            Frames = timFiles.Select(x => x.ImgData).ToArray();
+            RawFrames = timFiles.Select(x => x.ImgData).ToArray();
             Speed = speed;
             PingPong = pingPong;
         }
 
+        private byte[][] RawFrames { get; }
+        private Func<byte[]>[] GeneratedFrames { get; }
+
         public bool UsesSingleRegion { get; }
         public RectInt Region { get; }
         public RectInt[] Regions { get; }
-        public byte[][] Frames { get; }
         public int Speed { get; }
         public bool PingPong { get; }
         private int? _key;
-        public int Key => _key ??= Speed | (PingPong ? 1 : 0) << 15 | (Frames.Length << 16);
+        public int Key => _key ??= Speed | (PingPong ? 1 : 0) << 15 | (FramesLength << 16);
 
-        public int ActualLength => PingPong ? Frames.Length + (Frames.Length - 2) : Frames.Length;
+        public int FramesLength => RawFrames?.Length ?? GeneratedFrames.Length;
+        public int ActualLength => PingPong ? FramesLength + (FramesLength - 2) : FramesLength;
 
         private static RectInt RectIntFromVRAMRegion(PS1_VRAMRegion region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
 
@@ -68,5 +80,7 @@ namespace R1Engine
             else
                 return Regions.Any(x => x.Overlaps(region));
         }
+
+        public byte[] GetFrame(int frame) => RawFrames?[frame] ?? GeneratedFrames[frame]();
     }
 }

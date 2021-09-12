@@ -21,14 +21,14 @@ namespace R1Engine
             Animations = animations;
             Speed = firstAnim.Speed;
 
-            for (int i = 0; i < firstAnim.Frames.Length; i++)
+            for (int i = 0; i < firstAnim.FramesLength; i++)
                 Textures[i] = TextureHelpers.CreateTexture2D(width, height, clear: clear);
 
             if (firstAnim.PingPong)
             {
-                var sourceIndex = firstAnim.Frames.Length - 1;
+                var sourceIndex = firstAnim.FramesLength - 1;
 
-                for (int i = firstAnim.Frames.Length; i < Textures.Length; i++)
+                for (int i = firstAnim.FramesLength; i < Textures.Length; i++)
                 {
                     Textures[i] = Textures[sourceIndex];
                     sourceIndex--;

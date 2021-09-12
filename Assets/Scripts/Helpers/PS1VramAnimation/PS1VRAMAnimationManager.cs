@@ -31,7 +31,7 @@ namespace R1Engine
             // Load every group. Animations are grouped based on length, speed and if they loop back.
             foreach (var textures in AnimatedTextures.Values)
             {
-                int length = textures.First().Animations.First().Frames.Length;
+                int length = textures.First().Animations.First().FramesLength;
 
                 // Load every frame
                 for (int frameIndex = 0; frameIndex < length; frameIndex++)
@@ -43,7 +43,7 @@ namespace R1Engine
                     foreach (var anim in textures.SelectMany(x => x.Animations).Distinct())
                     {
                         var region = anim.UsesSingleRegion ? anim.Region : anim.Regions[frameIndex];
-                        vram.AddDataAt(0, 0, region.x, region.y, anim.Frames[frameIndex], region.width, region.height);
+                        vram.AddDataAt(0, 0, region.x, region.y, anim.GetFrame(frameIndex), region.width, region.height);
                     }
 
                     // Load every texture
