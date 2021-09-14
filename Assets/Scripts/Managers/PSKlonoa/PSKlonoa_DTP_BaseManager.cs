@@ -1208,6 +1208,12 @@ namespace R1Engine
 
                 var overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
 
+                if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                {
+                    tex.ExpandWithUVScroll();
+                }
+
+
                 if (overlappingTex != null)
                 {
                     overlappingTex.ExpandWithBounds(tex);
@@ -1398,7 +1404,7 @@ namespace R1Engine
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
-                            animTex.scrollV = -2f;
+                            animTex.scrollV = -2f * 60f / (tex?.Bounds.height ?? 256);
                         }
                     }
                 }
@@ -2160,6 +2166,15 @@ namespace R1Engine
                     minY,
                     maxX - minX,
                     maxY - minY);
+            }
+
+            public void ExpandWithUVScroll() {
+                Bounds = new RectInt(
+                    Bounds.x,
+                    0,
+                    Bounds.width,
+                    192);
+
             }
         }
     }
