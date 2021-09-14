@@ -194,6 +194,16 @@ namespace R1Engine
                     }
                     break;
 
+                case GlobalModifierType.WaterWheel:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObject obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
+                        GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
+                    }
+                    break;
+
                 case GlobalModifierType.Light:
                     {
                         if (loop != LoadLoop.Objects)
@@ -322,8 +332,8 @@ namespace R1Engine
                         if (loop != LoadLoop.Animations)
                             return;
 
-                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, Loader.Config.TextureAnimationSpeeds[Loader.BINBlock], true));
-                    } 
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
+                    }
                     break;
 
                 case GlobalModifierType.PaletteAnimation:
