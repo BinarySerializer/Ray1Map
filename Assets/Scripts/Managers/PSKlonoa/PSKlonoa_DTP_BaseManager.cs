@@ -1372,10 +1372,8 @@ namespace R1Engine
                         {
                             var u = uv.U - tex.Bounds.x;
                             var v = uv.V - tex.Bounds.y;
-                            if (i >= 2) {
-                                u += 1;
-                                v += 1;
-                            }
+                            if (i % 2 == 1) u += 1;
+                            if (i >= 2) v += 1;
 
                             return new Vector2(u / (float)(tex.Bounds.width), v / (float)(tex.Bounds.height));
                         }).ToArray());
