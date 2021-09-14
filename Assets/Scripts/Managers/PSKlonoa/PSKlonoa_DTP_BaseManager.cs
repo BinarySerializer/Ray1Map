@@ -1368,12 +1368,16 @@ namespace R1Engine
                     {
                         var tex = vramTexturesLookup[packet];
 
-                        unityMesh.SetUVs(0, packet.UV.Select(uv =>
+                        unityMesh.SetUVs(0, packet.UV.Select((uv, i) =>
                         {
                             var u = uv.U - tex.Bounds.x;
                             var v = uv.V - tex.Bounds.y;
+                            if (i >= 2) {
+                                u += 1;
+                                v += 1;
+                            }
 
-                            return new Vector2(u / (float)(tex.Bounds.width - 1), v / (float)(tex.Bounds.height - 1));
+                            return new Vector2(u / (float)(tex.Bounds.width), v / (float)(tex.Bounds.height));
                         }).ToArray());
 
                         if (tex.AnimatedTexture != null)
@@ -1388,7 +1392,7 @@ namespace R1Engine
                         mr.material.SetTexture("_MainTex", tex.Texture);
 
                         if (IncludeDebugInfo)
-                            mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {tex.AnimatedTexture != null}";
+                            mr.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
                         if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
