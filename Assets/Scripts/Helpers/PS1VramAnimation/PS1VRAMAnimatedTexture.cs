@@ -26,7 +26,7 @@ namespace R1Engine
 
             if (firstAnim.PingPong)
             {
-                var sourceIndex = firstAnim.FramesLength - 1;
+                var sourceIndex = firstAnim.FramesLength - 2;
 
                 for (int i = firstAnim.FramesLength; i < Textures.Length; i++)
                 {
