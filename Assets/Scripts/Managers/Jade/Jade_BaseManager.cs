@@ -40,7 +40,8 @@ namespace R1Engine {
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
-				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true)),
+				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true, false)),
+				new GameAction("Export unbinarized into RRR format", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true, true)),
 				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
 			};
 			if (HasUnbinarizedData) {
@@ -250,8 +251,8 @@ namespace R1Engine {
 									if (g.IsNull || g.Value == null) continue;
 									var group = (TEXT_TextGroup)g.Value;
 									var usedRef = group?.GetUsedReference(langID);
-									if(usedRef == null || usedRef.IsNull || usedRef.Value == null) continue;
-									var txl = (TEXT_TextList)usedRef.Value;
+									if(usedRef == null || usedRef.IsNull || usedRef.TextList == null) continue;
+									var txl = usedRef.TextList;
 									foreach (var t in txl.Text) {
 										var id = t.IDString ?? $"{txl.Key}-{t.IdKey}";
 										var content = t.Text;
@@ -483,12 +484,18 @@ namespace R1Engine {
 
 			Debug.Log($"Finished export");
 		}
-		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string outputDir, bool useComplexNames) {
+		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string outputDir, bool useComplexNames, bool exportForRRRPC) {
 			var parsedSounds = new HashSet<uint>();
 
 			var levIndex = 0;
 			uint currentKey = 0;
 			Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
+			int[] rrrPC_supportedModifiers = new int[] { 
+				-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19,
+				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 36, 37, 38, 49,
+				50, 51, 52, 53, 54, 55
+			};
+
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -505,10 +512,34 @@ namespace R1Engine {
 					using (var context = new R1Context(settings)) {
 						currentKey = 0;
 						await LoadFilesAsync(context);
-						await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
+						if (exportForRRRPC) {
+							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures | LoadFlags.Universe);
+						} else {
+							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
+						}
 
 						LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						var worlds = actualLoader.LoadedWorlds;
+
+						if (exportForRRRPC) {
+							foreach (var w in worlds) {
+								w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
+								foreach (var gao in w.SerializedGameObjects) {
+									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
+									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.AI;
+
+									if (gao.Extended?.Modifiers != null) {
+										gao.Extended.Modifiers = gao.Extended.Modifiers
+											.Where(m =>
+												m.Type != MDF_ModifierType.GEN_ModifierSound && m.Type != MDF_ModifierType.MDF_LoadingSound
+												&& rrrPC_supportedModifiers.Contains((int)m.Type))
+											.ToArray();
+										if(gao.Extended.Modifiers.Length == 0
+											|| (gao.Extended.Modifiers.Length == 1 && gao.Extended.Modifiers[0].Type == MDF_ModifierType.None)) gao.Extended.HasModifiers = 0;
+									}
+								}
+							}
+						}
 
 						//string worldName = null;
 						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
@@ -517,7 +548,7 @@ namespace R1Engine {
 							foreach (var w in worlds) {
 								await ExportUnbinarized(w);
 							}
-							await ExportRest();
+							if(!exportForRRRPC) await ExportRest();
 						}
 
 						async UniTask ExportUnbinarized(WOR_World world) {
@@ -527,7 +558,9 @@ namespace R1Engine {
 
 								LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 
-								using (var writeContext = new R1Context(outputDir, settings)) {
+								var newSettings = new GameSettings(GameModeSelection.RaymanRavingRabbidsPC, settings.GameDirectory, settings.World, settings.Level);
+
+								using (var writeContext = new R1Context(outputDir, newSettings)) {
 									// Set up loader
 									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
 									loader.WrittenFileKeys = writtenFileKeys;
@@ -556,7 +589,9 @@ namespace R1Engine {
 
 							LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 
-							using (var writeContext = new R1Context(outputDir, settings)) {
+							var newSettings = new GameSettings(GameModeSelection.RaymanRavingRabbidsPC, settings.GameDirectory, settings.World, settings.Level);
+
+							using (var writeContext = new R1Context(outputDir, newSettings)) {
 								// Set up loader
 								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
 								loader.WrittenFileKeys = writtenFileKeys;
@@ -812,6 +847,16 @@ namespace R1Engine {
 				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
 				var modDirectory = Path.Combine(inputDir, "mod");
 				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
+					string configPath = Path.Combine(modDir, "config.txt");
+					bool overwrite = true;
+					if (File.Exists(configPath)) {
+						string[] lines = File.ReadAllLines(configPath);
+						foreach (var l in lines) {
+							if (l.Trim() == "overwrite=false") {
+								overwrite = false;
+							}
+						}
+					}
 					string modKeyListPath = Path.Combine(modDir, "filekeys.txt");
 					if (File.Exists(modKeyListPath)) {
 						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
@@ -825,12 +870,22 @@ namespace R1Engine {
 								var path = lineSplit[1].Replace('\\', '/');
 								var absolutePath = Path.Combine(modDir, $"files/{path}");
 								if (File.Exists(absolutePath)) {
-									mod.Value[k] = path;
-									if (fileKeysUnbinarized.ContainsKey(k)) fileKeysUnbinarized.Remove(k);
-									if (fileKeysExisting.ContainsKey(k)) fileKeysExisting.Remove(k);
-									foreach (var otherMod in mods) {
-										if(otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) otherMod.Value.Remove(k);
+									bool addModFile = true;
+									if (fileKeysUnbinarized.ContainsKey(k)) {
+										if(overwrite) fileKeysUnbinarized.Remove(k);
+										else addModFile = false;
 									}
+									if (fileKeysExisting.ContainsKey(k)) {
+										if (overwrite) fileKeysExisting.Remove(k);
+										else addModFile = false;
+									}
+									foreach (var otherMod in mods) {
+										if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+											if(overwrite) otherMod.Value.Remove(k);
+											else addModFile = false;
+										}
+									}
+									if(addModFile) mod.Value[k] = path;
 								}
 							}
 						}
@@ -1187,135 +1242,217 @@ namespace R1Engine {
 				await loader.LoadLoop(context.Deserializer);
 			}
 
-			if (loadFlags.HasFlag(LoadFlags.TextNoSound) && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
-				Controller.DetailedState = $"Loading text";
-				for (int languageID = 0; languageID < 32; languageID++) {
-					var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
-					if (!loader.FileInfos.ContainsKey(binKey)) continue;
-					bool hasSound = false;
-					loader.BeginSpeedMode(binKey, serializeAction: async s => {
-						Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
-						for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
-							var w = worldList?.Value?.Worlds[i]?.Value;
-							if (w != null) {
-								var world = (WOR_World)w;
-								world.Text?.LoadText(languageID, hasSound);
-								await loader.LoadLoopBINAsync();
-								if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
-									var text = world.Text.GetTextForLanguage(languageID, hasSound);
-									if (text.Text != null) {
-										foreach (var txg in text.Text) {
-											txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-											await loader.LoadLoopBINAsync();
-											var group = (TEXT_TextGroup)txg.Value;
-											if (group == null) continue;
-											var usedRef = group.GetUsedReference(languageID);
-											usedRef?.Resolve(onPreSerialize: (_, txl) => {
-												((TEXT_TextList)txl).HasSound = false;
-											},
-											cache: LOA_Loader.CacheType.Text);
-											await loader.LoadLoopBINAsync();
-										}
-									}
-								}
-							}
-						}
-						//await loader.LoadLoopBINAsync();
-					});
-					await loader.LoadLoop(context.Deserializer);
-					loader.Caches[LOA_Loader.CacheType.Text]?.Clear();
-
-					if (loadFlags.HasFlag(LoadFlags.TextSound)) {
-						hasSound = true;
-						binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextSound, languageID: languageID));
+			if (loader.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+				if (loadFlags.HasFlag(LoadFlags.TextNoSound)) {
+					Controller.DetailedState = $"Loading text";
+					for (int languageID = 0; languageID < 32; languageID++) {
+						var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
 						if (!loader.FileInfos.ContainsKey(binKey)) continue;
+						bool hasSound = false;
 						loader.BeginSpeedMode(binKey, serializeAction: async s => {
-							Controller.DetailedState = $"Loading text: Language {languageID} - Sound";
-							List<TEXT_TextList> soundTexts = new List<TEXT_TextList>();
+							Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
 							for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
 								var w = worldList?.Value?.Worlds[i]?.Value;
 								if (w != null) {
 									var world = (WOR_World)w;
-									world.Text?.LoadText(languageID, true);
+									world.Text?.LoadText(languageID, hasSound);
 									await loader.LoadLoopBINAsync();
 									if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
-										var textNoSound = world.Text.GetTextForLanguage(languageID, false);
-										var textSound = world.Text.GetTextForLanguage(languageID, hasSound);
-										if (textSound.Text != null) {
-											for (int j = 0; j < textSound.Text.Length; j++) {
-												var txg = textSound.Text[j];
-												var txgNoSound = textNoSound.Text[j];
-												txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+										var text = world.Text.GetTextForLanguage(languageID, hasSound);
+										if (text.Text != null) {
+											foreach (var txg in text.Text) {
+												txg.Resolve(onPreSerialize: (_, f) => {
+													((TEXT_TextGroup)f).LanguageID = languageID;
+												},
+												cache: LOA_Loader.CacheType.Text,
+												flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
 												await loader.LoadLoopBINAsync();
 												var group = (TEXT_TextGroup)txg.Value;
 												if (group == null) continue;
 												var usedRef = group.GetUsedReference(languageID);
-
-												var groupNoSound = (TEXT_TextGroup)txgNoSound.Value;
-												if (groupNoSound == null) continue;
-												if ((group?.Key?.Key ?? 0) != (groupNoSound?.Key?.Key ?? 0))
-													throw new Exception($"TXG keys do not match between text bins: NS{groupNoSound?.Key} : S{group?.Key}");
-												var usedRefNoSound = groupNoSound.GetUsedReference(languageID);
-												if ((usedRef?.Key?.Key ?? 0) != (usedRefNoSound?.Key?.Key ?? 0))
-													throw new Exception($"TXL keys do not match between text bins: NS{usedRefNoSound?.Key} : S{usedRef?.Key}");
-												if (usedRefNoSound.Value == null) continue;
-												var txlNoSound = (TEXT_TextList)usedRefNoSound.Value;
-
-												usedRef?.Resolve(onPreSerialize: (_, txl) => {
-													((TEXT_TextList)txl).HasSound = true;
-													((TEXT_TextList)txl).TXLNoSound = txlNoSound;
-												},
-												cache: LOA_Loader.CacheType.TextSound,
-												flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+												usedRef?.ResolveBinarizedNoSound();
 												await loader.LoadLoopBINAsync();
-
-												if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
-													soundTexts.Add(soundTxl);
-												}
-
 											}
 										}
 									}
 								}
 							}
-							foreach (var soundTxl in soundTexts) {
-								soundTxl.TXLNoSound.ResolveSounds(s);
-							}
-							await loader.LoadLoopBINAsync();
 							//await loader.LoadLoopBINAsync();
 						});
 						await loader.LoadLoop(context.Deserializer);
-						loader.Caches[LOA_Loader.CacheType.TextSound]?.Clear();
-					}
-				}
-				// Fill in missing text references
-				/*for (int languageID_main = 0; languageID_main < 32; languageID_main++) {
-					for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
-						var w = worldList?.Value?.Worlds[i]?.Value;
-						if (w != null) {
-							var world = (WOR_World)w;
-							var alltext = world.Text?.GetTextForLanguage(languageID_main, false);
-							if (alltext != null) {
-								foreach (var txg_generic in alltext.Text) {
-									if(txg_generic == null || txg_generic.Value == null) continue;
-									var txg = (TEXT_TextGroup)txg_generic.Value;
-									foreach (var txl_generic in txg.Text) {
-										if(txl_generic == null || txl_generic.Value == null) continue;
+						loader.Caches[LOA_Loader.CacheType.Text]?.Clear();
 
+						if (loadFlags.HasFlag(LoadFlags.TextSound)) {
+							hasSound = true;
+							binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextSound, languageID: languageID));
+							if (!loader.FileInfos.ContainsKey(binKey)) continue;
+							loader.BeginSpeedMode(binKey, serializeAction: async s => {
+								Controller.DetailedState = $"Loading text: Language {languageID} - Sound";
+								List<TEXT_TextList> soundTexts = new List<TEXT_TextList>();
+								for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+									var w = worldList?.Value?.Worlds[i]?.Value;
+									if (w != null) {
+										var world = (WOR_World)w;
+										world.Text?.LoadText(languageID, true);
+										await loader.LoadLoopBINAsync();
+										if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
+											var textNoSound = world.Text.GetTextForLanguage(languageID, false);
+											var textSound = world.Text.GetTextForLanguage(languageID, hasSound);
+											if (textSound.Text != null) {
+												for (int j = 0; j < textSound.Text.Length; j++) {
+													var txg = textSound.Text[j];
+													var txgNoSound = textNoSound.Text[j];
+													txg.Resolve(onPreSerialize: (_, f) => {
+														((TEXT_TextGroup)f).LanguageID = languageID;
+													}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+													await loader.LoadLoopBINAsync();
+													var group = (TEXT_TextGroup)txg.Value;
+													if (group == null) continue;
+													var usedRef = group.GetUsedReference(languageID)?.TextListRef;
+
+													var groupNoSound = (TEXT_TextGroup)txgNoSound.Value;
+													if (groupNoSound == null) continue;
+													if ((group?.Key?.Key ?? 0) != (groupNoSound?.Key?.Key ?? 0))
+														throw new Exception($"TXG keys do not match between text bins: NS{groupNoSound?.Key} : S{group?.Key}");
+													var usedRefNoSound = groupNoSound.GetUsedReference(languageID)?.TextListRef;
+													if ((usedRef?.Key?.Key ?? 0) != (usedRefNoSound?.Key?.Key ?? 0))
+														throw new Exception($"TXL keys do not match between text bins: NS{usedRefNoSound?.Key} : S{usedRef?.Key}");
+													if (usedRefNoSound.Value == null) continue;
+													var txlNoSound = (TEXT_TextList)usedRefNoSound.Value;
+
+													usedRef?.Resolve(onPreSerialize: (_, txl) => {
+														((TEXT_TextList)txl).HasSound = true;
+														((TEXT_TextList)txl).TXLNoSound = txlNoSound;
+													},
+													cache: LOA_Loader.CacheType.TextSound,
+													flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+													await loader.LoadLoopBINAsync();
+
+													if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
+														soundTexts.Add(soundTxl);
+													}
+
+												}
+											}
+										}
+									}
+								}
+								foreach (var soundTxl in soundTexts) {
+									soundTxl.TXLNoSound.ResolveSounds(s);
+								}
+								await loader.LoadLoopBINAsync();
+								//await loader.LoadLoopBINAsync();
+							});
+							await loader.LoadLoop(context.Deserializer);
+							loader.Caches[LOA_Loader.CacheType.TextSound]?.Clear();
+						}
+					}
+					// Fill in missing text references
+					/*for (int languageID_main = 0; languageID_main < 32; languageID_main++) {
+						for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+							var w = worldList?.Value?.Worlds[i]?.Value;
+							if (w != null) {
+								var world = (WOR_World)w;
+								var alltext = world.Text?.GetTextForLanguage(languageID_main, false);
+								if (alltext != null) {
+									foreach (var txg_generic in alltext.Text) {
+										if(txg_generic == null || txg_generic.Value == null) continue;
+										var txg = (TEXT_TextGroup)txg_generic.Value;
+										foreach (var txl_generic in txg.Text) {
+											if(txl_generic == null || txl_generic.Value == null) continue;
+
+										}
 									}
 								}
 							}
 						}
-					}
-				}*/
-			}
+					}*/
+				}
+			} else if (loader.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				if (loadFlags.HasFlag(LoadFlags.TextNoSound)) {
+					Controller.DetailedState = $"Loading text";
+					for (int languageID = 0; languageID < 32; languageID++) {
+						var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
+						if (!loader.FileInfos.ContainsKey(binKey)) continue;
+						bool hasSound = false;
+						loader.BeginSpeedMode(binKey, serializeAction: async s => {
+							Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
+							Jade_TextReference worldTextRef = new Jade_TextReference(context, new Jade_Key(context, 0)) { ForceResolve = true };
+							Jade_TextReference fixTextRef = new Jade_TextReference(context, new Jade_Key(context, 1)) { ForceResolve = true };
+							for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+								var w = worldList?.Value?.Worlds[i]?.Value;
+								if (w != null) {
+									var world = (WOR_World)w;
+									if (world.Text != null && !world.Text.IsNull) worldTextRef = world.Text;
+								}
+							}
+							var textRef = worldTextRef;
+							textRef?.LoadText(languageID, false);
+							await loader.LoadLoopBINAsync();
+							var text = textRef?.GetTextForLanguage(languageID, hasSound);
+							if (text?.Text != null) {
+								foreach (var txg in text.Text) {
+									txg.Resolve(onPreSerialize: (_, f) => {
+										((TEXT_TextGroup)f).LanguageID = languageID;
+									},
+									cache: LOA_Loader.CacheType.Text,
+									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+								}
+								await loader.LoadLoopBINAsync();
+							}
+							textRef = fixTextRef;
+							textRef?.LoadText(languageID, false);
+							await loader.LoadLoopBINAsync();
+							text = textRef?.GetTextForLanguage(languageID, hasSound);
+							if (text?.Text != null) {
+								foreach (var txg in text.Text) {
+									txg.Resolve(onPreSerialize: (_, f) => {
+										((TEXT_TextGroup)f).LanguageID = languageID;
+									},
+									cache: LOA_Loader.CacheType.Text,
+									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+								}
+								await loader.LoadLoopBINAsync();
+							}
+							//await loader.LoadLoopBINAsync();
+						});
+						await loader.LoadLoop(context.Deserializer);
+						loader.Caches[LOA_Loader.CacheType.Text]?.Clear();
 
+						if (loadFlags.HasFlag(LoadFlags.TextSound)) {
+							UnityEngine.Debug.Log($"TextSound not yet implemented");
+						}
+					}
+					// Fill in missing text references
+					/*for (int languageID_main = 0; languageID_main < 32; languageID_main++) {
+						for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+							var w = worldList?.Value?.Worlds[i]?.Value;
+							if (w != null) {
+								var world = (WOR_World)w;
+								var alltext = world.Text?.GetTextForLanguage(languageID_main, false);
+								if (alltext != null) {
+									foreach (var txg_generic in alltext.Text) {
+										if(txg_generic == null || txg_generic.Value == null) continue;
+										var txg = (TEXT_TextGroup)txg_generic.Value;
+										foreach (var txl_generic in txg.Text) {
+											if(txl_generic == null || txl_generic.Value == null) continue;
+
+										}
+									}
+								}
+							}
+						}
+					}*/
+				}
+			}
 			if (loadFlags.HasFlag(LoadFlags.Sounds)) {
 				Controller.DetailedState = $"Loading sounds";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeSounds), serializeAction: async s => {
-					for (int i = 0; i < sndList.Waves.Count; i++) {
+					for (int i = 0; i < (sndList.Waves?.Count ?? 0); i++) {
 						if (!loader.FileInfos.ContainsKey(sndList.Waves[i].Key)) {
-							sndList.Waves[i].SerializeData(s);
+							if (sndList.Waves[i].IsSerializeDataSupported(s)) {
+								sndList.Waves[i].SerializeData(s);
+							}
 						}
 					}
 					await UniTask.CompletedTask;

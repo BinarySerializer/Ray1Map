@@ -6,6 +6,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class Jade_TextReference : BinarySerializable {
 		public Jade_Key Key { get; set; }
+		public bool ForceResolve { get; set; }
 		public bool IsNull => Key.IsNull;
 
 		public Dictionary<int, TEXT_AllText> Text { get; set; } = new Dictionary<int, TEXT_AllText>();
@@ -47,13 +48,13 @@ namespace R1Engine.Jade {
 		public Jade_TextReference LoadText(int languageID, bool sound,
 			Action<SerializerObject, TEXT_AllText> onPreSerialize = null,
 			Action<SerializerObject, TEXT_AllText> onPostSerialize = null) {
-			if (IsNull) return this;
+			if (IsNull && !ForceResolve) return this;
 			var textDict = sound ? TextSound : Text;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, GetTextForLanguage(languageID, sound), (s, configureAction) => {
 				textDict[languageID] = s.SerializeObject<TEXT_AllText>(GetTextForLanguage(languageID, sound), onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
-				}, name: sound ? nameof(Text) : nameof(TextSound));
+				}, name: sound ? nameof(TextSound) : nameof(Text));
 				onPostSerialize?.Invoke(s, textDict[languageID]);
 			}, (f) => {
 				textDict[languageID] = f?.ConvertType<TEXT_AllText>();

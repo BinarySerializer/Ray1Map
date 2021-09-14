@@ -43,21 +43,49 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
-				if(Content == null) Content = Info;
-				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
-					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
-				}, name: nameof(Content));
-				Info = Content;
-				onPostSerialize?.Invoke(s, Content);
-			}, (f) => {
-				Content = f?.ConvertType<TEX_File>();
-				Info = Content;
-			}, immediate: false,
-			queue: LOA_Loader.QueueType.Current,
-			cache: LOA_Loader.CacheType.TextureInfo,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-			name: typeof(TEX_File).Name);
+			if (Info != null && Info.ContentKey != Key) {
+				loader.RequestFile(Key, Info, (s, configureAction) => {
+					Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
+						configureAction(f); f.IsContent = false; onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Info));
+					onPostSerialize?.Invoke(s, Info);
+				}, (f) => {
+					Info = f?.ConvertType<TEX_File>();
+				}, immediate: false,
+				queue: LOA_Loader.QueueType.Current,
+				cache: LOA_Loader.CacheType.TextureInfo,
+				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				name: typeof(TEX_File).Name);
+
+				loader.RequestFile(Info.ContentKey, Content, (s, configureAction) => {
+					Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
+						configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Content));
+					onPostSerialize?.Invoke(s, Content);
+				}, (f) => {
+					Content = f?.ConvertType<TEX_File>();
+				}, immediate: false,
+				queue: LOA_Loader.QueueType.Current,
+				cache: LOA_Loader.CacheType.TextureContent,
+				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				name: typeof(TEX_File).Name);
+			} else {
+				loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
+					if (Content == null) Content = Info;
+					Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
+						configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Content));
+					Info = Content;
+					onPostSerialize?.Invoke(s, Content);
+				}, (f) => {
+					Content = f?.ConvertType<TEX_File>();
+					Info = Content;
+				}, immediate: false,
+				queue: LOA_Loader.QueueType.Current,
+				cache: LOA_Loader.CacheType.TextureInfo,
+				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				name: typeof(TEX_File).Name);
+			}
 			return this;
 		}
 

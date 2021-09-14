@@ -18,7 +18,7 @@ namespace R1Engine.Jade
 			SND_GlobalList list = Context.GetStoredObject<SND_GlobalList>(Jade_BaseManager.SoundListKey);
 			list.AddWave(this);
 
-			if (FileSize > 8 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+			if (FileSize > 8 && IsSerializeDataSupported(s)) {
 				// Serialize wave content
 				Magic = s.SerializeString(Magic, 4, Encoding.ASCII, name: nameof(Magic));
 				OriginalFileSize = s.Serialize<uint>(OriginalFileSize, name: nameof(OriginalFileSize));
@@ -57,6 +57,8 @@ namespace R1Engine.Jade
 				}
 			}
 		}
+		
+		public bool IsSerializeDataSupported(SerializerObject s) => s.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong);
 
 		public void SerializeData(SerializerObject s) {
 			s.Log($"Serializing data for SND_Wave: {Key}");

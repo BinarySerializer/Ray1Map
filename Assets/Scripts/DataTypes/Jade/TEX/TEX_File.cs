@@ -2,6 +2,7 @@
 using System;
 using BinarySerializer.Image;
 using UnityEngine;
+using System.Linq;
 
 namespace R1Engine.Jade
 {
@@ -163,6 +164,29 @@ namespace R1Engine.Jade
 
                             // Serialize the header first, then set a custom one for the TGA struct based on the Jade properties instead
                             Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.Pre_ForceNoColorMap = true, name: nameof(Content_TGA_Header));
+                            
+                            if (Content_TGA != null
+                                && Content_TGA.Pre_ColorOrder != colorOrder
+                                && Content_TGA.RGBImageData != null) {
+                                // Serializing with different color order. Convert colors
+                                switch (Content_TGA.Header.BitsPerPixel) {
+                                    case 24:
+                                        if (colorOrder == TGA.RGBColorOrder.BGR) {
+                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new BGR888Color(c.Red, c.Green, c.Blue)).ToArray();
+                                        } else {
+                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new RGB888Color(c.Red, c.Green, c.Blue)).ToArray();
+                                        }
+                                        break;
+                                    case 32:
+                                        if (colorOrder == TGA.RGBColorOrder.BGR) {
+                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new BGRA8888Color(c.Red, c.Green, c.Blue, c.Alpha)).ToArray();
+                                        } else {
+                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new RGBA8888Color(c.Red, c.Green, c.Blue, c.Alpha)).ToArray();
+                                        }
+                                        break;
+                                }
+                            }
+
                             Content_TGA = s.SerializeObject<TGA>(Content_TGA, x =>
                             {
                                 x.Pre_ColorOrder = colorOrder;

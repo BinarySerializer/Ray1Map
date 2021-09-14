@@ -21,11 +21,13 @@ namespace R1Engine.Jade
         public uint BinkBpp { get; set; }
         public uint XMV_Key { get; set; }
 
+        public uint ContentFileSize { get; set; }
+
         public override void SerializeImpl(SerializerObject s) {
             if (FileSize > 0) {
                 SerializedFileSize = s.Serialize<uint>(SerializedFileSize, name: nameof(SerializedFileSize));
                 if (FileSize != SerializedFileSize) return;
-                Content = s.SerializeObject<Jade_Reference<TEXPRO_Mpeg_Content>>(Content, name: nameof(Content))?.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
+                Content = s.SerializeObject<Jade_Reference<TEXPRO_Mpeg_Content>>(Content, name: nameof(Content));
                 if (SerializedFileSize >= 0x20) {
                     PSX2_IPUKey = s.Serialize<uint>(PSX2_IPUKey, name: nameof(PSX2_IPUKey));
                     MaxBufSize = s.Serialize<uint>(MaxBufSize, name: nameof(MaxBufSize));
@@ -43,6 +45,9 @@ namespace R1Engine.Jade
                 if (SerializedFileSize > 0x30) {
                     XMV_Key = s.Serialize<uint>(XMV_Key, name: nameof(XMV_Key));
                 }
+
+                LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+                Loader.RequestFileSize(Content.Key, ContentFileSize, (size) => ContentFileSize = size, name: nameof(ContentFileSize));
             }
         }
 	}

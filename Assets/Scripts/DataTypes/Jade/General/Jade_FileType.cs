@@ -53,6 +53,8 @@ namespace R1Engine.Jade {
 			[".txt"] = FileType.TEXT_AllText,
 			[".txg"] = FileType.TEXT_TextGroup,
 			[".txl"] = FileType.TEXT_TextList,
+			[".txi"] = FileType.TEXT_Ids,
+			[".txs"] = FileType.TEXT_Strings,
 		};
 
 		public enum FileType {
@@ -82,6 +84,8 @@ namespace R1Engine.Jade {
 			TEXT_AllText,
 			TEXT_TextGroup,
 			TEXT_TextList,
+			TEXT_Ids,
+			TEXT_Strings,
 		}
 	}
 }

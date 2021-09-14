@@ -176,6 +176,31 @@ namespace R1Engine.Jade {
 			while (LoadQueue.First?.Value != null) {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
+				if (currentRef.IsSizeRequest) {
+					if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
+						uint fileSize = currentRef.Size_CurrentValue;
+						if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
+							var f = Cache[currentRef.Key];
+							if (f != null) {
+								fileSize = f.FileSize;
+								currentRef.Size_ResolveAction(fileSize);
+							}
+						} else {
+							Pointer off_current = s.CurrentPointer;
+							FileInfo f = FileInfos[currentRef.Key];
+							Pointer off_target = f.FileOffset;
+							s.Goto(off_target);
+							s.Log($"LOA: Loading file: {f}");
+							string previousState = Controller.DetailedState;
+							Controller.DetailedState = $"{previousState}\n{f}";
+							await s.FillCacheForReadAsync(4);
+							fileSize = s.Serialize<uint>(default, name: "FileSize");
+							s.Goto(off_current);
+							currentRef.Size_ResolveAction(fileSize);
+						}
+					}
+					continue;
+				}
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
@@ -257,6 +282,7 @@ namespace R1Engine.Jade {
 			while (LoadQueue.First?.Value != null) {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
+				if(currentRef.IsSizeRequest) continue;
 				if (currentRef.Key != null && keyList.ContainsKey(currentRef.Key.Key)) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
@@ -309,6 +335,7 @@ namespace R1Engine.Jade {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
 				bool writeFilesAlreadyInBF = false;
+				if (currentRef.IsSizeRequest) continue;
 				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key) && currentRef.CurrentValue != null) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
@@ -470,6 +497,14 @@ namespace R1Engine.Jade {
 			CurrentCacheType = currentRef.Cache;
 
 			bool hasLoadedFile = GetLoadedFile(currentRef.Key, out Jade_File loadedFile);
+
+			if (currentRef.IsSizeRequest) {
+				FileSize = currentRef.Size_CurrentValue;
+				FileSize = s.Serialize<uint>(FileSize, name: "FileSize");
+				currentRef.Size_ResolveAction(FileSize);
+				Bin.CurrentPosition = s.CurrentPointer;
+				return;
+			}
 			if (hasLoadedFile && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 				var f = loadedFile;
 				if (f != null) f.CachedCount++;
@@ -546,6 +581,7 @@ namespace R1Engine.Jade {
 
 		public delegate void ResolveAction(SerializerObject s, Action<Jade_File> configureAction);
 		public delegate void ResolvedAction(Jade_File f);
+		public delegate void FileSizeResolveAction(uint size);
 		public class FileReference {
 			public string Name { get; set; }
 			public Jade_Key Key { get; set; }
@@ -555,6 +591,11 @@ namespace R1Engine.Jade {
 			public bool IsBin { get; set; }
 			public ReferenceFlags Flags { get; set; }
 			public CacheType Cache { get; set; }
+
+			// Size
+			public bool IsSizeRequest { get; set; }
+			public FileSizeResolveAction Size_ResolveAction { get; set; }
+			public uint Size_CurrentValue { get; set; }
 		}
 
 		public void RequestFile(Jade_Key key, Jade_File currentValue, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false,
@@ -574,6 +615,32 @@ namespace R1Engine.Jade {
 				CurrentValue = currentValue,
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback,
+				Flags = flags,
+				Cache = cache
+			};
+			if (immediate && Bin != null && queue == Bin.QueueType) {
+				LoadQueues[queue].AddFirst(fileRef);
+			} else {
+				LoadQueues[queue].AddLast(fileRef);
+			}
+		}
+		public void RequestFileSize(Jade_Key key, uint currentValue, FileSizeResolveAction loadCallback, bool immediate = true,
+			QueueType queue = QueueType.Current,
+			CacheType cache = CacheType.Current,
+			string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
+			if (queue == QueueType.Current) {
+				queue = Bin?.QueueType ?? QueueType.BigFat;
+				//if(Bin != null && FileInfos.ContainsKey(key)) queue = QueueType.BigFat;
+			}
+			if (cache == CacheType.Current) {
+				cache = IsLoadingFix ? CacheType.Fix : CacheType.Main;
+			}
+			var fileRef = new FileReference() {
+				Name = name,
+				Key = key,
+				IsSizeRequest = true,
+				Size_ResolveAction = loadCallback,
+				Size_CurrentValue = currentValue,
 				Flags = flags,
 				Cache = cache
 			};

@@ -79,7 +79,9 @@ namespace R1Engine.Jade {
 			public uint UInt1 { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				UInt0 = s.Serialize<uint>(UInt0, name: nameof(UInt0));
-				UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+				if (!(s.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong && s.GetR1Settings().Platform == Platform.PC)) {
+					UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+				}
 			}
 		}
 	}

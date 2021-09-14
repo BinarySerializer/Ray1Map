@@ -135,14 +135,14 @@ namespace R1Engine.Jade {
 				}
 			}
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version != 0x111) {
-				var maxType = (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) ? 14 : 12;
-				if (Version >= maxType) {
+				var maxVersion = (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) ? 14 : 12;
+				if (Version >= maxVersion) {
 					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
 					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));
 					Type14_Float_2 = s.Serialize<float>(Type14_Float_2, name: nameof(Type14_Float_2));
 					Type14_Float_3 = s.Serialize<float>(Type14_Float_3, name: nameof(Type14_Float_3));
 				}
-				if (Version >= maxType + 1) {
+				if (Version >= maxVersion + 1) {
 					Type15_Float = s.Serialize<float>(Type15_Float, name: nameof(Type15_Float));
 				}
 				if (Version >= 0x111) {
