@@ -33,6 +33,26 @@ namespace R1Engine.Jade {
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
 		public Dictionary<uint, string> WrittenFileKeys { get; set; } = new Dictionary<uint, string>();
 		public bool ShouldExportVars { get; set; } = false;
+		public bool Raw_WriteFilesAlreadyInBF { get; set; } = false;
+		public bool Raw_RelocateKeys { get; set; } = false;
+		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
+		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
+		private uint CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
+		public uint Raw_RelocateKey(uint keyToRelocate) {
+			while (true) {
+				if (CurrentUnusedKey >= 0xF3FFFFFF) {
+					CurrentUnusedKey = 0x01000000;
+				} else {
+					CurrentUnusedKey++;
+				}
+				var curKey = CurrentUnusedKey;
+				if (!Raw_KeysToAvoid.Contains(curKey)) {
+					Raw_KeysToAvoid.Add(curKey);
+					Raw_KeysToRelocate[keyToRelocate] = curKey;
+					return curKey;
+				}
+			}
+		}
 
 		// Loaded objects
 		public WOR_World WorldToLoadIn { get; set; }
@@ -334,7 +354,6 @@ namespace R1Engine.Jade {
 			while (LoadQueue.First?.Value != null) {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
-				bool writeFilesAlreadyInBF = false;
 				if (currentRef.IsSizeRequest) continue;
 				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key) && currentRef.CurrentValue != null) {
 					CurrentCacheType = currentRef.Cache;
@@ -377,7 +396,7 @@ namespace R1Engine.Jade {
 									f.SetIsBinaryData();
 								});
 							} finally {
-								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
+								if (Raw_WriteFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
 									var bytes = memStream.ToArray();
 									if (originalFilename != null) {
 										filename = originalFilename;

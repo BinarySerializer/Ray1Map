@@ -1,8 +1,8 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
+using System;
 
 namespace R1Engine.Jade {
-    public class PAG_ParticleGenerator : BinarySerializable {
+	public class PAG_ParticleGenerator : BinarySerializable {
         public uint ObjectVersion { get; set; }
 
         public int InstancesNbMaxP { get; set; }
@@ -135,8 +135,14 @@ namespace R1Engine.Jade {
         public float RearForceMax { get; set; }
         public float LODMinPercentageOfParticles { get; set; }
 
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+            if (!newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) {
+                if (Version >= 13) Version = 12;
+            }
+		}
 
-        public override void SerializeImpl(SerializerObject s) {
+		public override void SerializeImpl(SerializerObject s) {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             InstancesNbMaxP = s.Serialize<int>(InstancesNbMaxP, name: nameof(InstancesNbMaxP));

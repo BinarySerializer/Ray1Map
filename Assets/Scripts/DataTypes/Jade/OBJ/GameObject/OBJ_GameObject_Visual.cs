@@ -19,7 +19,7 @@ namespace R1Engine.Jade {
 		public byte LightSetMask { get; set; }
 		public sbyte DisplayOrder { get; set; }
 		public Unknown UnknownFlags { get; set; }
-		public byte[] Padding { get; set; }
+		public sbyte[] Padding { get; set; }
 		public uint VertexColorsCount { get; set; }
 		public Jade_Color[] VertexColors { get; set; }
 
@@ -47,14 +47,11 @@ namespace R1Engine.Jade {
 		public GEO_GaoVisu_PC VisuPC { get; set; }
 
 		// Montpellier
-		public int Int_7A { get; set; }
-		public uint UInt_7E { get; set; } // Seem to be flags of some sort
+		public sbyte Padding_Montpellier { get; set; } // Seem to be flags of some sort
 		public OBJ_GameObject_GeometricData_Xenon Xenon { get; set; }
 
 		// RLI
-		public uint Code { get; set; }
 		public Jade_Reference<OBJ_GameObjectRLI> RLI { get; set; }
-		public uint[] RLI_UInts { get; set; }
 
 		public OBJ_GameObject_GeometricData_Xenon2 Xenon2 { get; set; }
 
@@ -83,7 +80,7 @@ namespace R1Engine.Jade {
 				if (Version >= 5) LightSetMask = s.Serialize<byte>(LightSetMask, name: nameof(LightSetMask));
 				DisplayOrder = s.Serialize<sbyte>(DisplayOrder, name: nameof(DisplayOrder));
 				UnknownFlags = s.Serialize<Unknown>(UnknownFlags, name: nameof(UnknownFlags));
-				Padding = s.SerializeArray<byte>(Padding, 2, name: nameof(Padding));
+				Padding = s.SerializeArray<sbyte>(Padding, 2, name: nameof(Padding));
 				VertexColorsCount = s.Serialize<uint>(VertexColorsCount, name: nameof(VertexColorsCount));
 				VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
 
@@ -167,19 +164,21 @@ namespace R1Engine.Jade {
 				}
 
 			} else {
-				Int_7A = s.Serialize<int>(Int_7A, name: nameof(Int_7A));
-				UInt_7E = s.Serialize<uint>(UInt_7E, name: nameof(UInt_7E));
+				DrawMask = s.Serialize<DM>(DrawMask, name: nameof(DrawMask));
+				DisplayOrder = s.Serialize<sbyte>(DisplayOrder, name: nameof(DisplayOrder));
+				Padding_Montpellier = s.Serialize<sbyte>(Padding_Montpellier, name: nameof(Padding_Montpellier));
+				Padding = s.SerializeArray<sbyte>(Padding, 2, name: nameof(Padding));
 
 				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
 					Xenon = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon>(Xenon, onPreSerialize: x => x.Version = Version, name: nameof(Xenon));
 				}
 
 				// RLI
-				Code = s.Serialize<uint>(Code, name: nameof(Code));
-				if (Code == (uint)Jade_Code.RLI) {
+				VertexColorsCount = s.Serialize<uint>(VertexColorsCount, name: nameof(VertexColorsCount));
+				if (VertexColorsCount == (uint)Jade_Code.RLI) {
 					RLI = s.SerializeObject<Jade_Reference<OBJ_GameObjectRLI>>(RLI, name: nameof(RLI))?.Resolve();
 				} else {
-					RLI_UInts = s.SerializeArray<uint>(RLI_UInts, Code, name: nameof(RLI_UInts));
+					VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
 				}
 
 				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {

@@ -9,6 +9,14 @@ namespace R1Engine.Jade {
 		public override string ShortLog => ToString();
 
 		public override void SerializeImpl(SerializerObject s) {
+			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!IsNull && Loader != null && Loader.Raw_RelocateKeys) {
+				if (Loader.Raw_KeysToRelocate.ContainsKey(Key)) {
+					Key = Loader.Raw_KeysToRelocate[Key];
+				} else if (Loader.Raw_KeysToAvoid.Contains(Key)) {
+					Key = Loader.Raw_RelocateKey(Key);
+				}
+			}
 			Key = s.Serialize<uint>(Key, name: nameof(Key));
 		}
 

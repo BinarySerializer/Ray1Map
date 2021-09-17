@@ -40,8 +40,8 @@ namespace R1Engine {
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
-				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true, false)),
-				new GameAction("Export unbinarized into RRR format", false, true, (input, output) => ExportUnbinarizedAsync(settings, output, true, true)),
+				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, false)),
+				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
 				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
 			};
 			if (HasUnbinarizedData) {
@@ -484,23 +484,44 @@ namespace R1Engine {
 
 			Debug.Log($"Finished export");
 		}
-		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string outputDir, bool useComplexNames, bool exportForRRRPC) {
+		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string inputDir, string outputDir, bool useComplexNames, bool exportForRRRPC) {
 			var parsedSounds = new HashSet<uint>();
 
 			var levIndex = 0;
 			uint currentKey = 0;
 			Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
+
+			// Key relocation (for writing as RRR mod)
+			Dictionary<uint, uint> keysToRelocate = new Dictionary<uint, uint>();
+			HashSet<uint> keysToAvoid = new HashSet<uint>();
+
 			int[] rrrPC_supportedModifiers = new int[] { 
 				-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19,
 				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 36, 37, 38, 49,
 				50, 51, 52, 53, 54, 55
 			};
 
+			if (inputDir != null) {
+				// Read keys to avoid
+				string keyListPath = Path.Combine(inputDir, "keys_to_avoid.txt");
+				{
+					string[] lines = File.ReadAllLines(keyListPath);
+					foreach (var l in lines) {
+						var lineSplit = l.Split(',');
+						if (lineSplit.Length < 1) continue;
+						uint k;
+						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
+							if(!keysToAvoid.Contains(k)) keysToAvoid.Add(k);
+						}
+					}
+				}
+			}
+
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
 				if (lev?.Type.HasValue ?? false) {
-					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL)) {
 						levIndex++;
 						continue;
 					}
@@ -537,6 +558,12 @@ namespace R1Engine {
 										if(gao.Extended.Modifiers.Length == 0
 											|| (gao.Extended.Modifiers.Length == 1 && gao.Extended.Modifiers[0].Type == MDF_ModifierType.None)) gao.Extended.HasModifiers = 0;
 									}
+
+									if (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+										if (gao?.Base?.Visual?.VertexColors != null) {
+											gao.Base.Visual.VertexColors = gao.Base.Visual.VertexColors.Select(c => new Jade_Color(c.Blue, c.Green, c.Red, c.Alpha)).ToArray();
+										}
+									}
 								}
 							}
 						}
@@ -563,6 +590,14 @@ namespace R1Engine {
 								using (var writeContext = new R1Context(outputDir, newSettings)) {
 									// Set up loader
 									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+
+									loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForRRRPC;
+									if (exportForRRRPC) {
+										loader.Raw_RelocateKeys = true;
+										loader.Raw_KeysToAvoid = keysToAvoid;
+										loader.Raw_KeysToRelocate = keysToRelocate;
+									}
+
 									loader.WrittenFileKeys = writtenFileKeys;
 									writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
 									var sndListWrite = new SND_GlobalList();
@@ -594,6 +629,14 @@ namespace R1Engine {
 							using (var writeContext = new R1Context(outputDir, newSettings)) {
 								// Set up loader
 								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+
+								loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForRRRPC;
+								if (exportForRRRPC) {
+									loader.Raw_RelocateKeys = true;
+									loader.Raw_KeysToAvoid = keysToAvoid;
+									loader.Raw_KeysToRelocate = keysToRelocate;
+								}
+
 								loader.WrittenFileKeys = writtenFileKeys;
 								writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
 								var sndListWrite = new SND_GlobalList();
@@ -1225,8 +1268,8 @@ namespace R1Engine {
 						await loader.LoadLoopBINAsync();
 						if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {
 							if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
-								texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
-								texList.Textures[i].Content.Color != texList.Textures[i].Info.Color) {
+								texList.Textures[i].Content.Height != texList.Textures[i].Info.Height/* ||
+								texList.Textures[i].Content.Color != texList.Textures[i].Info.Color*/) {
 								throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
 							}
 						}

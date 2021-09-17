@@ -59,7 +59,7 @@ namespace R1Engine.Jade
         public TexColorFormat Format { get; set; } // Determines bits per pixel
         public ushort Width { get; set; }
         public ushort Height { get; set; }
-        public uint Color { get; set; }
+        public Jade_Color Color { get; set; }
         public Jade_Reference<STR_FontDescriptor> FontDesc { get; set; }
         public Jade_Code Code_14 { get; set; } // Usually CAD01234
         public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
@@ -92,7 +92,7 @@ namespace R1Engine.Jade
                 Format = s.Serialize<TexColorFormat>(Format, name: nameof(Format));
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
-                Color = s.Serialize<uint>(Color, name: nameof(Color));
+                Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
                 FontDesc = s.SerializeObject<Jade_Reference<STR_FontDescriptor>>(FontDesc, name: nameof(FontDesc));
                 Code_14 = s.Serialize<Jade_Code>(Code_14, name: nameof(Code_14));
                 Code_18 = s.Serialize<Jade_Code>(Code_18, name: nameof(Code_18));
