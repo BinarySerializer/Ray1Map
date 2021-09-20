@@ -58,7 +58,7 @@ namespace R1Engine.Jade
 			}
 		}
 		
-		public bool IsSerializeDataSupported(SerializerObject s) => s.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong);
+		public bool IsSerializeDataSupported(SerializerObject s) => s.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && !s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon);
 
 		public void SerializeData(SerializerObject s) {
 			s.Log($"Serializing data for SND_Wave: {Key}");

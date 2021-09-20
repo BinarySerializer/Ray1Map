@@ -53,6 +53,8 @@ namespace R1Engine.Jade {
 				|| s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
 				|| s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
+			} else {
+				Version = 0;
 			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));

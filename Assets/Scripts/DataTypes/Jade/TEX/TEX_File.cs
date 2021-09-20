@@ -3,6 +3,7 @@ using System;
 using BinarySerializer.Image;
 using UnityEngine;
 using System.Linq;
+using System.IO;
 
 namespace R1Engine.Jade
 {
@@ -17,6 +18,7 @@ namespace R1Engine.Jade
                     case TexFileType.Tga: return "tga";
                     case TexFileType.Bmp: return "bmp";
                     case TexFileType.JTX: return "jtx";
+                    case TexFileType.DDS: return "dds";
                     default: return null;
                 }
             }
@@ -260,6 +262,85 @@ namespace R1Engine.Jade
                     }
                 }
                 if (!Loader.IsBinaryData) s.Goto(s.CurrentPointer + 0x20);
+            }
+        }
+
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+            if (newContext.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR && newContext.GetR1Settings().Platform == Platform.PC) {
+                ConvertToTGA(oldContext, newContext);
+            }
+        }
+
+		public void ConvertToTGA(Context oldContext, Context newContext) {
+            var fileFormat = Info?.Type ?? Type;
+            bool convert = false;
+            if (Content_RawPal != null) {
+                if (oldContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) &&
+                    !newContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
+                    if (ContentSize >= 0x30) ContentSize = 0x30;
+                    FileSize = 32 + ContentSize;
+                }
+            }
+            switch (fileFormat) {
+                case TexFileType.DDS:
+                case TexFileType.JTX:
+                    convert = true;
+                    break;
+            }
+            if (convert) {
+                if (Content_Xenon != null || Content_DDS != null || (Content_JTX != null && IsContent)) {
+                    Texture2D tex = ToTexture2D();
+                    var pixels = tex.GetPixels();
+                    Width = (ushort)tex.width;
+                    Height = (ushort)tex.height;
+                    if (Content_DDS != null) {
+                        // invert y
+                        Color[] newPixels = new Color[pixels.Length];
+                        for (int y = 0; y < Height; y++) {
+                            for (int x = 0; x < Width; x++) {
+                                newPixels[y * Width + x] = pixels[(Height - 1 - y) * Width + x];
+                            }
+                        }
+                        pixels = newPixels;
+                    }
+                    BaseColor[] pixelsBaseColor = null;
+                    uint size = (uint)pixels.Length;
+
+                    switch (Format) {
+                        case TexColorFormat.BPP_24:
+                            pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGR888Color(c.r, c.g, c.b)).ToArray();
+                            size *= 3;
+                            break;
+                        case TexColorFormat.BPP_32:
+                            pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGRA8888Color(c.r, c.g, c.b, c.a)).ToArray();
+                            size *= 4;
+                            break;
+                    } 
+                    Content_TGA = new TGA() {
+                        Pre_ColorOrder = TGA.RGBColorOrder.BGR,
+                        Pre_SkipHeader = true,
+                        Header = new TGA_Header {
+                            HasColorMap = false,
+                            ImageType = TGA_ImageType.UnmappedRGB,
+                            Width = Width,
+                            Height = Height,
+                            BitsPerPixel = (byte)(Format == TexColorFormat.BPP_24 ? 24 : 32)                            
+                        },
+                        RGBImageData = pixelsBaseColor,
+                    };
+                    Content_TGA_Header = Content_TGA.Header;
+
+                    Type = TexFileType.Tga;
+                    if(Info != null) Info.Type = TexFileType.Tga;
+                    FileSize = size
+                        + 18 // Tga header size
+                        + 32; // Jade header size
+                } else {
+                    Type = TexFileType.Tga;
+                    if (Info != null) Info.Type = TexFileType.Tga;
+                    if (Content_DDS != null || Content_JTX != null || Content_Xenon != null) FileSize = 32;
+                }
             }
         }
 

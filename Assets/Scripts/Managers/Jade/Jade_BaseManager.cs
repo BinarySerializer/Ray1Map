@@ -1107,9 +1107,9 @@ namespace R1Engine {
 			List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
 			foreach (var g in groups) {
 				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
-				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
+				var kvpair = g.LastOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
 				if (kvpair.Value == null) {
-					kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
+					kvpair = g.LastOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
 				}
 				//if (kvpair.Value != null) {
 				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
