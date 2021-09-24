@@ -161,8 +161,8 @@ namespace R1Engine
 				await Loader.LoadLoopBINAsync();
 				if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {
 					if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
-						texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
-						texList.Textures[i].Content.Color != texList.Textures[i].Info.Color) {
+						texList.Textures[i].Content.Height != texList.Textures[i].Info.Height/* ||
+						texList.Textures[i].Content.Color != texList.Textures[i].Info.Color*/) {
 						throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
 					}
 				}

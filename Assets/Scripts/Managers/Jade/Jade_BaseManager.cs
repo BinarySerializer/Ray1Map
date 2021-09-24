@@ -526,6 +526,10 @@ namespace R1Engine {
 						continue;
 					}
 				}
+				/*if (!(lev?.MapName.Contains("Finger_Guess") ?? false)) {
+					levIndex++;
+					continue;
+				}*/
 
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
 
@@ -534,7 +538,7 @@ namespace R1Engine {
 						currentKey = 0;
 						await LoadFilesAsync(context);
 						if (exportForRRRPC) {
-							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures | LoadFlags.Universe);
+							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures);
 						} else {
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
 						}
@@ -550,6 +554,15 @@ namespace R1Engine {
 									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.AI;
 
 									if (gao.Extended?.Modifiers != null) {
+										if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+											foreach (var m in gao.Extended.Modifiers) {
+												if ((int)m.Type_Montreal >= 15) {
+													m.Type = (MDF_ModifierType)100; // Unsupported
+												} else {
+													m.Type = (MDF_ModifierType)(int)m.Type_Montreal;
+												}
+											}
+										}
 										gao.Extended.Modifiers = gao.Extended.Modifiers
 											.Where(m =>
 												m.Type != MDF_ModifierType.GEN_ModifierSound && m.Type != MDF_ModifierType.MDF_LoadingSound
@@ -569,7 +582,7 @@ namespace R1Engine {
 						}
 
 						//string worldName = null;
-						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && !exportForRRRPC) {
 							throw new NotImplementedException("Not yet implemented for Montreal");
 						} else {
 							foreach (var w in worlds) {
@@ -1488,7 +1501,7 @@ namespace R1Engine {
 					}*/
 				}
 			}
-			if (loadFlags.HasFlag(LoadFlags.Sounds)) {
+			if (loadFlags.HasFlag(LoadFlags.Sounds) && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				Controller.DetailedState = $"Loading sounds";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeSounds), serializeAction: async s => {
 					for (int i = 0; i < (sndList.Waves?.Count ?? 0); i++) {

@@ -29,7 +29,7 @@ namespace R1Engine.Jade {
 			PointsCount = s.Serialize<uint>(PointsCount, name: nameof(PointsCount));
 			MorphDataCount = s.Serialize<uint>(MorphDataCount, name: nameof(MorphDataCount));
 			ChannelsCount = s.Serialize<uint>(ChannelsCount, name: nameof(ChannelsCount));
-			if (Xenon_Type == 2) Xenon_Count = s.Serialize<uint>(Xenon_Count, name: nameof(Xenon_Count));
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Xenon_Type == 2) Xenon_Count = s.Serialize<uint>(Xenon_Count, name: nameof(Xenon_Count));
 			MorphData = s.SerializeObjectArray<Data>(MorphData, MorphDataCount, v => {
 				v.Xenon_Type = Xenon_Type;
 				v.Xenon_Count = Xenon_Count;
@@ -54,10 +54,12 @@ namespace R1Engine.Jade {
 				if(!Loader.IsBinaryData) Name = s.SerializeString(Name, 64, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				Indices = s.SerializeArray<uint>(Indices, VectorsCount, name: nameof(Indices));
 				Vectors = s.SerializeObjectArray<Jade_Vector>(Vectors, VectorsCount, name: nameof(Vectors));
-				if (Xenon_Type == 2) {
-					XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, Xenon_Count, name: nameof(XenonDatas));
-				} else if (Xenon_Type >= 3) {
-					XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, 1, name: nameof(XenonDatas));
+				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
+					if (Xenon_Type == 2) {
+						XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, Xenon_Count, name: nameof(XenonDatas));
+					} else if (Xenon_Type >= 3) {
+						XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, 1, name: nameof(XenonDatas));
+					}
 				}
 			}
 			public class XenonData : BinarySerializable {

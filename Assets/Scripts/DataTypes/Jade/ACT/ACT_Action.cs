@@ -44,6 +44,13 @@ namespace R1Engine.Jade
             public Jade_Reference<EVE_ListTracks>[] TrackLists { get; set; }
             public float Float_00 { get; set; }
 
+            protected override void OnChangeContext(Context oldContext, Context newContext) {
+                base.OnChangeContext(oldContext, newContext);
+                if (newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) && oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+                    TrackList = TrackLists[0];
+                }
+            }
+
             public override void SerializeImpl(SerializerObject s)
             {
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

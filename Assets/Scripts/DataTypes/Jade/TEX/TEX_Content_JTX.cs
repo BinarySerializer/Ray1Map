@@ -282,7 +282,6 @@ namespace R1Engine.Jade
                             pixels_base[i] = new Color(p.r, p.g, p.b, p_a.r);
                         }
                         tex.SetPixels(pixels_base);
-                        tex.Apply();
                     }
                     break;
                 case JTX_Format.DXT3:
@@ -306,12 +305,12 @@ namespace R1Engine.Jade
                                 tex.SetPixel(x,y, new Color(r,g,b,a));
                             }
                         }
-                        tex.Apply();
                     } else throw new NotImplementedException($"TODO: Implement JTX type {Format}");
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");
             }
+            if(tex != null) tex.Apply();
             return tex;
         }
 	}

@@ -18,6 +18,8 @@ namespace R1Engine.Jade {
             Type = s.Serialize<GRO_Type>(Type, name: nameof(Type));
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                 ObjectVersion = s.Serialize<uint>(ObjectVersion, name: nameof(ObjectVersion));
+            } else {
+                ObjectVersion = 0;
             }
             if (!Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
                 Count_Editor = s.Serialize<uint>(Count_Editor, name: nameof(Count_Editor));

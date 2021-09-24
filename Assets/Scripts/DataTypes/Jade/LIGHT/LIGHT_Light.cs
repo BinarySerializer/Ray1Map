@@ -28,11 +28,19 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-
-			s.SerializeBitValues<int>(bitFunc => {
-				Type = (LightType)bitFunc((int)Type, 4, name: nameof(Type));
-				Flags = (LightFlags)bitFunc((int)Flags, 28, name: nameof(Flags));
-			});
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				s.SerializeBitValues<int>(bitFunc => {
+					Type = (LightType)bitFunc((int)Type, 4, name: nameof(Type));
+					Flags = (LightFlags)bitFunc((int)Flags, 28, name: nameof(Flags));
+				});
+			} else {
+				s.SerializeBitValues<int>(bitFunc => {
+					Type = (LightType)bitFunc((int)Type, 3, name: nameof(Type));
+					// TODO: Flags are different for Montpellier
+					Flags = (LightFlags)bitFunc((int)Flags, 29, name: nameof(Flags));
+				});
+			}
+			s.Log(Type + " - " + Flags);
 			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Type, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
@@ -67,9 +75,11 @@ namespace R1Engine.Jade {
 				}
 			}
 
-			if ((XenonData1 != null && BitHelpers.ExtractBits((int)XenonData1.LightFlags, 3, 0) == 5)
-				|| (XenonData1 == null && s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Flags, 3, 0) == 5)) {
-				XenonData2 = s.SerializeObject<LIGHT_XenonData2>(XenonData2, name: nameof(XenonData2));
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
+				if ((XenonData1 != null && BitHelpers.ExtractBits((int)XenonData1.LightFlags, 3, 0) == 5)
+					|| (XenonData1 == null && s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Flags, 3, 0) == 5)) {
+					XenonData2 = s.SerializeObject<LIGHT_XenonData2>(XenonData2, name: nameof(XenonData2));
+				}
 			}
 		}
 

@@ -33,5 +33,14 @@ namespace R1Engine.Jade
 			Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
             Tracks = s.SerializeObjectArray<EVE_Track>(Tracks, useCount2 ? TracksCount2 : TracksCount, onPreSerialize: trk => trk.ListTracks = this, name: nameof(Tracks));
         }
-    }
+
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+            if (newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) && oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+                TracksCount = 0;
+                TracksCount2 = 0;
+                Tracks = new EVE_Track[0];
+            }
+		}
+	}
 }

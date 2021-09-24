@@ -111,8 +111,10 @@ namespace R1Engine.Jade {
 				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
 				if (Montreal_HasUnoptimizedData(s.GetR1Settings())
 					|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)
-					&& s.GetR1Settings().Platform == Platform.Xbox))
+					&& s.GetR1Settings().Platform == Platform.Xbox)) {
 					VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+					Code_00 = VerticesCount;
+				}
 			} else {
 				Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
 				if (Code_00 == (uint)Jade_Code.Code2002) {

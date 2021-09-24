@@ -275,6 +275,10 @@ namespace R1Engine.Jade
 		public void ConvertToTGA(Context oldContext, Context newContext) {
             var fileFormat = Info?.Type ?? Type;
             bool convert = false;
+            if (oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && 
+                !newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_Key != null) {
+                FileSize -= 4;
+            }
             if (Content_RawPal != null) {
                 if (oldContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) &&
                     !newContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
@@ -291,6 +295,9 @@ namespace R1Engine.Jade
             if (convert) {
                 if (Content_Xenon != null || Content_DDS != null || (Content_JTX != null && IsContent)) {
                     Texture2D tex = ToTexture2D();
+                    if (tex.width > 512 || tex.height > 512) {
+                        tex.ResizeImageData(tex.width / 4, tex.height / 4, mipmap: false, filter: FilterMode.Bilinear);
+                    }
                     var pixels = tex.GetPixels();
                     Width = (ushort)tex.width;
                     Height = (ushort)tex.height;
@@ -313,6 +320,7 @@ namespace R1Engine.Jade
                             size *= 3;
                             break;
                         case TexColorFormat.BPP_32:
+                        default:
                             pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGRA8888Color(c.r, c.g, c.b, c.a)).ToArray();
                             size *= 4;
                             break;
