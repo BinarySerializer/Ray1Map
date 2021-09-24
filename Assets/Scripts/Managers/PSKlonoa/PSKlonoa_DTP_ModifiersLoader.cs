@@ -7,6 +7,7 @@ using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace R1Engine
 {
@@ -185,7 +186,8 @@ namespace R1Engine
                     }
                     break;
 
-                case GlobalModifierType.LockedDoor:
+                case GlobalModifierType.LockedDoor_0:
+                case GlobalModifierType.LockedDoor_1:
                     {
                         if (loop != LoadLoop.Objects)
                             return;
@@ -201,6 +203,33 @@ namespace R1Engine
 
                         GameObject obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
                         GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
+                    }
+                    break;
+
+                case GlobalModifierType.Crate:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[2].Transform);
+                    }
+                    break;
+
+                case GlobalModifierType.MultiWheel:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform, multiple: true);
+                    }
+                    break;
+
+                case GlobalModifierType.Gondola:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform);
                     }
                     break;
 
@@ -360,15 +389,15 @@ namespace R1Engine
             }
         }
 
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0)
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0, bool multiple = false)
         {
             return GameObj_LoadTMD(modifier, tmd, localTransform, absoluteTransform == null ? null : new ObjTransform_ArchiveFile[]
             {
                 absoluteTransform
-            }, index);
+            }, index, multiple);
         }
 
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0)
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0, bool multiple = false)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -388,16 +417,23 @@ namespace R1Engine
             if (isAnimated)
                 GameObj_IsAnimated = true;
 
-            // Apply the absolute transform
-            isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale);
+            int count = multiple ? absoluteTransforms[0].Positions.ObjectsCount : 1;
 
-            if (isAnimated)
-                GameObj_IsAnimated = true;
+            for (int i = 0; i < count; i++)
+            {
+                var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
 
-            // Set the parent object
-            gameObj.transform.SetParent(ParentObject.transform);
+                // Apply the absolute transform
+                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i);
 
-            GameObj_Objects.Add(gameObj);
+                if (isAnimated)
+                    GameObj_IsAnimated = true;
+
+                // Set the parent object
+                obj.transform.SetParent(ParentObject.transform);
+
+                GameObj_Objects.Add(obj);
+            }
 
             return gameObj;
         }
