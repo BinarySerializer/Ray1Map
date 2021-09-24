@@ -1390,7 +1390,10 @@ namespace R1Engine
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
                             animTex.material = mr.material;
                             animTex.animatedTextures = tex.AnimatedTexture.Textures;
-                            animTex.animatedTextureSpeed = tex.AnimatedTexture.Speed;
+                            animTex.speed = new AnimSpeed_FrameDelay()
+                            {
+                                Speed = tex.AnimatedTexture.Speed
+                            };
                         }
 
                         mr.material.SetTexture("_MainTex", tex.Texture);

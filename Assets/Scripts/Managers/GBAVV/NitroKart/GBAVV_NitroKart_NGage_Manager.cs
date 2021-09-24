@@ -758,7 +758,10 @@ namespace R1Engine
                         if (isScrollH) animTex.scrollU = -1f;
                         if (isScrollV) animTex.scrollV = -1f;
                         if (animatedTextures.ContainsKey(k)) {
-                            animTex.animatedTextureSpeed = 4;
+                            animTex.speed = new AnimSpeed_FrameDelay()
+                            {
+                                Speed = 4
+                            };
                             animTex.animatedTextures = animatedTextures[k];
                         }
                     }
@@ -883,7 +886,10 @@ namespace R1Engine
                     animTex.material = mr.material;
                     if(isScroll) animTex.scrollU = -1f;
                     if (animatedTextures.ContainsKey(k)) {
-                        animTex.animatedTextureSpeed = 4;
+                        animTex.speed = new AnimSpeed_FrameDelay()
+                        {
+                            Speed = 4
+                        };
                         animTex.animatedTextures = animatedTextures[k];
                     }
                 }
