@@ -5,10 +5,7 @@ public class AnimatedTransformComponent : MonoBehaviour
 {
     public Transform animatedTransform;
     public Frame[] frames;
-    public AnimSpeed speed = new AnimSpeed_FrameDelay()
-    {
-        Speed = 1
-    };
+    public AnimSpeed speed = new AnimSpeed_FrameDelay(1);
     public AnimLoopMode loopMode = AnimLoopMode.Repeat;
 
     public struct Frame 
