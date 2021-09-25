@@ -1006,8 +1006,10 @@ namespace R1Engine
             // Calculate actual level dimensions: switched axes for unity & multiplied by cellSize
             var size = levelBounds.size;
             var cellSize = 16;
-            var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
-
+            //var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
+            var layerDimensions = new Rect(
+                levelBounds.min.x * cellSize, -levelBounds.max.z * cellSize,
+                levelBounds.size.x * cellSize, levelBounds.size.z * cellSize);
             // Correctly center object
             //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 

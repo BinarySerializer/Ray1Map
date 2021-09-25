@@ -42,9 +42,14 @@ namespace R1Engine {
 			return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), pixelsPerUnit, 0, SpriteMeshType.FullRect);
 		}
 
-		public override Vector2Int GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
+		public override Rect GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
 			var tex = MainTexture;
-			return new Vector2Int(Mathf.CeilToInt(tex.width / (float)cellSize), Mathf.CeilToInt(tex.height / (float)cellSize));
+			return new Rect(
+				0f,
+				0f,
+				Mathf.CeilToInt(tex.width / (float)cellSize),
+				Mathf.CeilToInt(tex.height / (float)cellSize)
+				);
 		}
 	}
 }
