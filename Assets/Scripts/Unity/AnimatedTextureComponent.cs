@@ -5,10 +5,7 @@ public class AnimatedTextureComponent : MonoBehaviour
 {
     public Material material;
     public Texture2D[] animatedTextures;
-    public AnimSpeed speed = new AnimSpeed_FrameDelay()
-    {
-        Speed = 1
-    };
+    public AnimSpeed speed = new AnimSpeed_FrameDelay(1);
     public AnimLoopMode loopMode = AnimLoopMode.Repeat;
     public string textureName = "_MainTex";
     public float scrollU;

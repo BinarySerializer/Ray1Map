@@ -7,6 +7,12 @@ namespace R1Engine
     /// </summary>
     public class AnimSpeed_SecondIncrease : AnimSpeedWithValue
     {
+        public AnimSpeed_SecondIncrease() { }
+        public AnimSpeed_SecondIncrease(float speed)
+        {
+            Speed = speed;
+        }
+
         protected override float GetFrameChange() => Time.deltaTime * Speed;
     }
 }

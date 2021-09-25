@@ -7,6 +7,12 @@ namespace R1Engine
     /// </summary>
     public class AnimSpeed_FrameDelay : AnimSpeedWithValue
     {
+        public AnimSpeed_FrameDelay() { }
+        public AnimSpeed_FrameDelay(float speed)
+        {
+            Speed = speed;
+        }
+
         protected override float GetFrameChange() => Time.deltaTime * (LevelEditorData.FramesPerSecond / Speed);
     }
 }
