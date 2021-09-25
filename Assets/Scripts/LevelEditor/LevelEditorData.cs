@@ -26,10 +26,10 @@ namespace R1Engine
         public static Unity_Level Level { get; set; }
         public static Unity_ObjectManager ObjManager => Level.ObjManager;
 
-        public static float MinX => 0;
-        public static float MinY => 0;
-        public static float MaxX => Level.MaxWidth;
-        public static float MaxY => Level.MaxHeight;
+        public static float MinX => Level.MinX;
+        public static float MinY => Level.MinY;
+        public static float MaxX => Level.MaxX;
+        public static float MaxY => Level.MaxY;
         public static float FramesPerSecond => Level?.FramesPerSecond ?? 60f;
 
         public static int CurrentLayer { get; set; }

@@ -4,7 +4,7 @@ namespace R1Engine {
 	public class Unity_Layer_GameObject : Unity_Layer {
 		public override bool ShowIn3DView { get; }
 		public override bool IsAnimated { get; }
-		public Vector2 Dimensions { get; set; }
+		public Rect Dimensions { get; set; }
 		public bool DisableGraphicsWhenCollisionIsActive { get; set; }
 
 		// Renderers
@@ -28,8 +28,12 @@ namespace R1Engine {
 			}
 		}
 
-		public override Vector2Int GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
-			return new Vector2Int(Mathf.CeilToInt(Dimensions.x / cellSize), Mathf.CeilToInt(Dimensions.y / cellSize));
+		public override Rect GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
+			return new Rect(
+				Dimensions.x / cellSize,
+				Dimensions.y / cellSize,
+				Dimensions.width / cellSize,
+				Dimensions.height / cellSize);
 		}
 
 		public Unity_Layer_GameObject(bool showIn3DView, bool isAnimated = false) {

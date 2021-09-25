@@ -73,19 +73,22 @@ namespace R1Engine
 
             if (Layers?.Length > 0) {
                 var dimensions = Layers.Select(l => l.GetDimensions(CellSize, CellSizeOverrideCollision));
-                MaxWidth = (ushort)dimensions.Max(d => d.x);
-                MaxHeight = (ushort)dimensions.Max(d => d.y);
+                MinX = dimensions.Min(d => d.xMin);
+                MinY = dimensions.Min(d => d.yMin);
+                MaxX = dimensions.Max(d => d.xMax);
+                MaxY = dimensions.Max(d => d.yMax);
             }
-
+            var width = (ushort)(MaxX - MinX);
+            var height = (ushort)(MaxY - MinY);
             GridMap = new Unity_Map
             {
-                Width = MaxWidth,
-                Height = MaxHeight,
+                Width = width,
+                Height = height,
                 TileSet = new Unity_TileSet[]
                 {
                     new Unity_TileSet(Util.GetGridTex(cellSize), cellSize),
                 },
-                MapTiles = Enumerable.Range(0, MaxWidth * MaxHeight).Select(x => new Unity_Tile(new MapTile())).ToArray(),
+                MapTiles = Enumerable.Range(0, width * height).Select(x => new Unity_Tile(new MapTile())).ToArray(),
                 Type = Unity_Map.MapType.Graphics,
                 Layer = Unity_Map.MapLayer.Overlay
             };
@@ -107,8 +110,10 @@ namespace R1Engine
 
         public Unity_Map[] Maps { get; }
         public Unity_Map GridMap { get; }
-        public ushort MaxWidth { get; }
-        public ushort MaxHeight { get; }
+        public float MinX { get; }
+        public float MinY { get; }
+        public float MaxX { get; }
+        public float MaxY { get; }
 
         public Unity_Layer[] Layers { get; set; }
 

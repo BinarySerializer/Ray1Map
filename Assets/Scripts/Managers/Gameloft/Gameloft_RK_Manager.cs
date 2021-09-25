@@ -1208,7 +1208,7 @@ namespace R1Engine
 				Name = "Track",
 				ShortName = $"TRK",
 				Graphics = trackMesh,
-				Dimensions = dimensions * Scale * 8 * 2
+				Dimensions = new Rect(Vector2.zero, dimensions * Scale * 8 * 2)
 			});
 			trackMesh.transform.SetParent(parent3d);
 			if (gao_tunnelParent != null) {

@@ -1209,7 +1209,7 @@ namespace R1Engine
                 ShortName = "MAP",
                 Graphics = pvs,
                 Collision = pvsc,
-                Dimensions = levelDimensions * 2,
+                Dimensions = new Rect(Vector2.zero, levelDimensions * 2),
                 DisableGraphicsWhenCollisionIsActive = true
             });
             pvs.transform.SetParent(parent3d);
