@@ -1568,6 +1568,42 @@ namespace R1Engine {
 
 			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
 
+			var worlds = loader.LoadedWorlds;
+			foreach (var world in worlds) {
+				GameObject w_gao = new GameObject($"({world.Key}) {world.Name}");
+				foreach (var gao in world.SerializedGameObjects) {
+					GameObject g_gao = new GameObject(); // GameObject.CreatePrimitive(PrimitiveType.Sphere);
+					g_gao.name = $"({gao.Key}) {gao.Name}";
+					g_gao.transform.SetParent(w_gao.transform);
+					g_gao.transform.localPosition = gao.Matrix.GetPosition(convertAxes: true);
+					g_gao.transform.localRotation = gao.Matrix.GetRotation(convertAxes: true);
+					g_gao.transform.localScale = gao.Matrix.GetScale(convertAxes: true);
+					var gro = gao.Base?.Visual?.GeometricObject?.Value;
+					if (gro != null) {
+						if (gro.RenderObject.Type == GRO_Type.GEO) {
+							GameObject g_geo = new GameObject($"Geo {gro.Key}");
+							g_geo.transform.SetParent(g_gao.transform, false);
+							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
+							if (geo.Elements != null) {
+								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
+								foreach (var e in geo.Elements) {
+									Mesh m = new Mesh();
+									m.vertices = verts;
+									m.triangles = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 }).ToArray();
+									m.RecalculateNormals();
+									GameObject g_geo_e = new GameObject($"Element {e.Offset}");
+									g_geo_e.transform.SetParent(g_geo.transform, false);
+									MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
+									mf.mesh = m;
+									MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
+									mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+								}
+							}
+						}
+					}
+				}
+			}
+
 			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
 		}
 
