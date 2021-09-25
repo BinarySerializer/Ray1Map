@@ -68,7 +68,7 @@ namespace R1Engine
         private Vector3 previousCameraPosTemplate = new Vector3(0, 0, -10f);
         private int templateMaxY = 0;
 
-        public RectInt TilemapBounds { get; set; } = new RectInt(Vector2Int.zero, Vector2Int.one);
+        public Rect TilemapBounds { get; set; } = new Rect(Vector2.zero, Vector2.one);
         public Rect CameraBounds { get; set; } = new Rect(Vector2.zero, Vector2.one);
 
         public Material additiveMaterial;
@@ -255,8 +255,8 @@ namespace R1Engine
             }
         }
 
-        private void SetTilemapBounds(int minX, int minY, int maxX, int maxY) {
-            TilemapBounds = new RectInt(minX, minY, maxX - minX, maxY - minY);
+        private void SetTilemapBounds(float minX, float minY, float maxX, float maxY) {
+            TilemapBounds = new Rect(minX, minY, maxX - minX, maxY - minY);
             UpdateCameraBounds();
             ResizeBackgroundTint();
 
@@ -265,7 +265,6 @@ namespace R1Engine
         private void UpdateCameraBounds() {
             var w = TilemapBounds.width;
             var h = TilemapBounds.height;
-            print(w * CellSizeInUnits);
             CameraBounds = new Rect(
                 TilemapBounds.xMin * CellSizeInUnits,
                 -TilemapBounds.yMax * CellSizeInUnits,

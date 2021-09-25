@@ -44,11 +44,11 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
 		//Camera[] cams = Camera.allCameras.OrderBy(c => c.depth).ToArray();
-		int width = LevelEditorData.MaxX - LevelEditorData.MinX;
-		int height = LevelEditorData.MaxY - LevelEditorData.MinY;
+		float width = LevelEditorData.MaxX - LevelEditorData.MinX;
+		float height = LevelEditorData.MaxY - LevelEditorData.MinY;
 		int cellSize = LevelEditorData.Level.CellSize;
-		int screenshotWidth = Mathf.CeilToInt(width / (float)cellSize);
-		int screenshotHeight = Mathf.CeilToInt(height / (float)cellSize);
+		int screenshotWidth = Mathf.CeilToInt(width / cellSize);
+		int screenshotHeight = Mathf.CeilToInt(height / cellSize);
 		var cellSizeInUnits = cellSize / (float)LevelEditorData.Level.PixelsPerUnit;
 		Dictionary<Camera, CameraSettings> camSettings = new Dictionary<Camera, CameraSettings>();
 		EditorCam ec = Controller.obj?.levelController?.editor?.cam;
@@ -114,7 +114,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		}
 		await UniTask.WaitForEndOfFrame();
 		byte[] screenshotBytes = null;
-		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(width * cellSize, height * cellSize, isTransparent, camera: cameras.ToArray());
+		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(Mathf.CeilToInt(width) * cellSize, Mathf.CeilToInt(height) * cellSize, isTransparent, camera: cameras.ToArray());
 		
 		// Restore previous settings
 		foreach (var cam in cameras) {
