@@ -126,7 +126,10 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
+                        var obj = GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[1].Transform);
                         GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
                     }
                     break;
@@ -136,7 +139,11 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform);
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[3].Transform, 
+                            animSpeed: new AnimSpeed_FrameIncrease(1));
                     }
                     break;
 
@@ -154,7 +161,11 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform);
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[3].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
                     } 
                     break;
 
@@ -163,7 +174,12 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransforms: modifier.DataFiles[3].Transforms.Files, localTransform: modifier.DataFiles[5].Transform);
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransforms: modifier.DataFiles[3].Transforms.Files, 
+                            localTransform: modifier.DataFiles[5].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(1));
                     } 
                     break;
 
@@ -192,7 +208,12 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[3].Transform, localTransform: modifier.DataFiles[2].Transform);
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[3].Transform, 
+                            localTransform: modifier.DataFiles[2].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(1));
                     }
                     break;
 
@@ -229,10 +250,7 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform, animSpeed: new AnimSpeed_FrameIncrease()
-                        {
-                            Speed = modifier.Params_Gondola.AnimSpeed
-                        }, animLoopMode: AnimLoopMode.PingPong);
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform, animSpeed: new AnimSpeed_FrameIncrease(modifier.Params_Gondola.AnimSpeed), animLoopMode: AnimLoopMode.PingPong);
                     }
                     break;
 
