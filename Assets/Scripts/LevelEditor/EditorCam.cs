@@ -204,8 +204,9 @@ namespace R1Engine {
                 }
 
                 // Limit position
-                pos.x = Mathf.Clamp(pos.x, 0, levelTilemapController.camMaxX * levelTilemapController.CellSizeInUnits);
-                pos.y = Mathf.Clamp(pos.y, -levelTilemapController.camMaxY * levelTilemapController.CellSizeInUnits, 0);
+                var bounds = levelTilemapController.CameraBounds;
+                pos.x = Mathf.Clamp(pos.x, bounds.xMin, bounds.xMax);
+                pos.y = Mathf.Clamp(pos.y, bounds.yMin, bounds.yMax);
                 pos.z = orthographicZPosition;
                 // Apply position
                 if (pixelSnap) {

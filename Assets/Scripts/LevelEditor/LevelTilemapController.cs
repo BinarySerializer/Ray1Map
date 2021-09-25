@@ -68,8 +68,8 @@ namespace R1Engine
         private Vector3 previousCameraPosTemplate = new Vector3(0, 0, -10f);
         private int templateMaxY = 0;
 
-        public int camMaxX = 1;
-        public int camMaxY = 1;
+        public RectInt TilemapBounds { get; set; } = new RectInt(Vector2Int.zero, Vector2Int.one);
+        public Rect CameraBounds { get; set; } = new Rect(Vector2.zero, Vector2.one);
 
         public Material additiveMaterial;
 
@@ -129,9 +129,10 @@ namespace R1Engine
             }
             InitializeLevelLayerRenderers(level);
 
-            // Resize the background tint
-            ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
 
+            // Get level size and update editor bounds
+            SetTilemapBounds(LevelEditorData.MinX, LevelEditorData.MinY, LevelEditorData.MaxX, LevelEditorData.MaxY);
+            
             // Disable palette buttons based on if there are 3 palettes or not
             if (!HasAutoPaletteOption) {
                 paletteText.SetActive(false);
@@ -181,14 +182,6 @@ namespace R1Engine
             // Fill out tiles
             currentPalette = HasAutoPaletteOption ? 0 : 1;
             RefreshTiles(currentPalette);
-
-            var maxWidth = LevelEditorData.MaxWidth;
-            var maxHeight = LevelEditorData.MaxHeight;
-
-            // Set max cam sizes
-            camMaxX = maxWidth;
-            camMaxY = maxHeight;
-            Controller.obj.levelController.editor.cam.maxZoomOrthographic = Mathf.Max(Controller.obj.levelController.editor.cam.minZoomOrthographic, (float)(maxWidth * CellSizeInUnits / GoldenRatio), (float)(maxHeight * CellSizeInUnits / GoldenRatio));
 
             if (IsometricCollision == null && level.IsometricData != null) {
                 IsometricCollision = level.IsometricData.GetCollisionVisualGameObject(isometricCollisionMaterial);
@@ -260,6 +253,29 @@ namespace R1Engine
                     }
                 }).ToArray();
             }
+        }
+
+        private void SetTilemapBounds(int minX, int minY, int maxX, int maxY) {
+            TilemapBounds = new RectInt(minX, minY, maxX - minX, maxY - minY);
+            UpdateCameraBounds();
+            ResizeBackgroundTint();
+
+        }
+
+        private void UpdateCameraBounds() {
+            var w = TilemapBounds.width;
+            var h = TilemapBounds.height;
+            print(w * CellSizeInUnits);
+            CameraBounds = new Rect(
+                TilemapBounds.xMin * CellSizeInUnits,
+                -TilemapBounds.yMax * CellSizeInUnits,
+                w * CellSizeInUnits,
+                h * CellSizeInUnits);
+            // Set max zoom for camera
+            Controller.obj.levelController.editor.cam.maxZoomOrthographic =
+                Mathf.Max(Controller.obj.levelController.editor.cam.minZoomOrthographic,
+                (float)(w * CellSizeInUnits / GoldenRatio),
+                (float)(h * CellSizeInUnits / GoldenRatio));
         }
 
         public void RefreshCollisionTiles() {
@@ -471,7 +487,7 @@ namespace R1Engine
                 renderer.drawMode = SpriteDrawMode.Tiled;
                 renderer.tileMode = SpriteTileMode.Continuous;
                 renderer.transform.localScale = scale;
-                renderer.size = new Vector2(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight) * CellSizeInUnits;
+                renderer.size = new Vector2(LevelEditorData.MaxX, LevelEditorData.MaxY) * CellSizeInUnits;
             } else {
                 renderer.drawMode = SpriteDrawMode.Simple;
                 renderer.transform.localScale = scale;
@@ -556,7 +572,12 @@ namespace R1Engine
         }
 
         // Resize the background tint
-        public void ResizeBackgroundTint(int x, int y) => backgroundTint.transform.localScale = new Vector2(CellSizeInUnits * x, CellSizeInUnits * y);
+        public void ResizeBackgroundTint() {
+            var z = backgroundTint.transform.localPosition.z;
+            var rect = CameraBounds;
+            backgroundTint.transform.localPosition = new Vector3(rect.xMin, rect.yMax, z);
+            backgroundTint.transform.localScale = new Vector3(rect.width, rect.height);
+        }
 
         // Used for switching the view between template and normal tiles
         public void ShowHideTemplate() {
@@ -572,25 +593,15 @@ namespace R1Engine
                 //Save camera and set new
                 previousCameraPosNormal = Camera.main.transform.position;
                 Camera.main.GetComponent<EditorCam>().pos = previousCameraPosTemplate;
-                //Resize the background tint for a better effect
-                ResizeBackgroundTint(16, templateMaxY);
-                //Set max cam sizes
-                camMaxX = 16;
-                camMaxY = templateMaxY;
+
+                SetTilemapBounds(0, 0, 16, templateMaxY);
             }
             else {
                 //Set camera back
                 previousCameraPosTemplate = Camera.main.transform.position;
                 Camera.main.GetComponent<EditorCam>().pos = previousCameraPosNormal;
 
-                var maxWidth = LevelEditorData.MaxWidth;
-                var maxHeight = LevelEditorData.MaxHeight;
-
-                // Resize background tint
-                ResizeBackgroundTint(maxWidth, maxHeight);
-                // Set max cam sizes
-                camMaxX = maxWidth;
-                camMaxY = maxHeight;
+                SetTilemapBounds(LevelEditorData.MinX, LevelEditorData.MinY, LevelEditorData.MaxX, LevelEditorData.MaxY);
             }
         }
 

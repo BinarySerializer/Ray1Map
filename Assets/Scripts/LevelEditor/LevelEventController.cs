@@ -1107,11 +1107,16 @@ namespace R1Engine
                     var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
                     var moy = mousepo.y * LevelEditorData.Level.PixelsPerUnit;
 
-                    var maxWidth = LevelEditorData.MaxWidth;
-                    var maxHeight = LevelEditorData.MaxHeight;
+
+                    var bounds = new Rect(
+                        LevelEditorData.MinX * LevelEditorData.Level.CellSize,
+                        LevelEditorData.MinY * LevelEditorData.Level.CellSize,
+                        (LevelEditorData.MaxX - LevelEditorData.MinX) * LevelEditorData.Level.CellSize,
+                        (LevelEditorData.MaxY - LevelEditorData.MinY) * LevelEditorData.Level.CellSize);
+                    
 
                     // Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < maxWidth * LevelEditorData.Level.CellSize && -moy < maxHeight * LevelEditorData.Level.CellSize) 
+                    if (bounds.Contains(new Vector2(mox, -moy))) 
                     {
                         // Make sure we haven't exceeded the max count or are the main event
                         if (LevelEditorData.Level.EventData.Count < LevelEditorData.ObjManager.MaxObjectCount)

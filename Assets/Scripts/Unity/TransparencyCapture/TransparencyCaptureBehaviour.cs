@@ -44,8 +44,8 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
 		//Camera[] cams = Camera.allCameras.OrderBy(c => c.depth).ToArray();
-		int width = LevelEditorData.MaxWidth;
-		int height = LevelEditorData.MaxHeight;
+		int width = LevelEditorData.MaxX - LevelEditorData.MinX;
+		int height = LevelEditorData.MaxY - LevelEditorData.MinY;
 		int cellSize = LevelEditorData.Level.CellSize;
 		int screenshotWidth = Mathf.CeilToInt(width / (float)cellSize);
 		int screenshotHeight = Mathf.CeilToInt(height / (float)cellSize);
@@ -60,8 +60,11 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			Camera cam = Camera.main;
 			camSettings[cam] = CameraSettings.Current(cam);
 
-			cam.transform.position = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, cam.transform.position.z);
-			cam.orthographicSize = (LevelEditorData.MaxHeight * cellSizeInUnits / 2f);
+			cam.transform.position = new Vector3(
+				(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
+				-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
+				cam.transform.position.z);
+			cam.orthographicSize = (LevelEditorData.MaxY * cellSizeInUnits / 2f);
 			cam.rect = new Rect(0, 0, 1, 1);
 			cameras.Add(cam);
 		}
@@ -81,7 +84,10 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
 			float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
 
-			var pos = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, -10f);
+			var pos = new Vector3(
+				(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
+				-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
+				-10f);
 
 			cam.transform.position = v * 300 + rot3D * ((pos -
 				new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units

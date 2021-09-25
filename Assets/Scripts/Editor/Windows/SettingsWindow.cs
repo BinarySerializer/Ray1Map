@@ -393,8 +393,8 @@ public class SettingsWindow : UnityWindow
                                 }
                                 if(!canBeTiled) continue;
                                 if (spr == null
-                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
-                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
+                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxX * tilemapController.CellSizeInUnits
+                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxY * tilemapController.CellSizeInUnits) {
                                     bool setTiled = EditorField($"Tile {l.Name}", wasTiled);
 
                                     if (setTiled != wasTiled) {

@@ -158,14 +158,12 @@ namespace R1Engine
             // Update x and y, and clamp them to not have objects appear too far away from the map
             const int border = 250;
 
-            var maxWidth = LevelEditorData.MaxWidth;
-            var maxHeight = LevelEditorData.MaxHeight;
             var x = (float)ObjData.XPosition;
             var y = (float)ObjData.YPosition;
-            var maxX = (maxWidth * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
-            var minX = -(border) - ObjData.Pivot.x;
-            var maxY = (maxHeight * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
-            var minY = -(border) - ObjData.Pivot.y;
+            var maxX = (LevelEditorData.MaxX * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
+            var minX = (LevelEditorData.MinX * LevelEditorData.Level.CellSize) - border - ObjData.Pivot.x;
+            var maxY = (LevelEditorData.MaxY * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
+            var minY = (LevelEditorData.MinY * LevelEditorData.Level.CellSize) - border - ObjData.Pivot.y;
 
             if (x > maxX)
                 x = maxX;
