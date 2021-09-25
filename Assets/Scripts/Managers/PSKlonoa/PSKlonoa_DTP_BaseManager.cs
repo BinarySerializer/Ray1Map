@@ -1421,7 +1421,7 @@ namespace R1Engine
             {
                 transform
             }, scale, objIndex);
-        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale, int objIndex = 0)
+        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale, int objIndex = 0, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             if (transforms?.Any() == true && transforms[0].Positions.Positions[0].Length == 1)
                 objIndex = 0;
@@ -1441,6 +1441,11 @@ namespace R1Engine
             {
                 var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                 mtComponent.animatedTransform = gameObj.transform;
+
+                if (animSpeed != null)
+                    mtComponent.speed = animSpeed;
+
+                mtComponent.loopMode = animLoopMode;
 
                 var positions = transforms.SelectMany(x => x.Positions.Positions).Select(x => GetPositionVector(x[objIndex], null, scale)).ToArray();
                 var rotations = transforms.SelectMany(x => x.Rotations.Rotations).Select(x => GetQuaternion(x[objIndex])).ToArray();

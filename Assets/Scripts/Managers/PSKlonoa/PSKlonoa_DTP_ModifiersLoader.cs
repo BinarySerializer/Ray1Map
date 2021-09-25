@@ -229,7 +229,10 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform);
+                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform, animSpeed: new AnimSpeed_FrameIncrease()
+                        {
+                            Speed = modifier.Params_Gondola.AnimSpeed
+                        }, animLoopMode: AnimLoopMode.PingPong);
                     }
                     break;
 
@@ -389,15 +392,15 @@ namespace R1Engine
             }
         }
 
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0, bool multiple = false)
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0, bool multiple = false, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             return GameObj_LoadTMD(modifier, tmd, localTransform, absoluteTransform == null ? null : new ObjTransform_ArchiveFile[]
             {
                 absoluteTransform
-            }, index, multiple);
+            }, index, multiple, animSpeed, animLoopMode);
         }
 
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0, bool multiple = false)
+        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0, bool multiple = false, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -424,7 +427,7 @@ namespace R1Engine
                 var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
 
                 // Apply the absolute transform
-                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i);
+                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i, animSpeed: animSpeed, animLoopMode: animLoopMode);
 
                 if (isAnimated)
                     GameObj_IsAnimated = true;
