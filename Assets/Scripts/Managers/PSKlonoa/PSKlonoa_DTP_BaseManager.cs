@@ -356,31 +356,23 @@ namespace R1Engine
                         {
                             var modifier = sectorModifiers[modifierIndex];
 
-                            if (modifier.DataFiles == null)
-                                continue;
-
-                            for (int dataFileIndex = 0; dataFileIndex < modifier.DataFiles.Length; dataFileIndex++)
+                            if (modifier.Data_TIM != null)
                             {
-                                var dataFile = modifier.DataFiles[dataFileIndex];
+                                exportTex(
+                                    getTex: () => GetTexture(modifier.Data_TIM),
+                                    blockName: $"{blockIndex} - ModifierTextures",
+                                    name: $"{sectorIndex} - {modifierIndex} - Texture");
+                            }
+                            else if (modifier.Data_TextureAnimation != null)
+                            {
+                                var texAnim = modifier.Data_TextureAnimation;
 
-                                if (dataFile.Pre_FileType == GlobalModifierFileType.TIM)
+                                for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
                                 {
                                     exportTex(
-                                        getTex: () => GetTexture(dataFile.TIM),
+                                        getTex: () => GetTexture(texAnim.Files[texIndex]),
                                         blockName: $"{blockIndex} - ModifierTextures",
-                                        name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex}");
-                                }
-                                else if (dataFile.Pre_FileType == GlobalModifierFileType.TextureAnimation)
-                                {
-                                    var texAnim = dataFile.TextureAnimation;
-
-                                    for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
-                                    {
-                                        exportTex(
-                                            getTex: () => GetTexture(texAnim.Files[texIndex]),
-                                            blockName: $"{blockIndex} - ModifierTextures",
-                                            name: $"{sectorIndex} - {modifierIndex} - {dataFileIndex} - {texIndex}");
-                                    }
+                                        name: $"{sectorIndex} - {modifierIndex} - TextureAnimation - {texIndex}");
                                 }
                             }
                         }
@@ -881,9 +873,7 @@ namespace R1Engine
             {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
                           $"{modifiersLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
-                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
-                          $"Modifiers:{Environment.NewLine}\t" +
-                          $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType}) {String.Join(", ", x.DataFiles?.Select(d => d.Pre_FileType.ToString()) ?? new string[0])}"))}");
+                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}");
             }
 
             await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
@@ -1124,10 +1114,8 @@ namespace R1Engine
 
             // Add scenery objects
             objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
-                Where(x => x.DataFiles != null).
-                SelectMany(x => x.DataFiles).
-                Where(x => x.ScenerySprites != null || x.LightObject?.LightPositions != null).
-                SelectMany(x => (x.LightObject?.LightPositions ?? x.ScenerySprites).Positions[0]).
+                Where(x => x.Data_ScenerySprites != null || x.Data_LightPositions != null).
+                SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Positions[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
             {
                 Position = GetPosition(x.X, x.Y, x.Z, scale),
@@ -1193,7 +1181,9 @@ namespace R1Engine
             string name, 
             PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
             bool isPrimaryObj,
-            ObjTransform_ArchiveFile transform = null)
+            ObjTransform_ArchiveFile[] transforms = null, 
+            AnimSpeed animSpeed = null, 
+            AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             bool isAnimated = false;
 
@@ -1263,7 +1253,13 @@ namespace R1Engine
                 gameObject.transform.SetParent(gaoParent.transform);
                 gameObject.transform.localScale = Vector3.one;
 
-                var isTransformAnimated = ApplyTransform(gameObject, transform, scale, objIndex: objIndex);
+                var isTransformAnimated = ApplyTransform(
+                    gameObj: gameObject, 
+                    transforms: transforms, 
+                    scale: scale, 
+                    objIndex: objIndex, 
+                    animSpeed: animSpeed, 
+                    animLoopMode: animLoopMode);
 
                 if (isTransformAnimated)
                     isAnimated = true;
@@ -1415,17 +1411,12 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile transform, float scale, int objIndex = 0) => 
-            ApplyTransform(gameObj, transform == null ? null : new ObjTransform_ArchiveFile[]
-            {
-                transform
-            }, scale, objIndex);
         public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale, int objIndex = 0, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             if (transforms?.Any() == true && transforms[0].Positions.Positions[0].Length == 1)
                 objIndex = 0;
 
-            if (transforms != null && transforms.Any())
+            if (transforms != null && transforms.Any() && transforms[0].Positions.ObjectsCount > objIndex)
             {
                 gameObj.transform.localPosition = GetPositionVector(transforms[0].Positions.Positions[0][objIndex], null, scale);
                 gameObj.transform.localRotation = GetQuaternion(transforms[0].Rotations.Rotations[0][objIndex]);
@@ -1446,8 +1437,14 @@ namespace R1Engine
 
                 mtComponent.loopMode = animLoopMode;
 
-                var positions = transforms.SelectMany(x => x.Positions.Positions).Select(x => GetPositionVector(x[objIndex], null, scale)).ToArray();
-                var rotations = transforms.SelectMany(x => x.Rotations.Rotations).Select(x => GetQuaternion(x[objIndex])).ToArray();
+                var positions = transforms.
+                    SelectMany(x => x.Positions.Positions).
+                    Select(x => x.Length > objIndex ? GetPositionVector(x[objIndex], null, scale) : (Vector3?)null).
+                    ToArray();
+                var rotations = transforms.
+                    SelectMany(x => x.Rotations.Rotations).
+                    Select(x => x.Length > objIndex ? GetQuaternion(x[objIndex]) : (Quaternion?)null).
+                    ToArray();
 
                 var frameCount = Math.Max(positions.Length, rotations.Length);
                 mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
@@ -1456,9 +1453,10 @@ namespace R1Engine
                 {
                     mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
                     {
-                        Position = positions[i],
-                        Rotation = rotations[i],
-                        Scale = Vector3.one
+                        Position = positions[i] ?? Vector3.zero,
+                        Rotation = rotations[i] ?? Quaternion.identity,
+                        Scale = Vector3.one,
+                        IsHidden = positions[i] == null || rotations[i] == null,
                     };
                 }
 

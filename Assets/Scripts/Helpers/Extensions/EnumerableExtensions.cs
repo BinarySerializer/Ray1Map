@@ -59,5 +59,14 @@ namespace R1Engine
 
             return -1;
         }
+
+        public static IEnumerable<T> Yield<T>(this T obj)
+        {
+            yield return obj;
+        }
+        public static T[] YieldToArray<T>(this T obj) => new T[]
+        {
+            obj
+        };
     }
 }

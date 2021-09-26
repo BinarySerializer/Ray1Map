@@ -85,261 +85,32 @@ namespace R1Engine
 
         public void GameObj_LoadModifier(ModifierObject modifier, LoadLoop loop)
         {
-            if (modifier.PrimaryType == PrimaryObjectType.Invalid ||
-                modifier.PrimaryType == PrimaryObjectType.None ||
-                modifier.SecondaryType == -1 ||
-                modifier.SecondaryType == 0)
+            // Ignore invalid modifiers
+            if (modifier.IsInvalid)
                 return;
 
-            switch (modifier.GlobalModifierType)
+            // Log unknown modifiers
+            if (modifier.GlobalModifierType == GlobalModifierType.Unknown)
             {
-                case GlobalModifierType.Unknown:
-                    {
-                        if (loop != LoadLoop.Animations)
-                            return;
+                if (loop != LoadLoop.Animations)
+                    return;
 
-                        Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
-                                         $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                         $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", modifier.DataFiles?.Select(dataFile => $"Length: {dataFile.Unknown?.Length} bytes{Environment.NewLine}{dataFile.Unknown?.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
-                        return;
-                    }
+                Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
+                                 $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
+                                 $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", modifier.Data_Unknown?.Select(dataFile => $"Length: {dataFile.Data.Length} bytes{Environment.NewLine}{dataFile.Data.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
+                return;
+            }
 
-                case GlobalModifierType.WindSwirl:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        var obj_0 = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
-                        var obj_1 = GameObj_LoadTMD(modifier, modifier.DataFiles[1].TMD, index: 1);
-
-                        var pos = modifier.DataFiles[2].Position;
-
-                        GameObj_ApplyPosition(obj_0, pos, new Vector3Int(0, 182, 0));
-                        GameObj_ApplyPosition(obj_1, pos);
-                        GameObj_ApplyConstantRotation(obj_0, modifier.RotationAttribute);
-                    } 
-                    break;
-
-                case GlobalModifierType.BigWindmill:
-                case GlobalModifierType.SmallWindmill:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        var obj = GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[1].Transform);
-                        GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
-                    }
-                    break;
-
-                case GlobalModifierType.MovingPlatform:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[3].Transform, 
-                            animSpeed: new AnimSpeed_FrameIncrease(1));
-                    }
-                    break;
-
-                case GlobalModifierType.RoadSign:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
-                    } 
-                    break;
-
-                case GlobalModifierType.TiltRock:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[3].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
-                    } 
-                    break;
-
-                case GlobalModifierType.Minecart:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransforms: modifier.DataFiles[3].Transforms.Files, 
-                            localTransform: modifier.DataFiles[5].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(1));
-                    } 
-                    break;
-
-                case GlobalModifierType.RongoLango:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
-                    } 
-                    break;
-
-                case GlobalModifierType.Bell:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
-                        GameObj_ApplyPosition(obj, modifier.DataFiles[1].Position);
-                    }
-                    break;
-
-                case GlobalModifierType.LockedDoor_0:
-                case GlobalModifierType.LockedDoor_1:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[3].Transform, 
-                            localTransform: modifier.DataFiles[2].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(1));
-                    }
-                    break;
-
-                case GlobalModifierType.WaterWheel:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObject obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform);
-                        GameObj_ApplyConstantRotation(obj, modifier.RotationAttribute);
-                    }
-                    break;
-
-                case GlobalModifierType.Crate:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[2].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
-                    }
-                    break;
-
-                case GlobalModifierType.MultiWheel:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[1].Transform, multiple: true);
-                    }
-                    break;
-
-                case GlobalModifierType.Gondola:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier,
-                            tmd: modifier.DataFiles[0].TMD,
-                            absoluteTransform: modifier.DataFiles[4].Transform,
-                            localTransform: modifier.DataFiles[3].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(modifier.Params_Gondola.AnimSpeed),
-                            animLoopMode: AnimLoopMode.PingPong);
-                    }
-                    break;
-
-                case GlobalModifierType.FallingTreePart:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(
-                            modifier: modifier, 
-                            tmd: modifier.DataFiles[0].TMD, 
-                            absoluteTransform: modifier.DataFiles[1].Transform,
-                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
-                    }
-                    break;
-
-                case GlobalModifierType.WoodenCart:
+            // Handle animations
+            if (loop == LoadLoop.Animations)
+            {
+                switch (modifier.GlobalModifierType)
                 {
-                    if (loop != LoadLoop.Objects)
-                        return;
+                    case GlobalModifierType.ScrollAnimation:
+                        Anim_ScrollAnimations.Add(modifier.Data_UVScrollAnimation);
+                        break;
 
-                    // Correct overflow values
-                    foreach (var pos in modifier.DataFiles[5].Transform.Positions.Positions.SelectMany(x => x))
-                    {
-                        pos.X = 0;
-                        pos.Y = 0;
-                        pos.Z = 0;
-                    }
-
-                    GameObj_LoadTMD(
-                        modifier: modifier,
-                        tmd: modifier.DataFiles[0].TMD,
-                        absoluteTransforms: modifier.DataFiles[3].Transforms.Files,
-                        localTransform: modifier.DataFiles[5].Transform,
-                        animSpeed: new AnimSpeed_FrameIncrease(0.5f));
-                }
-                    break;
-
-                case GlobalModifierType.Light:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        var data = modifier.DataFiles[0].LightObject;
-
-                        if (data.TMD != null)
-                            GameObj_LoadTMD(modifier, data.TMD);
-                    }
-                    break;
-
-                case GlobalModifierType.GeyserPlatform:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        var positions = modifier.GeyserPlatformPositions;
-
-                        for (int i = 0; i < positions.Length; i++)
-                        {
-                            var obj = GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, index: i);
-                            GameObj_ApplyPosition(obj, positions[i].Position);
-                        }
-                    }
-                    break;
-
-                case GlobalModifierType.ScrollAnimation:
-                    {
-                        if (loop != LoadLoop.Animations)
-                            return;
-
-                        Anim_ScrollAnimations.Add(modifier.DataFiles[0].UVScrollAnimation);
-                    } 
-                    break;
-
-                case GlobalModifierType.VRAMScrollAnimation:
-                    {
-                        if (loop != LoadLoop.Animations)
-                            return;
-
+                    case GlobalModifierType.VRAMScrollAnimation:
                         LoaderConfiguration_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
                         PS1_VRAM vram = Loader.VRAM;
 
@@ -392,51 +163,14 @@ namespace R1Engine
 
                             Anim_TextureAnimations.Add(new PS1VRAMAnimation(region, frames, scroll_0.AnimSpeed, false));
                         }
-                    }
-                    break;
+                        break;
 
-                case GlobalModifierType.Object:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
+                    case GlobalModifierType.TextureAnimation:
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.Data_TextureAnimation.Files, modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
+                        break;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
-                    }
-                    break;
-
-                case GlobalModifierType.LevelModelSection:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD);
-                    } 
-                    break;
-
-                case GlobalModifierType.ScenerySprites:
-                    {
-                        if (loop != LoadLoop.Objects)
-                            return;
-
-                        // TODO: Get correct sprites to show
-                    }
-                    break;
-
-                case GlobalModifierType.TextureAnimation:
-                    {
-                        if (loop != LoadLoop.Animations)
-                            return;
-
-                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.DataFiles[0].TextureAnimation.Files, modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
-                    }
-                    break;
-
-                case GlobalModifierType.PaletteAnimation:
-                    {
-                        if (loop != LoadLoop.Animations)
-                            return;
-
-                        var anim = modifier.DataFiles[0].PaletteAnimation;
+                    case GlobalModifierType.PaletteAnimation:
+                        var anim = modifier.Data_PaletteAnimation;
 
                         for (int i = 0; i < anim.Files.Length; i++)
                         {
@@ -445,25 +179,84 @@ namespace R1Engine
                             var colors = palettes.Select(x => x.Colors).ToArray();
                             Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, modifier.PaletteAnimationInfo.AnimSpeed, true));
                         }
-                    }
-                    break;
+                        break;
+                }
+            }
+            // Handle objects
+            else
+            {
+                if (modifier.Data_TMD == null)
+                    return;
 
-                case GlobalModifierType.Special:
-                default:
-                    // Do nothing
-                    break;
+                if (modifier.GlobalModifierType == GlobalModifierType.GeyserPlatform)
+                {
+                    var positions = modifier.GeyserPlatformPositions;
+
+                    for (int i = 0; i < positions.Length; i++)
+                    {
+                        var geyserObj = GameObj_LoadTMD(modifier, modifier.Data_TMD, index: i);
+                        GameObj_ApplyPosition(geyserObj, positions[i].Position);
+                    }
+
+                    return;
+                }
+
+                bool isMultiple = false;
+                Vector3Int objPosOffset = Vector3Int.zero;
+
+                // TODO: Hard-code this in the modifier object
+                switch (modifier.GlobalModifierType)
+                {
+                    case GlobalModifierType.WindSwirl:
+                        objPosOffset = new Vector3Int(0, 182, 0);
+                        break;
+
+                    case GlobalModifierType.MultiWheel:
+                        isMultiple = true;
+                        break;
+                }
+
+                // Load the object model from the TMD data
+                var obj = GameObj_LoadTMD(
+                    modifier: modifier, 
+                    tmd: modifier.Data_TMD, 
+                    localTransforms: modifier.Data_LocalTransform?.YieldToArray() ?? modifier.Data_LocalTransforms?.Files, 
+                    absoluteTransforms: modifier.Data_AbsoluteTransform?.YieldToArray() ?? modifier.Data_AbsoluteTransforms?.Files, 
+                    multiple: isMultiple, 
+                    animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedTransformSpeed), 
+                    animLoopMode: modifier.DoesAnimatedTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+
+                // Apply a position if available
+                if (modifier.Data_Position != null)
+                    GameObj_ApplyPosition(obj, modifier.Data_Position, objPosOffset);
+
+                // Apply a constant rotation if available
+                // TODO: Implement
+
+                // Load secondary object if available
+                if (modifier.Data_TMD_Secondary != null)
+                {
+                    var secondaryObj = GameObj_LoadTMD(
+                        modifier: modifier,
+                        tmd: modifier.Data_TMD_Secondary,
+                        index: 1);
+
+                    // Apply a position if available (without the offset)
+                    if (modifier.Data_Position != null)
+                        GameObj_ApplyPosition(secondaryObj, modifier.Data_Position);
+                }
             }
         }
 
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform = null, ObjTransform_ArchiveFile absoluteTransform = null, int index = 0, bool multiple = false, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
-        {
-            return GameObj_LoadTMD(modifier, tmd, localTransform, absoluteTransform == null ? null : new ObjTransform_ArchiveFile[]
-            {
-                absoluteTransform
-            }, index, multiple, animSpeed, animLoopMode);
-        }
-
-        public GameObject GameObj_LoadTMD(ModifierObject modifier, PS1_TMD tmd, ObjTransform_ArchiveFile localTransform, ObjTransform_ArchiveFile[] absoluteTransforms, int index = 0, bool multiple = false, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
+        public GameObject GameObj_LoadTMD(
+            ModifierObject modifier, 
+            PS1_TMD tmd, 
+            ObjTransform_ArchiveFile[] localTransforms = null, 
+            ObjTransform_ArchiveFile[] absoluteTransforms = null, 
+            int index = 0, 
+            bool multiple = false, 
+            AnimSpeed animSpeed = null, 
+            AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -478,7 +271,9 @@ namespace R1Engine
                 name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType} ({modifier.GlobalModifierType})",
                 modifiersLoader: this,
                 isPrimaryObj: false,
-                transform: localTransform);
+                transforms: localTransforms,
+                animSpeed: animSpeed,
+                animLoopMode: animLoopMode);
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
@@ -509,7 +304,7 @@ namespace R1Engine
             obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
         }
 
-        public void GameObj_ApplyConstantRotation(GameObject obj, ModifierRotationAttribute rot)
+        public void GameObj_ApplyConstantRotation(GameObject obj, ModifierRotationAttribute rot, int rotStart = 0, int rotLength = 0x1000)
         {
             if (obj == null) 
                 throw new ArgumentNullException(nameof(obj));
@@ -520,13 +315,13 @@ namespace R1Engine
             mtComponent.animatedTransform = obj.transform;
 
             int rotationPerFrame = Math.Abs(rot.Rotation);
-            int count = 0x1000 / rotationPerFrame;
+            int count = rotLength / rotationPerFrame;
 
             mtComponent.frames = new AnimatedTransformComponent.Frame[count];
 
             for (int i = 0; i < count; i++)
             {
-                var degrees = Manager.GetRotationInDegrees(i * rotationPerFrame);
+                var degrees = Manager.GetRotationInDegrees(rotStart + i * rotationPerFrame);
 
                 if (rot.Rotation > 0)
                     degrees = -degrees;

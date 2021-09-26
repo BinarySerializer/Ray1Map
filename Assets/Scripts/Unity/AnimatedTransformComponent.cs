@@ -13,11 +13,15 @@ public class AnimatedTransformComponent : MonoBehaviour
         public Vector3 Position;
         public Quaternion Rotation;
         public Vector3 Scale;
+        public bool IsHidden;
 
         public void Set(Transform transform) {
             transform.localPosition = Position;
             transform.localRotation = Rotation;
             transform.localScale = Scale;
+
+            if (IsHidden)
+                transform.localScale = Vector3.zero;
         }
     }
 
