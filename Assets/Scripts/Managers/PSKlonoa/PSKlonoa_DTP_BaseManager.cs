@@ -792,7 +792,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: objManager,
                 eventData: objects,
-                framesPerSecond: 30,
+                framesPerSecond: 60,
                 collisionLines: paths,
                 isometricData: new Unity_IsometricData
                 {
@@ -1258,7 +1258,7 @@ namespace R1Engine
                     transforms: transforms, 
                     scale: scale, 
                     objIndex: objIndex, 
-                    animSpeed: animSpeed, 
+                    animSpeed: animSpeed?.CloneAnimSpeed(), 
                     animLoopMode: animLoopMode);
 
                 if (isTransformAnimated)

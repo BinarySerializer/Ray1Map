@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace R1Engine
 {
     /// <summary>
     /// Handles updating the frame of a generic animation
     /// </summary>
-    public abstract class AnimSpeed
+    public abstract class AnimSpeed : ICloneable
     {
         public float CurrentFrame { get; private set; }
         public int CurrentFrameInt => Mathf.FloorToInt(CurrentFrame);
@@ -76,5 +77,8 @@ namespace R1Engine
 
             return newFrame != curFrame;
         }
+
+        public object Clone() => MemberwiseClone();
+        public AnimSpeed CloneAnimSpeed() => (AnimSpeed)Clone();
     }
 }

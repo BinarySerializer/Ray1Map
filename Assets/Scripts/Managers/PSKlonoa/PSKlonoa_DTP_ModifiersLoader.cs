@@ -299,7 +299,7 @@ namespace R1Engine
                 var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
 
                 // Apply the absolute transform
-                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i, animSpeed: animSpeed, animLoopMode: animLoopMode);
+                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i, animSpeed: animSpeed?.CloneAnimSpeed(), animLoopMode: animLoopMode);
 
                 if (isAnimated)
                     GameObj_IsAnimated = true;
