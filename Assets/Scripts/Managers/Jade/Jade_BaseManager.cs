@@ -1593,6 +1593,7 @@ namespace R1Engine {
 									m.RecalculateNormals();
 									GameObject g_geo_e = new GameObject($"Element {e.Offset}");
 									g_geo_e.transform.SetParent(g_geo.transform, false);
+									g_geo_e.layer = LayerMask.NameToLayer("3D Collision");
 									MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
 									mf.mesh = m;
 									MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
@@ -1604,7 +1605,10 @@ namespace R1Engine {
 				}
 			}
 
-			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
+			Debug.LogWarning("BINs serialized. Time to do something with this data :)");
+			return new Unity_Level(objManager: new Unity_ObjectManager(context), isometricData: new Unity_IsometricData() {
+				
+			});
 		}
 
 		public async UniTask<Jade_Reference<AI_Instance>> LoadUniverse(Context context) {
