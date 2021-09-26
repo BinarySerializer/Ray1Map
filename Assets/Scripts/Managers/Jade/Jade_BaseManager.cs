@@ -1568,6 +1568,7 @@ namespace R1Engine {
 
 			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
 
+			Dictionary<uint, Texture2D> textureKeyDict = new Dictionary<uint, Texture2D>();
 			var worlds = loader.LoadedWorlds;
 			foreach (var world in worlds) {
 				GameObject w_gao = new GameObject($"({world.Key}) {world.Name}");
@@ -1581,15 +1582,70 @@ namespace R1Engine {
 					var gro = gao.Base?.Visual?.GeometricObject?.Value;
 					if (gro != null) {
 						if (gro.RenderObject.Type == GRO_Type.GEO) {
+							Texture2D[] tex = null;
+							var gro_m = gao.Base.Visual.Material?.Value;
+							if (gro_m != null) {
+								Texture2D GetTexture2D(GRO_Struct renderObject) {
+									if (renderObject.Type == GRO_Type.MAT_MTT) {
+										var mat_mtt = (MAT_MTT_MultiTextureMaterial)renderObject.Value;
+										if ((mat_mtt.Levels?.Length ?? 0) > 0) {
+											var texRef = mat_mtt.Levels[0].Texture;
+											if (texRef.Content != null) {
+												if (!textureKeyDict.ContainsKey(texRef.Key)) {
+													textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
+													if (textureKeyDict[texRef.Key] != null) {
+														textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+													}
+												}
+												return textureKeyDict[texRef.Key];
+											}
+										}
+									}
+									return null;
+								}
+								if(gro_m.RenderObject.Type == GRO_Type.MAT_MTT) {
+									tex = new Texture2D[1];
+									tex[0] = GetTexture2D(gro_m.RenderObject);
+								} else if(gro_m.RenderObject.Type == GRO_Type.MAT_MSM) {
+									var mat = (MAT_MSM_MultiSingleMaterial)gro_m.RenderObject.Value;
+									tex = new Texture2D[mat.Materials.Length];
+									for(int i = 0; i < mat.Materials.Length; i++) {
+										var gro_m_sub = mat.Materials[i]?.Value?.RenderObject;
+										tex[i] = GetTexture2D(gro_m_sub);
+									}
+								}
+							}
 							GameObject g_geo = new GameObject($"Geo {gro.Key}");
 							g_geo.transform.SetParent(g_gao.transform, false);
 							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
+								var uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
+								Color[] colors = null;
+								Color ComputeColor(Color c) {
+									return Color.Lerp(Color.white, new Color(c.r, c.g, c.b, 1f), c.a);
+								}
+								if (gao.Base?.Visual?.VertexColors != null) {
+									if (gao.Base?.Visual?.VertexColors.Length == verts.Length) {
+										colors = gao.Base?.Visual?.VertexColors?.Select(c => ComputeColor(c.GetColor())).ToArray();
+									}
+								} else if (gao.Base?.Visual?.RLI?.Value != null) {
+									if (gao.Base?.Visual?.RLI?.Value?.VertexRLI.Length == verts.Length) {
+										colors = gao.Base?.Visual?.RLI?.Value?.VertexRLI?.Select(c => ComputeColor(c.GetColor())).ToArray();
+									}
+								}
 								foreach (var e in geo.Elements) {
 									Mesh m = new Mesh();
-									m.vertices = verts;
-									m.triangles = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 }).ToArray();
+									var vertIndices = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 });
+									m.vertices = vertIndices.Select(v => verts[v]).ToArray();
+									if (uvs.Length > 0) {
+										var uvIndices = e.Triangles.SelectMany(t => new int[] { t.UV1, t.UV0, t.UV2 });
+										m.uv = uvIndices.Select(uv => uvs[uv]).ToArray();
+									}
+									if (colors != null) {
+										m.colors = vertIndices.Select(v => colors[v]).ToArray();
+									}
+									m.triangles = Enumerable.Range(0, m.vertices.Length).ToArray();
 									m.RecalculateNormals();
 									GameObject g_geo_e = new GameObject($"Element {e.Offset}");
 									g_geo_e.transform.SetParent(g_geo.transform, false);
@@ -1598,6 +1654,16 @@ namespace R1Engine {
 									mf.mesh = m;
 									MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
 									mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+									var texturesLength = tex?.Length ?? 0;
+									if (texturesLength > 0) {
+										if (texturesLength == 1) {
+											mr.material.SetTexture("_MainTex", tex[0]);
+										} else {
+											if (e.MaterialID < texturesLength) {
+												mr.material.SetTexture("_MainTex", tex[e.MaterialID]);
+											}
+										}
+									}
 								}
 							}
 						}
