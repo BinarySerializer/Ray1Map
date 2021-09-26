@@ -792,7 +792,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: objManager,
                 eventData: objects,
-                framesPerSecond: 60,
+                framesPerSecond: 30,
                 collisionLines: paths,
                 isometricData: new Unity_IsometricData
                 {
