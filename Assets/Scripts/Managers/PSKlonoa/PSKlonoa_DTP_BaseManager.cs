@@ -873,7 +873,9 @@ namespace R1Engine
             {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
                           $"{modifiersLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
-                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}");
+                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                          $"Modifiers:{Environment.NewLine}\t" +
+                          $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType})"))}");
             }
 
             await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
