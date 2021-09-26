@@ -232,7 +232,11 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[2].Transform);
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[2].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
                     }
                     break;
 
@@ -250,8 +254,49 @@ namespace R1Engine
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        GameObj_LoadTMD(modifier, modifier.DataFiles[0].TMD, absoluteTransform: modifier.DataFiles[4].Transform, localTransform: modifier.DataFiles[3].Transform, animSpeed: new AnimSpeed_FrameIncrease(modifier.Params_Gondola.AnimSpeed), animLoopMode: AnimLoopMode.PingPong);
+                        GameObj_LoadTMD(
+                            modifier: modifier,
+                            tmd: modifier.DataFiles[0].TMD,
+                            absoluteTransform: modifier.DataFiles[4].Transform,
+                            localTransform: modifier.DataFiles[3].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(modifier.Params_Gondola.AnimSpeed),
+                            animLoopMode: AnimLoopMode.PingPong);
                     }
+                    break;
+
+                case GlobalModifierType.FallingTreePart:
+                    {
+                        if (loop != LoadLoop.Objects)
+                            return;
+
+                        GameObj_LoadTMD(
+                            modifier: modifier, 
+                            tmd: modifier.DataFiles[0].TMD, 
+                            absoluteTransform: modifier.DataFiles[1].Transform,
+                            animSpeed: new AnimSpeed_FrameIncrease(0.5f));
+                    }
+                    break;
+
+                case GlobalModifierType.WoodenCart:
+                {
+                    if (loop != LoadLoop.Objects)
+                        return;
+
+                    // Correct overflow values
+                    foreach (var pos in modifier.DataFiles[5].Transform.Positions.Positions.SelectMany(x => x))
+                    {
+                        pos.X = 0;
+                        pos.Y = 0;
+                        pos.Z = 0;
+                    }
+
+                    GameObj_LoadTMD(
+                        modifier: modifier,
+                        tmd: modifier.DataFiles[0].TMD,
+                        absoluteTransforms: modifier.DataFiles[3].Transforms.Files,
+                        localTransform: modifier.DataFiles[5].Transform,
+                        animSpeed: new AnimSpeed_FrameIncrease(0.5f));
+                }
                     break;
 
                 case GlobalModifierType.Light:
