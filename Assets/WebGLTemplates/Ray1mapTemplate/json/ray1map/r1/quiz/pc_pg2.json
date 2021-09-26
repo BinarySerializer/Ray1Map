@@ -1,0 +1,632 @@
+{
+  "name": "Rayman uczy Angielskiego Gimnazjum (PC - PG2)",
+  "mode": "RaymanQuizPC",
+  "folder": "r1/quiz/pc_pg2",
+  "volume": "PG2",
+  "icons": [
+    {
+      "image": "./img/icon/R1/R1-W1.png",
+      "level": 0
+    },
+    {
+      "image": "./img/icon/R1/R1-W2.png",
+      "level": 13
+    },
+    {
+      "image": "./img/icon/R1/R1-W3.png",
+      "level": 32
+    },
+    {
+      "image": "./img/icon/R1/R1-W4.png",
+      "level": 45
+    },
+    {
+      "image": "./img/icon/R1/R1-W5.png",
+      "level": 58
+    },
+    {
+      "image": "./img/icon/R1/R1-W6.png",
+      "level": 78
+    },
+    {
+      "image": "./img/icon/R1/R1-W7.png",
+      "level": 99
+    }
+  ],
+  "levels": [
+    {
+      "world": 1,
+      "level": 11,
+      "nameInternal": "JUN11",
+      "name": "W domu 1-1"
+    },
+    {
+      "world": 1,
+      "level": 12,
+      "nameInternal": "JUN12",
+      "name": "W domu 1-2"
+    },
+    {
+      "world": 1,
+      "level": 13,
+      "nameInternal": "JUN13",
+      "name": "W domu 1-3"
+    },
+    {
+      "world": 1,
+      "level": 14,
+      "nameInternal": "JUN14",
+      "name": "Ludzie 1-1"
+    },
+    {
+      "world": 1,
+      "level": 15,
+      "nameInternal": "JUN15",
+      "name": "Ludzie 1-2"
+    },
+    {
+      "world": 1,
+      "level": 16,
+      "nameInternal": "JUN16",
+      "name": "Ludzie 1-3"
+    },
+    {
+      "world": 1,
+      "level": 21,
+      "nameInternal": "JUN21",
+      "name": "W domu 4-1"
+    },
+    {
+      "world": 1,
+      "level": 22,
+      "nameInternal": "JUN22",
+      "name": "W domu 4-2"
+    },
+    {
+      "world": 1,
+      "level": 23,
+      "nameInternal": "JUN23",
+      "name": "W domu 4-3"
+    },
+    {
+      "world": 1,
+      "level": 24,
+      "nameInternal": "JUN24",
+      "name": "Ludzie 4-1"
+    },
+    {
+      "world": 1,
+      "level": 25,
+      "nameInternal": "JUN25",
+      "name": "Ludzie 4-2"
+    },
+    {
+      "world": 1,
+      "level": 26,
+      "nameInternal": "JUN26",
+      "name": "Ludzie 4-3"
+    },
+    {
+      "world": 1,
+      "level": 53,
+      "nameInternal": "JUN53",
+      "name": "Trening wyczucia czasu 1-1"
+    },
+    {
+      "world": 2,
+      "level": 11,
+      "nameInternal": "MUS11",
+      "name": "Kultura i sztuka 1-1"
+    },
+    {
+      "world": 2,
+      "level": 12,
+      "nameInternal": "MUS12",
+      "name": "Kultura i sztuka 1-2"
+    },
+    {
+      "world": 2,
+      "level": 13,
+      "nameInternal": "MUS13",
+      "name": "Kultura i sztuka 1-3"
+    },
+    {
+      "world": 2,
+      "level": 14,
+      "nameInternal": "MUS14",
+      "name": "Na ulicy 1-1"
+    },
+    {
+      "world": 2,
+      "level": 15,
+      "nameInternal": "MUS15",
+      "name": "Na ulicy 1-2"
+    },
+    {
+      "world": 2,
+      "level": 16,
+      "nameInternal": "MUS16",
+      "name": "Na ulicy 1-3"
+    },
+    {
+      "world": 2,
+      "level": 17,
+      "nameInternal": "MUS17",
+      "name": "Natura 1-1"
+    },
+    {
+      "world": 2,
+      "level": 18,
+      "nameInternal": "MUS18",
+      "name": "Natura 1-2"
+    },
+    {
+      "world": 2,
+      "level": 19,
+      "nameInternal": "MUS19",
+      "name": "Natura 1-3"
+    },
+    {
+      "world": 2,
+      "level": 21,
+      "nameInternal": "MUS21",
+      "name": "Kultura i sztuka 4-1"
+    },
+    {
+      "world": 2,
+      "level": 22,
+      "nameInternal": "MUS22",
+      "name": "Kultura i sztuka 4-2"
+    },
+    {
+      "world": 2,
+      "level": 23,
+      "nameInternal": "MUS23",
+      "name": "Kultura i sztuka 4-3"
+    },
+    {
+      "world": 2,
+      "level": 24,
+      "nameInternal": "MUS24",
+      "name": "Na ulicy 4-1"
+    },
+    {
+      "world": 2,
+      "level": 25,
+      "nameInternal": "MUS25",
+      "name": "Na ulicy 4-2"
+    },
+    {
+      "world": 2,
+      "level": 26,
+      "nameInternal": "MUS26",
+      "name": "Na ulicy 4-3"
+    },
+    {
+      "world": 2,
+      "level": 27,
+      "nameInternal": "MUS27",
+      "name": "Natura 4-1"
+    },
+    {
+      "world": 2,
+      "level": 28,
+      "nameInternal": "MUS28",
+      "name": "Natura 4-2"
+    },
+    {
+      "world": 2,
+      "level": 29,
+      "nameInternal": "MUS29",
+      "name": "Natura 4-3"
+    },
+    {
+      "world": 2,
+      "level": 53,
+      "nameInternal": "MUS53",
+      "name": "Trening pilota╛u rakiet 1-1"
+    },
+    {
+      "world": 3,
+      "level": 11,
+      "nameInternal": "MON11",
+      "name": "Cyfry 1-1"
+    },
+    {
+      "world": 3,
+      "level": 12,
+      "nameInternal": "MON12",
+      "name": "Cyfry 1-2"
+    },
+    {
+      "world": 3,
+      "level": 13,
+      "nameInternal": "MON13",
+      "name": "Cyfry 1-3"
+    },
+    {
+      "world": 3,
+      "level": 14,
+      "nameInternal": "MON14",
+      "name": "Ciaêo czêowieka 1-1"
+    },
+    {
+      "world": 3,
+      "level": 15,
+      "nameInternal": "MON15",
+      "name": "Ciaêo czêowieka 1-2"
+    },
+    {
+      "world": 3,
+      "level": 16,
+      "nameInternal": "MON16",
+      "name": "Ciaêo czêowieka 1-3"
+    },
+    {
+      "world": 3,
+      "level": 21,
+      "nameInternal": "MON21",
+      "name": "Cyfry 4-1"
+    },
+    {
+      "world": 3,
+      "level": 22,
+      "nameInternal": "MON22",
+      "name": "Cyfry 4-2"
+    },
+    {
+      "world": 3,
+      "level": 23,
+      "nameInternal": "MON23",
+      "name": "Cyfry 4-3"
+    },
+    {
+      "world": 3,
+      "level": 24,
+      "nameInternal": "MON24",
+      "name": "Ciaêo czêowieka 4-1"
+    },
+    {
+      "world": 3,
+      "level": 25,
+      "nameInternal": "MON25",
+      "name": "Ciaêo czêowieka 4-2"
+    },
+    {
+      "world": 3,
+      "level": 26,
+      "nameInternal": "MON26",
+      "name": "Ciaêo czêowieka 4-3"
+    },
+    {
+      "world": 3,
+      "level": 53,
+      "nameInternal": "MON53",
+      "name": "Mountain 53"
+    },
+    {
+      "world": 4,
+      "level": 11,
+      "nameInternal": "IMA11",
+      "name": "Media 1-1"
+    },
+    {
+      "world": 4,
+      "level": 12,
+      "nameInternal": "IMA12",
+      "name": "Media 1-2"
+    },
+    {
+      "world": 4,
+      "level": 13,
+      "nameInternal": "IMA13",
+      "name": "Media 1-3"
+    },
+    {
+      "world": 4,
+      "level": 14,
+      "nameInternal": "IMA14",
+      "name": "Wakacje 1-1"
+    },
+    {
+      "world": 4,
+      "level": 15,
+      "nameInternal": "IMA15",
+      "name": "Wakacje 1-2"
+    },
+    {
+      "world": 4,
+      "level": 16,
+      "nameInternal": "IMA16",
+      "name": "Wakacje 1-3"
+    },
+    {
+      "world": 4,
+      "level": 21,
+      "nameInternal": "IMA21",
+      "name": "Media 4-1"
+    },
+    {
+      "world": 4,
+      "level": 22,
+      "nameInternal": "IMA22",
+      "name": "Media 4-2"
+    },
+    {
+      "world": 4,
+      "level": 23,
+      "nameInternal": "IMA23",
+      "name": "Media 4-3"
+    },
+    {
+      "world": 4,
+      "level": 24,
+      "nameInternal": "IMA24",
+      "name": "Wakacje 4-1"
+    },
+    {
+      "world": 4,
+      "level": 25,
+      "nameInternal": "IMA25",
+      "name": "Wakacje 4-2"
+    },
+    {
+      "world": 4,
+      "level": 26,
+      "nameInternal": "IMA26",
+      "name": "Wakacje 4-3"
+    },
+    {
+      "world": 4,
+      "level": 53,
+      "nameInternal": "IMA53",
+      "name": "Trening skakania i helikoptera 1-1"
+    },
+    {
+      "world": 5,
+      "level": 11,
+      "nameInternal": "CAV11",
+      "name": "W szkole 1-1"
+    },
+    {
+      "world": 5,
+      "level": 12,
+      "nameInternal": "CAV12",
+      "name": "W szkole 1-2"
+    },
+    {
+      "world": 5,
+      "level": 13,
+      "nameInternal": "CAV13",
+      "name": "W szkole 1-3"
+    },
+    {
+      "world": 5,
+      "level": 14,
+      "nameInternal": "CAV14",
+      "name": "Sporty 1-1"
+    },
+    {
+      "world": 5,
+      "level": 15,
+      "nameInternal": "CAV15",
+      "name": "Sporty 1-2"
+    },
+    {
+      "world": 5,
+      "level": 16,
+      "nameInternal": "CAV16",
+      "name": "Sporty 1-3"
+    },
+    {
+      "world": 5,
+      "level": 17,
+      "nameInternal": "CAV17",
+      "name": "Kultura osobista 1-1"
+    },
+    {
+      "world": 5,
+      "level": 18,
+      "nameInternal": "CAV18",
+      "name": "Kultura osobista 1-2"
+    },
+    {
+      "world": 5,
+      "level": 19,
+      "nameInternal": "CAV19",
+      "name": "Kultura osobista 1-3"
+    },
+    {
+      "world": 5,
+      "level": 21,
+      "nameInternal": "CAV21",
+      "name": "W szkole 4-1"
+    },
+    {
+      "world": 5,
+      "level": 22,
+      "nameInternal": "CAV22",
+      "name": "W szkole 4-2"
+    },
+    {
+      "world": 5,
+      "level": 23,
+      "nameInternal": "CAV23",
+      "name": "W szkole 4-3"
+    },
+    {
+      "world": 5,
+      "level": 24,
+      "nameInternal": "CAV24",
+      "name": "Sporty 4-1"
+    },
+    {
+      "world": 5,
+      "level": 25,
+      "nameInternal": "CAV25",
+      "name": "Sporty 4-2"
+    },
+    {
+      "world": 5,
+      "level": 26,
+      "nameInternal": "CAV26",
+      "name": "Sporty 4-3"
+    },
+    {
+      "world": 5,
+      "level": 27,
+      "nameInternal": "CAV27",
+      "name": "Kultura osobista 4-1"
+    },
+    {
+      "world": 5,
+      "level": 28,
+      "nameInternal": "CAV28",
+      "name": "Kultura osobista 4-2"
+    },
+    {
+      "world": 5,
+      "level": 29,
+      "nameInternal": "CAV29",
+      "name": "Kultura osobista 4-3"
+    },
+    {
+      "world": 5,
+      "level": 51,
+      "nameInternal": "CAV51",
+      "name": "Cave 51"
+    },
+    {
+      "world": 5,
+      "level": 53,
+      "nameInternal": "CAV53",
+      "name": "Trening pi⌐ÿci 1-1"
+    },
+    {
+      "world": 6,
+      "level": 11,
+      "nameInternal": "CAK11",
+      "name": "Jedzenie i napoje 1-1"
+    },
+    {
+      "world": 6,
+      "level": 12,
+      "nameInternal": "CAK12",
+      "name": "Jedzenie i napoje 1-2"
+    },
+    {
+      "world": 6,
+      "level": 13,
+      "nameInternal": "CAK13",
+      "name": "Jedzenie i napoje 1-3"
+    },
+    {
+      "world": 6,
+      "level": 14,
+      "nameInternal": "CAK14",
+      "name": "Specjalne okazje i tradycje 1-1"
+    },
+    {
+      "world": 6,
+      "level": 15,
+      "nameInternal": "CAK15",
+      "name": "Specjalne okazje i tradycje 1-2"
+    },
+    {
+      "world": 6,
+      "level": 16,
+      "nameInternal": "CAK16",
+      "name": "Specjalne okazje i tradycje 1-3"
+    },
+    {
+      "world": 6,
+      "level": 17,
+      "nameInternal": "CAK17",
+      "name": "Przygody i bohaterowie 1-1"
+    },
+    {
+      "world": 6,
+      "level": 18,
+      "nameInternal": "CAK18",
+      "name": "Przygody i bohaterowie 1-2"
+    },
+    {
+      "world": 6,
+      "level": 19,
+      "nameInternal": "CAK19",
+      "name": "Przygody i bohaterowie 1-3"
+    },
+    {
+      "world": 6,
+      "level": 21,
+      "nameInternal": "CAK21",
+      "name": "Jedzenie i napoje 4-1"
+    },
+    {
+      "world": 6,
+      "level": 22,
+      "nameInternal": "CAK22",
+      "name": "Jedzenie i napoje 4-2"
+    },
+    {
+      "world": 6,
+      "level": 23,
+      "nameInternal": "CAK23",
+      "name": "Jedzenie i napoje 4-3"
+    },
+    {
+      "world": 6,
+      "level": 24,
+      "nameInternal": "CAK24",
+      "name": "Specjalne okazje i tradycje 4-1"
+    },
+    {
+      "world": 6,
+      "level": 25,
+      "nameInternal": "CAK25",
+      "name": "Specjalne okazje i tradycje 4-2"
+    },
+    {
+      "world": 6,
+      "level": 26,
+      "nameInternal": "CAK26",
+      "name": "Specjalne okazje i tradycje 4-3"
+    },
+    {
+      "world": 6,
+      "level": 27,
+      "nameInternal": "CAK27",
+      "name": "Przygody i bohaterowie 4-1"
+    },
+    {
+      "world": 6,
+      "level": 28,
+      "nameInternal": "CAK28",
+      "name": "Przygody i bohaterowie 4-2"
+    },
+    {
+      "world": 6,
+      "level": 29,
+      "nameInternal": "CAK29",
+      "name": "Przygody i bohaterowie 4-3"
+    },
+    {
+      "world": 6,
+      "level": 52,
+      "nameInternal": "CAK52",
+      "name": "Cake 52"
+    },
+    {
+      "world": 6,
+      "level": 53,
+      "nameInternal": "CAK53",
+      "name": "Trening super helikoptera 1-1"
+    },
+    {
+      "world": 6,
+      "level": 54,
+      "nameInternal": "CAK54",
+      "name": "Koniec 1-1"
+    }
+  ]
+}

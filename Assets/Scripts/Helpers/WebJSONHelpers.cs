@@ -81,6 +81,7 @@ namespace R1Engine
                     {
                         var vol = v.Name;
                         settings.EduVolume = vol;
+                        context.GetSettings<Ray1Settings>().Volume = vol;
                         var specialPath = m.GetSpecialArchiveFilePath(vol);
 
                         context.AddFile(new LinearFile(context, specialPath));
@@ -110,7 +111,7 @@ namespace R1Engine
 
                                 return icon;
                             }),
-                            levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                            levels = worlds.Where(x => x.Index < 7).Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
                             {
                                 world = w.Index,
                                 level = lvl,
@@ -148,7 +149,12 @@ namespace R1Engine
                                         currentWorld = entry.World;
 
                                     if (currentWorld == world && entry.Level == level)
+                                    {
+                                        if (text.TextDefine.Length <= lvl.LevelName)
+                                            return $"{(World)world} {level}";
+
                                         return $"{text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex}";
+                                    }
                                 }
                             }
 
