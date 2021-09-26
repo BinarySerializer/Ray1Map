@@ -231,7 +231,21 @@ namespace R1Engine
                     GameObj_ApplyPosition(obj, modifier.Data_Position, objPosOffset);
 
                 // Apply a constant rotation if available
-                // TODO: Implement
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.X, modifier.ConstantRotationX);
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Y, modifier.ConstantRotationY);
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Z, modifier.ConstantRotationZ);
+
+                void addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed)
+                {
+                    if (speed == null)
+                        return;
+
+                    var rotComponent = obj.AddComponent<KlonoaDTPConstantRotationComponent>();
+                    rotComponent.animatedTransform = obj.transform;
+                    rotComponent.initialRotation = obj.transform.localRotation;
+                    rotComponent.axis = axis;
+                    rotComponent.rotationSpeed = speed.Value;
+                }
 
                 // Load secondary object if available
                 if (modifier.Data_TMD_Secondary != null)
@@ -302,40 +316,6 @@ namespace R1Engine
         public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, Vector3? posOffset = null)
         {
             obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
-        }
-
-        public void GameObj_ApplyConstantRotation(GameObject obj, ModifierRotationAttribute rot, int rotStart = 0, int rotLength = 0x1000)
-        {
-            if (obj == null) 
-                throw new ArgumentNullException(nameof(obj));
-            if (rot == null) 
-                throw new ArgumentNullException(nameof(rot));
-
-            var mtComponent = obj.AddComponent<AnimatedTransformComponent>();
-            mtComponent.animatedTransform = obj.transform;
-
-            int rotationPerFrame = Math.Abs(rot.Rotation);
-            int count = rotLength / rotationPerFrame;
-
-            mtComponent.frames = new AnimatedTransformComponent.Frame[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                var degrees = Manager.GetRotationInDegrees(rotStart + i * rotationPerFrame);
-
-                if (rot.Rotation > 0)
-                    degrees = -degrees;
-
-                mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                {
-                    Position = obj.transform.position,
-                    Rotation = obj.transform.localRotation * Quaternion.Euler(
-                        x: rot.Axis == ModifierRotationAttribute.RotAxis.X ? degrees * 1 : 0,
-                        y: rot.Axis == ModifierRotationAttribute.RotAxis.Y ? degrees * 1 : 0,
-                        z: rot.Axis == ModifierRotationAttribute.RotAxis.Z ? degrees * 1 : 0),
-                    Scale = Vector3.one
-                };
-            }
         }
 
         public void BG_LoadModifier(BackgroundModifierObject modifier, LoadLoop loop)

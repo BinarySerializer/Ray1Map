@@ -1486,7 +1486,7 @@ namespace R1Engine
                 return new Vector3((pos.X + posOffset.Value.x) / scale, -(pos.Y + posOffset.Value.y) / scale, (pos.Z + posOffset.Value.z) / scale);
         }
 
-        public float GetRotationInDegrees(int value)
+        public static float GetRotationInDegrees(float value)
         {
             if (value > 0x800)
                 value -= 0x1000;
@@ -1494,12 +1494,12 @@ namespace R1Engine
             return value * (360f / 0x1000);
         }
 
-        public Quaternion GetQuaternion(ObjRotation rot)
+        public static Quaternion GetQuaternion(ObjRotation rot)
         {
             return GetQuaternion(rot.RotationX, rot.RotationY, rot.RotationZ);
         }
 
-        public Quaternion GetQuaternion(int rotX, int rotY, int rotZ)
+        public static Quaternion GetQuaternion(float rotX, float rotY, float rotZ)
         {
             return 
                 Quaternion.Euler(-GetRotationInDegrees(rotX), 0, 0) *
