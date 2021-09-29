@@ -866,7 +866,7 @@ namespace R1Engine
                 ShortName = $"3DO",
                 Graphics = gao_3dObjParent
             });
-            gao_3dObjParent.transform.SetParent(parent3d.transform);
+            gao_3dObjParent.transform.SetParent(parent3d.transform, false);
 
             // Log some debug info
             if (IncludeDebugInfo)
@@ -1005,7 +1005,7 @@ namespace R1Engine
             // Correctly center object
             //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
-            obj.transform.SetParent(parent.transform);
+            obj.transform.SetParent(parent.transform, false);
             return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
                 Name = "Map",
@@ -1252,7 +1252,7 @@ namespace R1Engine
 
                 GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
 
-                gameObject.transform.SetParent(gaoParent.transform);
+                gameObject.transform.SetParent(gaoParent.transform, false);
                 gameObject.transform.localScale = Vector3.one;
 
                 var isTransformAnimated = ApplyTransform(
@@ -1359,7 +1359,7 @@ namespace R1Engine
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                     gao.layer = LayerMask.NameToLayer("3D Collision");
-                    gao.transform.SetParent(gameObject.transform);
+                    gao.transform.SetParent(gameObject.transform, false);
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
