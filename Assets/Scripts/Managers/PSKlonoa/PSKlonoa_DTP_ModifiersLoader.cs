@@ -111,6 +111,7 @@ namespace R1Engine
                         break;
 
                     case GlobalModifierType.VRAMScrollAnimation:
+                    case GlobalModifierType.VRAMScrollAnimationWithTexture:
                         LoaderConfiguration_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
                         PS1_VRAM vram = Loader.VRAM;
 
@@ -170,12 +171,15 @@ namespace R1Engine
                         break;
 
                     case GlobalModifierType.PaletteAnimation:
-                        var anim = modifier.Data_PaletteAnimation;
+                    case GlobalModifierType.PaletteAnimations:
+                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation 
+                            ? modifier.Data_PaletteAnimation.YieldToArray() 
+                            : modifier.Data_PaletteAnimations.Files;
 
-                        for (int i = 0; i < anim.Files.Length; i++)
+                        for (int i = 0; i < anim.Length; i++)
                         {
                             var region = modifier.PaletteAnimationVRAMRegions[i];
-                            var palettes = anim.Files[i].Files;
+                            var palettes = anim[i].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
                             Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, modifier.PaletteAnimationInfo.AnimSpeed, true));
                         }
