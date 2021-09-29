@@ -245,6 +245,8 @@ namespace R1Engine
                     rotComponent.initialRotation = obj.transform.localRotation;
                     rotComponent.axis = axis;
                     rotComponent.rotationSpeed = speed.Value;
+                    rotComponent.minValue = modifier.ConstantRotationMin;
+                    rotComponent.length = modifier.ConstantRotationLength;
                 }
 
                 // Load secondary object if available
