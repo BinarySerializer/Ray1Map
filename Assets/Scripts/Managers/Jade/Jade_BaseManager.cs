@@ -1568,6 +1568,17 @@ namespace R1Engine {
 
 			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
 
+			await CreateTestVisualization(loader);
+			await CreateModWorld(loader);
+
+			Debug.LogWarning("BINs serialized. Time to do something with this data :)");
+			return new Unity_Level(objManager: new Unity_ObjectManager(context), isometricData: new Unity_IsometricData() {
+				
+			});
+		}
+
+		public async UniTask CreateTestVisualization(LOA_Loader loader) {
+			await UniTask.CompletedTask;
 			Dictionary<uint, Texture2D> textureKeyDict = new Dictionary<uint, Texture2D>();
 			var worlds = loader.LoadedWorlds;
 			foreach (var world in worlds) {
@@ -1603,13 +1614,13 @@ namespace R1Engine {
 									}
 									return null;
 								}
-								if(gro_m.RenderObject.Type == GRO_Type.MAT_MTT) {
+								if (gro_m.RenderObject.Type == GRO_Type.MAT_MTT) {
 									tex = new Texture2D[1];
 									tex[0] = GetTexture2D(gro_m.RenderObject);
-								} else if(gro_m.RenderObject.Type == GRO_Type.MAT_MSM) {
+								} else if (gro_m.RenderObject.Type == GRO_Type.MAT_MSM) {
 									var mat = (MAT_MSM_MultiSingleMaterial)gro_m.RenderObject.Value;
 									tex = new Texture2D[mat.Materials.Length];
-									for(int i = 0; i < mat.Materials.Length; i++) {
+									for (int i = 0; i < mat.Materials.Length; i++) {
 										var gro_m_sub = mat.Materials[i]?.Value?.RenderObject;
 										tex[i] = GetTexture2D(gro_m_sub);
 									}
@@ -1670,11 +1681,12 @@ namespace R1Engine {
 					}
 				}
 			}
-
-			Debug.LogWarning("BINs serialized. Time to do something with this data :)");
-			return new Unity_Level(objManager: new Unity_ObjectManager(context), isometricData: new Unity_IsometricData() {
-				
-			});
+		}
+		public async UniTask CreateModWorld(LOA_Loader loader) {
+			await UniTask.CompletedTask;
+			GameObject gao = new GameObject("Jade: Mod world");
+			JadeModBehaviour modBehaviour = gao.AddComponent<JadeModBehaviour>();
+			gao.transform.localPosition = Vector3.zero;
 		}
 
 		public async UniTask<Jade_Reference<AI_Instance>> LoadUniverse(Context context) {
