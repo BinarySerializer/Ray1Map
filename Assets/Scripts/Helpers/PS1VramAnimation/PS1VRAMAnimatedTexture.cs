@@ -13,25 +13,38 @@ namespace R1Engine
 
             var firstAnim = animations.First();
 
-            if (animations.Any(x => x.Key != firstAnim.Key))
-                throw new Exception("Animated texture can't have animations with different keys");
-
-            Textures = new Texture2D[firstAnim.ActualLength];
             LoadTextureAction = loadTextureAction;
             Animations = animations;
-            Speed = firstAnim.Speed;
 
-            for (int i = 0; i < firstAnim.FramesLength; i++)
-                Textures[i] = TextureHelpers.CreateTexture2D(width, height, clear: clear);
-
-            if (firstAnim.PingPong)
+            if (animations.Any(x => x.Key != firstAnim.Key))
             {
-                var sourceIndex = firstAnim.FramesLength - 2;
+                HasMultipleKeys = true;
 
-                for (int i = firstAnim.FramesLength; i < Textures.Length; i++)
+                Speed = Util.GCF(animations.Select(x => x.Speed).ToArray());
+                Textures = new Texture2D[Util.LCM(animations.Select(x => x.ActualLength * (x.Speed / Speed)).ToArray())];
+
+                for (int i = 0; i < Textures.Length; i++)
+                    Textures[i] = TextureHelpers.CreateTexture2D(width, height, clear: clear);
+            }
+            else
+            {
+                HasMultipleKeys = false;
+
+                Textures = new Texture2D[firstAnim.ActualLength];
+                Speed = firstAnim.Speed;
+
+                for (int i = 0; i < firstAnim.FramesLength; i++)
+                    Textures[i] = TextureHelpers.CreateTexture2D(width, height, clear: clear);
+
+                if (firstAnim.PingPong)
                 {
-                    Textures[i] = Textures[sourceIndex];
-                    sourceIndex--;
+                    var sourceIndex = firstAnim.FramesLength - 2;
+
+                    for (int i = firstAnim.FramesLength; i < Textures.Length; i++)
+                    {
+                        Textures[i] = Textures[sourceIndex];
+                        sourceIndex--;
+                    }
                 }
             }
         }
@@ -40,5 +53,7 @@ namespace R1Engine
         public Action<Texture2D> LoadTextureAction { get; }
         public PS1VRAMAnimation[] Animations { get; }
         public int Speed { get; }
+
+        public bool HasMultipleKeys { get; } // Indicates if the texture has multiple keys (i.e. animations have different properties)
     }
 }
