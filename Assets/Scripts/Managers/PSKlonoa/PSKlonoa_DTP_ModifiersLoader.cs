@@ -181,10 +181,10 @@ namespace R1Engine
                             ? modifier.Data_PaletteAnimation.YieldToArray() 
                             : modifier.Data_PaletteAnimations.Files;
 
-                        for (int i = 0; i < anim.Length; i++)
+                        for (int i = 0; i < modifier.PaletteAnimationVRAMRegions.Length; i++)
                         {
                             var region = modifier.PaletteAnimationVRAMRegions[i];
-                            var palettes = anim[i].Files;
+                            var palettes = anim[i % anim.Length].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
                             Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, modifier.PaletteAnimationInfo.AnimSpeed, true));
                         }
