@@ -177,7 +177,8 @@ namespace R1Engine
 
                     case GlobalModifierType.PaletteAnimation:
                     case GlobalModifierType.PaletteAnimations:
-                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation 
+                    case GlobalModifierType.ObjectWithPaletteAnimation:
+                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation || modifier.GlobalModifierType == GlobalModifierType.ObjectWithPaletteAnimation
                             ? modifier.Data_PaletteAnimation.YieldToArray() 
                             : modifier.Data_PaletteAnimations.Files;
 
