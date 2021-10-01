@@ -83,6 +83,7 @@ namespace R1Engine
             }
         }
 
+        private HashSet<ObjTransform_ArchiveFile> _correctedTransforms;
         public void GameObj_LoadModifier(ModifierObject modifier, LoadLoop loop)
         {
             // Ignore invalid modifiers
@@ -166,6 +167,10 @@ namespace R1Engine
                         }
                         break;
 
+                    case GlobalModifierType.RGBAnimation:
+                        // TODO: Implement
+                        break;
+
                     case GlobalModifierType.TextureAnimation:
                         Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.Data_TextureAnimation.Files, modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
                         break;
@@ -218,6 +223,16 @@ namespace R1Engine
                     case GlobalModifierType.MultiWheel:
                         isMultiple = true;
                         break;
+
+                    case GlobalModifierType.FallingTargetPlatform:
+                        _correctedTransforms ??= new HashSet<ObjTransform_ArchiveFile>();
+
+                        foreach (var rot in modifier.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Rotations).SelectMany(x => x))
+                            rot.RotationX += 0x400;
+                        
+                        foreach (var f in modifier.Data_LocalTransforms.Files)
+                            _correctedTransforms.Add(f);
+                        break;
                 }
 
                 // Load the object model from the TMD data
@@ -226,9 +241,7 @@ namespace R1Engine
                     tmd: modifier.Data_TMD, 
                     localTransforms: modifier.Data_LocalTransform?.YieldToArray() ?? modifier.Data_LocalTransforms?.Files, 
                     absoluteTransforms: modifier.Data_AbsoluteTransform?.YieldToArray() ?? modifier.Data_AbsoluteTransforms?.Files, 
-                    multiple: isMultiple, 
-                    animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedTransformSpeed), 
-                    animLoopMode: modifier.DoesAnimatedTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+                    multiple: isMultiple);
 
                 // Apply a position if available
                 if (modifier.Data_Position != null)
@@ -274,9 +287,7 @@ namespace R1Engine
             ObjTransform_ArchiveFile[] localTransforms = null, 
             ObjTransform_ArchiveFile[] absoluteTransforms = null, 
             int index = 0, 
-            bool multiple = false, 
-            AnimSpeed animSpeed = null, 
-            AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
+            bool multiple = false)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -292,8 +303,8 @@ namespace R1Engine
                 modifiersLoader: this,
                 isPrimaryObj: false,
                 transforms: localTransforms,
-                animSpeed: animSpeed,
-                animLoopMode: animLoopMode);
+                animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedLocalTransformSpeed),
+                animLoopMode: modifier.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
@@ -305,7 +316,13 @@ namespace R1Engine
                 var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
 
                 // Apply the absolute transform
-                isAnimated = Manager.ApplyTransform(gameObj, absoluteTransforms, Scale, objIndex: i, animSpeed: animSpeed?.CloneAnimSpeed(), animLoopMode: animLoopMode);
+                isAnimated = Manager.ApplyTransform(
+                    gameObj: gameObj, 
+                    transforms: absoluteTransforms, 
+                    scale: Scale, 
+                    objIndex: i, 
+                    animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedAbsoluteTransformSpeed), 
+                    animLoopMode: modifier.DoesAnimatedAbsoluteTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
 
                 if (isAnimated)
                     GameObj_IsAnimated = true;
