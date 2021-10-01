@@ -428,6 +428,10 @@ namespace R1Engine
                     }
                     break;
 
+                case BackgroundModifierObject.BackgroundModifierType.PaletteSwap:
+                    // TODO: Implement
+                    break;
+
                 case BackgroundModifierObject.BackgroundModifierType.Unknown_1:
                 case BackgroundModifierObject.BackgroundModifierType.Reset:
                 default:
