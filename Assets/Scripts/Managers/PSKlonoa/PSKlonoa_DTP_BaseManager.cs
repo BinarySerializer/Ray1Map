@@ -366,7 +366,21 @@ namespace R1Engine
                                     blockName: $"{blockIndex} - ModifierTextures",
                                     name: $"{sectorIndex} - {modifierIndex} - Texture");
                             }
-                            else if (modifier.Data_TextureAnimation != null)
+                            
+                            if (modifier.Data_TIMArchive != null)
+                            {
+                                var textures = modifier.Data_TIMArchive;
+
+                                for (int texIndex = 0; texIndex < textures.Files.Length; texIndex++)
+                                {
+                                    exportTex(
+                                        getTex: () => GetTexture(textures.Files[texIndex]),
+                                        blockName: $"{blockIndex} - ModifierTextures",
+                                        name: $"{sectorIndex} - {modifierIndex} - Textures - {texIndex}");
+                                }
+                            }
+
+                            if (modifier.Data_TextureAnimation != null)
                             {
                                 var texAnim = modifier.Data_TextureAnimation;
 
