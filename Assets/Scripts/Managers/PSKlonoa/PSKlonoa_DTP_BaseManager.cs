@@ -26,7 +26,7 @@ namespace R1Engine
         {
             ("FIX", 0),
             ("MENU", 0),
-            ("CODE", 0),
+            ("INTRO", 0),
 
             ("Vision 1-1", 3),
             ("Vision 1-2", 5),
@@ -50,10 +50,13 @@ namespace R1Engine
 
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
-            ("Ghadius", 2),
-            ("Block 21", 2), // TODO: 1 in proto
-            ("Block 22", 3),
-            ("Block 23", 3),
+
+            // Order is different here than in-game
+            ("Ghadius & Final Vision 1", 2),
+            ("Ghadius & Final Vision 2", 2), // TODO: 1 in proto
+            ("Ghadius & Final Vision 3", 3),
+            ("Ghadius & Final Vision 4", 3),
+
             ("Klonoa's Grand Gale Strategy", 9),
         };
 
