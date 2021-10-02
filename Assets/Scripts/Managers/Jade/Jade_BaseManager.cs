@@ -30,6 +30,7 @@ namespace R1Engine {
 		public abstract LevelInfo[] LevelInfos { get; }
 
 		public virtual bool HasUnbinarizedData => false;
+		public virtual bool CanBeModded => false;
 
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
@@ -44,6 +45,11 @@ namespace R1Engine {
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
 				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
 			};
+			if (CanBeModded) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Add modded GameObjects", true, true, (input, output) => AddModdedGameObjects(settings, input, output)),
+				}).ToArray();
+			}
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output))
@@ -1083,6 +1089,34 @@ namespace R1Engine {
 			}
 		}
 
+		public async UniTask AddModdedGameObjects(GameSettings settings, string inputDir, string outputDir) {
+			// Input: Keys to avoid
+			// Output: folder where raw files will be saved
+			var modBehaviour = GameObject.FindObjectOfType<JadeModBehaviour>();
+			if (modBehaviour != null) {
+				var moddedObjCount = modBehaviour.gameObject.transform.childCount;
+				if (moddedObjCount > 0) {
+					// TODO: Open read context
+					for (int moddedObjIndex = 0; moddedObjIndex < moddedObjCount; moddedObjIndex++) {
+						var transform = modBehaviour.gameObject.transform.GetChild(moddedObjIndex);
+						var transformName = transform.gameObject.name;
+						// TODO: Parse name to get key + desired GameObject name
+						// TODO: Read file with key (can be cached)
+						// TODO: Save transform & name & file in struct for later 
+					}
+				}
+				// TODO: Read keys to avoid
+				// TODO: Open write context with outputDir and configure KeysToAvoid. Make sure it doesn't write files already in the BF.
+				/* TODO: For each saved struct
+					- change the file's transform to match the Unity Transform.
+					- change the file's name & name length
+					- change the file's key
+					- create a reference with that key and resolve it with NoCache
+				*/
+			}
+			await UniTask.CompletedTask;
+		}
+
 		public async UniTask CreateLevelListAsync(GameSettings settings) {
 
 			using (var context = new R1Context(settings)) {
@@ -1569,7 +1603,7 @@ namespace R1Engine {
 			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
 
 			await CreateTestVisualization(loader);
-			await CreateModWorld(loader);
+			if(CanBeModded) await CreateModWorld(loader);
 
 			Debug.LogWarning("BINs serialized. Time to do something with this data :)");
 			return new Unity_Level(objManager: new Unity_ObjectManager(context), isometricData: new Unity_IsometricData() {
@@ -1599,22 +1633,37 @@ namespace R1Engine {
 								Texture2D GetTexture2D(GRO_Struct renderObject) {
 									if (renderObject.Type == GRO_Type.MAT_MTT) {
 										var mat_mtt = (MAT_MTT_MultiTextureMaterial)renderObject.Value;
+										
 										if ((mat_mtt.Levels?.Length ?? 0) > 0) {
-											var texRef = mat_mtt.Levels[0].Texture;
-											if (texRef.Content != null) {
-												if (!textureKeyDict.ContainsKey(texRef.Key)) {
-													textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
-													if (textureKeyDict[texRef.Key] != null) {
-														textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+											for (int i = 0; i < mat_mtt.Levels.Length; i++) {
+												var texRef = mat_mtt.Levels[i].Texture;
+												if (texRef.Content != null) {
+													if (!textureKeyDict.ContainsKey(texRef.Key)) {
+														textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
+														if (textureKeyDict[texRef.Key] != null) {
+															textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+														}
 													}
+													return textureKeyDict[texRef.Key];
 												}
-												return textureKeyDict[texRef.Key];
 											}
+										}
+									} else if (renderObject.Type == GRO_Type.MAT_SIN) {
+										var mat_sin = (MAT_SIN_SingleMaterial)renderObject.Value;
+										var texRef = mat_sin.Texture;
+										if (texRef.Content != null) {
+											if (!textureKeyDict.ContainsKey(texRef.Key)) {
+												textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
+												if (textureKeyDict[texRef.Key] != null) {
+													textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+												}
+											}
+											return textureKeyDict[texRef.Key];
 										}
 									}
 									return null;
 								}
-								if (gro_m.RenderObject.Type == GRO_Type.MAT_MTT) {
+								if (gro_m.RenderObject.Type == GRO_Type.MAT_MTT || gro_m.RenderObject.Type == GRO_Type.MAT_SIN) {
 									tex = new Texture2D[1];
 									tex[0] = GetTexture2D(gro_m.RenderObject);
 								} else if (gro_m.RenderObject.Type == GRO_Type.MAT_MSM) {

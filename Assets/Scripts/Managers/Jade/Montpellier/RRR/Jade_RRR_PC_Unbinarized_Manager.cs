@@ -855,5 +855,6 @@ namespace R1Engine
         };
 
 		public override bool HasUnbinarizedData => true;
+		public override bool CanBeModded => true;
 	}
 }
