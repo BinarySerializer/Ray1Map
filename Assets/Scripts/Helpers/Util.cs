@@ -506,6 +506,10 @@ namespace R1Engine
             return tex;
         }
 
+        public static int GCF(int[] values)
+        {
+            return values.Aggregate(GCF);
+        }
 
         public static int GCF(int a, int b)
         {

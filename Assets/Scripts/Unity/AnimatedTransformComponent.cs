@@ -1,4 +1,5 @@
-﻿using R1Engine;
+﻿using System;
+using R1Engine;
 using UnityEngine;
 
 public class AnimatedTransformComponent : MonoBehaviour
@@ -14,15 +15,6 @@ public class AnimatedTransformComponent : MonoBehaviour
         public Quaternion Rotation;
         public Vector3 Scale;
         public bool IsHidden;
-
-        public void Set(Transform transform) {
-            transform.localPosition = Position;
-            transform.localRotation = Rotation;
-            transform.localScale = Scale;
-
-            if (IsHidden)
-                transform.localScale = Vector3.zero;
-        }
     }
 
     // Update is called once per frame
@@ -34,7 +26,47 @@ public class AnimatedTransformComponent : MonoBehaviour
         if (frames == null || speed == null)
             return;
 
-        if (speed.Update(frames.Length, loopMode))
-            frames[speed.CurrentFrameInt].Set(animatedTransform);
+        speed.Update(frames.Length, loopMode);
+
+        var frameInt = speed.CurrentFrameInt;
+
+        var currentFrame = frames[frameInt];
+
+        int nextFrameIndex = frameInt + 1 * speed.Direction;
+
+        if (nextFrameIndex >= frames.Length)
+        {
+            switch (loopMode)
+            {
+                case AnimLoopMode.Repeat:
+                    nextFrameIndex = 0;
+                    break;
+
+                case AnimLoopMode.PingPong:
+                    nextFrameIndex = frames.Length - 1;
+                    break;
+            }
+        }
+        else if (nextFrameIndex < 0)
+        {
+            switch (loopMode)
+            {
+                case AnimLoopMode.PingPong:
+                    nextFrameIndex = 1;
+                    break;
+            }
+        }
+
+        var nextFrame = frames[nextFrameIndex];
+
+        var lerpFactor = speed.CurrentFrame - frameInt;
+
+        transform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
+        transform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);
+
+        if (currentFrame.IsHidden)
+            transform.localScale = Vector3.zero;
+        else
+            transform.localScale = Vector3.Lerp(currentFrame.Scale, nextFrame.Scale, lerpFactor);
     }
 }

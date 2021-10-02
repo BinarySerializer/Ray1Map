@@ -50,10 +50,10 @@ namespace R1Engine
 
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
-            ("", 2),
-            ("", 2), // TODO: 1 in proto
-            ("", 3),
-            ("", 3),
+            ("Ghadius", 2),
+            ("Block 21", 2), // TODO: 1 in proto
+            ("Block 22", 3),
+            ("Block 23", 3),
             ("Klonoa's Grand Gale Strategy", 9),
         };
 
@@ -1276,7 +1276,8 @@ namespace R1Engine
 
                     if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
                     {
-                        Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
+                        if (packet.Mode.Code != 0)
+                            Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
                         continue;
                     }
 
