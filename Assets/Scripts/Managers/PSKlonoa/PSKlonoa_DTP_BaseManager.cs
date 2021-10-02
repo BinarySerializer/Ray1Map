@@ -55,7 +55,7 @@ namespace R1Engine
             ("Ghadius & Final Vision 1", 2),
             ("Ghadius & Final Vision 2", 2), // TODO: 1 in proto
             ("Ghadius & Final Vision 3", 3),
-            ("Ghadius & Final Vision 4", 3),
+            ("Nahatomb", 3),
 
             ("Klonoa's Grand Gale Strategy", 9),
         };
@@ -755,16 +755,16 @@ namespace R1Engine
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            /*var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
                 ElementAtOrDefault(sector)?.Modifiers.
-                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient || 
+                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient ||
                            x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
                 Select(x => x.Data_Clear).
                 ToArray();
 
-            // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
-                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());*/
+                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
