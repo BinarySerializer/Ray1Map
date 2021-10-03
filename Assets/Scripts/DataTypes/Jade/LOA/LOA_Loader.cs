@@ -37,15 +37,15 @@ namespace R1Engine.Jade {
 		public bool Raw_RelocateKeys { get; set; } = false;
 		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
 		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
-		private uint CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
+		public uint Raw_CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
 		public uint Raw_RelocateKey(uint keyToRelocate) {
 			while (true) {
-				if (CurrentUnusedKey >= 0xF3FFFFFF) {
-					CurrentUnusedKey = 0x01000000;
+				if (Raw_CurrentUnusedKey >= 0xF3FFFFFF) {
+					Raw_CurrentUnusedKey = 0x01000000;
 				} else {
-					CurrentUnusedKey++;
+					Raw_CurrentUnusedKey++;
 				}
-				var curKey = CurrentUnusedKey;
+				var curKey = Raw_CurrentUnusedKey;
 				if (!Raw_KeysToAvoid.Contains(curKey)) {
 					Raw_KeysToAvoid.Add(curKey);
 					Raw_KeysToRelocate[keyToRelocate] = curKey;

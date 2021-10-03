@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -863,17 +864,8 @@ namespace R1Engine {
 			BIG_BigFile.DirectoryInfoForCreate[] DirectoriesToPack = null;
 			using (var readContext = new R1Context(settings)) {
 				await LoadFilesAsync(readContext);
-				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
-				foreach (var bfPath in BFFiles) {
-					var bf = await LoadBF(readContext, bfPath);
-					bfs.Add(bf);
-				}
-				// Set up loader
-				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), readContext);
-				readContext.StoreObject<LOA_Loader>(LoaderKey, loader);
-
-				originalLoader = loader;
-				originalBF = bfs[0];
+				originalLoader = await InitJadeAsync(readContext, initAI: false);
+				originalBF = originalLoader.BigFiles[0];
 
 				// Read file keys (unbinarized)
 				string keyListPath = Path.Combine(inputDir, "original/filekeys.txt");
@@ -1021,7 +1013,7 @@ namespace R1Engine {
 							var s = readContext.Deserializer;
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
 							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
-							await loader.LoadLoop(s);
+							await originalLoader.LoadLoop(s);
 							file.Bytes = reference.Value.Bytes;
 
 							/*if (file.Bytes.Length >= 0x3966C0 - 2
@@ -1089,46 +1081,140 @@ namespace R1Engine {
 			}
 		}
 
+		public class ModdedGameObject {
+			public uint PrefabKey { get; set; }
+			public Jade_Reference<OBJ_GameObject> Prefab { get; set; }
+			public string Name { get; set; }
+			public Transform Transform { get; set; }
+			public uint NewKey { get; set; }
+		}
 		public async UniTask AddModdedGameObjects(GameSettings settings, string inputDir, string outputDir) {
 			// Input: Keys to avoid
 			// Output: folder where raw files will be saved
 			var modBehaviour = GameObject.FindObjectOfType<JadeModBehaviour>();
 			if (modBehaviour != null) {
+				List<ModdedGameObject> ModdedGameObjects = new List<ModdedGameObject>();
 				var moddedObjCount = modBehaviour.gameObject.transform.childCount;
 				if (moddedObjCount > 0) {
-					// TODO: Open read context
-					for (int moddedObjIndex = 0; moddedObjIndex < moddedObjCount; moddedObjIndex++) {
-						var transform = modBehaviour.gameObject.transform.GetChild(moddedObjIndex);
-						var transformName = transform.gameObject.name;
-						// TODO: Parse name to get key + desired GameObject name
-						// TODO: Read file with key (can be cached)
-						// TODO: Save transform & name & file in struct for later 
+					LOA_Loader readLoader = null;
+					using (var readContext = new R1Context(settings)) {
+						await LoadFilesAsync(readContext);
+						readLoader = await InitJadeAsync(readContext, initAI: true, initTextures: true, initSound: true);
+
+						for (int moddedObjIndex = 0; moddedObjIndex < moddedObjCount; moddedObjIndex++) {
+							var transform = modBehaviour.gameObject.transform.GetChild(moddedObjIndex);
+							var transformName = transform.gameObject.name;
+							Debug.Log($"Processing GameObject: {transformName}");
+							string parsedName = null;
+
+							// Parse name to get key + desired GameObject name
+							const string GaoNamePattern = @"^\[(?<key>........)\] (?<name>.*)$";
+							Match m = Regex.Match(transformName, GaoNamePattern, RegexOptions.IgnoreCase);
+							uint key = 0;
+							if (m.Success) {
+								string keyString = m.Groups["key"].Value;
+								parsedName = m.Groups["name"].Value;
+								UInt32.TryParse(keyString,
+									System.Globalization.NumberStyles.HexNumber,
+									System.Globalization.CultureInfo.CurrentCulture,
+									out key);
+							} else {
+								Debug.Log("GameObject name regex failed!");
+							}
+							if (key != 0) {
+								var file = new Jade_Reference<OBJ_GameObject>(readContext, new Jade_Key(readContext, key));
+								file.Resolve();
+								// Save transform & name & file in struct for later
+								ModdedGameObjects.Add(new ModdedGameObject() {
+									Prefab = file,
+									Name = parsedName,
+									PrefabKey = key,
+									Transform = transform
+								});
+							}
+						}
+						await readLoader.LoadLoop(readContext.Deserializer);
 					}
+
+					if(ModdedGameObjects.Count == 0) return;
+
+					// Read keys to avoid
+					HashSet<uint> keysToAvoid = new HashSet<uint>();
+					if (inputDir != null) {
+						string keyListPath = Path.Combine(inputDir, "keys_to_avoid.txt");
+						{
+							string[] lines = File.ReadAllLines(keyListPath);
+							foreach (var l in lines) {
+								var lineSplit = l.Split(',');
+								if (lineSplit.Length < 1) continue;
+								uint k;
+								if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
+									if (!keysToAvoid.Contains(k)) keysToAvoid.Add(k);
+								}
+							}
+						}
+					}
+					Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
+
+					Debug.Log("Opening write context");
+					// Open write context with outputDir and configure KeysToAvoid. Make sure it doesn't write files already in the BF.
+					using (var writeContext = new R1Context(outputDir, settings)) {
+						// Set up loader
+						LOA_Loader loader = new LOA_Loader(readLoader.BigFiles, writeContext);
+						loader.Raw_RelocateKeys = false; // Don't relocate keys by default. We'll determine which ones to relocate and which to keep
+						loader.Raw_KeysToAvoid = keysToAvoid;
+						loader.Raw_WriteFilesAlreadyInBF = false;
+						loader.Raw_CurrentUnusedKey = 0x88000000; // Start key will be this one
+						loader.WrittenFileKeys = writtenFileKeys;
+
+						writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+						var sndListWrite = new SND_GlobalList();
+						writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
+						var texListWrite = new TEX_GlobalList();
+						writeContext.StoreObject<TEX_GlobalList>(TextureListKey, texListWrite);
+						var aiLinks = readLoader.Context.GetStoredObject<AI_Links>(AIKey);
+						writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
+						// Process modded objects
+						foreach (var moddedObject in ModdedGameObjects) {
+							// Apply new transform, set name and key
+							var obj = moddedObject.Prefab.Value;
+							var transform = moddedObject.Transform;
+							obj.Matrix.SetTRS(
+								transform.localPosition,
+								transform.localRotation,
+								transform.localScale,
+								newType: TypeFlags.Translation | TypeFlags.Rotation | TypeFlags.Scale,
+								convertAxes: true);
+							obj.Name = $"{moddedObject.Name}.gao";
+							obj.NameLength = (uint)obj.Name.Length + 1;
+							obj.Key = new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
+							Jade_Reference<OBJ_GameObject> newRef = new Jade_Reference<OBJ_GameObject>(writeContext, obj.Key) {
+								Value = obj
+							};
+							Debug.Log($"Processing Modded Object: {moddedObject.Name} [Assigned Key: {obj.Key}]");
+
+							// Resolve this new reference with NoCache
+							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+							await loader.LoadLoop(writeContext.Serializer);
+							writeContext.Serializer.ClearWrittenObjects();
+						}
+					}
+
+					// Save written file keys
+					StringBuilder b = new StringBuilder();
+					foreach (var fk in writtenFileKeys) {
+						b.AppendLine($"{fk.Key:X8},{fk.Value}");
+					}
+					File.WriteAllText(Path.Combine(outputDir, "filekeys.txt"), b.ToString());
 				}
-				// TODO: Read keys to avoid
-				// TODO: Open write context with outputDir and configure KeysToAvoid. Make sure it doesn't write files already in the BF.
-				/* TODO: For each saved struct
-					- change the file's transform to match the Unity Transform.
-					- change the file's name & name length
-					- change the file's key
-					- create a reference with that key and resolve it with NoCache
-				*/
 			}
-			await UniTask.CompletedTask;
 		}
 
 		public async UniTask CreateLevelListAsync(GameSettings settings) {
 
 			using (var context = new R1Context(settings)) {
 				await LoadFilesAsync(context);
-				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
-				foreach (var bfPath in BFFiles) {
-					var bf = await LoadBF(context, bfPath);
-					bfs.Add(bf);
-				}
-				// Set up loader
-				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
-				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+				var loader = await InitJadeAsync(context, initAI: false);
 
 				// Load jade.spe
 				LoadJadeSPE(context);
@@ -1793,16 +1879,41 @@ namespace R1Engine {
 			}
 		}
 
-		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey, LoadFlags loadFlags) 
-        {
-            List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+		public async UniTask<LOA_Loader> InitJadeAsync(Context context, bool initAI = true, bool initTextures = false, bool initSound = false) {
+			List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
 				var bf = await LoadBF(context, bfPath);
 				bfs.Add(bf);
 			}
+
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+			if (initAI) {
+				// Set up AI types
+				AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
+				context.StoreObject<AI_Links>(AIKey, aiLinks);
+			}
+
+			if (initTextures) {
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+			}
+
+			if (initSound) {
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+			}
+
+			return loader;
+		}
+
+		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey, LoadFlags loadFlags) 
+        {
+            LOA_Loader loader = await InitJadeAsync(context);
 
 			// Load jade.spe
 			LoadJadeSPE(context);
@@ -1823,10 +1934,6 @@ namespace R1Engine {
 				isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
 				isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
 			}
-
-			// Set up AI types
-			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
-			context.StoreObject<AI_Links>(AIKey, aiLinks);
 
 			if (loadFlags.HasFlag(LoadFlags.Universe)) {
 				// Load universe
