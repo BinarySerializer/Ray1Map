@@ -50,14 +50,14 @@ namespace R1Engine
 
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
+            ("Ghadius", 2),
 
             // Order is different here than in-game
-            ("Ghadius & Final Vision 1", 2),
-            ("Ghadius & Final Vision 2", 2), // TODO: 1 in proto
-            ("Ghadius & Final Vision 3", 3),
-            ("Nahatomb", 3),
+            ("Final Vision & Nahatomb 1", 2), // TODO: 1 in proto
+            ("Final Vision & Nahatomb 2", 3),
+            ("Final Vision & Nahatomb 3", 3),
 
-            ("Klonoa's Grand Gale Strategy", 9),
+            ("Extra Vision", 9),
         };
 
         public override GameAction[] GetGameActions(GameSettings settings)

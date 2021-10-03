@@ -335,6 +335,15 @@
 			"name": "Klonoa games",
 			"games": [
 				{
+					"title": "Klonoa: Door to Phantomile",
+					"viewer": "ray1map",
+					"json": "ps_klonoa\/dtp",
+					"image": ".\/img\/logo\/klonoa_dtp.png",
+					"versions": [
+						{ "json": "us", "image": ".\/img\/version\/ps1.png", "name": "PS1 (US)", "folder": "ps_klonoa/klonoa_dtp_us" }
+					]
+				},
+				{
 					"title": "Klonoa: Empire of Dreams",
 					"viewer": "ray1map",
 					"json": "gba_klonoa\/empire_of_dreams",
