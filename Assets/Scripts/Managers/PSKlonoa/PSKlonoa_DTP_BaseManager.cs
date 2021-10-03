@@ -26,7 +26,7 @@ namespace R1Engine
         {
             ("FIX", 0),
             ("MENU", 0),
-            ("CODE", 0),
+            ("INTRO", 0),
 
             ("Vision 1-1", 3),
             ("Vision 1-2", 5),
@@ -50,10 +50,13 @@ namespace R1Engine
 
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
-            ("Ghadius", 2),
-            ("Block 21", 2), // TODO: 1 in proto
-            ("Block 22", 3),
-            ("Block 23", 3),
+
+            // Order is different here than in-game
+            ("Ghadius & Final Vision 1", 2),
+            ("Ghadius & Final Vision 2", 2), // TODO: 1 in proto
+            ("Ghadius & Final Vision 3", 3),
+            ("Nahatomb", 3),
+
             ("Klonoa's Grand Gale Strategy", 9),
         };
 
@@ -363,7 +366,21 @@ namespace R1Engine
                                     blockName: $"{blockIndex} - ModifierTextures",
                                     name: $"{sectorIndex} - {modifierIndex} - Texture");
                             }
-                            else if (modifier.Data_TextureAnimation != null)
+                            
+                            if (modifier.Data_TIMArchive != null)
+                            {
+                                var textures = modifier.Data_TIMArchive;
+
+                                for (int texIndex = 0; texIndex < textures.Files.Length; texIndex++)
+                                {
+                                    exportTex(
+                                        getTex: () => GetTexture(textures.Files[texIndex]),
+                                        blockName: $"{blockIndex} - ModifierTextures",
+                                        name: $"{sectorIndex} - {modifierIndex} - Textures - {texIndex}");
+                                }
+                            }
+
+                            if (modifier.Data_TextureAnimation != null)
                             {
                                 var texAnim = modifier.Data_TextureAnimation;
 
@@ -752,16 +769,16 @@ namespace R1Engine
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            /*var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
+
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
                 ElementAtOrDefault(sector)?.Modifiers.
-                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient || 
+                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient ||
                            x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
                 Select(x => x.Data_Clear).
                 ToArray();
 
-            // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
-                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());*/
+                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 

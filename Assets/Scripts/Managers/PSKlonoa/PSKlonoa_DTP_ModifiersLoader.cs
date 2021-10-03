@@ -178,9 +178,20 @@ namespace R1Engine
                     case GlobalModifierType.PaletteAnimation:
                     case GlobalModifierType.PaletteAnimations:
                     case GlobalModifierType.ObjectWithPaletteAnimation:
-                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation || modifier.GlobalModifierType == GlobalModifierType.ObjectWithPaletteAnimation
+                    case GlobalModifierType.NahatombPaletteAnimation:
+                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation || 
+                                   modifier.GlobalModifierType == GlobalModifierType.ObjectWithPaletteAnimation ||
+                                   modifier.GlobalModifierType == GlobalModifierType.NahatombPaletteAnimation
                             ? modifier.Data_PaletteAnimation.YieldToArray() 
                             : modifier.Data_PaletteAnimations.Files;
+
+                        // Correct the alpha in the colors. Sometimes it's incorrect. Seems the game for model graphics only uses
+                        // transparency if the color index is 0?
+                        foreach (var p in anim.SelectMany(x => x.Files).Select(x => x.Colors))
+                        {
+                            for (int c = 2 + 1; c < p.Length; c += 2)
+                                p[c] |= 0x80;
+                        }
 
                         for (int i = 0; i < modifier.PaletteAnimationVRAMRegions.Length; i++)
                         {
