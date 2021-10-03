@@ -1175,6 +1175,7 @@ namespace R1Engine {
 						var aiLinks = readLoader.Context.GetStoredObject<AI_Links>(AIKey);
 						writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
 						// Process modded objects
+						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
 						foreach (var moddedObject in ModdedGameObjects) {
 							// Apply new transform, set name and key
 							var obj = moddedObject.Prefab.Value;
@@ -1187,7 +1188,19 @@ namespace R1Engine {
 								convertAxes: true);
 							obj.Name = $"{moddedObject.Name}.gao";
 							obj.NameLength = (uint)obj.Name.Length + 1;
-							obj.Key = new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
+							obj.Key = newKey();
+
+							// Rewrite AI. Two objects with the same AI instance & same instance vars buffer cannot exist.
+							if (obj.Extended?.AI?.Value != null) {
+								var ai = obj.Extended.AI;
+								ai.Value.Key = newKey();
+								ai.Key = ai.Value.Key;
+								if (ai.Value.Vars?.Value != null) {
+									ai.Value.Vars.Value.Key = newKey();
+									ai.Value.Vars.Key = ai.Value.Vars.Value.Key;
+								}
+							}
+
 							Jade_Reference<OBJ_GameObject> newRef = new Jade_Reference<OBJ_GameObject>(writeContext, obj.Key) {
 								Value = obj
 							};
