@@ -1414,7 +1414,7 @@ namespace R1Engine
                         mr.material.SetTexture("_MainTex", tex.Texture);
 
                         if (IncludeDebugInfo)
-                            mr.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, IsAnimated: {tex.AnimatedTexture != null}";
+                            mr.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, ABR: {packet.TSB.ABR}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
                         if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
@@ -1580,8 +1580,11 @@ namespace R1Engine
                     // Get the color from the palette
                     var c = useDummyPal ? dummyPal[paletteIndex] : vram.GetColor1555(0, 0, clutX + paletteIndex, clutY);
 
-                    if (c.Alpha == 0)
+                    // http://hitmen.c02.at/files/docs/psx/psx.pdf page 31
+                    if (c.Red == 0 && c.Green == 0 && c.Blue == 0 && c.Alpha == 0)
                         continue;
+
+                    c.Alpha = 1;
 
                     var texOffsetX = flipX ? width - x - 1 : x;
                     var texOffsetY = flipY ? height - y - 1 : y;
