@@ -1068,7 +1068,7 @@ namespace R1Engine
             if (pop.Objects.Objects_BossRace != pop.Objects.Objects_Normal)
                 objGroups.Add((pop.Objects.Objects_BossRace, "Boss Race"));
 
-            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_SpriteObject)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
 
             GameObject gao_3dObjParent = null;
             bool obj3dIsAnimated = false;
@@ -1076,7 +1076,7 @@ namespace R1Engine
             // TODO: Object groups for 3D objects
             void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes, Vector3? snapToFloorPosition = null)
             {
-                var toRemove = new HashSet<Unity_Object>();
+                var toRemove = new HashSet<Unity_SpriteObject>();
 
                 foreach (var o in objects.OfType<Unity_Object_GBAVVNitroKart>().Where(x => objTypes.Contains(x.Object.ObjType)))
                 {

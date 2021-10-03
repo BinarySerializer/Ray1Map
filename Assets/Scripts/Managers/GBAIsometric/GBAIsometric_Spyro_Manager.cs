@@ -356,7 +356,7 @@ namespace R1Engine
                         map
                     },
                     objManager: new Unity_ObjectManager(context),
-                    eventData: new List<Unity_Object>(),
+                    eventData: new List<Unity_SpriteObject>(),
                     cellSize: CellSize,
                     getCollisionTypeNameFunc: collNameFunc,
                     getCollisionTypeGraphicFunc: collGraphicFunc,
@@ -455,7 +455,7 @@ namespace R1Engine
             var validMaps = maps.Where(x => x != null).ToArray();
             var objManager = new Unity_ObjectManager_GBAIsometricSpyro(context, rom.ObjectTypes, GetAnimSets(context, rom).ToArray());
 
-            var objects = new List<Unity_Object>();
+            var objects = new List<Unity_SpriteObject>();
 
             // Load objects
             if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 1)

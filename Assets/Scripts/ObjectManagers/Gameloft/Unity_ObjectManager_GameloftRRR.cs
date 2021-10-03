@@ -21,7 +21,7 @@ namespace R1Engine
         public PuppetData[] Puppets { get; }
         public Dictionary<short, int> ObjectIDDictionary { get; set; }
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.OfType<Unity_Object_GameloftRRR>().FindItem(x => x.PuppetIndex == 0);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.OfType<Unity_Object_GameloftRRR>().FindItem(x => x.PuppetIndex == 0);
 
         public override string[] LegacyDESNames => Puppets.Select(x => x.DisplayName).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

@@ -41,8 +41,8 @@ namespace R1Engine
                 textGraphic.enabled = true;
 
                 textCollision.text = $"{e.ObjData.PrimaryName}{(string.IsNullOrEmpty(e.ObjData.SecondaryName) ? "" : $" | {e.ObjData.SecondaryName}")}";
-                if (LevelEditorData.Level.IsometricData != null && e.ObjData is Unity_Object_3D) {
-                    textGraphic.text = $"Pos: ({((Unity_Object_3D)e.ObjData).Position}){Environment.NewLine}" +
+                if (LevelEditorData.Level.IsometricData != null && e.ObjData is Unity_SpriteObject_3D) {
+                    textGraphic.text = $"Pos: ({((Unity_SpriteObject_3D)e.ObjData).Position}){Environment.NewLine}" +
                                        $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
                 } else {
                     textGraphic.text = $"Pos: ({e.ObjData.XPosition}, {e.ObjData.YPosition}){Environment.NewLine}" +

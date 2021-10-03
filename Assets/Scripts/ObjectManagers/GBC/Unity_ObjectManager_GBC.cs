@@ -18,7 +18,7 @@ namespace R1Engine
         public ActorModel[] ActorModels { get; }
         public Dictionary<int, int> ActorModelsLookup { get; } = new Dictionary<int, int>();
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBC>().FindItem(x => x.Actor.ActorID == 0);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_GBC>().FindItem(x => x.Actor.ActorID == 0);
 
         public override string[] LegacyDESNames => ActorModels.Select(x => x.Index.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

@@ -13,7 +13,7 @@ namespace R1Engine
     {
         public override Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, data.Milan_SceneList.Scene.ActorsBlock.Actors, data));
 
-        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => data.Milan_SceneList.Scene.ActorsBlock.Actors.Concat(data.Milan_SceneList.Scene.CaptorsBlock.Actors).Select(x => new Unity_Object_GBA(x, (Unity_ObjectManager_GBA)objManager, false));
+        public override IEnumerable<Unity_SpriteObject> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => data.Milan_SceneList.Scene.ActorsBlock.Actors.Concat(data.Milan_SceneList.Scene.CaptorsBlock.Actors).Select(x => new Unity_Object_GBA(x, (Unity_ObjectManager_GBA)objManager, false));
 
         public override Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => null;
 

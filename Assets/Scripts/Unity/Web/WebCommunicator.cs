@@ -88,7 +88,7 @@ public class WebCommunicator : MonoBehaviour {
 				if (selectedObject_ != null) {
 					x_ = selectedObject_.ObjData.XPosition;
 					y_ = selectedObject_.ObjData.YPosition;
-					if (selectedObject_.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
+					if (selectedObject_.ObjData is Unity_SpriteObject_3D o3d && LevelEditorData.Level?.IsometricData != null) {
 						pos3D_ = o3d.Position;
 					}
 					// TODO: keep state indices so updates on animation speed, etc. can be sent
@@ -100,10 +100,10 @@ public class WebCommunicator : MonoBehaviour {
 			// Check selected object's changed values
 			if (selectedObject_ != null) {
 				if (selectedObject_.ObjData.XPosition != x_ || selectedObject_.ObjData.YPosition != y_ ||
-					(selectedObject_.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null && o3d.Position != pos3D_)) {
+					(selectedObject_.ObjData is Unity_SpriteObject_3D o3d && LevelEditorData.Level?.IsometricData != null && o3d.Position != pos3D_)) {
 					x_ = selectedObject_.ObjData.XPosition;
 					y_ = selectedObject_.ObjData.YPosition;
-					if (selectedObject_.ObjData is Unity_Object_3D o3d2 && LevelEditorData.Level?.IsometricData != null) {
+					if (selectedObject_.ObjData is Unity_SpriteObject_3D o3d2 && LevelEditorData.Level?.IsometricData != null) {
 						pos3D_ = o3d2.Position;
 					}
 					Send(GetSelectionMessageJSON(includeLists: false, includeDetails: false));
@@ -232,7 +232,7 @@ public class WebCommunicator : MonoBehaviour {
 			X = obj.ObjData.XPosition,
 			Y = obj.ObjData.YPosition
 		};
-		if (obj.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
+		if (obj.ObjData is Unity_SpriteObject_3D o3d && LevelEditorData.Level?.IsometricData != null) {
 			webObj.Position3D = o3d.Position;
 		}
 
@@ -725,7 +725,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
 		if (msg.IsEnabled.HasValue) o.IsEnabled = msg.IsEnabled.Value;
 		if (msg.StateIndex.HasValue) o.ObjData.CurrentUIState = msg.StateIndex.Value;
-		if (msg.Position3D.HasValue && o.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
+		if (msg.Position3D.HasValue && o.ObjData is Unity_SpriteObject_3D o3d && LevelEditorData.Level?.IsometricData != null) {
 			o3d.Position = msg.Position3D.Value;
 		}
 		switch (o.ObjData) {

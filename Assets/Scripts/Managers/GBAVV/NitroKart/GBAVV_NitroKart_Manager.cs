@@ -153,7 +153,7 @@ namespace R1Engine
             if (map.Objects.ObjectsPointer_BossRace != map.Objects.ObjectsPointer_Normal)
                 objGroups.Add((map.Objects.Objects_BossRace, "Boss Race"));
 
-            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_SpriteObject)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
 
             var waypointsGroupIndex = 0;
 

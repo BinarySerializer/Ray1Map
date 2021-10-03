@@ -109,7 +109,7 @@ namespace R1Engine
                 context: context,
                 animSets: LoadAnimSets(context, rom, isMap, fixOam));
 
-            var objects = new List<Unity_Object>();
+            var objects = new List<Unity_SpriteObject>();
 
             var hasStartPositions = !isMap && !isWaterSki;
 

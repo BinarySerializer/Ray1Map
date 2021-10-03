@@ -1081,7 +1081,7 @@ namespace R1Engine
                 eventFlags: data.EventFlags,
                 eventTemplates: eventTemplates);
 
-            var events = new List<Unity_Object>();
+            var events = new List<Unity_SpriteObject>();
 
             if (context.GetR1Settings().R1_World != World.Menu)
             {

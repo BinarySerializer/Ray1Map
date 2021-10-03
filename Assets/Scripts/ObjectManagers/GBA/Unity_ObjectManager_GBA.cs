@@ -20,7 +20,7 @@ namespace R1Engine
         public ModelData[] ActorModels { get; }
         public Dictionary<int, int> GraphicsDataLookup { get; } = new Dictionary<int, int>();
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.OfType<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.OfType<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
 
         public override string[] LegacyDESNames => ActorModels.Select(x => x.DisplayName).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

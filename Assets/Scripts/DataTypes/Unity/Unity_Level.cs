@@ -17,8 +17,8 @@ namespace R1Engine
         public Unity_Level(Unity_Layer[] layers = null,
             Unity_Map[] maps = null,
             Unity_ObjectManager objManager = null, 
-            List<Unity_Object> eventData = null, 
-            Unity_Object rayman = null,
+            List<Unity_SpriteObject> eventData = null, 
+            Unity_SpriteObject rayman = null,
             IList<KeyValuePair<string, string[]>> localization = null, 
             int defaultLayer = 0, int defaultCollisionLayer = -1, 
             int pixelsPerUnit = 16, 
@@ -40,7 +40,7 @@ namespace R1Engine
             Maps = maps;
             Layers = layers;
             ObjManager = objManager;
-            EventData = eventData ?? new List<Unity_Object>();
+            EventData = eventData ?? new List<Unity_SpriteObject>();
             Rayman = rayman;
             Localization = localization;
             PixelsPerUnit = pixelsPerUnit;
@@ -117,8 +117,8 @@ namespace R1Engine
 
         public Unity_Layer[] Layers { get; set; }
 
-        public List<Unity_Object> EventData { get; }
-        public Unity_Object Rayman { get; }
+        public List<Unity_SpriteObject> EventData { get; }
+        public Unity_SpriteObject Rayman { get; }
 
         public IList<KeyValuePair<string, string[]>> Localization { get; }
 

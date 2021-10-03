@@ -305,7 +305,7 @@ namespace R1Engine
                 dialogScripts: rom.DialogScripts, 
                 locPointerTable: loc.Item2,
                 addDummyAnimSet: !hasAssignedObjTypeGraphics);
-            var objects = new List<Unity_Object>();
+            var objects = new List<Unity_SpriteObject>();
 
             if (map.ObjData?.Objects != null)
                 objects.AddRange(map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1)));

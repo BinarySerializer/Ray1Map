@@ -1023,7 +1023,7 @@ namespace R1Engine
 			// Load objects
 			Mesh[] meshes = level.Objects3D.Select(o => GetObject3DMesh(o)).ToArray();
 			var objManager = new Unity_ObjectManager_GameloftRK(context, LoadPuppets(context));
-			List<Unity_Object> objs = new List<Unity_Object>();
+			List<Unity_SpriteObject> objs = new List<Unity_SpriteObject>();
 
 			UnityEngine.Debug.Log("Sum rotation: " + level.TrackBlocks.Sum(o => o.DeltaRotation));
 			UnityEngine.Debug.Log("Sum height: " + level.TrackBlocks.Sum(o => o.DeltaHeight));

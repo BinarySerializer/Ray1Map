@@ -189,7 +189,7 @@ namespace R1Engine
             }
         }
         public override string[] GetAvailableObjects => HasDefinedDesEtaNames ? AvailableEvents.Select(x => x.Name).ToArray() : new string[0];
-        public override Unity_Object CreateObject(int index)
+        public override Unity_SpriteObject CreateObject(int index)
         {
             // Get the event
             var e = AvailableEvents[index];
@@ -234,8 +234,8 @@ namespace R1Engine
             return eventData;
         }
 
-        public override int InitLinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
-        public override void SaveLinkGroups(IList<Unity_Object> objects) => LinkTable = SaveR1LinkGroups(objects);
+        public override int InitLinkGroups(IList<Unity_SpriteObject> objects) => InitR1LinkGroups(objects, LinkTable);
+        public override void SaveLinkGroups(IList<Unity_SpriteObject> objects) => LinkTable = SaveR1LinkGroups(objects);
 
         public override void InitObjects(Unity_Level level)
         {
@@ -371,9 +371,9 @@ namespace R1Engine
             }
         }
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R1>().FindItem(x => x.EventData.Type == ObjType.TYPE_RAY_POS || x.EventData.Type == ObjType.TYPE_PANCARTE);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_R1>().FindItem(x => x.EventData.Type == ObjType.TYPE_RAY_POS || x.EventData.Type == ObjType.TYPE_PANCARTE);
 
-        public override void SaveObjects(IList<Unity_Object> objects)
+        public override void SaveObjects(IList<Unity_SpriteObject> objects)
         {
             foreach (var obj in objects.OfType<Unity_Object_R1>())
             {

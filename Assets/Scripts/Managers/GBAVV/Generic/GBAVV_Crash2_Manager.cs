@@ -227,7 +227,7 @@ namespace R1Engine
             return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: new List<Unity_SpriteObject>(objects),
                 cellSize: CellSize,
                 isometricData: new Unity_IsometricData()
                 {

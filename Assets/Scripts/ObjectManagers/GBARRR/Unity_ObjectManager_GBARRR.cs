@@ -20,7 +20,7 @@ namespace R1Engine
                 obj.LinkIndex = level.EventData.Cast<Unity_Object_GBARRR>().FindItemIndex(x => x.Object.RuntimeStateIndex == obj.Object.RuntimeStateIndex && x != obj && (x.Object.ObjectType == GBARRR_ObjectType.Gate || x.Object.ObjectType == GBARRR_ObjectType.DoorTrigger));
         }
 
-        public override int InitLinkGroups(IList<Unity_Object> objects)
+        public override int InitLinkGroups(IList<Unity_SpriteObject> objects)
         {
             var links = new Dictionary<int, List<Unity_Object_GBARRR>>();
 
@@ -42,7 +42,7 @@ namespace R1Engine
             return objects.Any() ? objects.Max(x => x.EditorLinkGroup) + 1 : 1;
         }
 
-		public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBARRR>().FindItem(x => x.IsRayman);
+		public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_GBARRR>().FindItem(x => x.IsRayman);
 
 		public GraphicsData[][] GraphicsDatas { get; }
 

@@ -18,10 +18,10 @@ namespace R1Engine
 
         public virtual int MaxObjectCount => Byte.MaxValue;
         public virtual string[] GetAvailableObjects => new string[0];
-        public virtual Unity_Object CreateObject(int index) => null;
+        public virtual Unity_SpriteObject CreateObject(int index) => null;
 
-        public virtual int InitLinkGroups(IList<Unity_Object> objects) { return 0; }
-        protected int InitR1LinkGroups(IList<Unity_Object> objects, ushort[] linkTable)
+        public virtual int InitLinkGroups(IList<Unity_SpriteObject> objects) { return 0; }
+        protected int InitR1LinkGroups(IList<Unity_SpriteObject> objects, ushort[] linkTable)
         {
             int currentId = 1;
 
@@ -57,8 +57,8 @@ namespace R1Engine
 
             return currentId;
         }
-        public virtual void SaveLinkGroups(IList<Unity_Object> objects) { }
-        protected ushort[] SaveR1LinkGroups(IList<Unity_Object> objects)
+        public virtual void SaveLinkGroups(IList<Unity_SpriteObject> objects) { }
+        protected ushort[] SaveR1LinkGroups(IList<Unity_SpriteObject> objects)
         {
             var linkTable = new ushort[objects.Count];
 
@@ -104,8 +104,8 @@ namespace R1Engine
         }
 
         public virtual void InitObjects(Unity_Level level) { }
-        public virtual Unity_Object GetMainObject(IList<Unity_Object> objects) => null;
-        public virtual void SaveObjects(IList<Unity_Object> objects) { }
+        public virtual Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => null;
+        public virtual void SaveObjects(IList<Unity_SpriteObject> objects) { }
 
         public virtual string[] LegacyDESNames => new string[0];
         public virtual string[] LegacyETANames => new string[0];

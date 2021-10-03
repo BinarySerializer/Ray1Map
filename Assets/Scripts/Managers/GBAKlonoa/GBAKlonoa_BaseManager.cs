@@ -529,7 +529,7 @@ namespace R1Engine
             }
         }
 
-        public void CorrectWorldMapObjectPositions(IEnumerable<Unity_Object> objects, int mapWidth, int mapHeight)
+        public void CorrectWorldMapObjectPositions(IEnumerable<Unity_SpriteObject> objects, int mapWidth, int mapHeight)
         {
             foreach (var o in objects)
             {

@@ -218,7 +218,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading sprite data";
 
-            var commonEvents = new List<Unity_Object>();
+            var commonEvents = new List<Unity_SpriteObject>();
 
             // Get the v-ram
             FillVRAM(context, PS1VramHelpers.VRAMMode.Level);

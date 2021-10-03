@@ -1103,7 +1103,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load events
-            Dictionary<int, Unity_Object> uniqueEvents = new Dictionary<int, Unity_Object>();
+            Dictionary<int, Unity_SpriteObject> uniqueEvents = new Dictionary<int, Unity_SpriteObject>();
 
             // Get all event definitions
             var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new JAG_EventDefinition[0]).ToArray() ?? new JAG_EventDefinition[0];
@@ -1121,7 +1121,7 @@ namespace R1Engine
             var rayBzzit = (correctEventStates && context.GetR1Settings().R1_World == World.Jungle && context.GetR1Settings().Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
             var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, objManager) : null; // Bzzit (demo)
 
-            var eventDataList = new List<Unity_Object>();
+            var eventDataList = new List<Unity_SpriteObject>();
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1275,7 +1275,7 @@ namespace R1Engine
                 }
             }
 
-            Unity_Object rayman = null;
+            Unity_SpriteObject rayman = null;
 
             if (context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
             {

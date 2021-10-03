@@ -978,7 +978,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get actors
-            var actors = new List<Unity_Object>(GetObjects(context, scene, objManager, dataBlock));
+            var actors = new List<Unity_SpriteObject>(GetObjects(context, scene, objManager, dataBlock));
 
             return new Unity_Level(
                 maps: maps,
@@ -995,7 +995,7 @@ namespace R1Engine
         }
 
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.GetR1Settings()) ?? new GBA_Actor[0], data));
-        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.GetR1Settings()).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager, scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7)) ?? new Unity_Object_GBA[0];
+        public virtual IEnumerable<Unity_SpriteObject> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.GetR1Settings()).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager, scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data, GBA_Animation[] additionalAnimations)
         {

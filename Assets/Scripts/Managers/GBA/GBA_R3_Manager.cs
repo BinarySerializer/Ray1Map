@@ -115,7 +115,7 @@ namespace R1Engine
                     map
                 }, 
                 objManager: objManager,
-                eventData: new List<Unity_Object>()
+                eventData: new List<Unity_SpriteObject>()
                 {
                     obj
                 },

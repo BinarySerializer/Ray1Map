@@ -1053,7 +1053,7 @@ namespace R1Engine
                 var objmanager = new Unity_ObjectManager_GBARRRMode7(context, await LoadGraphicsDataAsync(context));
 
                 var objLength = rom.Mode7_Objects.FindItemIndex(x => x.ObjectType == GBARRR_Mode7Object.Mode7Type.Invalid);
-                var mode7Waypoints = rom.Mode7_Waypoints.Select((x, i) => (Unity_Object)new Unity_Object_GBARRRMode7Waypoint(x, objmanager, objLength + ((i == rom.Mode7_Waypoints.Length - 1) ? 0 : (i + 1))));
+                var mode7Waypoints = rom.Mode7_Waypoints.Select((x, i) => (Unity_SpriteObject)new Unity_Object_GBARRRMode7Waypoint(x, objmanager, objLength + ((i == rom.Mode7_Waypoints.Length - 1) ? 0 : (i + 1))));
                 var rayPos = Mode7_GetRaymanStartPosition(lvl);
                 var mode7Objects = rom.
                     // Get the objects
@@ -1061,7 +1061,7 @@ namespace R1Engine
                     // Only take the valid ones
                     Take(objLength).
                     // Convert to Unity objects
-                    Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager, x.ObjectType == GBARRR_Mode7Object.Mode7Type.Rayman || (int)x.ObjectType > 45)).
+                    Select(x => (Unity_SpriteObject)new Unity_Object_GBARRRMode7(x, objmanager, x.ObjectType == GBARRR_Mode7Object.Mode7Type.Rayman || (int)x.ObjectType > 45)).
                     // Add waypoints
                     Concat(mode7Waypoints).
                     // To list
@@ -1192,7 +1192,7 @@ namespace R1Engine
                         bg1,
                     },
                     objManager: o,
-                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7Unused(x, o)).ToList(),
+                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_GBARRRMode7Unused(x, o)).ToList(),
                     getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
@@ -1255,7 +1255,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            var objects = rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
+            var objects = rom.ObjectArray.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_GBARRR(x, objManager));
 
             if (gameMode == GameMode.Village && context.GetR1Settings().Level == 2)
                 objects = objects.Where(x => ((Unity_Object_GBARRR)x).Object.ObjectType != GBARRR_ObjectType.Scenery2); // Disable rain

@@ -470,7 +470,7 @@ namespace R1Engine {
             Vector3? center = null, size = null;
             Unity_ObjBehaviour obj = gao.GetComponent<Unity_ObjBehaviour>();
             if (obj != null) {
-                if (obj.ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+                if (obj.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                     bool orthographic = !_freeCameraMode;
                     if (orthographic) {
                         Vector3 target = camera3D.transform.InverseTransformPoint(obj.midpoint);

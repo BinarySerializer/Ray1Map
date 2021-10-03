@@ -702,12 +702,12 @@ namespace R1Engine
         {
             var objList = Controller.obj.levelController.Objects;
 
-            Color GetColorForObject(Unity_ObjBehaviour obj, Unity_Object.LinkType? linkType) {
+            Color GetColorForObject(Unity_ObjBehaviour obj, Unity_SpriteObject.LinkType? linkType) {
                 Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == obj.ObjData.Type.ToString());
                 if (gizmo == null) gizmo = gizmos[0];
                 Color c = gizmo.color;
-                if (obj.ObjData.Type == Unity_Object.ObjectType.Object) {
-                    if (linkType.HasValue && linkType.Value != Unity_Object.LinkType.Unknown) {
+                if (obj.ObjData.Type == Unity_ObjectType.Object) {
+                    if (linkType.HasValue && linkType.Value != Unity_SpriteObject.LinkType.Unknown) {
                         LinkTypeColor linkTypeColor = linkTypeColors.FirstOrDefault(ltc => ltc.linkType == linkType.Value);
                         if (linkTypeColor != null) {
                             c = linkTypeColor.color;
@@ -736,7 +736,7 @@ namespace R1Engine
                     lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                     lr.material = linkLineMaterial;
                     var linkedObj = Controller.obj.levelController.Objects[links[i]];
-                    lr.material.color = GetColorForObject(linkedObj, linkTypes?.Length > i ? (Unity_Object.LinkType?)linkTypes[i] : null);
+                    lr.material.color = GetColorForObject(linkedObj, linkTypes?.Length > i ? (Unity_SpriteObject.LinkType?)linkTypes[i] : null);
                     //lr.material.color = linkColorActive;
                     lr.positionCount = 2;
                     lr.widthMultiplier = 1f;
@@ -884,7 +884,7 @@ namespace R1Engine
         }
 
         private void SetSelectedPosition(Unity_ObjBehaviour e) {
-            if (e.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+            if (e.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null) {
                 Vector3 pos = e.transform.position;
                 Plane plane = new Plane(e.transform.rotation * Vector3.forward, pos); // Object is facing the camera
                 Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
@@ -1164,9 +1164,9 @@ namespace R1Engine
                 // Drag and move the event
                 if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     if (SelectedEvent != null && SelectedEvent == ClickedEvent) {
-                        if (SelectedEvent.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+                        if (SelectedEvent.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null) {
                             if (modeEvents) {
-                                Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
+                                Unity_SpriteObject_3D obj = (Unity_SpriteObject_3D)SelectedEvent.ObjData;
 
                                 Vector3 pos = obj.Position;
                                 Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
@@ -1236,9 +1236,9 @@ namespace R1Engine
                 } else if(!Input.GetMouseButton(0) && (Input.GetKey(KeyCode.U) || Input.GetKey(KeyCode.J))) {
                     // For 3D objects, allow adjusting height outside selection
                     if (SelectedEvent != null) {
-                        if (SelectedEvent.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+                        if (SelectedEvent.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null) {
                             if (modeEvents) {
-                                Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
+                                Unity_SpriteObject_3D obj = (Unity_SpriteObject_3D)SelectedEvent.ObjData;
                                 Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
                                 Vector3 isometricObjectScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
                                 Vector3 scaledObjectPos = SelectedEvent.transform.position;
@@ -1361,7 +1361,7 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Unity_ObjBehaviour AddEvent(Unity_Object obj)
+        public Unity_ObjBehaviour AddEvent(Unity_SpriteObject obj)
         {
             // Instantiate prefab
             Unity_ObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_ObjBehaviour>();
@@ -1391,7 +1391,7 @@ namespace R1Engine
 
         [Serializable]
         public class LinkTypeColor {
-            public Unity_Object.LinkType linkType;
+            public Unity_SpriteObject.LinkType linkType;
             public Color color;
         }
     }

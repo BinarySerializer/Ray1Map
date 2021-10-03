@@ -510,15 +510,15 @@ namespace R1Engine
 
             var objManager = new Unity_ObjectManager_GBAIsometricRHR(context, rom.ObjectTypes, !isMenu ? GetAnimSets(context, rom).ToArray() : new Unity_ObjectManager_GBAIsometricRHR.AnimSet[0], levelData?.ObjectsCount ?? 0);
 
-            var allObjects = new List<Unity_Object>();
+            var allObjects = new List<Unity_SpriteObject>();
 
             if (levelData != null)
             {
                 // Add normal objects
-                allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometricRHR(x, objManager)));
+                allObjects.AddRange(levelData.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_GBAIsometricRHR(x, objManager)));
 
                 // Add waypoints
-                allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricRHRWaypoint(x, objManager)));
+                allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_SpriteObject)new Unity_Object_GBAIsometricRHRWaypoint(x, objManager)));
 
                 // Add child objects
                 allObjects.AddRange(levelData.Objects.SelectMany((x, i) => CreateChildObjects(x, objManager)));

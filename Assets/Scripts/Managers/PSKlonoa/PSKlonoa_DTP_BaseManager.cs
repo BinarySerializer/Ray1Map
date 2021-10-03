@@ -757,7 +757,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            List<Unity_Object> objects = Load_Objects(loader, sector, scale, objManager);
+            List<Unity_SpriteObject> objects = Load_Objects(loader, sector, scale, objManager);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
@@ -1061,9 +1061,9 @@ namespace R1Engine
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
-        public List<Unity_Object> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        public List<Unity_SpriteObject> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
-            var objects = new List<Unity_Object>();
+            var objects = new List<Unity_SpriteObject>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
@@ -1102,7 +1102,7 @@ namespace R1Engine
 
                     var pos = GetPosition(movementPaths[pathIndex].Blocks, obj.MovementPathSpawnPosition, Vector3.zero, scale);
 
-                    objects.Add(new Unity_Object_Dummy(obj, Unity_Object.ObjectType.Trigger, objLinks: new int[]
+                    objects.Add(new Unity_Object_Dummy(obj, Unity_ObjectType.Trigger, objLinks: new int[]
                     {
                         objects.OfType<Unity_Object_PSKlonoa_DTP_Enemy>().FindItemIndex(x => x.Object == obj)
                     })
@@ -1135,7 +1135,7 @@ namespace R1Engine
             objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
                 Where(x => x.Data_ScenerySprites != null || x.Data_LightPositions != null).
                 SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Positions[0]).
-                Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+                Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
             {
                 Position = GetPosition(x.X, x.Y, x.Z, scale),
             }));

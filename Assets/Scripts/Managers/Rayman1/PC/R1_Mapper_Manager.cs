@@ -178,7 +178,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
 
-            var levelEvents = new List<Unity_Object>();
+            var levelEvents = new List<Unity_SpriteObject>();
 
             // Create events
             for (var i = 0; i < saveEvents.SaveEventInstances.Length; i++)

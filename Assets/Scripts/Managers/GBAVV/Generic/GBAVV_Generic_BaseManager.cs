@@ -190,7 +190,7 @@ namespace R1Engine
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: new List<Unity_SpriteObject>(objects),
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBAVV_Map2D_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_Map2D_CollisionType)x).ToString(),
@@ -614,7 +614,7 @@ namespace R1Engine
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: new List<Unity_SpriteObject>(objects),
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,

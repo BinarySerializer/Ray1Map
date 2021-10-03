@@ -323,19 +323,19 @@ namespace R1Engine
                 hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null,
                 eventTemplates: eventTemplates);
 
-            List<Unity_Object> objects;
+            List<Unity_SpriteObject> objects;
 
             // Create objects
             if (context.GetR1Settings().R1_World == World.Menu)
             {
                 // Load map object events for the world map
                 objects = LoadEXE(context).WorldInfo.
-                    Select((x, i) => (Unity_Object)new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
+                    Select((x, i) => (Unity_SpriteObject)new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
                     ToList();
             }
             else
             {
-                objects = events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList();
+                objects = events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_SpriteObject>().ToList();
             }
 
             // Load the level background

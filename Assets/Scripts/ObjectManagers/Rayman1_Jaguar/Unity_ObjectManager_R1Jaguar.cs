@@ -17,7 +17,7 @@ namespace R1Engine
         public List<EventDefinition> EventDefinitions { get; }
 
         // TODO: Change this to use Jaguars link system instead
-        public override int InitLinkGroups(IList<Unity_Object> objects)
+        public override int InitLinkGroups(IList<Unity_SpriteObject> objects)
         {
             int currentId = 1;
 

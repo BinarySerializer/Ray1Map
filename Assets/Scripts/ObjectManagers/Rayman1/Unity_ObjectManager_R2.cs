@@ -31,9 +31,9 @@ namespace R1Engine
 
         public ushort[] LinkTable { get; }
 
-        public override int InitLinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
+        public override int InitLinkGroups(IList<Unity_SpriteObject> objects) => InitR1LinkGroups(objects, LinkTable);
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.ObjType == R2_ObjType.RaymanPosition);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.ObjType == R2_ObjType.RaymanPosition);
 
         public override string[] LegacyDESNames => AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

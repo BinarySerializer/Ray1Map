@@ -35,7 +35,7 @@ namespace R1Engine
             };
         }
 
-        protected Unity_Object_3D[] GetSortedObjects(Unity_Level level) => level.EventData.OfType<Unity_Object_3D>().OrderBy(x => x.Position.y).ToArray();
+        protected Unity_SpriteObject_3D[] GetSortedObjects(Unity_Level level) => level.EventData.OfType<Unity_SpriteObject_3D>().OrderBy(x => x.Position.y).ToArray();
         protected Vector3 GetFixedHeightPos(Vector3 v) => new Vector3(v.x, v.y, 0);
     }
 }

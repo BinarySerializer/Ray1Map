@@ -109,7 +109,7 @@ namespace R1Engine
                     objects: firstLoadedObjects,
                     levelTextSpritePointer: isMap || isBoss ? null : rom.LevelTextSpritePointers[normalLevelIndex]));
 
-            var objects = new List<Unity_Object>();
+            var objects = new List<Unity_SpriteObject>();
 
             // If we're in an actual level we add Klonoa to each defined start position
             if (!isMap)

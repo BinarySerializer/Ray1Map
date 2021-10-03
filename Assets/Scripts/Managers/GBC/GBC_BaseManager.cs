@@ -407,7 +407,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBC(context, actorModels.ToArray());
-            var objects = new List<Unity_Object>(scene.GameObjects.Select(x => new Unity_Object_GBC(x, objManager)));
+            var objects = new List<Unity_SpriteObject>(scene.GameObjects.Select(x => new Unity_Object_GBC(x, objManager)));
 
             return new Unity_Level(
                 maps: maps,

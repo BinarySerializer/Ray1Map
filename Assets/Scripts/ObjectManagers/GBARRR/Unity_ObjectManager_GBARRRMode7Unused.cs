@@ -13,7 +13,7 @@ namespace R1Engine
             GraphicsDatas = graphicsDatas;
         }
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.FindItem(x => (x as Unity_Object_GBARRRMode7Unused)?.IsRayman ?? false);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.FindItem(x => (x as Unity_Object_GBARRRMode7Unused)?.IsRayman ?? false);
 
         public GraphicsDataGroup[] GraphicsDatas { get; }
 

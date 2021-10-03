@@ -230,7 +230,7 @@ namespace R1Engine
 
 			// Load objects
 			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context), objs.Objects);
-			var unityObjs = objs.Objects.Select((o, i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager, o))).ToList();
+			var unityObjs = objs.Objects.Select((o, i) => (Unity_SpriteObject)(new Unity_Object_GameloftRRR(objManager, o))).ToList();
 
 			// Set palette index for loops
 			var world = GetWorldIndex(context.GetR1Settings(), levelList);

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_Dummy : Unity_Object_3D
+    public class Unity_Object_Dummy : Unity_SpriteObject_3D
     {
-        public Unity_Object_Dummy(BinarySerializable serializableData, ObjectType type, string debugText = null, int[] objLinks = null)
+        public Unity_Object_Dummy(BinarySerializable serializableData, Unity_ObjectType type, string debugText = null, int[] objLinks = null)
         {
             SerializableData = serializableData;
             Type = type;
@@ -17,10 +17,9 @@ namespace R1Engine
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
         public override Vector3 Position { get; set; }
-        public override ILegacyEditorWrapper LegacyWrapper => null;
         public override BinarySerializable SerializableData { get; }
         public override string DebugText { get; }
-        public override ObjectType Type { get; }
+        public override Unity_ObjectType Type { get; }
         public override string PrimaryName => $"DUMMY";
 
         public int[] ObjLinks { get; }

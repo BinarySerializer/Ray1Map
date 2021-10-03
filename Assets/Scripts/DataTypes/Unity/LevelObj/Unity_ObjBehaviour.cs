@@ -11,7 +11,7 @@ namespace R1Engine
     {
         #region Public Properties
 
-        public Unity_Object ObjData { get; set; }
+        public Unity_SpriteObject ObjData { get; set; }
         public float UpdateTimer { get; set; }
         public bool IsSelected { get; set; }
         public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && EnableBoxCollider;
@@ -38,7 +38,7 @@ namespace R1Engine
             // Obj is in the currently selected group
             IsInSelectedGroup &&
             // Obj is not a waypoint when track moving is enabled
-            !(ObjData.Type == Unity_Object.ObjectType.Waypoint && Controller.obj?.levelController?.editor?.cam.IsTrackMovingEnabled == true);
+            !(ObjData.Type == Unity_ObjectType.Waypoint && Controller.obj?.levelController?.editor?.cam.IsTrackMovingEnabled == true);
         public bool IsInSelectedGroup => ObjData.ObjectGroupIndex == null || LevelEditorData.SelectedObjectGroup == ObjData.ObjectGroupIndex;
         public bool ForceShowOneWayLinks { get; set; } // Used for some screenshots
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 128;
@@ -87,7 +87,7 @@ namespace R1Engine
         private Vector2 colliderSize = new Vector2(1,1);
 
         public AudioClip currentSoundEffect;
-        public Unity_Object.ObjectType PrevObjType;
+        public Unity_ObjectType PrevObjType;
 
         public void Init() {
             UpdatePosition();
@@ -151,7 +151,7 @@ namespace R1Engine
         private void UpdatePosition()
         {
             
-            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+            if (ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                 UpdatePosition3D();
                 return;
             }
@@ -186,7 +186,7 @@ namespace R1Engine
             var gizmos = Controller.obj.levelEventController.gizmos;
             LevelEventController.Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == ObjData.Type.ToString());
             if(gizmo == null) gizmo = gizmos[0];
-            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+            if (ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                 Sprite spr = gizmo.sprite3D;
                 defaultRenderer.sprite = spr;
             } else {
@@ -226,7 +226,7 @@ namespace R1Engine
         public void UpdatePosition3D() {
             gameObject.layer = LayerMask.NameToLayer("3D Object");
             defaultRenderer.gameObject.layer = gameObject.layer;
-            Unity_Object_3D obj = (Unity_Object_3D)ObjData; 
+            Unity_SpriteObject_3D obj = (Unity_SpriteObject_3D)ObjData; 
             Vector3 pos = obj.Position;
 
             // Convert position to unity space
@@ -312,7 +312,7 @@ namespace R1Engine
                     animSpriteRenderers = new SpriteRenderer[spritesLength];
                     animCollisionRenderers = new SpriteRenderer[collisionLength];
 
-                    bool is3D = ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null;
+                    bool is3D = ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null;
 
                     // Populate sprites
                     for (int i = 0; i < spritesLength; i++)
@@ -520,7 +520,7 @@ namespace R1Engine
                     if (objCol != null && objCol.Length > 0) {
                         if (CurrentShowCollision) {
                             objCollisionRenderers = new SpriteRenderer[objCol.Length];
-                            bool is3D = ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null;
+                            bool is3D = ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null;
 
                             // Instantiate prefabs
                             for (int i = 0; i < objCol.Length; i++) {
@@ -588,7 +588,7 @@ namespace R1Engine
                         hasSprites = true;
 
                         Bounds b = part.bounds;
-                        if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+                        if (ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                             b = part.sprite?.bounds ?? b;
                             var scl = part.transform.localScale;
                             if (part.flipX) scl.x = scl.x * -1;
@@ -667,7 +667,7 @@ namespace R1Engine
                 InitGizmo();
             }
             bool enableBoxCollider = EnableBoxCollider;
-            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+            if (ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                 if (boxCollider3D != null) {
                     // Update visibility
                     boxCollider3D.enabled = enableBoxCollider;
