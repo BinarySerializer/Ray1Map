@@ -1087,6 +1087,7 @@ namespace R1Engine {
 			public string Name { get; set; }
 			public Transform Transform { get; set; }
 			public uint NewKey { get; set; }
+			public bool CreatePrefab { get; set; }
 		}
 		public async UniTask AddModdedGameObjects(GameSettings settings, string inputDir, string outputDir) {
 			// Input: Keys to avoid
@@ -1104,16 +1105,18 @@ namespace R1Engine {
 						for (int moddedObjIndex = 0; moddedObjIndex < moddedObjCount; moddedObjIndex++) {
 							var transform = modBehaviour.gameObject.transform.GetChild(moddedObjIndex);
 							var transformName = transform.gameObject.name;
+							bool createPrefab = false;
 							Debug.Log($"Processing GameObject: {transformName}");
 							string parsedName = null;
 
 							// Parse name to get key + desired GameObject name
-							const string GaoNamePattern = @"^\[(?<key>........)\] (?<name>.*)$";
+							const string GaoNamePattern = @"^(?<prefab>Prefab - )?\[(?<key>........)\] (?<name>.*)$";
 							Match m = Regex.Match(transformName, GaoNamePattern, RegexOptions.IgnoreCase);
 							uint key = 0;
 							if (m.Success) {
 								string keyString = m.Groups["key"].Value;
 								parsedName = m.Groups["name"].Value;
+								createPrefab = m.Groups["prefab"].Success;
 								UInt32.TryParse(keyString,
 									System.Globalization.NumberStyles.HexNumber,
 									System.Globalization.CultureInfo.CurrentCulture,
@@ -1129,7 +1132,8 @@ namespace R1Engine {
 									Prefab = file,
 									Name = parsedName,
 									PrefabKey = key,
-									Transform = transform
+									Transform = transform,
+									CreatePrefab = createPrefab
 								});
 							}
 						}
@@ -1164,7 +1168,9 @@ namespace R1Engine {
 						loader.Raw_RelocateKeys = false; // Don't relocate keys by default. We'll determine which ones to relocate and which to keep
 						loader.Raw_KeysToAvoid = keysToAvoid;
 						loader.Raw_WriteFilesAlreadyInBF = false;
-						loader.Raw_CurrentUnusedKey = 0x88000000; // Start key will be this one
+						uint currentUnusedKeyInstance = 0x88000000 - 1;
+						uint currentUnusedKeyPrefab   = 0x11000000 - 1;
+						loader.Raw_CurrentUnusedKey = currentUnusedKeyInstance; // Start key will be this one
 						loader.WrittenFileKeys = writtenFileKeys;
 
 						writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -1177,6 +1183,11 @@ namespace R1Engine {
 						// Process modded objects
 						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
 						foreach (var moddedObject in ModdedGameObjects) {
+							if (moddedObject.CreatePrefab) {
+								loader.Raw_CurrentUnusedKey = currentUnusedKeyPrefab;
+							} else {
+								loader.Raw_CurrentUnusedKey = currentUnusedKeyInstance;
+							}
 							// Apply new transform, set name and key
 							var obj = moddedObject.Prefab.Value;
 							var transform = moddedObject.Transform;
@@ -1186,7 +1197,7 @@ namespace R1Engine {
 								transform.localScale,
 								newType: TypeFlags.Translation | TypeFlags.Rotation | TypeFlags.Scale,
 								convertAxes: true);
-							obj.Name = $"{moddedObject.Name}.gao";
+							obj.Name = $"{(moddedObject.CreatePrefab ? "PREFAB_" : "")}{moddedObject.Name}.gao";
 							obj.NameLength = (uint)obj.Name.Length + 1;
 							obj.Key = newKey();
 
@@ -1210,6 +1221,11 @@ namespace R1Engine {
 							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
 							await loader.LoadLoop(writeContext.Serializer);
 							writeContext.Serializer.ClearWrittenObjects();
+							if (moddedObject.CreatePrefab) {
+								currentUnusedKeyPrefab = loader.Raw_CurrentUnusedKey;
+							} else {
+								currentUnusedKeyInstance = loader.Raw_CurrentUnusedKey;
+							}
 						}
 					}
 
