@@ -46,18 +46,24 @@ namespace R1Engine
             int prevRotX = 0;
             int prevRotY = 0;
 
+            Quaternion GetQuaternion(float rotX, float rotY) {
+                return Quaternion.Euler(
+                    PSKlonoa_DTP_BaseManager.GetRotationInDegrees(rotX),
+                    -PSKlonoa_DTP_BaseManager.GetRotationInDegrees(rotY), 0f);
+            }
+
             foreach (CameraAnimationFrame frame in Animation.Frames)
             {
                 if (frame.Pre_IsRelative)
                 {
-                    rotations.Add(PSKlonoa_DTP_BaseManager.GetQuaternion(frame.RelativeRotationX + prevRotX, frame.RelativeRotationY + prevRotY, 0));
+                    rotations.Add(GetQuaternion(frame.RelativeRotationX + prevRotX, frame.RelativeRotationY + prevRotY));
 
                     prevRotX += frame.RelativeRotationX;
                     prevRotY += frame.RelativeRotationY;
                 }
                 else
                 {
-                    rotations.Add(PSKlonoa_DTP_BaseManager.GetQuaternion(frame.AbsoluteRotationX, frame.AbsoluteRotationY, 0));
+                    rotations.Add(GetQuaternion(frame.AbsoluteRotationX, frame.AbsoluteRotationY));
 
                     prevRotX = frame.AbsoluteRotationX;
                     prevRotY = frame.AbsoluteRotationY;
