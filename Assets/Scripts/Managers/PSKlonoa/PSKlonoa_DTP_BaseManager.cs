@@ -825,8 +825,11 @@ namespace R1Engine
                     ObjectScale = Vector3.one * 1
                 },
                 ps1Vram: loader.VRAM,
-                cameraClear: camClear);
+                cameraClear: camClear,
+                trackManager: new Unity_TrackManager_PSKlonoaDTP(CamAnim, scale));
         }
+
+        public static CameraAnimations_File CamAnim { get; set; }
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader_DTP loader, int sector, float scale)
         {

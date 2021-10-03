@@ -290,6 +290,9 @@ namespace R1Engine
                     if (modifier.Data_Position != null)
                         GameObj_ApplyPosition(secondaryObj, modifier.Data_Position);
                 }
+
+                if (modifier.Data_CameraAnimations != null)
+                    PSKlonoa_DTP_BaseManager.CamAnim = modifier.Data_CameraAnimations;
             }
         }
 
