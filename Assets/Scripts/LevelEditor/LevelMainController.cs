@@ -20,9 +20,9 @@ namespace R1Engine
     public class LevelMainController : MonoBehaviour 
     {
         // Object behaviors
-        public List<Unity_ObjBehaviour> Objects { get; set; }
-        public Unity_ObjBehaviour RaymanObject { get; set; }
-        public IEnumerable<Unity_ObjBehaviour> GetAllObjects => RaymanObject != null ? Objects.Append(RaymanObject) : Objects;
+        public List<Unity_SpriteObjBehaviour> Objects { get; set; }
+        public Unity_SpriteObjBehaviour RaymanObject { get; set; }
+        public IEnumerable<Unity_SpriteObjBehaviour> GetAllObjects => RaymanObject != null ? Objects.Append(RaymanObject) : Objects;
 
         public LevelEditorBehaviour editor => controllerEvents.editor;
 
@@ -281,7 +281,7 @@ namespace R1Engine
 
                 // TODO: Change this option
                 // Helper method
-                bool showLinksForObj(Unity_ObjBehaviour ee)
+                bool showLinksForObj(Unity_SpriteObjBehaviour ee)
                 {
                     if (ee.ObjData is Unity_Object_R1 r1Object)
                         return (r1Object.EventData.Type == ObjType.TYPE_GENERATING_DOOR ||
@@ -309,11 +309,11 @@ namespace R1Engine
                 {
                     // Hide link if not linked to gendoor
                     bool gendoorFound = showLinksForObj(e);
-                    var allofSame = new List<Unity_ObjBehaviour> {
+                    var allofSame = new List<Unity_SpriteObjBehaviour> {
                         e
                     };
 
-                    foreach (Unity_ObjBehaviour f in Objects.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
+                    foreach (Unity_SpriteObjBehaviour f in Objects.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
                     {
                         allofSame.Add(f);
                         if (showLinksForObj(f))

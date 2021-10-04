@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ObjectHighlight : MonoBehaviour {
-    public Unity_ObjBehaviour highlightedObject = null;
+    public Unity_SpriteObjBehaviour highlightedObject = null;
     public Unity_Tile[] highlightedCollision = null;
     public Unity_Collision3DBehaviour highlightedCollision3D = null;
     public Unity_Tile[] highlightedTile = null;
@@ -31,7 +31,7 @@ public class ObjectHighlight : MonoBehaviour {
                     System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
                     for (int i = 0; i < hits.Length; i++) {
                         // the object identified by hit.transform was clicked
-                        Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
+                        Unity_SpriteObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_SpriteObjBehaviour>();
                         if (ob != null) {
                             highlightedObject = ob;
                             break;
@@ -81,7 +81,7 @@ public class ObjectHighlight : MonoBehaviour {
                     System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
                     for (int i = 0; i < hits.Length; i++) {
                         // the object identified by hit.transform was clicked
-                        Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
+                        Unity_SpriteObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_SpriteObjBehaviour>();
                         if (ob != null) {
                             highlightedObject = ob;
                             break;

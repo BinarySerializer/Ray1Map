@@ -24,8 +24,8 @@ public class WebCommunicator : MonoBehaviour {
 	Unity_Tile[] highlightedCollision_;
 	Unity_Collision3DBehaviour highlightedCollision3D_;
 	Unity_CollisionLine highlightedCollisionLine_;
-	Unity_ObjBehaviour highlightedObject_;
-	Unity_ObjBehaviour selectedObject_;
+	Unity_SpriteObjBehaviour highlightedObject_;
+	Unity_SpriteObjBehaviour selectedObject_;
 	int x_, y_;
 	Vector3 pos3D_;
 
@@ -219,7 +219,7 @@ public class WebCommunicator : MonoBehaviour {
 
 		return selectionJSON;
 	}
-	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false, bool includeDetails = false) {
+	private WebJSON.Object GetObjectJSON(Unity_SpriteObjBehaviour obj, bool includeLists = false, bool includeDetails = false) {
 		if (obj == null) return null;
 		var webObj = new WebJSON.Object() {
 			Name = obj.ObjData.PrimaryName,
@@ -715,7 +715,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg == null || msg.Index < -1) return;
 		var objects = Controller.obj.levelController.Objects;
 		if (msg.Index > objects.Count) return;
-		Unity_ObjBehaviour o = msg.Index == -1 ? Controller.obj.levelController.RaymanObject : objects[msg.Index];
+		Unity_SpriteObjBehaviour o = msg.Index == -1 ? Controller.obj.levelController.RaymanObject : objects[msg.Index];
 		if (o == null) return;
 
 		bool refreshObjectLists = false;

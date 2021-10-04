@@ -17,11 +17,11 @@ namespace R1Engine
         /// <summary>
         /// The currently selected event
         /// </summary>
-        public Unity_ObjBehaviour SelectedEvent { get; set; }
-        public Unity_ObjBehaviour PrevSelectedEvent { get; set; }
-        public Unity_ObjBehaviour ClickedEvent { get; set; }
+        public Unity_SpriteObjBehaviour SelectedEvent { get; set; }
+        public Unity_SpriteObjBehaviour PrevSelectedEvent { get; set; }
+        public Unity_SpriteObjBehaviour ClickedEvent { get; set; }
 
-        public Dictionary<Unity_ObjBehaviour, Vector3?> ObjPositions { get; set; } = new Dictionary<Unity_ObjBehaviour, Vector3?>();
+        public Dictionary<Unity_SpriteObjBehaviour, Vector3?> ObjPositions { get; set; } = new Dictionary<Unity_SpriteObjBehaviour, Vector3?>();
 
         // Prefabs
         public GameObject eventParent;
@@ -702,7 +702,7 @@ namespace R1Engine
         {
             var objList = Controller.obj.levelController.Objects;
 
-            Color GetColorForObject(Unity_ObjBehaviour obj, Unity_SpriteObject.LinkType? linkType) {
+            Color GetColorForObject(Unity_SpriteObjBehaviour obj, Unity_SpriteObject.LinkType? linkType) {
                 Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == obj.ObjData.Type.ToString());
                 if (gizmo == null) gizmo = gizmos[0];
                 Color c = gizmo.color;
@@ -883,7 +883,7 @@ namespace R1Engine
             PrevSelectedEvent = SelectedEvent;
         }
 
-        private void SetSelectedPosition(Unity_ObjBehaviour e) {
+        private void SetSelectedPosition(Unity_SpriteObjBehaviour e) {
             if (e.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null) {
                 Vector3 pos = e.transform.position;
                 Plane plane = new Plane(e.transform.rotation * Vector3.forward, pos); // Object is facing the camera
@@ -905,7 +905,7 @@ namespace R1Engine
             }
         }
 
-        private void ClickEvent(Unity_ObjBehaviour e) {
+        private void ClickEvent(Unity_SpriteObjBehaviour e) {
             bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
             bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
             if (e != null) {
@@ -957,7 +957,7 @@ namespace R1Engine
             }
         }
 
-        public void SelectEvent(Unity_ObjBehaviour e, bool moveCamera = false)
+        public void SelectEvent(Unity_SpriteObjBehaviour e, bool moveCamera = false)
         {
             // Return if the event is already selected
             if (SelectedEvent == e) 
@@ -1260,7 +1260,7 @@ namespace R1Engine
                 {
                     bool alone = true;
                     
-                    foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Objects.
+                    foreach (Unity_SpriteObjBehaviour ee in Controller.obj.levelController.Objects.
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
@@ -1361,10 +1361,10 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Unity_ObjBehaviour AddEvent(Unity_SpriteObject obj)
+        public Unity_SpriteObjBehaviour AddEvent(Unity_SpriteObject obj)
         {
             // Instantiate prefab
-            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_ObjBehaviour>();
+            Unity_SpriteObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_SpriteObjBehaviour>();
             newEvent.gameObject.name = obj.Name;
             
             newEvent.ObjData = obj;

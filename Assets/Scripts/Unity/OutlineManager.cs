@@ -12,8 +12,8 @@ public class OutlineManager : MonoBehaviour {
 	public bool selecting = false;
 	private float curLerpActive = 0f;
 	private float curLerpHighlight = 0f;
-	public Unity_ObjBehaviour Active { get; set; }
-	public Unity_ObjBehaviour Highlight { get; set; }
+	public Unity_SpriteObjBehaviour Active { get; set; }
+	public Unity_SpriteObjBehaviour Highlight { get; set; }
 
 	void Update() {
 		// Update highlight color

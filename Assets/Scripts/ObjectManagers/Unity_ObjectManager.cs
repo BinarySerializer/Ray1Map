@@ -20,7 +20,7 @@ namespace R1Engine
         public virtual string[] GetAvailableObjects => new string[0];
         public virtual Unity_SpriteObject CreateObject(int index) => null;
 
-        public virtual int InitLinkGroups(IList<Unity_SpriteObject> objects) { return 0; }
+        public virtual int InitLinkGroups(IList<Unity_SpriteObject> objects) => 0;
         protected int InitR1LinkGroups(IList<Unity_SpriteObject> objects, ushort[] linkTable)
         {
             int currentId = 1;

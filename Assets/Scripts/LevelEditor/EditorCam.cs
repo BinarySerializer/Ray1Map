@@ -468,7 +468,7 @@ namespace R1Engine {
 
         public void JumpTo(GameObject gao, bool immediate = false) {
             Vector3? center = null, size = null;
-            Unity_ObjBehaviour obj = gao.GetComponent<Unity_ObjBehaviour>();
+            Unity_SpriteObjBehaviour obj = gao.GetComponent<Unity_SpriteObjBehaviour>();
             if (obj != null) {
                 if (obj.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level?.IsometricData != null) {
                     bool orthographic = !_freeCameraMode;

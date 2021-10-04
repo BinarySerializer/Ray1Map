@@ -6,7 +6,7 @@ namespace R1Engine
     public class EventList : MonoBehaviour {
         public RectTransform list;
         public InputField search;
-        public Unity_ObjBehaviour selection;
+        public Unity_SpriteObjBehaviour selection;
 
         static GameObject listItemRes;
         bool loaded;
