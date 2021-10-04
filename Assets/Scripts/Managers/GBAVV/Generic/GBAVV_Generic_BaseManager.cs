@@ -633,7 +633,7 @@ namespace R1Engine
                 },
                 CellSize = CellSize,
                 Localization = loc.Item1,
-                TrackManager = new Unity_TrackManager_ObjectsLinear(levelInfo.LevelType == 0),
+                TrackManagers = new Unity_TrackManager_ObjectsLinear(levelInfo.LevelType == 0).YieldToArray(),
             };
         }
         public virtual int[] Mode7AnimSetCounts => new int[0];

@@ -1259,10 +1259,10 @@ namespace R1Engine
 				DefaultLayer = 0,
 				DefaultCollisionLayer = 0,
 				CellSize = 8,
-				TrackManager = new Unity_TrackManager_Gameloft_RK() 
+				TrackManagers = new Unity_TrackManager_Gameloft_RK() 
                 {
 					Points = points.Select(p => scaledCenterPos + new Vector3(p.x, -p.z, p.y)).ToArray()
-				},
+				}.YieldToArray(),
             };
         }
 	}

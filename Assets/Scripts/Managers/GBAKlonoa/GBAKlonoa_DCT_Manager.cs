@@ -179,7 +179,7 @@ namespace R1Engine
                 DefaultLayer = 2,
                 IsometricData = isMap || isWaterSki ? Unity_IsometricData.Mode7(CellSize) : null,
                 CollisionLines = collisionLines,
-                TrackManager = trackManager,
+                TrackManagers = trackManager.YieldToArray(),
             };
         }
 

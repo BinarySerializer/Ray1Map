@@ -1250,7 +1250,7 @@ namespace R1Engine
                 },
                 ObjectGroups = objGroups.Select(x => x.Item2).ToArray(),
                 Localization = loc.Item1,
-                TrackManager = new Unity_TrackManager_GBAVV_NitroKart(),
+                TrackManagers = new Unity_TrackManager_GBAVV_NitroKart().YieldToArray(),
             };
         }
 

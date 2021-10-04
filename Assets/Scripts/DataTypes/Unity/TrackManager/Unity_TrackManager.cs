@@ -10,6 +10,7 @@ namespace R1Engine
     {
         #region Public Properties
 
+        public string Name { get; set; } = "Default";
         public abstract bool Loop { get; }
         public virtual bool UseBezierPath => true;
         public float TrackLength { get; protected set; }

@@ -1089,7 +1089,7 @@ namespace R1Engine
                         YPosition = (short)rayPos.y
                     }, objmanager, false),
                     IsometricData = Unity_IsometricData.Mode7(CellSize),
-                    TrackManager = new Unity_TrackManager_GBARRR_Mode7(),
+                    TrackManagers = new Unity_TrackManager_GBARRR_Mode7().YieldToArray(),
                 };
             }
 

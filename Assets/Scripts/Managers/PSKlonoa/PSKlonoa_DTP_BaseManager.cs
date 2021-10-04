@@ -687,6 +687,27 @@ namespace R1Engine
             int lev = settings.World;
             int sector = settings.Level;
             LoaderConfiguration_DTP config = GetLoaderConfig(settings);
+            const float scale = 64f;
+
+            // Create the level
+            var level = new Unity_Level()
+            {
+                CellSize = 16,
+                FramesPerSecond = 60,
+                IsometricData = new Unity_IsometricData
+                {
+                    CollisionWidth = 0,
+                    CollisionHeight = 0,
+                    TilesWidth = 0,
+                    TilesHeight = 0,
+                    Collision = null,
+                    Scale = Vector3.one,
+                    ViewAngle = Quaternion.Euler(90, 0, 0),
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = Vector3.one * 1
+                },
+            };
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
 
@@ -742,33 +763,30 @@ namespace R1Engine
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
-            const float scale = 64f;
-
             // Load the layers
-            Unity_Layer[] layers = await Load_LayersAsync(loader, sector, scale);
+            await Load_LayersAsync(level, loader, sector, scale);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
             Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
+            level.ObjManager = objManager;
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            List<Unity_SpriteObject> objects = Load_Objects(loader, sector, scale, objManager);
+            level.EventData = Load_Objects(loader, sector, scale, objManager);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
-            var paths = Load_MovementPaths(loader, sector, scale);
+            Load_MovementPaths(level, loader, sector, scale);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
-
-            Unity_CameraClear camClear = null;
 
             var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
                 ElementAtOrDefault(sector)?.Modifiers.
@@ -778,7 +796,7 @@ namespace R1Engine
                 ToArray();
 
             if (bgClear?.Any() == true)
-                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+                level.CameraClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
@@ -804,36 +822,12 @@ namespace R1Engine
                           $"{startupLog}");
             }
 
-            return new Unity_Level()
-            {
-                Layers = layers,
-                CellSize = 16,
-                ObjManager = objManager,
-                EventData = objects,
-                FramesPerSecond = 60,
-                CollisionLines = paths,
-                IsometricData = new Unity_IsometricData
-                {
-                    CollisionWidth = 0,
-                    CollisionHeight = 0,
-                    TilesWidth = 0,
-                    TilesHeight = 0,
-                    Collision = null,
-                    Scale = Vector3.one,
-                    ViewAngle = Quaternion.Euler(90, 0, 0),
-                    CalculateYDisplacement = () => 0,
-                    CalculateXDisplacement = () => 0,
-                    ObjectScale = Vector3.one * 1
-                },
-                PS1_VRAM = loader.VRAM,
-                CameraClear = camClear,
-                TrackManager = new Unity_TrackManager_PSKlonoaDTP(CamAnim, scale)
-            };
+            level.PS1_VRAM = loader.VRAM;
+
+            return level;
         }
 
-        public static CameraAnimations_File CamAnim { get; set; }
-
-        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader_DTP loader, int sector, float scale)
+        public async UniTask Load_LayersAsync(Unity_Level level, Loader_DTP loader, int sector, float scale)
         {
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles;
@@ -857,6 +851,14 @@ namespace R1Engine
                 Debug.Log($"PALETTE ANIMATIONS:{Environment.NewLine}" +
                           $"{String.Join(Environment.NewLine, modifiersLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
             }
+
+            // Load tracks
+
+            Controller.DetailedState = "Loading camera tracks";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Add cutscene tracks too
+            level.TrackManagers = modifiersLoader.GameObj_CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
@@ -902,7 +904,7 @@ namespace R1Engine
 
             await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
 
-            return layers.ToArray();
+            level.Layers = layers.ToArray();
         }
 
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader_DTP loader, int sector, float scale) {
@@ -1172,10 +1174,10 @@ namespace R1Engine
             return objects;
         }
 
-        public Unity_CollisionLine[] Load_MovementPaths(Loader_DTP loader, int sector, float scale)
+        public void Load_MovementPaths(Unity_Level level, Loader_DTP loader, int sector, float scale)
         {
             var lines = new List<Unity_CollisionLine>();
-            var verticalAdjust = 0.2f;
+            const float verticalAdjust = 0.2f;
             var up = new Vector3(0, 0, verticalAdjust);
 
             foreach (var path in loader.LevelPack.Sectors[sector].MovementPaths.Files)
@@ -1195,7 +1197,7 @@ namespace R1Engine
                 }
             }
 
-            return lines.ToArray();
+            level.CollisionLines = lines.ToArray();
         }
 
         public (GameObject, bool) CreateGameObject(

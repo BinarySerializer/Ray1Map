@@ -549,8 +549,9 @@ namespace R1Engine {
         public float TrackDistance { get; set; }
 
 
-        public bool ToggleTrackMoving(bool trackMoving, bool setFreeCamera = true, bool setShowCollision = true) {
-            var manager = LevelEditorData.Level.TrackManager;
+        public bool ToggleTrackMoving(bool trackMoving, bool setFreeCamera = true, bool setShowCollision = true) 
+        {
+            var manager = LevelEditorData.Level.SelectedTrackManager;
 
             // Make sure track data is available
             if (manager == null || !LevelEditorData.Level.CanMoveAlongTrack)
@@ -589,7 +590,7 @@ namespace R1Engine {
             if (!IsTrackMovingEnabled)
                 return;
             
-            var manager = LevelEditorData.Level.TrackManager;
+            var manager = LevelEditorData.Level.SelectedTrackManager;
             if (!manager.Loop) {
                 TrackDistance = Mathf.Clamp(TrackDistance, 0f, manager.TrackLength);
             }

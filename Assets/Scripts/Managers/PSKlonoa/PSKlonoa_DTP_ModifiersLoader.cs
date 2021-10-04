@@ -23,6 +23,7 @@ namespace R1Engine
             BackgroundModifiers = backgroundModifiers;
 
             GameObj_Objects = new List<GameObject>();
+            GameObj_CameraAnimations = new List<CameraAnimations_File>();
             BG_Layers = new List<BackgroundLayer>();
             BG_Clears = new List<BackgroundModifierData_Clear>();
             Anim_Manager = new PS1VRAMAnimationManager();
@@ -42,7 +43,8 @@ namespace R1Engine
         // Game objects
         public bool GameObj_IsAnimated { get; set; }
         public List<GameObject> GameObj_Objects { get; }
-        
+        public List<CameraAnimations_File> GameObj_CameraAnimations { get; }
+
         // Backgrounds
         public bool HasHUD { get; set; }
         public List<BackgroundLayer> BG_Layers { get; }
@@ -292,7 +294,7 @@ namespace R1Engine
                 }
 
                 if (modifier.Data_CameraAnimations != null)
-                    PSKlonoa_DTP_BaseManager.CamAnim = modifier.Data_CameraAnimations;
+                    GameObj_CameraAnimations.Add(modifier.Data_CameraAnimations);
             }
         }
 

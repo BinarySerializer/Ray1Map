@@ -56,8 +56,11 @@ namespace R1Engine
         public PS1_VRAM PS1_VRAM { get; set; }
 
         // Track
-        public Unity_TrackManager TrackManager { get; set; }
+        public Unity_TrackManager[] TrackManagers { get; set; }
+        public string[] TrackNames { get; protected set; }
         public bool CanMoveAlongTrack { get; set; }
+        public int SelectedTrack { get; set; }
+        public Unity_TrackManager SelectedTrackManager => TrackManagers?.ElementAtOrDefault(SelectedTrack);
 
         #endregion
 
@@ -109,7 +112,10 @@ namespace R1Engine
                 Layer = Unity_Map.MapLayer.Overlay,
             };
 
-            CanMoveAlongTrack = IsometricData != null && TrackManager != null && TrackManager.IsAvailable(LevelEditorData.MainContext, this);
+            CanMoveAlongTrack = IsometricData != null && TrackManagers != null && TrackManagers.Any(x => x.IsAvailable(LevelEditorData.MainContext, this));
+
+            if (TrackManagers != null)
+                TrackNames = TrackManagers.Select(x => x.Name).ToArray();
 
             return this;
         }

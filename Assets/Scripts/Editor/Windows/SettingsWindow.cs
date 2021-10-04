@@ -358,7 +358,11 @@ public class SettingsWindow : UnityWindow
                 if (LevelEditorData.Level.CanMoveAlongTrack) 
                 {
                     var cam = Controller.obj?.levelController?.editor?.cam;
-                    if (cam != null) {
+                    
+                    if (cam != null) 
+                    {
+                        LevelEditorData.Level.SelectedTrack = EditorField("Track", LevelEditorData.Level.SelectedTrack, LevelEditorData.Level.TrackNames);
+
                         cam.ToggleTrackMoving(EditorField($"Move along track", cam.IsTrackMovingEnabled));
                     }
                 }

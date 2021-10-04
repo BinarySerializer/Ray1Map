@@ -992,7 +992,7 @@ namespace R1Engine
                 GetCollisionTypeGraphicFunc = x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.GetR1Settings().EngineVersion),
                 Sectors = GetSectors(scene, dataBlock),
                 IsometricData = isometricData,
-                TrackManager = new Unity_TrackManager_GBA(),
+                TrackManagers = new Unity_TrackManager_GBA().YieldToArray(),
             };
         }
 

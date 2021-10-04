@@ -196,7 +196,7 @@ namespace R1Engine
                 GetCollisionTypeNameFunc = x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
                 Localization = loc.Item1,
                 IsometricData = Unity_IsometricData.Mode7(CellSize),
-                TrackManager = new Unity_TrackManager_GBAVV_NitroKart(),
+                TrackManagers = new Unity_TrackManager_GBAVV_NitroKart().YieldToArray(),
             };
         }
 
