@@ -150,14 +150,16 @@ namespace R1Engine
             if (isMap) 
                 CorrectWorldMapObjectPositions(objects, maps[2].Width, maps[2].Height);
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objmanager,
-                eventData: objects,
-                cellSize: CellSize,
-                defaultLayer: 2,
-                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null,
-                collisionLines: collisionLines);
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objmanager,
+                EventData = objects,
+                CellSize = CellSize,
+                DefaultLayer = 2,
+                IsometricData = isMap ? Unity_IsometricData.Mode7(CellSize) : null,
+                CollisionLines = collisionLines
+            };
         }
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EOD_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)

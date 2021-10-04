@@ -980,18 +980,20 @@ namespace R1Engine
             // Get actors
             var actors = new List<Unity_SpriteObject>(GetObjects(context, scene, objManager, dataBlock));
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                eventData: actors,
-                defaultCollisionLayer: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision),
-                localization: LoadLocalization(context),
-                cellSize: CellSize,
-                getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.GetR1Settings().EngineVersion),
-                sectors: GetSectors(scene, dataBlock),
-                isometricData: isometricData,
-                trackManager: new Unity_TrackManager_GBA());
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = actors,
+                DefaultCollisionLayer = mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision),
+                Localization = LoadLocalization(context),
+                CellSize = CellSize,
+                GetCollisionTypeNameFunc = x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
+                GetCollisionTypeGraphicFunc = x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.GetR1Settings().EngineVersion),
+                Sectors = GetSectors(scene, dataBlock),
+                IsometricData = isometricData,
+                TrackManager = new Unity_TrackManager_GBA(),
+            };
         }
 
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.GetR1Settings()) ?? new GBA_Actor[0], data));

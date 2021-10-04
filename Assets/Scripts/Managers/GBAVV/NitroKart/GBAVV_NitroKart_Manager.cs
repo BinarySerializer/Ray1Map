@@ -185,17 +185,19 @@ namespace R1Engine
             addTrackWaypoints(map.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
             addTrackWaypoints(map.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                eventData: objects,
-                cellSize: CellSize,
-                objectGroups: objGroups.Select(x => x.Item2).ToArray(),
-                getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
-                localization: loc.Item1,
-                isometricData: Unity_IsometricData.Mode7(CellSize),
-                trackManager: new Unity_TrackManager_GBAVV_NitroKart());
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = objects,
+                CellSize = CellSize,
+                ObjectGroups = objGroups.Select(x => x.Item2).ToArray(),
+                GetCollisionTypeGraphicFunc = x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
+                GetCollisionTypeNameFunc = x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
+                Localization = loc.Item1,
+                IsometricData = Unity_IsometricData.Mode7(CellSize),
+                TrackManager = new Unity_TrackManager_GBAVV_NitroKart(),
+            };
         }
 
         public virtual void FindObjTypeData(Context context)

@@ -367,13 +367,15 @@ namespace R1Engine
             rayman?.InitRayman(context, events.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS));
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(
-                maps: maps, 
-                objManager: objManager, 
-                eventData: objects, 
-                rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, 
-                localization: await LoadLocalizationAsync(context),
-                background: lvlBg);
+            Unity_Level level = new Unity_Level()
+            {
+                Maps = maps, 
+                ObjManager = objManager, 
+                EventData = objects, 
+                Rayman = rayman != null ? new Unity_Object_R1(rayman, objManager) : null, 
+                Localization = await LoadLocalizationAsync(context),
+                Background = lvlBg
+            };
 
             await Controller.WaitIfNecessary();
 
@@ -437,6 +439,7 @@ namespace R1Engine
                     {
                         // Load the editor manager
                         var level = await LoadAsync(context);
+                        level.Init();
 
                         // Set up animations
                         level.ObjManager.InitObjects(level);
@@ -519,6 +522,7 @@ namespace R1Engine
                     {
                         // Load the level
                         var level = await LoadAsync(context);
+                        level.Init();
 
                         var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 

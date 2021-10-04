@@ -245,16 +245,18 @@ namespace R1Engine
 			}
 
 			// Return level
-			return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                eventData: unityObjs,
-				localization: LoadLocalization(context),
-				defaultLayer: 1,
-				defaultCollisionLayer: 2,
-				getCollisionTypeGraphicFunc: x => ((Gameloft_RRR_CollisionType)x).GetCollisionTypeGraphic(),
-				getCollisionTypeNameFunc: x => ((Gameloft_RRR_CollisionType)x).ToString(),
-                cellSize: (int)maps[0].TileSet[0].Tiles[0].rect.width);
+			return new Unity_Level()
+			{
+				Maps = maps,
+				ObjManager = objManager,
+				EventData = unityObjs,
+				Localization = LoadLocalization(context),
+				DefaultLayer = 1,
+				DefaultCollisionLayer = 2,
+				GetCollisionTypeGraphicFunc = x => ((Gameloft_RRR_CollisionType)x).GetCollisionTypeGraphic(),
+				GetCollisionTypeNameFunc = x => ((Gameloft_RRR_CollisionType)x).ToString(),
+				CellSize = (int)maps[0].TileSet[0].Tiles[0].rect.width,
+			};
 		}
 	}
 }

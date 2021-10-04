@@ -12,173 +12,148 @@ namespace R1Engine
     /// </summary>
     public class Unity_Level
     {
-        #region Constructor
+        #region Public Properties
 
-        public Unity_Level(Unity_Layer[] layers = null,
-            Unity_Map[] maps = null,
-            Unity_ObjectManager objManager = null, 
-            List<Unity_SpriteObject> eventData = null, 
-            Unity_SpriteObject rayman = null,
-            IList<KeyValuePair<string, string[]>> localization = null, 
-            int defaultLayer = 0, int defaultCollisionLayer = -1, 
-            int pixelsPerUnit = 16, 
-            int cellSize = 16,
-            Func<ushort, string> getCollisionTypeNameFunc = null,
-            Func<ushort, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, 
-            Texture2D background = null, 
-            Texture2D parallaxBackground = null,
-            Unity_Sector[] sectors = null,
-            Unity_IsometricData isometricData = null,
-            int? cellSizeOverrideCollision = null,
-            Unity_CollisionLine[] collisionLines = null,
-            string[] objectGroups = null,
-            Unity_TrackManager trackManager = null,
-            float framesPerSecond = 60f,
-            PS1_VRAM ps1Vram = null,
-            Unity_CameraClear cameraClear = null)
+        // General
+        public int PixelsPerUnit { get; set; } = 16;
+        public int CellSize { get; set; } = 16;
+        public int? CellSizeOverrideCollision { get; set; }
+        public float FramesPerSecond { get; set; } = 60;
+
+        // TODO: Replace this with toggle in editor
+        public int DefaultLayer { get; set; } = 0;
+        public int DefaultCollisionLayer { get; set; } = -1;
+
+        // Layers
+        public Unity_Layer[] Layers { get; set; }
+        public Unity_Map[] Maps { get; set; }
+        public Unity_Map GridMap { get; set; }
+        public float MinX { get; set; }
+        public float MinY { get; set; }
+        public float MaxX { get; set; }
+        public float MaxY { get; set; }
+
+        // Collision
+        public Unity_CollisionLine[] CollisionLines { get; set; }
+        public Func<ushort, string> GetCollisionTypeNameFunc { get; set; }
+        public Func<ushort, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; set; }
+
+        // Backgrounds
+        public Texture2D Background { get; set; }
+        public Texture2D ParallaxBackground { get; set; }
+
+        // Objects
+        public Unity_ObjectManager ObjManager { get; set; }
+        public string[] ObjectGroups { get; set; }
+        public List<Unity_SpriteObject> EventData { get; set; }
+        public Unity_SpriteObject Rayman { get; set; }
+
+        // Additional data
+        public Unity_IsometricData IsometricData { get; set; }
+        public IList<KeyValuePair<string, string[]>> Localization { get; set; }
+        public Unity_CameraClear CameraClear { get; set; }
+        public Unity_Sector[] Sectors { get; set; }
+        public PS1_VRAM PS1_VRAM { get; set; }
+
+        // Track
+        public Unity_TrackManager TrackManager { get; set; }
+        public bool CanMoveAlongTrack { get; set; }
+
+        #endregion
+
+        #region Public Methods
+
+        public Unity_Level Init()
         {
-            Maps = maps;
-            Layers = layers;
-            ObjManager = objManager;
-            EventData = eventData ?? new List<Unity_SpriteObject>();
-            Rayman = rayman;
-            Localization = localization;
-            PixelsPerUnit = pixelsPerUnit;
-            CellSize = cellSize;
-            GetCollisionTypeNameFunc = getCollisionTypeNameFunc ?? (x => ((TileCollisionType)x).ToString());
-            GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((TileCollisionType)x).GetCollisionTypeGraphic());
-            Background = background;
-            ParallaxBackground = parallaxBackground;
-            Sectors = sectors;
-            IsometricData = isometricData;
-            CellSizeOverrideCollision = cellSizeOverrideCollision;
-            CollisionLines = collisionLines;
-            ObjectGroups = objectGroups;
-            TrackManager = trackManager;
-            FramesPerSecond = framesPerSecond;
-            PS1_VRAM = ps1Vram;
-            CameraClear = cameraClear;
+            EventData ??= new List<Unity_SpriteObject>();
+            GetCollisionTypeNameFunc ??= x => ((TileCollisionType)x).ToString();
+            GetCollisionTypeGraphicFunc ??= x => ((TileCollisionType)x).GetCollisionTypeGraphic();
 
             CameraClear?.Apply();
 
             // Set default layers
-            if (Layers != null) {
-                DefaultLayer = defaultLayer;
-                DefaultCollisionLayer = defaultCollisionLayer == -1 ? DefaultLayer : defaultCollisionLayer;
-            } else {
+            if (Layers != null)
+            {
+                if (DefaultCollisionLayer == -1)
+                    DefaultCollisionLayer = DefaultLayer;
+            }
+            else
+            {
                 InitializeDefaultLayers();
-                DefaultLayer = Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == defaultLayer);
-                DefaultCollisionLayer = defaultCollisionLayer == -1 ? DefaultLayer : Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == defaultCollisionLayer);
+                DefaultLayer = Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == DefaultLayer);
+                DefaultCollisionLayer = DefaultCollisionLayer == -1 ? DefaultLayer : Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == DefaultCollisionLayer);
             }
 
-            if (Layers?.Length > 0) {
-                var dimensions = Layers.Select(l => l.GetDimensions(CellSize, CellSizeOverrideCollision));
+            if (Layers?.Length > 0)
+            {
+                Rect[] dimensions = Layers.Select(l => l.GetDimensions(CellSize, CellSizeOverrideCollision)).ToArray();
                 MinX = dimensions.Min(d => d.xMin);
                 MinY = dimensions.Min(d => d.yMin);
                 MaxX = dimensions.Max(d => d.xMax);
                 MaxY = dimensions.Max(d => d.yMax);
             }
+
             var width = (ushort)(MaxX - MinX);
             var height = (ushort)(MaxY - MinY);
+
             GridMap = new Unity_Map
             {
                 Width = width,
                 Height = height,
                 TileSet = new Unity_TileSet[]
                 {
-                    new Unity_TileSet(Util.GetGridTex(cellSize), cellSize),
+                    new Unity_TileSet(Util.GetGridTex(CellSize), CellSize),
                 },
                 MapTiles = Enumerable.Range(0, width * height).Select(x => new Unity_Tile(new MapTile())).ToArray(),
                 Type = Unity_Map.MapType.Graphics,
-                Layer = Unity_Map.MapLayer.Overlay
+                Layer = Unity_Map.MapLayer.Overlay,
             };
 
             CanMoveAlongTrack = IsometricData != null && TrackManager != null && TrackManager.IsAvailable(LevelEditorData.MainContext, this);
+
+            return this;
         }
 
-        #endregion
-
-        #region Public Properties
-
-        public int PixelsPerUnit { get; }
-        public int CellSize { get; }
-        public int? CellSizeOverrideCollision { get; set; }
-
-        // TODO: Replace this with toggle in editor
-        public int DefaultLayer { get; }
-        public int DefaultCollisionLayer { get; }
-
-        public Unity_Map[] Maps { get; }
-        public Unity_Map GridMap { get; }
-        public float MinX { get; }
-        public float MinY { get; }
-        public float MaxX { get; }
-        public float MaxY { get; }
-
-        public Unity_Layer[] Layers { get; set; }
-
-        public List<Unity_SpriteObject> EventData { get; }
-        public Unity_SpriteObject Rayman { get; }
-
-        public IList<KeyValuePair<string, string[]>> Localization { get; }
-
-        public Unity_ObjectManager ObjManager { get; }
-
-        public Func<ushort, string> GetCollisionTypeNameFunc { get; }
-        public Func<ushort, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
-
-        public Texture2D Background { get; }
-        public Texture2D ParallaxBackground { get; }
-
-        public Unity_Sector[] Sectors { get; }
-
-        public Unity_IsometricData IsometricData { get; }
-
-        public Unity_CollisionLine[] CollisionLines { get; }
-
-        public string[] ObjectGroups { get; }
-
-        public Unity_TrackManager TrackManager { get; }
-        public bool CanMoveAlongTrack { get; }
-
-        public float FramesPerSecond { get; set; }
-
-        public PS1_VRAM PS1_VRAM { get; }
-
-        public Unity_CameraClear CameraClear { get; }
-
-        #endregion
-
-        #region Public Methods
-        public void InitializeDefaultLayers() {
-            if (Layers == null) {
-                List<Unity_Layer> ls = new List<Unity_Layer>();
-                if (Background != null) {
-                    ls.Add(new Unity_Layer_Texture() {
-                        Name = "Background",
-                        ShortName = "BG",
-                        Texture = Background,
-                        Layer = Unity_Map.MapLayer.Back
-                    });
-                }
-                if (ParallaxBackground != null) {
-                    ls.Add(new Unity_Layer_Texture() {
-                        Name = "Parallax Background",
-                        ShortName = "PAR",
-                        Texture = ParallaxBackground,
-                        Layer = Unity_Map.MapLayer.Back
-                    });
-                }
-                for (int i = 0; i < Maps?.Length; i++) {
-                    ls.Add(new Unity_Layer_Map() {
-                        Name = $"Map {i} ({Maps[i].Type})",
-                        ShortName = i.ToString(),
-                        MapIndex = i,
-                        Map = Maps[i]
-                    });
-                }
-                Layers = ls.ToArray();
+        public void InitializeDefaultLayers()
+        {
+            if (Layers != null) 
+                return;
+            
+            List<Unity_Layer> ls = new List<Unity_Layer>();
+            
+            if (Background != null) 
+            {
+                ls.Add(new Unity_Layer_Texture() 
+                {
+                    Name = "Background",
+                    ShortName = "BG",
+                    Texture = Background,
+                    Layer = Unity_Map.MapLayer.Back
+                });
             }
+
+            if (ParallaxBackground != null) 
+            {
+                ls.Add(new Unity_Layer_Texture() 
+                {
+                    Name = "Parallax Background",
+                    ShortName = "PAR",
+                    Texture = ParallaxBackground,
+                    Layer = Unity_Map.MapLayer.Back
+                });
+            }
+
+            for (int i = 0; i < Maps?.Length; i++) 
+            {
+                ls.Add(new Unity_Layer_Map() 
+                {
+                    Name = $"Map {i} ({Maps[i].Type})",
+                    ShortName = i.ToString(),
+                    MapIndex = i,
+                    Map = Maps[i]
+                });
+            }
+            Layers = ls.ToArray();
         }
 
         /// <summary>

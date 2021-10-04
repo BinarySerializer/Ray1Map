@@ -530,13 +530,15 @@ namespace R1Engine
             // Add localization
             var loc = rom.Localization.Localization.Select((x, i) => new KeyValuePair<string, string[]>(rom.Localization.Localization[0][i], x)).ToArray();
 
-            return new Unity_Level(
-                maps: maps, 
-                objManager: objManager,
-                eventData: allObjects,
-                cellSize: CellSize,
-                localization: loc,
-                isometricData: isometricData);
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = allObjects,
+                CellSize = CellSize,
+                Localization = loc,
+                IsometricData = isometricData
+            };
         }
 
         public IEnumerable<Unity_Object_GBAIsometricRHR> CreateChildObjects(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometricRHR objManager)

@@ -350,19 +350,19 @@ namespace R1Engine
                 Controller.DetailedState = $"Loading localization";
                 await Controller.WaitIfNecessary();
 
-                return new Unity_Level(
-                    maps: new Unity_Map[]
+                return new Unity_Level()
+                {
+                    Maps = new Unity_Map[]
                     {
                         map
                     },
-                    objManager: new Unity_ObjectManager(context),
-                    eventData: new List<Unity_SpriteObject>(),
-                    cellSize: CellSize,
-                    getCollisionTypeNameFunc: collNameFunc,
-                    getCollisionTypeGraphicFunc: collGraphicFunc,
-                    localization: LoadLocalization(rom))
-                {
-                    CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null
+                    ObjManager = new Unity_ObjectManager(context),
+                    EventData = new List<Unity_SpriteObject>(),
+                    CellSize = CellSize,
+                    GetCollisionTypeNameFunc = collNameFunc,
+                    GetCollisionTypeGraphicFunc = collGraphicFunc,
+                    Localization = LoadLocalization(rom),
+                    CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null,
                 };
             }
 
@@ -492,17 +492,20 @@ namespace R1Engine
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
 
-            return new Unity_Level(
-                maps: validMaps,
-                objManager: objManager,
-                eventData: objects,
-                cellSize: CellSize,
-                getCollisionTypeNameFunc: collNameFunc,
-                getCollisionTypeGraphicFunc: collGraphicFunc,
-                defaultLayer: 1,
-                isometricData: isometricData,
-                localization: LoadLocalization(rom),
-                defaultCollisionLayer: validMaps.Length - 1) { CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
+            return new Unity_Level()
+            {
+                Maps = validMaps,
+                ObjManager = objManager,
+                EventData = objects,
+                CellSize = CellSize,
+                GetCollisionTypeNameFunc = collNameFunc,
+                GetCollisionTypeGraphicFunc = collGraphicFunc,
+                DefaultLayer = 1,
+                IsometricData = isometricData,
+                Localization = LoadLocalization(rom),
+                DefaultCollisionLayer = validMaps.Length - 1,
+                CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null,
+            };
         }
 
         public KeyValuePair<string, string[]>[] LoadLocalization(GBAIsometric_Spyro_ROM rom)

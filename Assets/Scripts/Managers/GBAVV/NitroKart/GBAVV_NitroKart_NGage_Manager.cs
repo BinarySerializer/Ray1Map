@@ -1229,12 +1229,13 @@ namespace R1Engine
                 });
             }
 
-            return new Unity_Level(
-                layers: layers.ToArray(),
-                objManager: objManager,
-                eventData: objects,
-                cellSize: 8,
-                isometricData: new Unity_IsometricData
+            return new Unity_Level()
+            {
+                Layers = layers.ToArray(),
+                ObjManager = objManager,
+                EventData = objects,
+                CellSize = 8,
+                IsometricData = new Unity_IsometricData
                 {
                     CollisionWidth = 0,
                     CollisionHeight = 0,
@@ -1247,9 +1248,10 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 8
                 },
-                objectGroups: objGroups.Select(x => x.Item2).ToArray(),
-                localization: loc.Item1,
-                trackManager: new Unity_TrackManager_GBAVV_NitroKart());
+                ObjectGroups = objGroups.Select(x => x.Item2).ToArray(),
+                Localization = loc.Item1,
+                TrackManager = new Unity_TrackManager_GBAVV_NitroKart(),
+            };
         }
 
         public override UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

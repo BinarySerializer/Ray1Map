@@ -1067,29 +1067,30 @@ namespace R1Engine
                     // To list
                     ToList();
 
-                return new Unity_Level(
-                    maps: new Unity_Map[]
+                return new Unity_Level()
+                {
+                    Maps = new Unity_Map[]
                     {
                         map, // Put the map first so the backgrounds are visible
                         bg0,
                         bg1,
                     },
-                    objManager: objmanager,
-                    getCollisionTypeNameFunc: x => ((GBARRR_Mode7TileCollisionType)x).ToString(),
-                    getCollisionTypeGraphicFunc: x => ((GBARRR_Mode7TileCollisionType)x).GetCollisionTypeGraphic(),
-                    cellSize: CellSize,
-                    localization: loc,
-                    eventData: mode7Objects,
-                    defaultLayer: 0,
-                    rayman: new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
+                    ObjManager = objmanager,
+                    GetCollisionTypeNameFunc = x => ((GBARRR_Mode7TileCollisionType)x).ToString(),
+                    GetCollisionTypeGraphicFunc = x => ((GBARRR_Mode7TileCollisionType)x).GetCollisionTypeGraphic(),
+                    CellSize = CellSize,
+                    Localization = loc,
+                    EventData = mode7Objects,
+                    DefaultLayer = 0,
+                    Rayman = new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
                     {
                         ObjectType = GBARRR_Mode7Object.Mode7Type.Rayman,
                         XPosition = (short)rayPos.x,
                         YPosition = (short)rayPos.y
                     }, objmanager, false),
-                    isometricData: Unity_IsometricData.Mode7(CellSize),
-                    trackManager: new Unity_TrackManager_GBARRR_Mode7()
-                );
+                    IsometricData = Unity_IsometricData.Mode7(CellSize),
+                    TrackManager = new Unity_TrackManager_GBARRR_Mode7(),
+                };
             }
 
             if (gameMode == GameMode.Menu)
@@ -1121,15 +1122,16 @@ namespace R1Engine
                     }
                 }
 
-                return new Unity_Level(
-                    maps: maps,
-                    objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0][]),
-                    getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
-                    getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
-                    cellSize: CellSize,
-                    localization: loc,
-                    defaultLayer: 0
-                );
+                return new Unity_Level()
+                {
+                    Maps = maps,
+                    ObjManager = new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0][]),
+                    GetCollisionTypeNameFunc = x => ((GBARRR_TileCollisionType)x).ToString(),
+                    GetCollisionTypeGraphicFunc = x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                    CellSize = CellSize,
+                    Localization = loc,
+                    DefaultLayer = 0
+                };
             }
 
             if (gameMode == GameMode.Mode7Unused)
@@ -1184,29 +1186,31 @@ namespace R1Engine
 
                 var o = new Unity_ObjectManager_GBARRRMode7Unused(context, Mode7Unused_GetGraphicsGroups(rom));
 
-                return new Unity_Level(
-                    maps: new Unity_Map[]
+                return new Unity_Level()
+                {
+                    Maps = new Unity_Map[]
                     {
                         map, // Put the map first so the backgrounds are visible
                         bg0,
                         bg1,
                     },
-                    objManager: o,
-                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_GBARRRMode7Unused(x, o)).ToList(),
-                    getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
-                    getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
-                    cellSize: CellSize,
-                    localization: loc,
-                    defaultLayer: 0,
-                    rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object() {
+                    ObjManager = o,
+                    EventData = rom.ObjectArray.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_GBARRRMode7Unused(x, o)).ToList(),
+                    GetCollisionTypeNameFunc = x => ((GBARRR_TileCollisionType)x).ToString(),
+                    GetCollisionTypeGraphicFunc = x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                    CellSize = CellSize,
+                    Localization = loc,
+                    DefaultLayer = 0,
+                    Rayman = new Unity_Object_GBARRRMode7Unused(new GBARRR_Object() 
+                    {
                         XPosition = 476,
                         YPosition = 85
                     }, o)
                     {
                         AnimationGroupIndex = 0
                     },
-                    isometricData: Unity_IsometricData.Mode7(CellSize)
-                );
+                    IsometricData = Unity_IsometricData.Mode7(CellSize)
+                };
             }
 
             Controller.DetailedState = $"Loading tile set";
@@ -1285,8 +1289,9 @@ namespace R1Engine
                 obj.AnimIndex = animIndex;
             }
 
-            return new Unity_Level(
-                maps: hasFGMap ? new Unity_Map[]
+            return new Unity_Level()
+            {
+                Maps = hasFGMap ? new Unity_Map[]
                 {
                     bg0Map,
                     bg1Map,
@@ -1297,16 +1302,16 @@ namespace R1Engine
                     bg0Map,
                     bg1Map,
                     levelMap,
-                }, 
-                objManager: objManager,
-                eventData: objList,
-                getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
-                cellSize: CellSize,
-                localization: loc,
-                defaultCollisionLayer: 2,
-                defaultLayer: 2
-            );
+                },
+                ObjManager = objManager,
+                EventData = objList,
+                GetCollisionTypeNameFunc = x => ((GBARRR_TileCollisionType)x).ToString(),
+                GetCollisionTypeGraphicFunc = x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                CellSize = CellSize,
+                Localization = loc,
+                DefaultCollisionLayer = 2,
+                DefaultLayer = 2
+            };
         }
 
 

@@ -170,15 +170,17 @@ namespace R1Engine
                     end: new Vector3(x, -cmds.Where(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.Object_0).Max(c => c.XPos) - 20, z));
             }
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objmanager,
-                eventData: objects,
-                cellSize: CellSize,
-                defaultLayer: 2,
-                isometricData: isMap || isWaterSki ? Unity_IsometricData.Mode7(CellSize) : null,
-                collisionLines: collisionLines,
-                trackManager: trackManager);
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objmanager,
+                EventData = objects,
+                CellSize = CellSize,
+                DefaultLayer = 2,
+                IsometricData = isMap || isWaterSki ? Unity_IsometricData.Mode7(CellSize) : null,
+                CollisionLines = collisionLines,
+                TrackManager = trackManager,
+            };
         }
 
         public Unity_Map[] LoadMaps(Context context, GBAKlonoa_DCT_ROM rom)

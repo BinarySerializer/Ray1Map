@@ -311,13 +311,15 @@ namespace R1Engine
                 objects.AddRange(map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1)));
 
             // TODO: Collision type for map collision
-            return new Unity_Level(
-                maps: maps,
-                objManager: objmanager,
-                eventData: objects,
-                cellSize: CellSize,
-                localization: loc.Item1,
-                collisionLines: collisionLines?.ToArray());
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objmanager,
+                EventData = objects,
+                CellSize = CellSize,
+                Localization = loc.Item1,
+                CollisionLines = collisionLines?.ToArray()
+            };
         }
 
         // Tileset

@@ -59,6 +59,7 @@ namespace R1Engine
                 // Load the level
                 Controller.LoadState = Controller.State.Loading;
                 LevelEditorData.Level = await manager.LoadAsync(serializeContext);
+                LevelEditorData.Level.Init();
                 LevelEditorData.ShowEventsForMaps = LevelEditorData.Level.Maps?.Select(x => true).ToArray() ?? new bool[] { true };
 
                 await Controller.WaitIfNecessary();

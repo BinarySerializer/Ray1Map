@@ -224,12 +224,13 @@ namespace R1Engine
             float w = mapData.MapWidth * 0.5f;
             float h = mapData.MapHeight * 0.5f;
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                eventData: new List<Unity_SpriteObject>(objects),
-                cellSize: CellSize,
-                isometricData: new Unity_IsometricData()
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = new List<Unity_SpriteObject>(objects),
+                CellSize = CellSize,
+                IsometricData = new Unity_IsometricData()
                 {
                     CollisionWidth = mapData.CollisionHeight,
                     CollisionHeight = mapData.CollisionWidth,
@@ -242,7 +243,8 @@ namespace R1Engine
                     CalculateYDisplacement = () => h - 16 * mapData.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12 / 64f
                 },
-                localization: loc.Item1);
+                Localization = loc.Item1,
+            };
         }
 
         // Mode7

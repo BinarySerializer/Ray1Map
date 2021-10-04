@@ -409,14 +409,16 @@ namespace R1Engine
             var objManager = new Unity_ObjectManager_GBC(context, actorModels.ToArray());
             var objects = new List<Unity_SpriteObject>(scene.GameObjects.Select(x => new Unity_Object_GBC(x, objManager)));
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                eventData: objects,
-                cellSize: CellSize,
-                sectors: scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => i - 1).ToList())).ToArray(),
-                getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = objects,
+                CellSize = CellSize,
+                Sectors = scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => i - 1).ToList())).ToArray(),
+                GetCollisionTypeGraphicFunc = x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
+                GetCollisionTypeNameFunc = x => ((GBC_TileCollisionType)x).ToString()
+            };
         }
 
         public Unity_ObjGraphics GetCommonDesign(GBC_Puppet puppet)

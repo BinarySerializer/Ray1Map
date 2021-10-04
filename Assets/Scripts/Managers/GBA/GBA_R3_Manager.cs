@@ -109,17 +109,19 @@ namespace R1Engine
             }, objManager, false);
 
             // Return the level
-            return new Unity_Level(
-                maps: new Unity_Map[]
+            return new Unity_Level()
+            {
+                Maps = new Unity_Map[]
                 {
                     map
-                }, 
-                objManager: objManager,
-                eventData: new List<Unity_SpriteObject>()
+                },
+                ObjManager = objManager,
+                EventData = new List<Unity_SpriteObject>()
                 {
                     obj
                 },
-                cellSize: CellSize);
+                CellSize = CellSize
+            };
         }
 
         // TODO: Find the way the game gets the vignette offsets

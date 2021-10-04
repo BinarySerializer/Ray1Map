@@ -317,14 +317,14 @@ namespace R1Engine
             var rayman = new Unity_Object_SNES(rom.Rayman, objManager);
 
             // Convert levelData to common level format
-            return new Unity_Level(
-                maps: maps, 
-                objManager: objManager,
-                getCollisionTypeNameFunc: x => ((JAG_BlockType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((JAG_BlockType)x).GetCollisionTypeGraphic(),
-                rayman: rayman,
-                cellSize: 8)
+            return new Unity_Level()
             {
+                Maps = maps,
+                ObjManager = objManager,
+                GetCollisionTypeNameFunc = x => ((JAG_BlockType)x).ToString(),
+                GetCollisionTypeGraphicFunc = x => ((JAG_BlockType)x).GetCollisionTypeGraphic(),
+                Rayman = rayman,
+                CellSize = 8,
                 CellSizeOverrideCollision = 16
             };
         }

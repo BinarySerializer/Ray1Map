@@ -660,6 +660,7 @@ public class SettingsWindow : UnityWindow
 
                     // Load the level
                     var level = await manager.LoadAsync(context);
+                    level.Init();
 
                     // Randomize (only first map for now)
                     Randomizer.Randomize(level, flag, world.Index + lvl + RandomizerSeed, 0);

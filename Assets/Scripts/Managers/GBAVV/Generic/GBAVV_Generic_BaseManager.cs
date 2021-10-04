@@ -187,14 +187,16 @@ namespace R1Engine
                 addDummyAnimSet: !hasAssignedObjTypeGraphics);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBAVV(objmanager, obj, groupIndex, i)));
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objmanager,
-                eventData: new List<Unity_SpriteObject>(objects),
-                cellSize: CellSize,
-                getCollisionTypeGraphicFunc: x => ((GBAVV_Map2D_CollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBAVV_Map2D_CollisionType)x).ToString(),
-                localization: loc.Item1);
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objmanager,
+                EventData = new List<Unity_SpriteObject>(objects),
+                CellSize = CellSize,
+                GetCollisionTypeGraphicFunc = x => ((GBAVV_Map2D_CollisionType)x).GetCollisionTypeGraphic(),
+                GetCollisionTypeNameFunc = x => ((GBAVV_Map2D_CollisionType)x).ToString(),
+                Localization = loc.Item1
+            };
         }
         public Unity_Tile[] GetTileMap(GBAVV_Map2D_MapLayer layer, GBAVV_Map2D_LayersBlock.GBAVV_TileLayerData tileLayerData, bool is8bit = false, bool isCollision = false)
         {
@@ -611,11 +613,12 @@ namespace R1Engine
             // Spawn the main character (always type 0)
             objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()));
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objmanager,
-                eventData: new List<Unity_SpriteObject>(objects),
-                isometricData: new Unity_IsometricData
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objmanager,
+                EventData = new List<Unity_SpriteObject>(objects),
+                IsometricData = new Unity_IsometricData
                 {
                     CollisionWidth = 0,
                     CollisionHeight = 0,
@@ -628,9 +631,10 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = new Vector3(1, 1, 0.5f) * CellSize
                 },
-                cellSize: CellSize,
-                localization: loc.Item1,
-                trackManager: new Unity_TrackManager_ObjectsLinear(levelInfo.LevelType == 0));
+                CellSize = CellSize,
+                Localization = loc.Item1,
+                TrackManager = new Unity_TrackManager_ObjectsLinear(levelInfo.LevelType == 0),
+            };
         }
         public virtual int[] Mode7AnimSetCounts => new int[0];
         public virtual int Mode7LevelsCount => 0;

@@ -1348,14 +1348,16 @@ namespace R1Engine
             }
 
             // Convert levelData to common level format
-            return new Unity_Level(
-                maps: maps, 
-                objManager: objManager, 
-                eventData: eventDataList, 
-                rayman: rayman,
-                getCollisionTypeNameFunc: x => ((JAG_BlockType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((JAG_BlockType)x).GetCollisionTypeGraphic(), 
-                background: bg);
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                EventData = eventDataList,
+                Rayman = rayman,
+                GetCollisionTypeNameFunc = x => ((JAG_BlockType)x).ToString(),
+                GetCollisionTypeGraphicFunc = x => ((JAG_BlockType)x).GetCollisionTypeGraphic(),
+                Background = bg
+            };
         }
 
         /// <summary>

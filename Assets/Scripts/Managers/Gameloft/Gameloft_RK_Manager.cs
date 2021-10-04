@@ -1237,10 +1237,12 @@ namespace R1Engine
 			}
 
 			// Return level
-			return new Unity_Level(
-				layers: layers.ToArray(),
-				objManager: objManager,
-				isometricData: new Unity_IsometricData {
+			return new Unity_Level()
+			{
+				Layers = layers.ToArray(),
+				ObjManager = objManager,
+				IsometricData = new Unity_IsometricData 
+                {
 					CollisionWidth = 0,
 					CollisionHeight = 0,
 					TilesWidth = 0,
@@ -1252,17 +1254,16 @@ namespace R1Engine
 					CalculateXDisplacement = () => 0,
 					ObjectScale = Vector3.one,
 				},
-				//objectGroups: objGroups,
-				eventData: unityObjs,
-				localization: LoadLocalization(context),
-				defaultLayer: 0,
-				defaultCollisionLayer: 0,
-				cellSize: 8,
-				trackManager: new Unity_TrackManager_Gameloft_RK() {
+                EventData = unityObjs,
+				Localization = LoadLocalization(context),
+				DefaultLayer = 0,
+				DefaultCollisionLayer = 0,
+				CellSize = 8,
+				TrackManager = new Unity_TrackManager_Gameloft_RK() 
+                {
 					Points = points.Select(p => scaledCenterPos + new Vector3(p.x, -p.z, p.y)).ToArray()
-				});
-
-			///throw new NotImplementedException();
-		}
+				},
+            };
+        }
 	}
 }

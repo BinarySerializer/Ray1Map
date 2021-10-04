@@ -1389,13 +1389,15 @@ namespace R1Engine
             var rayman = new Unity_Object_R1(ObjData.GetRayman(context, objData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
             // Create a level object
-            Unity_Level level = new Unity_Level(
-                maps: maps, 
-                objManager: objManager, 
-                rayman: rayman, 
-                localization: loc,
-                background: bg,
-                parallaxBackground: bg2);
+            Unity_Level level = new Unity_Level()
+            {
+                Maps = maps, 
+                ObjManager = objManager, 
+                Rayman = rayman, 
+                Localization = loc,
+                Background = bg,
+                ParallaxBackground = bg2
+            };
 
             for (var i = 0; i < objData.Objects.Length; i++)
             {

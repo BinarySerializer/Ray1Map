@@ -804,14 +804,15 @@ namespace R1Engine
                           $"{startupLog}");
             }
 
-            return new Unity_Level(
-                layers: layers,
-                cellSize: 16,
-                objManager: objManager,
-                eventData: objects,
-                framesPerSecond: 60,
-                collisionLines: paths,
-                isometricData: new Unity_IsometricData
+            return new Unity_Level()
+            {
+                Layers = layers,
+                CellSize = 16,
+                ObjManager = objManager,
+                EventData = objects,
+                FramesPerSecond = 60,
+                CollisionLines = paths,
+                IsometricData = new Unity_IsometricData
                 {
                     CollisionWidth = 0,
                     CollisionHeight = 0,
@@ -824,9 +825,10 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 1
                 },
-                ps1Vram: loader.VRAM,
-                cameraClear: camClear,
-                trackManager: new Unity_TrackManager_PSKlonoaDTP(CamAnim, scale));
+                PS1_VRAM = loader.VRAM,
+                CameraClear = camClear,
+                TrackManager = new Unity_TrackManager_PSKlonoaDTP(CamAnim, scale)
+            };
         }
 
         public static CameraAnimations_File CamAnim { get; set; }

@@ -1705,9 +1705,14 @@ namespace R1Engine {
 			if(CanBeModded) await CreateModWorld(loader);
 
 			Debug.LogWarning("BINs serialized. Time to do something with this data :)");
-			return new Unity_Level(objManager: new Unity_ObjectManager(context), isometricData: new Unity_IsometricData() {
-				
-			});
+			return new Unity_Level()
+            {
+                ObjManager = new Unity_ObjectManager(context), 
+                IsometricData = new Unity_IsometricData()
+                {
+
+                },
+			};
 		}
 
 		public async UniTask CreateTestVisualization(LOA_Loader loader) {

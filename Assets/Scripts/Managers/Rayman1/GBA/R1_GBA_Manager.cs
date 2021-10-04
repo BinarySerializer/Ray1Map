@@ -1163,14 +1163,16 @@ namespace R1Engine
             ray.AnimationsPointer = data.DES_Ray.AnimationsPointer;
             ray.ETAPointer = data.ETA_Ray?.Offset;
 
-            return new Unity_Level(
-                maps: maps,
-                objManager: objManager,
-                localization: LoadLocalization(data),
-                background: bg,
-                parallaxBackground: bg2,
-                eventData: events,
-                rayman: new Unity_Object_R1(ray, objManager));
+            return new Unity_Level()
+            {
+                Maps = maps,
+                ObjManager = objManager,
+                Localization = LoadLocalization(data),
+                Background = bg,
+                ParallaxBackground = bg2,
+                EventData = events,
+                Rayman = new Unity_Object_R1(ray, objManager),
+            };
         }
 
         public virtual KeyValuePair<string, string[]>[] LoadLocalization(IGBAData data)
