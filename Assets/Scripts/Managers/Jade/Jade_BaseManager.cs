@@ -1083,10 +1083,12 @@ namespace R1Engine {
 
 		public class ModdedGameObject {
 			public uint PrefabKey { get; set; }
-			public Jade_Reference<OBJ_GameObject> Prefab { get; set; }
+			public Jade_Reference<OBJ_GameObject> ReadReference { get; set; }
 			public string Name { get; set; }
 			public Transform Transform { get; set; }
 			public uint NewKey { get; set; }
+			public bool CreatePrefab { get; set; }
+			public Jade_Reference<OBJ_GameObject> WriteReference { get; set; }
 		}
 		public async UniTask AddModdedGameObjects(GameSettings settings, string inputDir, string outputDir) {
 			// Input: Keys to avoid
@@ -1094,8 +1096,11 @@ namespace R1Engine {
 			var modBehaviour = GameObject.FindObjectOfType<JadeModBehaviour>();
 			if (modBehaviour != null) {
 				List<ModdedGameObject> ModdedGameObjects = new List<ModdedGameObject>();
+				Jade_Reference<WOR_World> ModWorld = null;
+				string ModWorldName = null;
 				var moddedObjCount = modBehaviour.gameObject.transform.childCount;
 				if (moddedObjCount > 0) {
+					bool saveModWorld = false;
 					LOA_Loader readLoader = null;
 					using (var readContext = new R1Context(settings)) {
 						await LoadFilesAsync(readContext);
@@ -1104,16 +1109,18 @@ namespace R1Engine {
 						for (int moddedObjIndex = 0; moddedObjIndex < moddedObjCount; moddedObjIndex++) {
 							var transform = modBehaviour.gameObject.transform.GetChild(moddedObjIndex);
 							var transformName = transform.gameObject.name;
+							bool createPrefab = false;
 							Debug.Log($"Processing GameObject: {transformName}");
 							string parsedName = null;
 
 							// Parse name to get key + desired GameObject name
-							const string GaoNamePattern = @"^\[(?<key>........)\] (?<name>.*)$";
+							const string GaoNamePattern = @"^(?<prefab>Prefab - )?\[(?<key>........)\] (?<name>.*)$";
 							Match m = Regex.Match(transformName, GaoNamePattern, RegexOptions.IgnoreCase);
 							uint key = 0;
 							if (m.Success) {
 								string keyString = m.Groups["key"].Value;
 								parsedName = m.Groups["name"].Value;
+								createPrefab = m.Groups["prefab"].Success;
 								UInt32.TryParse(keyString,
 									System.Globalization.NumberStyles.HexNumber,
 									System.Globalization.CultureInfo.CurrentCulture,
@@ -1126,11 +1133,32 @@ namespace R1Engine {
 								file.Resolve();
 								// Save transform & name & file in struct for later
 								ModdedGameObjects.Add(new ModdedGameObject() {
-									Prefab = file,
+									ReadReference = file,
 									Name = parsedName,
 									PrefabKey = key,
-									Transform = transform
+									Transform = transform,
+									CreatePrefab = createPrefab
 								});
+								if(!createPrefab) saveModWorld = true;
+							}
+						}
+						if (saveModWorld) {
+							const string WorldNamePattern = @"^\[(?<key>........)\] (?<name>.*)$";
+							Match m = Regex.Match(modBehaviour.gameObject.name, WorldNamePattern, RegexOptions.IgnoreCase);
+							uint key = 0;
+							if (m.Success) {
+								string keyString = m.Groups["key"].Value;
+								ModWorldName = m.Groups["name"].Value;
+								UInt32.TryParse(keyString,
+									System.Globalization.NumberStyles.HexNumber,
+									System.Globalization.CultureInfo.CurrentCulture,
+									out key);
+							} else {
+								Debug.Log("GameObject name regex failed!");
+							}
+							if (key != 0) {
+								ModWorld = new Jade_Reference<WOR_World>(readContext, new Jade_Key(readContext, key));
+								ModWorld.Resolve();
 							}
 						}
 						await readLoader.LoadLoop(readContext.Deserializer);
@@ -1164,7 +1192,9 @@ namespace R1Engine {
 						loader.Raw_RelocateKeys = false; // Don't relocate keys by default. We'll determine which ones to relocate and which to keep
 						loader.Raw_KeysToAvoid = keysToAvoid;
 						loader.Raw_WriteFilesAlreadyInBF = false;
-						loader.Raw_CurrentUnusedKey = 0x88000000; // Start key will be this one
+						uint currentUnusedKeyInstance = 0x88000000 - 1;
+						uint currentUnusedKeyPrefab   = 0x11000000 - 1;
+						loader.Raw_CurrentUnusedKey = currentUnusedKeyInstance; // Start key will be this one
 						loader.WrittenFileKeys = writtenFileKeys;
 
 						writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -1177,8 +1207,13 @@ namespace R1Engine {
 						// Process modded objects
 						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
 						foreach (var moddedObject in ModdedGameObjects) {
+							if (moddedObject.CreatePrefab) {
+								loader.Raw_CurrentUnusedKey = currentUnusedKeyPrefab;
+							} else {
+								loader.Raw_CurrentUnusedKey = currentUnusedKeyInstance;
+							}
 							// Apply new transform, set name and key
-							var obj = moddedObject.Prefab.Value;
+							var obj = moddedObject.ReadReference.Value;
 							var transform = moddedObject.Transform;
 							obj.Matrix.SetTRS(
 								transform.localPosition,
@@ -1186,7 +1221,7 @@ namespace R1Engine {
 								transform.localScale,
 								newType: TypeFlags.Translation | TypeFlags.Rotation | TypeFlags.Scale,
 								convertAxes: true);
-							obj.Name = $"{moddedObject.Name}.gao";
+							obj.Name = $"{(moddedObject.CreatePrefab ? "PREFAB_" : "")}{moddedObject.Name}.gao";
 							obj.NameLength = (uint)obj.Name.Length + 1;
 							obj.Key = newKey();
 
@@ -1200,6 +1235,17 @@ namespace R1Engine {
 									ai.Value.Vars.Key = ai.Value.Vars.Value.Key;
 								}
 							}
+							// Same for COL Instance & COLMap
+							if (obj.COL_Instance?.Value != null) {
+								var cin = obj.COL_Instance;
+								cin.Value.Key = newKey();
+								cin.Key = cin.Value.Key;
+							}
+							if (obj.COL_ColMap?.Value != null) {
+								var colmap = obj.COL_ColMap;
+								colmap.Value.Key = newKey();
+								colmap.Key = colmap.Value.Key;
+							}
 
 							Jade_Reference<OBJ_GameObject> newRef = new Jade_Reference<OBJ_GameObject>(writeContext, obj.Key) {
 								Value = obj
@@ -1207,9 +1253,45 @@ namespace R1Engine {
 							Debug.Log($"Processing Modded Object: {moddedObject.Name} [Assigned Key: {obj.Key}]");
 
 							// Resolve this new reference with NoCache
-							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+							moddedObject.WriteReference = newRef;
 							await loader.LoadLoop(writeContext.Serializer);
 							writeContext.Serializer.ClearWrittenObjects();
+							if (moddedObject.CreatePrefab) {
+								currentUnusedKeyPrefab = loader.Raw_CurrentUnusedKey;
+							} else {
+								currentUnusedKeyInstance = loader.Raw_CurrentUnusedKey;
+							}
+						}
+						if (saveModWorld && ModWorld?.Value != null) {
+							Debug.Log("Saving mod world");
+							var w = ModWorld.Value;
+							w.Name = ModWorldName;
+							w.Key = newKey();
+							ModWorld.Key = ModWorld.Value.Key;
+							w.AmbientColor = new Jade_Color(0);
+							w.BackgroundColor = new Jade_Color(0);
+							//w.SerializedGameObjects.Clear();
+							var gol = w.GameObjects.Value;
+							if (gol != null) {
+								w.GameObjects.Key = newKey();
+								gol.Key = w.GameObjects.Key;
+								var moddedGaos = ModdedGameObjects.Where(g => g.WriteReference != null && !g.CreatePrefab).ToArray();
+								gol.GameObjects = new WOR_GameObjectGroup.GameObjectRef[moddedGaos.Length];
+								gol.FileSize = (uint)gol.GameObjects.Length * 8;
+								for (int i = 0; i < moddedGaos.Length; i++) {
+									gol.GameObjects[i] = new WOR_GameObjectGroup.GameObjectRef();
+									var gao = gol.GameObjects[i];
+									var mod = moddedGaos[i];
+									gao.Reference = mod.WriteReference;
+									gao.Type = new Jade_FileType() { Extension = ".gao" };
+								}
+								Jade_Reference<WOR_World> newRef = new Jade_Reference<WOR_World>(writeContext, w.Key) {
+									Value = w
+								};
+								newRef.Resolve();
+								await loader.LoadLoop(writeContext.Serializer);
+							}
 						}
 					}
 
@@ -1837,7 +1919,7 @@ namespace R1Engine {
 		}
 		public async UniTask CreateModWorld(LOA_Loader loader) {
 			await UniTask.CompletedTask;
-			GameObject gao = new GameObject("Jade: Mod world");
+			GameObject gao = new GameObject($"MOD_{loader.LoadedWorlds.Last().Name}");
 			JadeModBehaviour modBehaviour = gao.AddComponent<JadeModBehaviour>();
 			gao.transform.localPosition = Vector3.zero;
 		}

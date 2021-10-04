@@ -9,6 +9,7 @@ public class JadeModBehaviour : MonoBehaviour {
 
 	private void Start() {
         if(!Prefabs.ContainsKey(CurrentType)) ChangeObjectType(true);
+        gameObject.name = $"[{WorldPrefab.Key:X8}] {gameObject.name}";
 		print($"Current object type: {CurrentType}");
 	}
 
@@ -65,14 +66,15 @@ public class JadeModBehaviour : MonoBehaviour {
     }
 
     public Dictionary<ObjectType, Prefab> Prefabs = new Dictionary<ObjectType, Prefab>() {
-        [ObjectType.Enemy_Rabbid] = new Prefab(0x77000000),
-        [ObjectType.Mount_Warthog] = new Prefab(0x77000001),
-        [ObjectType.Mount_Bat] = new Prefab(0x77000002),
-        [ObjectType.Mount_SaucerBlack] = new Prefab(0x77000003),
-        [ObjectType.Mount_SaucerYellow] = new Prefab(0x77000004),
-        [ObjectType.Mount_Spider] = new Prefab(0x77000005),
-        [ObjectType.Mount_SpiderSmall] = new Prefab(0x77000006),
+        [ObjectType.Enemy_Rabbid] = new Prefab(0x11000000),
+        [ObjectType.Mount_Warthog] = new Prefab(0x11000003),
+        [ObjectType.Mount_Bat] = new Prefab(0x11000006),
+        [ObjectType.Mount_Spider] = new Prefab(0x11000009),
+        [ObjectType.Mount_SpiderSmall] = new Prefab(0x1100000C),
+        [ObjectType.Mount_SaucerBlack] = new Prefab(0x1100000F),
+        [ObjectType.Mount_SaucerYellow] = new Prefab(0x11000012),
     };
+    public Prefab WorldPrefab => new Prefab(0x2C001DCC);
 
     public enum ObjectType {
         Entry,
