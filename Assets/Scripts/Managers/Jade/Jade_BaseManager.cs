@@ -1235,6 +1235,17 @@ namespace R1Engine {
 									ai.Value.Vars.Key = ai.Value.Vars.Value.Key;
 								}
 							}
+							// Same for COL Instance & COLMap
+							if (obj.COL_Instance?.Value != null) {
+								var cin = obj.COL_Instance;
+								cin.Value.Key = newKey();
+								cin.Key = cin.Value.Key;
+							}
+							if (obj.COL_ColMap?.Value != null) {
+								var colmap = obj.COL_ColMap;
+								colmap.Value.Key = newKey();
+								colmap.Key = colmap.Value.Key;
+							}
 
 							Jade_Reference<OBJ_GameObject> newRef = new Jade_Reference<OBJ_GameObject>(writeContext, obj.Key) {
 								Value = obj
