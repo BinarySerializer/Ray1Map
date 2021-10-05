@@ -621,7 +621,7 @@ namespace R1Engine
                 }
             }
         }
-        public static void ExportAnimAsGif(IList<Texture2D> frames, int[] speeds, bool center, bool trim, string filePath, int frameRate = 60)
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int[] speeds, bool center, bool trim, string filePath, int frameRate = 60, Vector2Int[] frameOffsets = null, bool uniformSize = false, Gravity uniformGravity = Gravity.Northwest)
         {
             if (frames.All(x => x == null))
                 return;
@@ -630,8 +630,8 @@ namespace R1Engine
             
             int index = 0;
 
-            var maxWidth = frames.Max(x => x.width);
-            var maxHeight = frames.Max(x => x.height);
+            var maxWidth = frameOffsets == null ? frames.Max(x => x.width) : frames.Select((x, i) => x.width + frameOffsets[i].x).Max();
+            var maxHeight = frameOffsets == null ? frames.Max(x => x.height) : frames.Select((x, i) => x.height + frameOffsets[i].y).Max();
 
             foreach (var frameTex in frames)
             {
@@ -639,6 +639,12 @@ namespace R1Engine
                 collection.Add(img);
                 collection[index].AnimationDelay = speeds[index];
                 collection[index].AnimationTicksPerSecond = frameRate;
+
+                if (frameOffsets != null)
+                    collection[index].Extent(frameTex.width + frameOffsets[index].x, frameTex.height + frameOffsets[index].y, Gravity.Southeast, new MagickColor());
+
+                if (uniformSize)
+                    collection[index].Extent(maxWidth, maxHeight, uniformGravity, new MagickColor());
 
                 if (center)
                     collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
