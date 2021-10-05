@@ -1077,7 +1077,7 @@ namespace R1Engine
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
-            foreach (EnemyObject enemyObj in loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex))
+            foreach (EnemyObject enemyObj in loader.LevelData2D.Enemy_Objects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex))
             {
                 // Add the enemy object
                 addEnemyObj(enemyObj);
@@ -1103,9 +1103,9 @@ namespace R1Engine
             // Add enemy spawn points
             for (int pathIndex = 0; pathIndex < movementPaths.Length; pathIndex++)
             {
-                for (int objIndex = 0; objIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables[pathIndex].Length; objIndex++)
+                for (int objIndex = 0; objIndex < loader.LevelData2D.Enemy_ObjectIndexTables.IndexTables[pathIndex].Length; objIndex++)
                 {
-                    var obj = loader.LevelData2D.EnemyObjects[loader.LevelData2D.EnemyObjectIndexTables.IndexTables[pathIndex][objIndex]];
+                    var obj = loader.LevelData2D.Enemy_Objects[loader.LevelData2D.Enemy_ObjectIndexTables.IndexTables[pathIndex][objIndex]];
 
                     if (obj.GlobalSectorIndex != loader.GlobalSectorIndex)
                         continue;
@@ -1123,7 +1123,7 @@ namespace R1Engine
             }
 
             // Add collectibles
-            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex && x.SecondaryType != -1).Select(x =>
+            objects.AddRange(loader.LevelData2D.Collectible_Objects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex && x.SecondaryType != -1).Select(x =>
             {
                 Vector3 pos;
 
