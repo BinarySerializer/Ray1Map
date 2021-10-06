@@ -1018,7 +1018,6 @@ namespace R1Engine
             var levelBounds = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
 
             // Calculate actual level dimensions: switched axes for unity & multiplied by cellSize
-            var size = levelBounds.size;
             var cellSize = 16;
             //var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
             var layerDimensions = new Rect(
@@ -1030,8 +1029,7 @@ namespace R1Engine
             obj.transform.SetParent(parent.transform, false);
 
             var collisionObj = CreateCollisionGameObject(loader, sector, scale);
-            //GameObject collisionObj = null;
-            if(collisionObj != null) collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
+            collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
             return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
@@ -1211,68 +1209,44 @@ namespace R1Engine
             obj.transform.position = Vector3.zero;
 
             var collisionItems = loader.LevelPack.Sectors[sector].LevelCollisionItems.CollisionItems;
-            var levelCollision = loader.LevelPack.Sectors[sector].LevelCollision;
 
-            for (int x = 0; x < levelCollision.Width; x++)
+            foreach (CollisionItem c in collisionItems)
             {
-                for (int y = 0; y < levelCollision.Height; y++)
+                Mesh unityMesh = new Mesh();
+
+                unityMesh.SetVertices(new Vector3[]
                 {
-                    foreach (LevelCollisionGridItemStructure structure in levelCollision.CollisionGrid[x][y].Structures)
-                    {
-                        if (structure.CollisionIndices == null)
-                            continue;
+                    toVertex(c.Short_00, c.Short_02, c.Short_04),
+                    toVertex(c.Short_06, c.Short_08, c.Short_0A),
+                    toVertex(c.Short_0C, c.Short_0E, c.Short_10),
+                    toVertex(c.Short_12, c.Short_14, c.Short_16),
+                    //toVertex(c.Short_04, c.Short_08, c.Short_0C),
+                    //toVertex(c.Short_12, c.Short_14, c.Short_16),
+                });
 
-                        var structureObj = new GameObject($"Collision Structure {structure.Offset}");
-                        structureObj.transform.SetParent(obj.transform, false);
+                unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 4).ToArray());
 
-                        var offsetX = x * 256 - levelCollision.Pivot.X;
-                        var offsetY = y * 256 - levelCollision.Pivot.Y;
-                        var offsetZ = structure.ZOffset - levelCollision.Pivot.Z;
+                unityMesh.SetTriangles(new int[]
+                {
+                    // Lower left triangle
+                    0, 1, 2, 0, 2, 1,
+                    // Upper right triangle
+                    3, 2, 1, 3, 1, 2,
+                }, 0);
 
-                        structureObj.transform.localPosition = toVertex(offsetX, offsetY, offsetZ);
+                unityMesh.RecalculateNormals();
 
-                        foreach (var i in structure.CollisionIndices)
-                        {
-                            var c = collisionItems[i];
+                GameObject gao = new GameObject($"Collision Item {c.Offset}");
 
-                            Mesh unityMesh = new Mesh();
+                MeshFilter mf = gao.AddComponent<MeshFilter>();
+                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                gao.layer = LayerMask.NameToLayer("3D Collision");
+                gao.transform.SetParent(obj.transform, false);
+                gao.transform.localScale = Vector3.one;
+                gao.transform.localPosition = Vector3.zero;
+                mf.mesh = unityMesh;
 
-                            unityMesh.SetVertices(new Vector3[]
-                            {
-                                toVertex(c.Short_00, c.Short_02, c.Short_04),
-                                toVertex(c.Short_06, c.Short_08, c.Short_0A),
-                                toVertex(c.Short_0C, c.Short_0E, c.Short_10),
-                                toVertex(c.Short_12, c.Short_14, c.Short_16),
-                                //toVertex(c.Short_04, c.Short_08, c.Short_0C),
-                                //toVertex(c.Short_12, c.Short_14, c.Short_16),
-                            });
-
-                            unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 4).ToArray());
-
-                            unityMesh.SetTriangles(new int[]
-                            {
-                                // Lower left triangle
-                                0, 1, 2, 0, 2, 1,
-                                // Upper right triangle
-                                3, 2, 1, 3, 1, 2,
-                            }, 0);
-
-                            unityMesh.RecalculateNormals();
-
-                            GameObject gao = new GameObject($"Collision Item {c.Offset}");
-
-                            MeshFilter mf = gao.AddComponent<MeshFilter>();
-                            MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                            gao.layer = LayerMask.NameToLayer("3D Collision");
-                            gao.transform.SetParent(structureObj.transform, false);
-                            gao.transform.localScale = Vector3.one;
-                            gao.transform.localPosition = Vector3.zero;
-                            mf.mesh = unityMesh;
-
-                            mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
-                        }
-                    }
-                }
+                mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
             }
 
             return obj;
