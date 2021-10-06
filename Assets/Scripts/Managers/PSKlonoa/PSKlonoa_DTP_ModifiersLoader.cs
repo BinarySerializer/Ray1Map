@@ -115,7 +115,7 @@ namespace R1Engine
 
                     case GlobalModifierType.VRAMScrollAnimation:
                     case GlobalModifierType.VRAMScrollAnimationWithTexture:
-                        LoaderConfiguration_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
+                        KlonoaSettings_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
                         PS1_VRAM vram = Loader.VRAM;
 
                         // Kind of hacky solution, but works... The game essentially just defines what data gets copied where in VRAM
