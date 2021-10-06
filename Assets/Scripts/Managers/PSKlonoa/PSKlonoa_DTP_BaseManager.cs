@@ -1216,22 +1216,20 @@ namespace R1Engine
 
                 unityMesh.SetVertices(new Vector3[]
                 {
-                    toVertex(c.Short_00, c.Short_02, c.Short_04),
-                    toVertex(c.Short_06, c.Short_08, c.Short_0A),
-                    toVertex(c.Short_0C, c.Short_0E, c.Short_10),
-                    toVertex(c.Short_12, c.Short_14, c.Short_16),
-                    //toVertex(c.Short_04, c.Short_08, c.Short_0C),
-                    //toVertex(c.Short_12, c.Short_14, c.Short_16),
+                    toVertex(c.Short_04, c.Short_06, c.Short_12),
+                    toVertex(c.Short_08, c.Short_0A, c.Short_14),
+                    toVertex(c.Short_0C, c.Short_0E, c.Short_16),
+
+                    toVertex(c.Short_04, c.Short_06, c.Short_12),
+                    toVertex(c.Short_0C, c.Short_0E, c.Short_16),
+                    toVertex(c.Short_08, c.Short_0A, c.Short_14),
                 });
 
-                unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 4).ToArray());
+                unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 6).ToArray());
 
                 unityMesh.SetTriangles(new int[]
                 {
-                    // Lower left triangle
-                    0, 1, 2, 0, 2, 1,
-                    // Upper right triangle
-                    3, 2, 1, 3, 1, 2,
+                    0, 1, 2, 3, 4, 5
                 }, 0);
 
                 unityMesh.RecalculateNormals();
