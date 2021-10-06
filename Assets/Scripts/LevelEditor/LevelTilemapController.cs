@@ -465,7 +465,7 @@ namespace R1Engine
                 if (wasTiled) SetGraphicsLayerTiled(i, true);
             }
 
-            CreateTilemapGrid();
+            if(lvl.GridMap != null) CreateTilemapGrid();
             CreateTilemapFull();
         }
 
@@ -1113,8 +1113,15 @@ namespace R1Engine
                 bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
                 showGridMap = showGridMap && !is3D;
             }
-            if (showGridMap != tilemapGrid.gameObject.activeSelf) {
-                tilemapGrid.gameObject.SetActive(showGridMap);
+
+            if (LevelEditorData.Level.GridMap != null) {
+                if (showGridMap != tilemapGrid.gameObject.activeSelf) {
+                    tilemapGrid.gameObject.SetActive(showGridMap);
+                }
+            } else {
+                if (tilemapGrid.gameObject.activeSelf) {
+                    tilemapGrid.gameObject.SetActive(false);
+                }
             }
 
             CheckPaletteChange();

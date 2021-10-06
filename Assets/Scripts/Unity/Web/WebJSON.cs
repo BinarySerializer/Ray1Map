@@ -56,6 +56,7 @@ public class WebJSON {
 
 		public bool? CrashTimeTrialMode { get; set; }
 
+		public bool? CanShowGridMap { get; set; }
 		public bool? CanUseFreeCameraMode { get; set; }
 		public bool? CanUseStateSwitchingMode { get; set; }
 		public bool? CanUseCrashTimeTrialMode { get; set; }

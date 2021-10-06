@@ -533,6 +533,7 @@ public class WebCommunicator : MonoBehaviour {
 			s.HasAnimatedTiles = tc.IsAnimated;
 		}
 		if (lvl != null) {
+			s.CanShowGridMap = lvl.GridMap != null;
 			s.CanMoveAlongTrack = lvl.CanMoveAlongTrack;
 			s.CanUseFreeCameraMode = lvl.IsometricData != null;
 			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();

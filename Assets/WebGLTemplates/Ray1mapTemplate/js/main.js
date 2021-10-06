@@ -421,7 +421,13 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-showObjOffsets"), msg.ShowObjOffsets);
 	selectButton($("#btn-showGizmos"), msg.ShowGizmos);
-	selectButton($("#btn-showGridMap"), msg.ShowGridMap);
+	if(msg.hasOwnProperty("CanShowGridMap") && msg.CanshowGridMap) {
+		$("#btn-showGridMap").removeClass("removed-button");
+		selectButton($("#btn-showGridMap"), msg.ShowGridMap);
+	} else {
+		$("#btn-showGridMap").addClass("removed-button");
+		$("#btn-showGridMap").addClass("disabled-button");
+	}
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	if(msg.hasOwnProperty("HasAnimatedTiles") && !msg.HasAnimatedTiles) {
 		$("#btn-animateTiles").addClass("disabled-button");

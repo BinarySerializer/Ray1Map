@@ -99,18 +99,19 @@ namespace R1Engine
             var width = (ushort)(MaxX - MinX);
             var height = (ushort)(MaxY - MinY);
 
-            GridMap = new Unity_Map
-            {
-                Width = width,
-                Height = height,
-                TileSet = new Unity_TileSet[]
-                {
+            if (Layers.Any(l => l is Unity_Layer_Map)) {
+                GridMap = new Unity_Map {
+                    Width = width,
+                    Height = height,
+                    TileSet = new Unity_TileSet[]
+                    {
                     new Unity_TileSet(Util.GetGridTex(CellSize), CellSize),
-                },
-                MapTiles = Enumerable.Range(0, width * height).Select(x => new Unity_Tile(new MapTile())).ToArray(),
-                Type = Unity_Map.MapType.Graphics,
-                Layer = Unity_Map.MapLayer.Overlay,
-            };
+                    },
+                    MapTiles = Enumerable.Range(0, width * height).Select(x => new Unity_Tile(new MapTile())).ToArray(),
+                    Type = Unity_Map.MapType.Graphics,
+                    Layer = Unity_Map.MapLayer.Overlay,
+                };
+            }
 
             CanMoveAlongTrack = IsometricData != null && TrackManagers != null && TrackManagers.Any(x => x.IsAvailable(LevelEditorData.MainContext, this));
 
