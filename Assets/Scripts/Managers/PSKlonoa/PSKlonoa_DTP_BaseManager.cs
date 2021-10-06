@@ -1208,11 +1208,14 @@ namespace R1Engine
             var obj = new GameObject("Collision");
             obj.transform.position = Vector3.zero;
 
+            var colors = CollisionColors;
+            var defaultColor = new Color(88 / 255f, 98 / 255f, 115 / 255f);
+
             foreach (CollisionTriangle c in collisionTriangles)
             {
                 Mesh unityMesh = new Mesh();
 
-                unityMesh.SetVertices(new Vector3[]
+                var vertices = new Vector3[]
                 {
                     toVertex(c.X1, c.Y1, c.Z1),
                     toVertex(c.X2, c.Y2, c.Z2),
@@ -1221,15 +1224,13 @@ namespace R1Engine
                     toVertex(c.X1, c.Y1, c.Z1),
                     toVertex(c.X3, c.Y3, c.Z3),
                     toVertex(c.X2, c.Y2, c.Z2),
-                });
+                };
 
-                // TODO: Different colors based on collision type
-                unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 6).ToArray());
+                unityMesh.SetVertices(vertices);
 
-                unityMesh.SetTriangles(new int[]
-                {
-                    0, 1, 2, 3, 4, 5
-                }, 0);
+                unityMesh.SetColors(Enumerable.Repeat(colors.TryGetItem(c.Type, defaultColor), vertices.Length).ToArray());
+
+                unityMesh.SetTriangles(Enumerable.Range(0, vertices.Length).ToArray(), 0);
 
                 unityMesh.RecalculateNormals();
 
@@ -1244,10 +1245,19 @@ namespace R1Engine
                 mf.mesh = unityMesh;
 
                 mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+                var col3D = gao.AddComponent<Unity_Collision3DBehaviour>();
+                col3D.Type = c.Type.ToString();
             }
 
             return obj;
         }
+
+        public Dictionary<CollisionTriangle.CollisionType, Color> CollisionColors => new Dictionary<CollisionTriangle.CollisionType, Color>()
+        {
+            [CollisionTriangle.CollisionType.Solid] = new Color(50 / 255f, 55 / 255f, 64 / 255f),
+            [CollisionTriangle.CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
+        };
 
         public (GameObject, bool) CreateGameObject(
             PS1_TMD tmd, 
