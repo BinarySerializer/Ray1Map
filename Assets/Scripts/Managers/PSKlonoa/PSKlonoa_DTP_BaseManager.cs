@@ -1028,7 +1028,7 @@ namespace R1Engine
             
             obj.transform.SetParent(parent.transform, false);
 
-            var collisionObj = CreateCollisionGameObject(loader, sector, scale);
+            var collisionObj = CreateCollisionGameObject(loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles, scale);
             collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
             return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
@@ -1201,30 +1201,29 @@ namespace R1Engine
             level.CollisionLines = lines.ToArray();
         }
 
-        public GameObject CreateCollisionGameObject(Loader_DTP loader, int sector, float scale)
+        public GameObject CreateCollisionGameObject(CollisionTriangle[] collisionTriangles, float scale)
         {
             Vector3 toVertex(int x, int y, int z) => new Vector3(x / scale, -y / scale, z / scale);
 
-            var obj = new GameObject("Level Collision");
+            var obj = new GameObject("Collision");
             obj.transform.position = Vector3.zero;
 
-            var collisionItems = loader.LevelPack.Sectors[sector].LevelCollisionItems.CollisionItems;
-
-            foreach (CollisionItem c in collisionItems)
+            foreach (CollisionTriangle c in collisionTriangles)
             {
                 Mesh unityMesh = new Mesh();
 
                 unityMesh.SetVertices(new Vector3[]
                 {
-                    toVertex(c.Short_04, c.Short_06, c.Short_12),
-                    toVertex(c.Short_08, c.Short_0A, c.Short_14),
-                    toVertex(c.Short_0C, c.Short_0E, c.Short_16),
+                    toVertex(c.X1, c.Y1, c.Z1),
+                    toVertex(c.X2, c.Y2, c.Z2),
+                    toVertex(c.X3, c.Y3, c.Z3),
 
-                    toVertex(c.Short_04, c.Short_06, c.Short_12),
-                    toVertex(c.Short_0C, c.Short_0E, c.Short_16),
-                    toVertex(c.Short_08, c.Short_0A, c.Short_14),
+                    toVertex(c.X1, c.Y1, c.Z1),
+                    toVertex(c.X3, c.Y3, c.Z3),
+                    toVertex(c.X2, c.Y2, c.Z2),
                 });
 
+                // TODO: Different colors based on collision type
                 unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 6).ToArray());
 
                 unityMesh.SetTriangles(new int[]
