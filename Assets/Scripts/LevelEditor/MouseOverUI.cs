@@ -10,6 +10,10 @@ namespace R1Engine
         public Text textGraphic, textCollision;
         public GameObject panel;
 
+        private void SetTextActive(Text text, bool active) {
+            if(text.gameObject.activeSelf != active) text.gameObject.SetActive(active);
+        }
+
         void Update() 
         {
             // Make sure the editor has finished loading
@@ -38,7 +42,8 @@ namespace R1Engine
 
             // Mouse over object
             if (e != null) {
-                textGraphic.enabled = true;
+                SetTextActive(textCollision, true);
+                SetTextActive(textGraphic, true);
 
                 textCollision.text = $"{e.ObjData.PrimaryName}{(string.IsNullOrEmpty(e.ObjData.SecondaryName) ? "" : $" | {e.ObjData.SecondaryName}")}";
                 if (LevelEditorData.Level.IsometricData != null && e.ObjData is Unity_SpriteObject_3D) {
@@ -77,11 +82,12 @@ namespace R1Engine
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
                 if (cam.FreeCameraMode) {
-                    textCollision.text = "";
-                    textGraphic.enabled = false;
+                    SetTextActive(textCollision, false);
+                    SetTextActive(textGraphic, false);
                 } else {
-                    textGraphic.enabled = true;
                     if (t != null && c != null) {
+                        SetTextActive(textCollision, true);
+                        SetTextActive(textGraphic, true);
                         //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
                         textCollision.text = $"Collision: {String.Join(", ", c.Select(x => $"{LevelEditorData.Level.GetCollisionTypeNameFunc(x?.Data?.CollisionType ?? 0)}({x?.Data?.CollisionType}){(x?.Data?.UsesCollisionShape == true ? $" - Shape: {x.Data.GBAVV_CollisionShape}({(byte?)x.Data.GBAVV_CollisionShape})" : null)}"))}";
                         textGraphic.text = $"Graphic tile: {String.Join(", ", t.Select(x => $"({x?.Data?.TileMapX}, {x?.Data?.TileMapY})"))}";
@@ -96,6 +102,9 @@ namespace R1Engine
                               $"VerticalFlip: {String.Join(", ", t.Select(x => x?.Data?.VerticalFlip))}{Environment.NewLine}" +
                               $"PaletteIndex: {String.Join(", ", t.Select(x => x?.Data?.PaletteIndex))}{Environment.NewLine}"
                             : String.Empty;
+                    } else {
+                        SetTextActive(textCollision, false);
+                        SetTextActive(textGraphic, false);
                     }
                 }
                 if (LevelEditorData.Level.IsometricData != null && c3d != null) {
@@ -113,13 +122,12 @@ namespace R1Engine
                             ? c3d.DebugText
                             : String.Empty;
                     }
-
-                    textGraphic.enabled = true;
+                    SetTextActive(textCollision, true);
                 }
                 if (LevelEditorData.Level.CollisionLines != null && cl != null) {
                     textCollision.text = $"Collision: {cl.Pos_0} - {cl.Pos_1} | Type: {cl.TypeName} | Color: {cl.LineColor}";
 
-                    textGraphic.enabled = true;
+                    SetTextActive(textCollision, true);
                     // Set debug text
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
                         ? cl.DebugText
