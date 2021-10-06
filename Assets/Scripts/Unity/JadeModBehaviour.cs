@@ -30,7 +30,7 @@ public class JadeModBehaviour : MonoBehaviour {
             gao.transform.SetParent(transform, false);
             var cam = Controller.obj.levelEventController.editor.cam.camera3D;
             gao.transform.localPosition = cam.transform.TransformPoint(Vector3.forward * 5f);
-            gao.transform.localRotation = Quaternion.LookRotation(cam.transform.position - gao.transform.localPosition, Vector3.up);
+            gao.transform.localRotation = Quaternion.LookRotation(gao.transform.localPosition - cam.transform.position, Vector3.up);
         }
     }
 
@@ -69,10 +69,44 @@ public class JadeModBehaviour : MonoBehaviour {
         [ObjectType.Enemy_Rabbid] = new Prefab(0x11000000),
         [ObjectType.Mount_Warthog] = new Prefab(0x11000003),
         [ObjectType.Mount_Bat] = new Prefab(0x11000006),
-        [ObjectType.Mount_Spider] = new Prefab(0x11000009),
+        [ObjectType.Mount_SpiderLarge] = new Prefab(0x11000009),
         [ObjectType.Mount_SpiderSmall] = new Prefab(0x1100000C),
         [ObjectType.Mount_SaucerBlack] = new Prefab(0x1100000F),
         [ObjectType.Mount_SaucerYellow] = new Prefab(0x11000012),
+
+        [ObjectType.Entry] = new Prefab(0x11000015),
+        [ObjectType.Enemy_RabbidGun] = new Prefab(0x11000018),
+        [ObjectType.Enemy_RabbidGrey] = new Prefab(0x1100001B),
+        [ObjectType.Enemy_KongBunny] = new Prefab(0x1100001E),
+        [ObjectType.Enemy_NurgleDemon] = new Prefab(0x11000021),
+        [ObjectType.Enemy_RabbidDancer] = new Prefab(0x11000024),
+
+        [ObjectType.Mount_TRex] = new Prefab(0x11000030),
+        [ObjectType.Mount_KingKong] = new Prefab(0x11000033),
+        [ObjectType.Mount_Eagle] = new Prefab(0x11000036),
+        [ObjectType.Mount_BatKingKong] = new Prefab(0x11000039),
+        [ObjectType.Mount_Pig] = new Prefab(0x1100003C), //new Prefab(0x3A003214),
+
+        [ObjectType.Mount_SheepWhite] = new Prefab(0x1100003F), //new Prefab(0x3A003214),
+        [ObjectType.Mount_SheepBrown] = new Prefab(0x11000042), //new Prefab(0x3A003214),
+        [ObjectType.Mount_Cow] = new Prefab(0x11000045), //new Prefab(0x3A003214),
+        [ObjectType.Mount_Plum] = new Prefab(0x11000048), //new Prefab(0x3A003214),
+
+        [ObjectType.Object_Cage] = new Prefab(0x11000051), //new Prefab(0x4D008B6C),
+
+        // TODO
+        //[ObjectType.Mount_SaucerBig] = new Prefab(0x1100000F),
+        [ObjectType.Mount_SpiderMid] = new Prefab(0x1100000C),
+
+
+        // Todo: Include waypoints
+        // [ObjectType.NPC_Globox] = new Prefab(0x1100004E),//new Prefab(0x0B012E14),
+
+        // Todo: Include Col objects
+        //[ObjectType.Enemy_Bipod] = new Prefab(0x0B01426E),
+        //[ObjectType.Enemy_BipodBeach] = new Prefab(0x0D008E20),
+        //[ObjectType.Enemy_BipodBig] = new Prefab(0x0B012880),
+
     };
     public Prefab WorldPrefab => new Prefab(0x2C001DCC);
 
@@ -83,7 +117,7 @@ public class JadeModBehaviour : MonoBehaviour {
         Enemy_RabbidGun,
         Enemy_RabbidGrey,
         Enemy_KongBunny,
-        Enemy_Doppelganger, // Use RRR2 Rayman
+        Enemy_NurgleDemon, // Use RRR2 Rayman
         Enemy_RabbidDancer,
         Enemy_Bipod,
         Enemy_BipodBeach,
@@ -100,10 +134,12 @@ public class JadeModBehaviour : MonoBehaviour {
         Mount_SheepBrown,
         Mount_Cow,
         Mount_Plum,
-        Mount_Spider,
+        Mount_SpiderLarge,
+        Mount_SpiderMid,
         Mount_SpiderSmall,
         Mount_SaucerBlack,
         Mount_SaucerYellow,
+        //Mount_SaucerBig,
 
         NPC_Globox,
 
