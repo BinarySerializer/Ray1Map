@@ -1207,6 +1207,8 @@ namespace R1Engine
 
             var obj = new GameObject("Collision");
             obj.transform.position = Vector3.zero;
+            var collidersParent = new GameObject("Collision - Colliders");
+            collidersParent.transform.position = Vector3.zero;
 
             var colors = CollisionColors;
             var defaultColor = new Color(88 / 255f, 98 / 255f, 115 / 255f);
@@ -1234,7 +1236,7 @@ namespace R1Engine
 
                 unityMesh.RecalculateNormals();
 
-                GameObject gao = new GameObject($"Collision Item {c.Offset}");
+                GameObject gao = new GameObject($"Collision Triangle {c.Offset}");
 
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -1246,8 +1248,18 @@ namespace R1Engine
 
                 mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
 
-                var col3D = gao.AddComponent<Unity_Collision3DBehaviour>();
+
+                // Add Collider GameObject
+                GameObject gaoc = new GameObject($"Collision Triangle {c.Offset} - Collider");
+                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
+                mc.sharedMesh = unityMesh;
+                gaoc.layer = LayerMask.NameToLayer("3D Collision");
+                gaoc.transform.SetParent(collidersParent.transform);
+                gaoc.transform.localScale = Vector3.one;
+                gaoc.transform.localPosition = Vector3.zero;
+                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
                 col3D.Type = c.Type.ToString();
+
             }
 
             return obj;
