@@ -1026,12 +1026,12 @@ namespace R1Engine
                 levelBounds.size.x * cellSize, levelBounds.size.z * cellSize);
             // Correctly center object
             //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
-
-            //var collisionObj = CreateCollisionGameObject(loader, sector, scale);
-            GameObject collisionObj = null;
-
+            
             obj.transform.SetParent(parent.transform, false);
-            //collisionObj.transform.SetParent(parent.transform, false);
+
+            var collisionObj = CreateCollisionGameObject(loader, sector, scale);
+            //GameObject collisionObj = null;
+            if(collisionObj != null) collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
             return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
@@ -1235,7 +1235,6 @@ namespace R1Engine
                         {
                             var c = collisionItems[i];
 
-                            // TODO: Reuse mesh?
                             Mesh unityMesh = new Mesh();
 
                             unityMesh.SetVertices(new Vector3[]
@@ -1244,6 +1243,8 @@ namespace R1Engine
                                 toVertex(c.Short_06, c.Short_08, c.Short_0A),
                                 toVertex(c.Short_0C, c.Short_0E, c.Short_10),
                                 toVertex(c.Short_12, c.Short_14, c.Short_16),
+                                //toVertex(c.Short_04, c.Short_08, c.Short_0C),
+                                //toVertex(c.Short_12, c.Short_14, c.Short_16),
                             });
 
                             unityMesh.SetColors(Enumerable.Repeat(new Color(50 / 255f, 55 / 255f, 64 / 255f), 4).ToArray());
