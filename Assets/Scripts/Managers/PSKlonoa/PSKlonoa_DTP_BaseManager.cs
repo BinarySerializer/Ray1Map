@@ -75,15 +75,16 @@ namespace R1Engine
         public async UniTask Extract_BINAsync(GameSettings settings, string outputPath, bool unpack)
         {
             using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
+            var config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
+            context.AddKlonoaSettings(config);
 
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
             var s = context.Deserializer;
 
-            var loader = Loader_DTP.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData);
 
             var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
             {
@@ -185,13 +186,14 @@ namespace R1Engine
         public async UniTask Extract_CodeAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
+            var config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
+            context.AddKlonoaSettings(config);
 
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader_DTP.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -216,14 +218,15 @@ namespace R1Engine
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
+            var config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
+            context.AddKlonoaSettings(config);
 
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
             // Create the loader
-            var loader = Loader_DTP.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData);
 
             // Enumerate every bin block
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -268,7 +271,7 @@ namespace R1Engine
                 var sprites_1 = menuSprites?.Sprites_1;
                 var sprites_2 = menuSprites?.Sprites_2;
 
-                if (loader.GameVersion == LoaderConfiguration.GameVersion.DTP_Prototype_19970717)
+                if (loader.GameVersion == KlonoaGameVersion.DTP_Prototype_19970717)
                 {
                     for (int fileIndex = 0; fileIndex < loader.LoadedFiles[blockIndex].Length; fileIndex++)
                     {
@@ -622,13 +625,14 @@ namespace R1Engine
         public async UniTask Extract_Cutscenes(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
+            var config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
+            context.AddKlonoaSettings(config);
 
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader_DTP.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -676,7 +680,7 @@ namespace R1Engine
             }
         }
 
-        public abstract LoaderConfiguration_DTP GetLoaderConfig(GameSettings settings);
+        public abstract KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings);
 
         public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
@@ -689,7 +693,7 @@ namespace R1Engine
             GameSettings settings = context.GetR1Settings();
             int lev = settings.World;
             int sector = settings.Level;
-            LoaderConfiguration_DTP config = GetLoaderConfig(settings);
+            KlonoaSettings_DTP config = GetKlonoaSettings(settings);
             const float scale = 64f;
 
             // Create the level
@@ -717,6 +721,9 @@ namespace R1Engine
             // Load the files
             await LoadFilesAsync(context, config);
 
+            // Add the settings
+            context.AddKlonoaSettings(config);
+
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
 
             Controller.DetailedState = "Loading IDX";
@@ -733,7 +740,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader_DTP.Create(context, idxData, config);
+            var loader = Loader_DTP.Create(context, idxData);
 
             // Only parse the selected sector
             loader.LevelSector = sector;
@@ -745,7 +752,7 @@ namespace R1Engine
             });
 
             // Load the fixed BIN
-            loader.SwitchBlocks(loader.Config.BLOCK_Fix);
+            loader.SwitchBlocks(loader.Settings.BLOCK_Fix);
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
@@ -1605,9 +1612,9 @@ namespace R1Engine
                 Quaternion.Euler(0, 0, -GetRotationInDegrees(rotZ));
         }
 
-        public IDX Load_IDX(Context context, LoaderConfiguration_DTP config)
+        public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
         {
-            return FileFactory.Read<IDX>(config.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
+            return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
         }
 
         public static void FillTextureFromVRAM(
@@ -1939,7 +1946,7 @@ namespace R1Engine
             return (textures, rects.Select((x, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x - minX, rects[i].Value.y - minY)).ToArray());
         }
 
-        public async UniTask LoadFilesAsync(Context context, LoaderConfiguration_DTP config)
+        public async UniTask LoadFilesAsync(Context context, KlonoaSettings_DTP config)
         {
             // The game only loads portions of the BIN at a time
             await context.AddLinearFileAsync(config.FilePath_BIN);
