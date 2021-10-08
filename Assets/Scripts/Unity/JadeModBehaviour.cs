@@ -92,20 +92,19 @@ public class JadeModBehaviour : MonoBehaviour {
         [ObjectType.Mount_Cow] = new Prefab(0x11000045), //new Prefab(0x3A003214),
         [ObjectType.Mount_Plum] = new Prefab(0x11000048), //new Prefab(0x3A003214),
 
+        [ObjectType.Mount_SpiderMid] = new Prefab(0x1100004B),
         [ObjectType.Object_Cage] = new Prefab(0x11000051), //new Prefab(0x4D008B6C),
 
-        // TODO
-        //[ObjectType.Mount_SaucerBig] = new Prefab(0x1100000F),
-        [ObjectType.Mount_SpiderMid] = new Prefab(0x1100000C),
-
-
-        // Todo: Include waypoints
+        // Include waypoints
         // [ObjectType.NPC_Globox] = new Prefab(0x1100004E),//new Prefab(0x0B012E14),
 
-        // Todo: Include Col objects
+        // Include Col objects
         //[ObjectType.Enemy_Bipod] = new Prefab(0x0B01426E),
         //[ObjectType.Enemy_BipodBeach] = new Prefab(0x0D008E20),
         //[ObjectType.Enemy_BipodBig] = new Prefab(0x0B012880),
+
+        // Include mutiple objects
+        //[ObjectType.Mount_SaucerBig] = new Prefab(0x1100000F),
 
     };
     public Prefab WorldPrefab => new Prefab(0x2C001DCC);

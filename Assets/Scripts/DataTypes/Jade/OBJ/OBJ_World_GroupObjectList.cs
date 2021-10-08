@@ -24,7 +24,11 @@ namespace R1Engine.Jade
             public override void SerializeImpl(SerializerObject s)
             {
                 GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject));
-                if (!List.Loader.IsBinaryData) Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+                if (!List.Loader.IsBinaryData) {
+                    Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+                } else {
+                    if (!GameObject.IsNull) Type = new Jade_FileType() { Extension = ".gao" };
+                }
                 if (List.ResolveObjects) GameObject?.Resolve();
             }
         }

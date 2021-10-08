@@ -1819,15 +1819,17 @@ namespace R1Engine {
 							var gro_m = gao.Base.Visual.Material?.Value;
 							if (gro_m != null) {
 								Texture2D GetTexture2D(GRO_Struct renderObject) {
+									if(renderObject == null) return null;
 									if (renderObject.Type == GRO_Type.MAT_MTT) {
 										var mat_mtt = (MAT_MTT_MultiTextureMaterial)renderObject.Value;
 										
 										if ((mat_mtt.Levels?.Length ?? 0) > 0) {
 											for (int i = 0; i < mat_mtt.Levels.Length; i++) {
 												var texRef = mat_mtt.Levels[i].Texture;
-												if (texRef.Content != null) {
+												var texContent = (texRef.Content ?? texRef.Info);
+												if (texContent != null) {
 													if (!textureKeyDict.ContainsKey(texRef.Key)) {
-														textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
+														textureKeyDict[texRef.Key] = texContent.ToTexture2D();
 														if (textureKeyDict[texRef.Key] != null) {
 															textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
 														}
@@ -1839,9 +1841,10 @@ namespace R1Engine {
 									} else if (renderObject.Type == GRO_Type.MAT_SIN) {
 										var mat_sin = (MAT_SIN_SingleMaterial)renderObject.Value;
 										var texRef = mat_sin.Texture;
-										if (texRef.Content != null) {
+										var texContent = (texRef.Content ?? texRef.Info);
+										if (texContent != null) {
 											if (!textureKeyDict.ContainsKey(texRef.Key)) {
-												textureKeyDict[texRef.Key] = (texRef.Content ?? texRef.Info).ToTexture2D();
+												textureKeyDict[texRef.Key] = texContent.ToTexture2D();
 												if (textureKeyDict[texRef.Key] != null) {
 													textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
 												}
