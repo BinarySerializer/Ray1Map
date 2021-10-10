@@ -93,6 +93,7 @@ public class JadeModBehaviour : MonoBehaviour {
         [ObjectType.Mount_Plum] = new Prefab(0x11000048), //new Prefab(0x3A003214),
 
         [ObjectType.Mount_SpiderMid] = new Prefab(0x1100004B),
+        [ObjectType.Mount_SpiderHuge] = new Prefab(0x1100004E),
         [ObjectType.Object_Cage] = new Prefab(0x11000051), //new Prefab(0x4D008B6C),
 
         // Include waypoints
@@ -136,6 +137,7 @@ public class JadeModBehaviour : MonoBehaviour {
         Mount_SpiderLarge,
         Mount_SpiderMid,
         Mount_SpiderSmall,
+        Mount_SpiderHuge,
         Mount_SaucerBlack,
         Mount_SaucerYellow,
         //Mount_SaucerBig,

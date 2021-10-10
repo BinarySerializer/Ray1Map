@@ -6,75 +6,74 @@ namespace R1Engine.Jade {
 	public class Jade_Matrix : BinarySerializable {
 
 		// Format: M{Row}{Column}
-		public float M00 { get; set; }
-		public float M10 { get; set; }
-		public float M20 { get; set; }
-		public float M30 { get; set; }
+		public float Ix { get; set; }
+		public float Iy { get; set; }
+		public float Iz { get; set; }
+		public float Sx { get; set; }
 
-		public float M01 { get; set; }
-		public float M11 { get; set; }
-		public float M21 { get; set; }
-		public float M31 { get; set; }
+		public float Jx { get; set; }
+		public float Jy { get; set; }
+		public float Jz { get; set; }
+		public float Sy { get; set; }
 
-		public float M02 { get; set; }
-		public float M12 { get; set; }
-		public float M22 { get; set; }
-		public float M32 { get; set; }
+		public float Kx { get; set; }
+		public float Ky { get; set; }
+		public float Kz { get; set; }
+		public float Sz { get; set; }
 
-		public float M03 { get; set; }
-		public float M13 { get; set; }
-		public float M23 { get; set; }
-		public float M33 { get; set; }
+		public float Tx { get; set; }
+		public float Ty { get; set; }
+		public float Tz { get; set; }
+		public float w { get; set; }
 
 		public TypeFlags Type { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			M00 = s.Serialize<float>(M00, name: nameof(M00));
-			M10 = s.Serialize<float>(M10, name: nameof(M10));
-			M20 = s.Serialize<float>(M20, name: nameof(M20));
-			M30 = s.Serialize<float>(M30, name: nameof(M30));
+			Ix = s.Serialize<float>(Ix, name: nameof(Ix));
+			Iy = s.Serialize<float>(Iy, name: nameof(Iy));
+			Iz = s.Serialize<float>(Iz, name: nameof(Iz));
+			Sx = s.Serialize<float>(Sx, name: nameof(Sx));
 
-			M01 = s.Serialize<float>(M01, name: nameof(M01));
-			M11 = s.Serialize<float>(M11, name: nameof(M11));
-			M21 = s.Serialize<float>(M21, name: nameof(M21));
-			M31 = s.Serialize<float>(M31, name: nameof(M31));
+			Jx = s.Serialize<float>(Jx, name: nameof(Jx));
+			Jy = s.Serialize<float>(Jy, name: nameof(Jy));
+			Jz = s.Serialize<float>(Jz, name: nameof(Jz));
+			Sy = s.Serialize<float>(Sy, name: nameof(Sy));
 
-			M02 = s.Serialize<float>(M02, name: nameof(M02));
-			M12 = s.Serialize<float>(M12, name: nameof(M12));
-			M22 = s.Serialize<float>(M22, name: nameof(M22));
-			M32 = s.Serialize<float>(M32, name: nameof(M32));
+			Kx = s.Serialize<float>(Kx, name: nameof(Kx));
+			Ky = s.Serialize<float>(Ky, name: nameof(Ky));
+			Kz = s.Serialize<float>(Kz, name: nameof(Kz));
+			Sz = s.Serialize<float>(Sz, name: nameof(Sz));
 
-			M03 = s.Serialize<float>(M03, name: nameof(M03));
-			M13 = s.Serialize<float>(M13, name: nameof(M13));
-			M23 = s.Serialize<float>(M23, name: nameof(M23));
-			M33 = s.Serialize<float>(M33, name: nameof(M33));
+			Tx = s.Serialize<float>(Tx, name: nameof(Tx));
+			Ty = s.Serialize<float>(Ty, name: nameof(Ty));
+			Tz = s.Serialize<float>(Tz, name: nameof(Tz));
+			w = s.Serialize<float>(w, name: nameof(w));
 
 			Type = s.Serialize<TypeFlags>(Type, name: nameof(Type));
 		}
 
 		#region Unity stuff - todo: make extension methods
 		public Matrix4x4 M => new Matrix4x4(
-				new Vector4(M00, M10, M20, M30),
-				new Vector4(M01, M11, M21, M31),
-				new Vector4(M02, M12, M22, M32),
-				new Vector4(M03, M13, M23, M33));
+				new Vector4(Ix, Iy, Iz, Sx),
+				new Vector4(Jx, Jy, Jz, Sy),
+				new Vector4(Kx, Ky, Kz, Sz),
+				new Vector4(Tx, Ty, Tz, w));
 		public Vector3 GetScale(bool convertAxes = false) {
 			if (!Type.HasFlag(TypeFlags.Scale)) return Vector3.one;
 
-			Matrix4x4 m = M;
 			if (convertAxes) {
-				return new Vector3(m.GetColumn(0).magnitude, m.GetColumn(2).magnitude, m.GetColumn(1).magnitude);
+				return new Vector3(Sx, Sz, Sy);
 			} else {
-				return new Vector3(m.GetColumn(0).magnitude, m.GetColumn(1).magnitude, m.GetColumn(2).magnitude);
+				return new Vector3(Sx, Sy, Sz);
 			}
 		}
 		public Vector3 GetPosition(bool convertAxes = false) {
 			if (!Type.HasFlag(TypeFlags.Translation)) return Vector3.zero;
 
 			if (convertAxes) {
-				return new Vector3(M03, M23, M13);
+				return new Vector3(Tx, Tz, Ty);
 			} else {
-				return new Vector3(M03, M13, M23);
+				return new Vector3(Tx, Ty, Tz);
 			}
 		}
 
@@ -82,15 +81,15 @@ namespace R1Engine.Jade {
 			if(!Type.HasFlag(TypeFlags.Rotation)) return Quaternion.identity;
 
 			float m00, m01, m02, m10, m11, m12, m20, m21, m22;
-			m00 = M00;
-			m01 = M01;
-			m02 = M02;
-			m10 = M10;
-			m11 = M11;
-			m12 = M12;
-			m20 = M20;
-			m21 = M21;
-			m22 = M22;
+			m00 = Ix;
+			m01 = Jx;
+			m02 = Kx;
+			m10 = Iy;
+			m11 = Jy;
+			m12 = Ky;
+			m20 = Iz;
+			m21 = Jz;
+			m22 = Kz;
 
 			float tr = m00 + m11 + m22;
 			Quaternion q = new Quaternion();
@@ -136,23 +135,25 @@ namespace R1Engine.Jade {
 				pos = new Vector3(pos.x, pos.z, pos.y);
 			}
 			var m = M;
-			m.SetTRS(pos, rot, scale);
-			M00 = m.m00;
-			M01 = m.m01;
-			M02 = m.m02;
-			M03 = m.m03;
-			M10 = m.m10;
-			M11 = m.m11;
-			M12 = m.m12;
-			M13 = m.m13;
-			M20 = m.m20;
-			M21 = m.m21;
-			M22 = m.m22;
-			M23 = m.m23;
-			M30 = m.m30;
-			M31 = m.m31;
-			M32 = m.m32;
-			M33 = m.m33;
+			m.SetTRS(Vector3.zero, rot, Vector3.one);
+			Ix = m.m00;
+			Iy = m.m10;
+			Iz = m.m20;
+			Jx = m.m01;
+			Jy = m.m11;
+			Jz = m.m21;
+			Kx = m.m02;
+			Ky = m.m12;
+			Kz = m.m22;
+			
+			Sx = scale.x;
+			Sy = scale.y;
+			Sz = scale.z;
+			Tx = pos.x;
+			Ty = pos.y;
+			Tz = pos.z;
+			w = 1f;
+
 			if (newType.HasValue) Type = newType.Value;
 
 		}
