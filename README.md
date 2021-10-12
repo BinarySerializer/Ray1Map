@@ -928,12 +928,12 @@ NOTE: This project is currently in its early stages and may be unstable. Saving 
 Editor tutorial (Rayman 1): https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
 
 If you download the repo as a zip folder the sub-modules won't be included, causing the project not to compile. To solve this, download the sub-module repos as well and place them in the specified folders:
-* [BinarySerializer](https://github.com/RayCarrot/BinarySerializer) (Assets\Scripts\Libraries\BinarySerializer)
-* [BinarySerializer.Image](https://github.com/RayCarrot/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
-* [BinarySerializer.Ray1](https://github.com/RayCarrot/BinarySerializer.Ray1) (Assets\Scripts\Libraries\BinarySerializer.Ray1)
-* [BinarySerializer.Klonoa](https://github.com/RayCarrot/BinarySerializer.Klonoa) (Assets\Scripts\Libraries\BinarySerializer.Klonoa)
-* [BinarySerializer.GBA](https://github.com/RayCarrot/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
-* [BinarySerializer.PS1](https://github.com/RayCarrot/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
+* [BinarySerializer](https://github.com/BinarySerializer/BinarySerializer) (Assets\Scripts\Libraries\BinarySerializer)
+* [BinarySerializer.Image](https://github.com/BinarySerializer/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
+* [BinarySerializer.Ray1](https://github.com/BinarySerializer/BinarySerializer.Ray1) (Assets\Scripts\Libraries\BinarySerializer.Ray1)
+* [BinarySerializer.Klonoa](https://github.com/BinarySerializer/BinarySerializer.Klonoa) (Assets\Scripts\Libraries\BinarySerializer.Klonoa)
+* [BinarySerializer.GBA](https://github.com/BinarySerializer/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
+* [BinarySerializer.PS1](https://github.com/BinarySerializer/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
 
 ## Screenshots
 
