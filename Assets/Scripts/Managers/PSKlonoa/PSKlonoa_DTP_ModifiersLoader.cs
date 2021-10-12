@@ -174,7 +174,7 @@ namespace R1Engine
                         break;
 
                     case GlobalModifierType.TextureAnimation:
-                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.Data_TextureAnimation.Files, modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.Data_TextureAnimation.Files.Select(x => x.Obj).ToArray(), modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
                         break;
 
                     case GlobalModifierType.PaletteAnimation:
