@@ -146,9 +146,11 @@ namespace R1Engine.Jade {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             InstancesNbMaxP = s.Serialize<int>(InstancesNbMaxP, name: nameof(InstancesNbMaxP));
-            Version = (int)ObjectVersion;
+
             if (ObjectVersion < 21 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
                 Version = s.Serialize<int>(Version, name: nameof(Version));
+            } else {
+                Version = (int)ObjectVersion;
             }
 
             if (Version == 0)

@@ -9,7 +9,7 @@ namespace R1Engine
 {
     public static class ImageExtensions
     {
-        public static Texture2D ToTexture2D(this DDS_TextureItem img)
+        public static Texture2D ToTexture2D(this DDS_TextureItem img, bool invertY = false)
         {
             TextureFormat fmt = TextureFormat.RGBA32;
             if (img.Pre_Header?.PixelFormat?.FourCC == "ATI2")
@@ -19,6 +19,21 @@ namespace R1Engine
             Texture2D bitmap = new Texture2D((int)img.Pre_Width, (int)img.Pre_Height, fmt, false);
             bitmap.LoadRawTextureData(img.ImageData);
             bitmap.Apply();
+            if (invertY) {
+                // invert y
+                var pixels = bitmap.GetPixels();
+                Color[] newPixels = new Color[pixels.Length];
+                var w = bitmap.width;
+                var h = bitmap.height;
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
+                        newPixels[y * w + x] = pixels[(h - 1 - y) * w + x];
+                    }
+                }
+                pixels = newPixels;
+                bitmap.SetPixels(pixels);
+                bitmap.Apply();
+            }
             return bitmap;
         }
 

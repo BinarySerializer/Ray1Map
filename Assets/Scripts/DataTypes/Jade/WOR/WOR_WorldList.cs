@@ -13,7 +13,7 @@ namespace R1Engine.Jade {
 			Worlds = s.SerializeObjectArray<Jade_GenericReference>(Worlds, FileSize / 8, name: nameof(Worlds));
 		}
 
-		public async UniTask ResolveReferences(SerializerObject s) {
+		public async UniTask ResolveReferences(SerializerObject s, bool isPrefabs = false) {
 			int worldIndex = 0;
 			foreach (var world in Worlds) {
 				if (!world.IsNull && Loader.IsBinaryData && Loader.Bin.CurrentPosition.AbsoluteOffset >= Loader.Bin.TotalSize) {
@@ -27,7 +27,14 @@ namespace R1Engine.Jade {
 
 				if (world?.Value != null && world.Value is WOR_World w) {
 					Controller.DetailedState = $"Loading world {worldIndex+1}/{Worlds.Length}: {w.Name}";
-					await w.JustAfterLoad(s, hasLoadedWorld);
+
+					/*if (isPrefabs && worldIndex == Worlds.Length - 1) {
+						Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(Context, Loader.BigFiles[0].UniverseKey);
+						univers.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+						await Loader.LoadBinOrNot(s);
+					}*/
+
+					await w.JustAfterLoad(s, hasLoadedWorld, doPrefabsCheck: isPrefabs && worldIndex == Worlds.Length - 1);
 
 					if (Loader.ShouldExportVars) {
 						foreach (var gao in w.SerializedGameObjects) {

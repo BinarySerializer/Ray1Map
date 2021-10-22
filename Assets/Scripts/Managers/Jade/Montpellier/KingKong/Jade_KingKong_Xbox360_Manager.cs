@@ -17,7 +17,7 @@
 			new LevelInfo(0x00009B7E, "ROOT/EngineDatas/06 Levels/_main/Level_Bonus_ArtworkKong3", "Level_Bonus_ArtworkKong3.wol"),
 			new LevelInfo(0x00009B8B, "ROOT/EngineDatas/06 Levels/_main/Level_Bonus_ArtworkKong4", "Level_Bonus_ArtworkKong4.wol"),
 			new LevelInfo(0x000222D4, "ROOT/EngineDatas/06 Levels/_main/Level_Bonus_Jack", "Level_Bonus_Jack.wol"),
-			new LevelInfo(0x00016CFE, "ROOT/EngineDatas/06 Levels/_prefabs/_prefabs_01", "_prefabs_01.wol"),
+			new LevelInfo(0x00016CFE, "ROOT/EngineDatas/06 Levels/_prefabs/_prefabs_01", "_prefabs_01.wol", isPrefabs: true),
 			new LevelInfo(0x00008943, "ROOT/EngineDatas/06 Levels/PRODUCTION_Levels_Jack/01A_Venture", "01A_Venture.wol"),
 			new LevelInfo(0x00006177, "ROOT/EngineDatas/06 Levels/PRODUCTION_Levels_Jack/01B_Skull_Island", "01B_Skull_Island.wol"),
 			new LevelInfo(0x00009BB9, "ROOT/EngineDatas/06 Levels/PRODUCTION_Levels_Jack/02A_Tombs", "02A_Tombs.wol"),

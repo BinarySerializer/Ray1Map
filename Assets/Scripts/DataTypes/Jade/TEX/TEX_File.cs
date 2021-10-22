@@ -301,7 +301,7 @@ namespace R1Engine.Jade
                     var pixels = tex.GetPixels();
                     Width = (ushort)tex.width;
                     Height = (ushort)tex.height;
-                    if (Content_DDS != null) {
+                    /*if (Content_DDS != null) {
                         // invert y
                         Color[] newPixels = new Color[pixels.Length];
                         for (int y = 0; y < Height; y++) {
@@ -310,7 +310,7 @@ namespace R1Engine.Jade
                             }
                         }
                         pixels = newPixels;
-                    }
+                    }*/
                     BaseColor[] pixelsBaseColor = null;
                     uint size = (uint)pixels.Length;
 
@@ -365,7 +365,7 @@ namespace R1Engine.Jade
                 TexFileType.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
                 TexFileType.Tga => Content_TGA.ToTexture2D(),
                 TexFileType.Jpeg => ToTexture2DFromJpeg(),
-                TexFileType.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),
+                TexFileType.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D(invertY: true) : Content_Xenon.ToTexture2D(),
                 TexFileType.Bmp when (Content == null || Content.Length == 0) => null,
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };

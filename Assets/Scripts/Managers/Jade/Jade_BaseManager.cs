@@ -509,16 +509,16 @@ namespace R1Engine {
 			};
 
 			if (inputDir != null) {
-				// Read keys to avoid
-				string keyListPath = Path.Combine(inputDir, "keys_to_avoid.txt");
-				{
-					string[] lines = File.ReadAllLines(keyListPath);
+				DirectoryInfo dinfo = new DirectoryInfo(inputDir);
+				var keyFiles = dinfo.GetFiles("*.txt", SearchOption.TopDirectoryOnly);
+				foreach (var f in keyFiles) {
+					string[] lines = File.ReadAllLines(f.FullName);
 					foreach (var l in lines) {
 						var lineSplit = l.Split(',');
 						if (lineSplit.Length < 1) continue;
 						uint k;
 						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
-							if(!keysToAvoid.Contains(k)) keysToAvoid.Add(k);
+							if (!keysToAvoid.Contains(k)) keysToAvoid.Add(k);
 						}
 					}
 				}
@@ -1169,9 +1169,10 @@ namespace R1Engine {
 					// Read keys to avoid
 					HashSet<uint> keysToAvoid = new HashSet<uint>();
 					if (inputDir != null) {
-						string keyListPath = Path.Combine(inputDir, "keys_to_avoid.txt");
-						{
-							string[] lines = File.ReadAllLines(keyListPath);
+						DirectoryInfo dinfo = new DirectoryInfo(inputDir);
+						var keyFiles = dinfo.GetFiles("*.txt", SearchOption.TopDirectoryOnly);
+						foreach (var f in keyFiles) {
+							string[] lines = File.ReadAllLines(f.FullName);
 							foreach (var l in lines) {
 								var lineSplit = l.Split(',');
 								if (lineSplit.Length < 1) continue;
@@ -1422,7 +1423,7 @@ namespace R1Engine {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(JadeSpePath, context);
 		}
-		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false, bool isEditor = false) {
+		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false, bool isEditor = false, bool isPrefabs = false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.IsLoadingFix = isFix;
 
@@ -1450,7 +1451,7 @@ namespace R1Engine {
 					await loader.LoadLoopBINAsync();
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 						if (worldList?.Value != null) {
-							await worldList.Value.ResolveReferences(s);
+							await worldList.Value.ResolveReferences(s, isPrefabs);
 						}
 					}
 				});
@@ -1777,8 +1778,8 @@ namespace R1Engine {
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			//var loadFlags = LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound | LoadFlags.Universe;
-			var loadFlags = LoadFlags.All;
+			var loadFlags = LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound | LoadFlags.Universe;
+			//var loadFlags = LoadFlags.All;
 			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level), loadFlags);
 
 			stopWatch.Stop();
@@ -1818,7 +1819,22 @@ namespace R1Engine {
 							Texture2D[] tex = null;
 							var gro_m = gao.Base.Visual.Material?.Value;
 							if (gro_m != null) {
-								Texture2D GetTexture2D(GRO_Struct renderObject) {
+								Texture2D GetTexture2D(Jade_TextureReference texRef) {
+									if(texRef == null) return null;
+									var texContent = (texRef.Content ?? texRef.Info);
+									if (texContent != null) {
+										if (!textureKeyDict.ContainsKey(texRef.Key)) {
+											textureKeyDict[texRef.Key] = texContent.ToTexture2D();
+											if (textureKeyDict[texRef.Key] != null) {
+												textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+												textureKeyDict[texRef.Key].filterMode = FilterMode.Bilinear;
+											}
+										}
+										return textureKeyDict[texRef.Key];
+									}
+									return null;
+								}
+								Texture2D GetTextureFromRenderObject(GRO_Struct renderObject) {
 									if(renderObject == null) return null;
 									if (renderObject.Type == GRO_Type.MAT_MTT) {
 										var mat_mtt = (MAT_MTT_MultiTextureMaterial)renderObject.Value;
@@ -1826,43 +1842,27 @@ namespace R1Engine {
 										if ((mat_mtt.Levels?.Length ?? 0) > 0) {
 											for (int i = 0; i < mat_mtt.Levels.Length; i++) {
 												var texRef = mat_mtt.Levels[i].Texture;
-												var texContent = (texRef.Content ?? texRef.Info);
-												if (texContent != null) {
-													if (!textureKeyDict.ContainsKey(texRef.Key)) {
-														textureKeyDict[texRef.Key] = texContent.ToTexture2D();
-														if (textureKeyDict[texRef.Key] != null) {
-															textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
-														}
-													}
-													return textureKeyDict[texRef.Key];
-												}
+												var tex = GetTexture2D(texRef);
+												if(tex != null) return tex;
 											}
 										}
 									} else if (renderObject.Type == GRO_Type.MAT_SIN) {
 										var mat_sin = (MAT_SIN_SingleMaterial)renderObject.Value;
 										var texRef = mat_sin.Texture;
-										var texContent = (texRef.Content ?? texRef.Info);
-										if (texContent != null) {
-											if (!textureKeyDict.ContainsKey(texRef.Key)) {
-												textureKeyDict[texRef.Key] = texContent.ToTexture2D();
-												if (textureKeyDict[texRef.Key] != null) {
-													textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
-												}
-											}
-											return textureKeyDict[texRef.Key];
-										}
+										var tex = GetTexture2D(texRef);
+										if (tex != null) return tex;
 									}
 									return null;
 								}
 								if (gro_m.RenderObject.Type == GRO_Type.MAT_MTT || gro_m.RenderObject.Type == GRO_Type.MAT_SIN) {
 									tex = new Texture2D[1];
-									tex[0] = GetTexture2D(gro_m.RenderObject);
+									tex[0] = GetTextureFromRenderObject(gro_m.RenderObject);
 								} else if (gro_m.RenderObject.Type == GRO_Type.MAT_MSM) {
 									var mat = (MAT_MSM_MultiSingleMaterial)gro_m.RenderObject.Value;
 									tex = new Texture2D[mat.Materials.Length];
 									for (int i = 0; i < mat.Materials.Length; i++) {
 										var gro_m_sub = mat.Materials[i]?.Value?.RenderObject;
-										tex[i] = GetTexture2D(gro_m_sub);
+										tex[i] = GetTextureFromRenderObject(gro_m_sub);
 									}
 								}
 							}
@@ -1904,7 +1904,7 @@ namespace R1Engine {
 									MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
 									mf.mesh = m;
 									MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
-									mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+									mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 									var texturesLength = tex?.Length ?? 0;
 									if (texturesLength > 0) {
 										if (texturesLength == 1) {
@@ -1919,8 +1919,11 @@ namespace R1Engine {
 							}
 						}
 					}
+
+
 				}
 			}
+			Controller.obj.levelController.editor.cam.camera3D.farClipPlane = 10000f;
 		}
 		public async UniTask CreateModWorld(LOA_Loader loader) {
 			await UniTask.CompletedTask;
@@ -2027,6 +2030,7 @@ namespace R1Engine {
 			var levelInfos = LevelInfos;
 			bool isWOW = false;
 			bool isEditor = false;
+			bool isPrefabs = false;
 			if (levelInfos == null) {
 				throw new Exception($"Before loading, add the level list using the Create Level List game action.");
 			} else {
@@ -2038,9 +2042,10 @@ namespace R1Engine {
 				var levInfo = levInfos.FirstOrDefault();
 				isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
 				isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
+				isPrefabs = levInfo != null && levInfo.IsPrefabs;
 			}
 
-			if (loadFlags.HasFlag(LoadFlags.Universe)) {
+			if (loadFlags.HasFlag(LoadFlags.Universe) && !isPrefabs) {
 				// Load universe
 				var univers = await LoadUniverse(context);
 			}
@@ -2054,7 +2059,7 @@ namespace R1Engine {
 				if (isWOW) {
 					var world = await LoadWorld(context, worldKey, isEditor: isEditor);
 				} else {
-					var worldList = await LoadWorldList(context, worldKey, loadFlags, isEditor: isEditor);
+					var worldList = await LoadWorldList(context, worldKey, loadFlags, isEditor: isEditor, isPrefabs: isPrefabs);
 				}
 			}
 
@@ -2079,7 +2084,7 @@ namespace R1Engine {
 
 		public class LevelInfo
         {
-            public LevelInfo(uint key, string directoryPath, string filePath, string worldName = null, string mapName = null, FileType? type = null)
+            public LevelInfo(uint key, string directoryPath, string filePath, string worldName = null, string mapName = null, bool isPrefabs = false, FileType? type = null)
             {
 				OriginalMapName = mapName;
 				OriginalWorldName = worldName;
@@ -2087,6 +2092,7 @@ namespace R1Engine {
                 Key = key;
                 DirectoryPath = directoryPath;
                 FilePath = filePath;
+				IsPrefabs = isPrefabs;
 				MapName = mapName ?? Path.GetFileNameWithoutExtension(FilePath);
 				WorldName = worldName ?? (DirectoryPath.Contains('/') ? DirectoryPath.Substring(0, DirectoryPath.LastIndexOf('/')) : DirectoryPath);
 				Type = type;
@@ -2112,6 +2118,8 @@ namespace R1Engine {
 
 			public string WorldName { get; }
 			public string MapName { get; }
+
+			public bool IsPrefabs { get; }
 		}
 
 		[Flags]

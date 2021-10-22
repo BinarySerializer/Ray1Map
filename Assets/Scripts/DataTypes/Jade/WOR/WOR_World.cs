@@ -257,10 +257,18 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public async UniTask JustAfterLoad(SerializerObject s, bool hasLoadedWorld) {
+		public async UniTask JustAfterLoad(SerializerObject s, bool hasLoadedWorld, bool doPrefabsCheck = false) {
 			var gaos = GameObjects?.Value?.GameObjects;
 			if (gaos != null) {
 				foreach (var gao in gaos) {
+					// Hack for King Kong X360's Prefabs bin file
+					if (doPrefabsCheck) {
+						if (gao?.Value?.Name == "PNJ_RadoJack.gao") {
+							Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(Context, Loader.BigFiles[0].UniverseKey);
+							univers.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+							await Loader.LoadBinOrNot(s);
+						}
+					}
 					await JustAfterLoadObject(s, gao?.Value);
 				}
 				if ((!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) || Loader.IsLoadingFix) && !hasLoadedWorld) {
@@ -323,6 +331,7 @@ namespace R1Engine.Jade {
 			//if (gao?.Value == null || BitHelpers.ExtractBits(gao.Value.FlagsFix, 1, 4) != 0) continue;
 			//if (gao?.Value == null || gao.Value.IsInitialized) continue;
 			gao.IsInitialized = true;
+
 			// Resolve references in ANI_pst_Load
 			var actionData = gao.Base?.ActionData;
 			if (actionData != null) {
