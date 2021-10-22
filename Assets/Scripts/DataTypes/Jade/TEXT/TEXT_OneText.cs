@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 
 		public byte FacialIdx { get; set; }
 		public byte LipsIdx { get; set; }
-		public byte AnimIdx { get; set; }
+		public int AnimIdx { get; set; }
 		public byte DumIdx { get; set; }
 
 		public uint EditorStringLength { get; set; }
@@ -43,7 +43,11 @@ namespace R1Engine.Jade {
 				if (Version >= 1) {
 					FacialIdx = s.Serialize<byte>(FacialIdx, name: nameof(FacialIdx));
 					LipsIdx = s.Serialize<byte>(LipsIdx, name: nameof(LipsIdx));
-					AnimIdx = s.Serialize<byte>(AnimIdx, name: nameof(AnimIdx));
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_MovieGames) && Version >= 2) {
+						AnimIdx = s.Serialize<int>(AnimIdx, name: nameof(AnimIdx));
+					} else {
+						AnimIdx = s.Serialize<byte>((byte)AnimIdx, name: nameof(AnimIdx));
+					}
 					DumIdx = s.Serialize<byte>(DumIdx, name: nameof(DumIdx));
 				}
 			}
