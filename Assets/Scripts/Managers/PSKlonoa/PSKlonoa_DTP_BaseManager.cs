@@ -84,7 +84,7 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            var loader = Loader_DTP.Create(context, idxData);
+            var loader = Loader.Create(context, idxData);
 
             var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
             {
@@ -193,7 +193,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader_DTP.Create(context, idxData);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -226,7 +226,7 @@ namespace R1Engine
             var idxData = Load_IDX(context, config);
 
             // Create the loader
-            var loader = Loader_DTP.Create(context, idxData);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every bin block
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -632,7 +632,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context, config);
 
-            var loader = Loader_DTP.Create(context, idxData);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -740,7 +740,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader_DTP.Create(context, idxData);
+            var loader = Loader.Create(context, idxData);
 
             // Only parse the selected sector
             loader.LevelSector = sector;
@@ -837,7 +837,7 @@ namespace R1Engine
             return level;
         }
 
-        public async UniTask Load_LayersAsync(Unity_Level level, Loader_DTP loader, int sector, float scale)
+        public async UniTask Load_LayersAsync(Unity_Level level, Loader loader, int sector, float scale)
         {
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles;
@@ -912,7 +912,7 @@ namespace R1Engine
             level.Layers = layers.ToArray();
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader_DTP loader, int sector, float scale) {
+        public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader loader, int sector, float scale) {
 
             // Add background modifiers
             var modifiers = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
@@ -993,7 +993,7 @@ namespace R1Engine
             return gaoLayers;
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, float scale)
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, float scale)
         {
             // Get the background textures
             var bgLayers = modifiersLoader.BG_Layers;
@@ -1009,7 +1009,7 @@ namespace R1Engine
             }).Reverse();
         }
 
-        public Unity_Layer Load_Layers_LevelObject(Loader_DTP loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
+        public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
         {
             GameObject obj;
             bool isAnimated;
@@ -1049,7 +1049,7 @@ namespace R1Engine
             };
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader_DTP loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
@@ -1076,7 +1076,7 @@ namespace R1Engine
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
-        public List<Unity_SpriteObject> Load_Objects(Loader_DTP loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        public List<Unity_SpriteObject> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             var objects = new List<Unity_SpriteObject>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
@@ -1182,7 +1182,7 @@ namespace R1Engine
             return objects;
         }
 
-        public void Load_MovementPaths(Unity_Level level, Loader_DTP loader, int sector, float scale)
+        public void Load_MovementPaths(Unity_Level level, Loader loader, int sector, float scale)
         {
             var lines = new List<Unity_CollisionLine>();
             const float verticalAdjust = 0.2f;
@@ -1280,7 +1280,7 @@ namespace R1Engine
 
         public (GameObject, bool) CreateGameObject(
             PS1_TMD tmd, 
-            Loader_DTP loader, 
+            Loader loader, 
             float scale, 
             string name, 
             PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
@@ -1796,7 +1796,7 @@ namespace R1Engine
             return (tex, new RectInt(minX, minY, width, height));
         }
 
-        public (Texture2D[], int) GetBackgroundFrames(Loader_DTP loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer)
+        public (Texture2D[], int) GetBackgroundFrames(Loader loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
@@ -1843,7 +1843,7 @@ namespace R1Engine
             return (animatedTex.Textures, animatedTex.Speed);
         }
 
-        public Texture2D GetTexture(Loader_DTP loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer, Texture2D tex = null)
+        public Texture2D GetTexture(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer, Texture2D tex = null)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
@@ -1890,7 +1890,7 @@ namespace R1Engine
             return tex;
         }
 
-        public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader_DTP loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
+        public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
         {
             var textures = new Texture2D[anim.FramesCount];
             var rects = new RectInt?[anim.FramesCount];
@@ -2126,7 +2126,7 @@ namespace R1Engine
             return GetPosition(xPos, yPos, zPos, scale);
         }
 
-        public static void Helper_GenerateCutsceneTextTranslation(Loader_DTP loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
+        public static void Helper_GenerateCutsceneTextTranslation(Loader loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
         {
             var c = loader.LevelPack.CutscenePack.Cutscenes[cutscene];
             var i = (CutsceneInstructionData_DrawText)c.Cutscene_Normal.Instructions[instruction].Data;

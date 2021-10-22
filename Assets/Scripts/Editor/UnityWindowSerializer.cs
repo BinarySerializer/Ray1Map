@@ -260,6 +260,16 @@ public class UnityWindowSerializer : SerializerObject
         });
     }
 
+    public override void SerializeBitValues64<T>(Action<SerializeBits64> serializeFunc)
+    {
+        serializeFunc((value, length, name) =>
+        {
+            var rect = PrefixEditorField(name);
+
+            return Window.EditorField(String.Empty, value, rect: rect);
+        });
+    }
+
     public override void Log(string logString)
     {
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");

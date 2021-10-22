@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Klonoa;
+﻿using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,7 +12,7 @@ namespace R1Engine
 {
     public class PSKlonoa_DTP_ModifiersLoader
     {
-        public PSKlonoa_DTP_ModifiersLoader(PSKlonoa_DTP_BaseManager manager, Loader_DTP loader, float scale, GameObject parentObject, ModifierObject[] modifiers, BackgroundModifierObject[] backgroundModifiers)
+        public PSKlonoa_DTP_ModifiersLoader(PSKlonoa_DTP_BaseManager manager, Loader loader, float scale, GameObject parentObject, ModifierObject[] modifiers, BackgroundModifierObject[] backgroundModifiers)
         {
             Manager = manager;
             Loader = loader;
@@ -34,7 +33,7 @@ namespace R1Engine
         }
 
         public PSKlonoa_DTP_BaseManager Manager { get; }
-        public Loader_DTP Loader { get; }
+        public Loader Loader { get; }
         public float Scale { get; }
         public GameObject ParentObject { get; }
         public ModifierObject[] Modifiers { get; }
