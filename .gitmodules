@@ -16,3 +16,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Klonoa"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Klonoa
 	url = https://github.com/BinarySerializer/BinarySerializer.Klonoa
+[submodule "Assets/Scripts/Libraries/BinarySerializer.PS2"]
+	path = Assets/Scripts/Libraries/BinarySerializer.PS2
+	url = https://github.com/BinarySerializer/BinarySerializer.PS2

@@ -934,6 +934,7 @@ If you download the repo as a zip folder the sub-modules won't be included, caus
 * [BinarySerializer.Klonoa](https://github.com/BinarySerializer/BinarySerializer.Klonoa) (Assets\Scripts\Libraries\BinarySerializer.Klonoa)
 * [BinarySerializer.GBA](https://github.com/BinarySerializer/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
 * [BinarySerializer.PS1](https://github.com/BinarySerializer/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
+* [BinarySerializer.PS2](https://github.com/BinarySerializer/BinarySerializer.PS2) (Assets\Scripts\Libraries\BinarySerializer.PS2)
 
 ## Screenshots
 
