@@ -338,7 +338,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading animations";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_KlonoaHeroes(context, rom.ObjectAnimationsPack.Files.Select(GetAnimSet).Where(x => x != null), rom);
+            var objManager = new Unity_ObjectManager_KlonoaHeroes(context, rom.EnemyAnimationsPack.Files.Select(GetAnimSet).Where(x => x != null), rom);
             lvl.ObjManager = objManager;
 
             Controller.DetailedState = "Loading objects";
@@ -347,11 +347,11 @@ namespace R1Engine
             lvl.EventData = new List<Unity_SpriteObject>();
 
             // Add map objects
-            foreach (MapObject obj in map.MapObjects.Objects)
+            foreach (EnemyObject obj in map.EnemyObjects.Objects)
                 lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
 
             // Add trigger objects
-            foreach (MapTriggerObject obj in map.MapTriggerObjects.TriggerObjects.Where(x => x.ObjType != 0))
+            foreach (TriggerObject obj in map.TriggerObjects.Objects.Where(x => x.ObjType != 0))
                 lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
 
             return lvl;

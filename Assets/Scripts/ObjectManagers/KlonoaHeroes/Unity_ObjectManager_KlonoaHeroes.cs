@@ -27,15 +27,15 @@ namespace R1Engine
 
         public class AnimSet
         {
-            public AnimSet(IList<Animation> animations, int index)
+            public AnimSet(IList<Animation> animations, int enemyAnimIndex)
             {
                 Animations = animations;
-                Index = index;
+                EnemyAnimIndex = enemyAnimIndex;
             }
 
             public IList<Animation> Animations { get; }
-            public int Index { get; }
-            public string GetDisplayName() => $"{Index}";
+            public int EnemyAnimIndex { get; }
+            public string GetDisplayName() => $"{EnemyAnimIndex}";
 
             public class Animation
             {

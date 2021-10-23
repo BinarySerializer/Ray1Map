@@ -8,14 +8,14 @@ namespace R1Engine
 {
     public class Unity_Object_KlonoaHeroes : Unity_SpriteObject_3D
     {
-        public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, MapObject obj)
+        public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, EnemyObject obj)
         {
             ObjManager = objManager;
-            MapObject = obj;
-            AnimSetIndex = ObjManager.AnimSets.FindItemIndex(x => x?.Index == ObjManager.ROM.MapObjectTypes.ElementAtOrDefault(obj.ObjType)?.AnimFileIndex);
+            EnemyObject = obj;
+            AnimSetIndex = ObjManager.AnimSets.FindItemIndex(x => x?.EnemyAnimIndex == ObjManager.ROM.MapObjectTypes.ElementAtOrDefault(obj.ObjType)?.AnimFileIndex);
         }
 
-        public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, MapTriggerObject obj)
+        public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, TriggerObject obj)
         {
             ObjManager = objManager;
             TriggerObject = obj;
@@ -23,16 +23,16 @@ namespace R1Engine
         }
 
         public Unity_ObjectManager_KlonoaHeroes ObjManager { get; }
-        public MapObject MapObject { get; set; }
-        public MapTriggerObject TriggerObject { get; set; }
+        public EnemyObject EnemyObject { get; set; }
+        public TriggerObject TriggerObject { get; set; }
 
         public override short XPosition
         {
-            get => MapObject?.XPos ?? TriggerObject.XPos;
+            get => EnemyObject?.XPos ?? TriggerObject.XPos;
             set
             {
-                if (MapObject != null)
-                    MapObject.XPos = value;
+                if (EnemyObject != null)
+                    EnemyObject.XPos = value;
                 else
                     TriggerObject.XPos = value;
             }
@@ -40,11 +40,11 @@ namespace R1Engine
 
         public override short YPosition
         {
-            get => MapObject?.YPos ?? TriggerObject.YPos;
+            get => EnemyObject?.YPos ?? TriggerObject.YPos;
             set
             {
-                if (MapObject != null)
-                    MapObject.YPos = value;
+                if (EnemyObject != null)
+                    EnemyObject.YPos = value;
                 else
                     TriggerObject.YPos = value;
             }
@@ -52,14 +52,14 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(MapObject?.XPos ?? TriggerObject.XPos, MapObject?.YPos ?? TriggerObject.YPos, MapObject?.ZPos ?? TriggerObject.ZPos);
+            get => new Vector3(EnemyObject?.XPos ?? TriggerObject.XPos, EnemyObject?.YPos ?? TriggerObject.YPos, EnemyObject?.ZPos ?? TriggerObject.ZPos);
             set
             {
-                if (MapObject != null)
+                if (EnemyObject != null)
                 {
-                    MapObject.XPos = (short)value.x;
-                    MapObject.YPos = (short)value.y;
-                    MapObject.ZPos = (byte)value.z;
+                    EnemyObject.XPos = (short)value.x;
+                    EnemyObject.YPos = (short)value.y;
+                    EnemyObject.ZPos = (byte)value.z;
                 }
                 else
                 {
@@ -73,14 +73,14 @@ namespace R1Engine
         public Unity_ObjectManager_KlonoaHeroes.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_KlonoaHeroes.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
 
-        public override BinarySerializable SerializableData => (BinarySerializable)MapObject ?? TriggerObject;
+        public override BinarySerializable SerializableData => (BinarySerializable)EnemyObject ?? TriggerObject;
         public override BaseLegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => MapObject != null ? $"Object_{MapObject.ObjType}" : $"Trigger_{TriggerObject.ObjType}";
+        public override string PrimaryName => EnemyObject != null ? $"Enemy_{EnemyObject.ObjType}" : $"Trigger_{TriggerObject.ObjType}";
         public override string SecondaryName => null;
 
-        public override Unity_ObjectType Type => MapObject != null ? Unity_ObjectType.Object : Unity_ObjectType.Trigger;
-        public override bool IsEditor => MapObject == null;
+        public override Unity_ObjectType Type => EnemyObject != null ? Unity_ObjectType.Object : Unity_ObjectType.Trigger;
+        public override bool IsEditor => EnemyObject == null;
 
         private int _animSetIndex;
 
