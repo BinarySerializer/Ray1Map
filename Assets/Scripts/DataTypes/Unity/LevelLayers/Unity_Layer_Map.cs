@@ -22,8 +22,8 @@ namespace R1Engine {
 		public override bool IsAnimated => HasAnimatedTiles;
 
 		public override Rect GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
-			var width = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Width / (cellSize / cellSizeOverrideCollision)) : Map.Width;
-			var height = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Height / (cellSize / cellSizeOverrideCollision)) : Map.Height;
+			var width = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Width / (cellSize / (float)cellSizeOverrideCollision)) : Map.Width;
+			var height = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Height / (cellSize / (float)cellSizeOverrideCollision)) : Map.Height;
 			return new Rect(0f, 0f, width, height);
 		}
 
