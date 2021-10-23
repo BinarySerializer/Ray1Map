@@ -256,13 +256,24 @@ namespace R1Engine
             // Get the map
             var map = rom.MapsPack.GetMap(lvlEntry.ID1, lvlEntry.ID2, lvlEntry.ID3);
 
-            Controller.DetailedState = "Loading maps";
+            Controller.DetailedState = "Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var tileSet = LoadTileSet(
-                tileSet: map.SpecialMapLayer.SharedTileSet.Concat(map.SpecialMapLayer.TileSet ?? Enumerable.Empty<byte>()).ToArray(),
+            IEnumerable<byte> tileSetData = Enumerable.Empty<byte>();
+
+            if (map.SpecialMapLayer.SharedTileSet != null)
+                tileSetData = tileSetData.Concat(map.SpecialMapLayer.SharedTileSet);
+
+            if (map.SpecialMapLayer.TileSet != null)
+                tileSetData = tileSetData.Concat(map.SpecialMapLayer.TileSet);
+
+            Unity_TileSet tileSet = LoadTileSet(
+                tileSet: tileSetData.ToArray(),
                 pal: map.SpecialMapLayer.Palette,
                 mapTiles: map.MapLayers.Where(x => x != null).SelectMany(x => x.TileMap).ToArray());
+
+            Controller.DetailedState = "Loading maps";
+            await Controller.WaitIfNecessary();
 
             lvl.CellSize = CellSize;
             var maps = map.MapLayers.Where(x => x != null).Reverse().OrderByDescending(x => x.Priority).Select(x =>
@@ -292,6 +303,7 @@ namespace R1Engine
                 {
                     Width = (ushort)(map.SpecialMapLayer.Width / CollisionCellSize),
                     Height = (ushort)(map.SpecialMapLayer.Height / CollisionCellSize),
+                    TileSet = new Unity_TileSet[0],
                     MapTiles = map.SpecialMapLayer.CollisionMap.Select(x => new Unity_Tile(new MapTile()
                     {
                         CollisionType = x
@@ -323,19 +335,24 @@ namespace R1Engine
 
             lvl.Maps = maps.ToArray();
 
+            Controller.DetailedState = "Loading animations";
+            await Controller.WaitIfNecessary();
+
+            var objManager = new Unity_ObjectManager_KlonoaHeroes(context, rom.ObjectAnimationsPack.Files.Select(GetAnimSet).Where(x => x != null), rom);
+            lvl.ObjManager = objManager;
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            // TODO: Create obj class
-            lvl.EventData = map.MapObjects.Objects.Select(x => (Unity_SpriteObject)new Unity_Object_Dummy(x, Unity_ObjectType.Object)
-            {
-                Position = new Vector3(x.XPos, x.YPos, x.ZPos),
-                XPosition = x.XPos,
-                YPosition = x.YPos
-            }).ToList();
+            lvl.EventData = new List<Unity_SpriteObject>();
 
-            // TODO: Create manager and parse animations
-            lvl.ObjManager = new Unity_ObjectManager(context);
+            // Add map objects
+            foreach (MapObject obj in map.MapObjects.Objects)
+                lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
+
+            // Add trigger objects
+            foreach (MapTriggerObject obj in map.MapTriggerObjects.TriggerObjects.Where(x => x.ObjType != 0))
+                lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
 
             return lvl;
         }
@@ -415,6 +432,88 @@ namespace R1Engine
                 tiles[index++] = t.CreateTile();
 
             return new Unity_TileSet(tiles);
+        }
+
+        public Unity_ObjectManager_KlonoaHeroes.AnimSet GetAnimSet(Animation_File animSet, int index)
+        {
+            if (animSet == null)
+                return null;
+
+            var anims = new List<Unity_ObjectManager_KlonoaHeroes.AnimSet.Animation>();
+
+            for (int animGroupIndex = 0; animGroupIndex < animSet.AnimationGroups.Length; animGroupIndex++)
+            {
+                for (int animIndex = 0; animIndex < animSet.AnimationGroups[animGroupIndex].Animations.Length; animIndex++)
+                {
+                    var _animGroupIndex = animGroupIndex;
+                    var _animIndex = animIndex;
+                    var anim = animSet.AnimationGroups[animGroupIndex].Animations[animIndex];
+
+                    anims.Add(new Unity_ObjectManager_KlonoaHeroes.AnimSet.Animation(
+                        animFrameFunc: () => GetAnimFrames(animSet, _animGroupIndex, _animIndex).Select(x => x.CreateSprite()).ToArray(),
+                        klonoaAnim: anim,
+                        xPos: anim.Frames.SelectMany(x => x.Sprites).Min(x => x.XPos),
+                        yPos: anim.Frames.SelectMany(x => x.Sprites).Min(x => x.YPos), animGroupIndex, animIndex));
+                }
+            }
+
+            return new Unity_ObjectManager_KlonoaHeroes.AnimSet(anims, index);
+        }
+
+        public Texture2D[] GetAnimFrames(Animation_File animSet, int animGroupIndex, int animIndex)
+        {
+            // Get properties
+            var anim = animSet.AnimationGroups[animGroupIndex].Animations[animIndex];
+            var pal = Util.ConvertAndSplitGBAPalette(animSet.Palette);
+
+            var output = new Texture2D[anim.Frames.Length];
+
+            var minX = anim.Frames.SelectMany(x => x.Sprites).Min(x => x.XPos);
+            var minY = anim.Frames.SelectMany(x => x.Sprites).Min(x => x.YPos);
+            var maxX = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.XPos + GBAConstants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Width);
+            var maxY = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.YPos + GBAConstants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Height);
+
+            var width = maxX - minX;
+            var height = maxY - minY;
+
+            for (int frameIndex = 0; frameIndex < anim.Frames.Length; frameIndex++)
+            {
+                AnimationFrame frame = anim.Frames[frameIndex];
+
+                var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+
+                foreach (AnimationSprite sprite in frame.Sprites)
+                {
+                    GBAConstants.Size shape = GBAConstants.GetSpriteShape(sprite.ObjAttr.SpriteShape, sprite.ObjAttr.SpriteSize);
+
+                    var offset = (int)sprite.TileSetOffset;
+
+                    for (int y = 0; y < shape.Height; y += 8)
+                    {
+                        for (int x = 0; x < shape.Width; x += 8)
+                        {
+                            tex.FillInTile(
+                                imgData: animSet.TileSet,
+                                imgDataOffset: offset,
+                                pal: pal[sprite.PaletteIndex],
+                                encoding: Util.TileEncoding.Linear_4bpp,
+                                tileWidth: CellSize,
+                                flipTextureY: true,
+                                tileX: sprite.XPos + x - minX,
+                                tileY: sprite.YPos + y - minY,
+                                ignoreTransparent: true);
+
+                            offset += 32;
+                        }
+                    }
+                }
+
+                tex.Apply();
+
+                output[frameIndex] = tex;
+            }
+
+            return output;
         }
 
         public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
