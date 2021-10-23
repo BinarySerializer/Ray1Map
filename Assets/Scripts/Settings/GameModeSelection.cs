@@ -907,6 +907,13 @@ namespace R1Engine {
 
         #endregion
 
+        #region Klonoa Heroes
+
+        [GameMode(MajorEngineVersion.KlonoaHeroes, EngineVersion.KlonoaHeroes, Game.KlonoaHeroes_Heroes, "Klonoa Heroes (GBA - JP)", typeof(KlonoaHeroes_Manager), Platform.GBA)]
+        KlonoaHeroesGBAJP,
+
+        #endregion
+
         #region PS1 Klonoa
 
         [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - Prototype 1997/07/17)", typeof(PSKlonoa_DTP_Manager_Prototype_19970717), Platform.PS1)]

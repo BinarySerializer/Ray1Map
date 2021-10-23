@@ -176,6 +176,8 @@ namespace R1Engine
         KlonoaGBA_EOD,
         KlonoaGBA_DCT,
 
+        KlonoaHeroes,
+
         PSKlonoa_DTP,
     }
 }
