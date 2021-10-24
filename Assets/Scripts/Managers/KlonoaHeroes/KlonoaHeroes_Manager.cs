@@ -250,8 +250,13 @@ namespace R1Engine
             // Create the level
             var lvl = new Unity_Level();
 
+            const KlonoaHeroesROM.SerializeDataFlags romSerializeFlags = KlonoaHeroesROM.SerializeDataFlags.EnemyAnimationsPack | 
+                                                                         KlonoaHeroesROM.SerializeDataFlags.GameplayPack | 
+                                                                         KlonoaHeroesROM.SerializeDataFlags.MapsPack | 
+                                                                         KlonoaHeroesROM.SerializeDataFlags.EnemyObjectDefinitions;
+
             // Read the ROM
-            var rom = FileFactory.Read<KlonoaHeroesROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<KlonoaHeroesROM>(GetROMFilePath, context, onPreSerialize: (s, x) => x.Pre_SerializeFlags = romSerializeFlags);
 
             // Get the map
             var map = rom.MapsPack.GetMap(lvlEntry.ID1, lvlEntry.ID2, lvlEntry.ID3);
@@ -314,6 +319,7 @@ namespace R1Engine
 
                 lvl.CellSizeOverrideCollision = CollisionCellSize;
 
+                // TODO: Maps 73, 74 and 75 have some collision graphics - use those?
                 lvl.GetCollisionTypeGraphicFunc = c => c switch
                 {
                     0 => Unity_MapCollisionTypeGraphic.None,
@@ -328,6 +334,33 @@ namespace R1Engine
                     8 => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
                     9 => Unity_MapCollisionTypeGraphic.Angle_Top_Left,
                     10 => Unity_MapCollisionTypeGraphic.Angle_Top_Right,
+
+                    12 => Unity_MapCollisionTypeGraphic.Solid, // ?
+                    13 => Unity_MapCollisionTypeGraphic.Solid, // ?
+                    14 => Unity_MapCollisionTypeGraphic.Solid, // ?
+                    15 => Unity_MapCollisionTypeGraphic.Solid, // ?
+
+                    16 => Unity_MapCollisionTypeGraphic.DetectionZone, // Entrance/exit
+
+                    17 => Unity_MapCollisionTypeGraphic.Spikes, // Spikes
+
+                    32 => Unity_MapCollisionTypeGraphic.DetectionZone, // Entrance/exit
+                    33 => Unity_MapCollisionTypeGraphic.Reactionary, // Gate
+                    34 => Unity_MapCollisionTypeGraphic.Reactionary, // Chest
+                    35 => Unity_MapCollisionTypeGraphic.Reactionary, // Portal
+
+                    36 => Unity_MapCollisionTypeGraphic.DetectionZone, // ? (horizontal)
+                    37 => Unity_MapCollisionTypeGraphic.DetectionZone, // ? (vertical)
+                    38 => Unity_MapCollisionTypeGraphic.DetectionZone, // ? (horizontal)
+                    39 => Unity_MapCollisionTypeGraphic.DetectionZone, // ?
+
+                    40 => Unity_MapCollisionTypeGraphic.Reactionary, // Some pad
+                    41 => Unity_MapCollisionTypeGraphic.Reactionary, // Some pad
+                    42 => Unity_MapCollisionTypeGraphic.Reactionary, // Some pad
+                    43 => Unity_MapCollisionTypeGraphic.Reactionary, // Some pad
+
+                    44 => Unity_MapCollisionTypeGraphic.Reactionary, // ?
+                    45 => Unity_MapCollisionTypeGraphic.Reactionary, // Some object
 
                     _ => Unity_MapCollisionTypeGraphic.Unknown0,
                 };
@@ -455,9 +488,6 @@ namespace R1Engine
                     var anim = animSet.AnimationGroups[animGroupIndex].Animations[animIndex];
 
                     if (anim == null)
-                        continue;
-
-                    if (anims.Any(x => x.KlonoaAnim == anim))
                         continue;
 
                     anims.Add(new Unity_ObjectManager_KlonoaHeroes.AnimSet.Animation(

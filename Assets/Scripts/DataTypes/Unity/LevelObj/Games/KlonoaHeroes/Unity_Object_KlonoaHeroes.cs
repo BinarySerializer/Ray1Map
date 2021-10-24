@@ -13,7 +13,9 @@ namespace R1Engine
         {
             ObjManager = objManager;
             EnemyObject = obj;
-            SetAnimation(ObjManager.ROM.MapObjectTypes.ElementAtOrDefault(obj.ObjType)?.AnimFileIndex ?? -1, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Enemy);
+
+            var def = ObjManager.ROM.EnemyObjectDefinitions.ElementAtOrDefault(obj.ObjType);
+            SetAnimation(def?.AnimFileIndex ?? -1, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Enemy, def?.AnimGroupIndex ?? 0, def?.AnimIndex ?? 0);
         }
 
         public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, GenericObject obj)
@@ -82,6 +84,9 @@ namespace R1Engine
 
         public override Unity_ObjectType Type => EnemyObject != null ? Unity_ObjectType.Object : Unity_ObjectType.Trigger;
         public override bool IsEditor => EnemyObject == null;
+
+        public override string DebugText => $"Palette Indices {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteIndex).Distinct() ?? new byte[0])}{Environment.NewLine}" +
+                                            $"Palette Modes {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteMode).Distinct() ?? new byte[0])}{Environment.NewLine}";
 
         private int _animSetIndex;
 
