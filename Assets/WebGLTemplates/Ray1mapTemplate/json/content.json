@@ -360,6 +360,15 @@
 					"versions": [
 						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_klonoa/dream_champ_tournament_us" }
 					]
+				},
+				{
+					"title": "Klonoa Heroes: Densetsu no Star Medal",
+					"viewer": "ray1map",
+					"json": "klonoa_heroes\/heroes",
+					"image": ".\/img\/logo\/klonoa_heroes.png",
+					"versions": [
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "klonoa_heroes/heroes_jp" }
+					]
 				}
 			]
 		},
