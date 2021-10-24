@@ -83,7 +83,6 @@ namespace R1Engine
         public override string SecondaryName => null;
 
         public override Unity_ObjectType Type => EnemyObject != null ? Unity_ObjectType.Object : Unity_ObjectType.Trigger;
-        public override bool IsEditor => EnemyObject == null;
 
         public override string DebugText => $"Palette Indices {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteIndex).Distinct() ?? new byte[0])}{Environment.NewLine}" +
                                             $"Palette Modes {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteMode).Distinct() ?? new byte[0])}{Environment.NewLine}";
