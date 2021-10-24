@@ -9,7 +9,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_KlonoaHeroes : Unity_ObjectManager
     {
-        public Unity_ObjectManager_KlonoaHeroes(Context context, IEnumerable<AnimSet> animSets, KlonoaHeroesROM rom) : base(context)
+        public Unity_ObjectManager_KlonoaHeroes(Context context, IEnumerable<AnimSet> animSets, KlonoaHeroesROM rom, KlonoaHeroes_Manager.LevelEntry levelEntry) : base(context)
         {
             // Set the first set to null for objects without graphics
             AnimSets = new AnimSet[]
@@ -17,25 +17,35 @@ namespace R1Engine
                 null
             }.Concat(animSets).ToArray();
             ROM = rom;
+            LevelEntry = levelEntry;
         }
 
         public AnimSet[] AnimSets { get; }
         public KlonoaHeroesROM ROM { get; }
+        public KlonoaHeroes_Manager.LevelEntry LevelEntry { get; }
 
         public override string[] LegacyDESNames => AnimSets.Select(animSet => animSet?.GetDisplayName() ?? "NULL").ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class AnimSet
         {
-            public AnimSet(IList<Animation> animations, int enemyAnimIndex)
+            public AnimSet(IList<Animation> animations, int fileIndex, FilePack pack)
             {
                 Animations = animations;
-                EnemyAnimIndex = enemyAnimIndex;
+                FileIndex = fileIndex;
+                Pack = pack;
             }
 
             public IList<Animation> Animations { get; }
-            public int EnemyAnimIndex { get; }
-            public string GetDisplayName() => $"{EnemyAnimIndex}";
+            public int FileIndex { get; }
+            public FilePack Pack { get; }
+            public string GetDisplayName() => $"{Pack}_{FileIndex}";
+
+            public enum FilePack
+            {
+                Enemy,
+                Gameplay,
+            }
 
             public class Animation
             {

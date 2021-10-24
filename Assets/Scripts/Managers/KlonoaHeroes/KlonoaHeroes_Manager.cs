@@ -294,6 +294,7 @@ namespace R1Engine
                         PaletteIndex = (byte)t.PaletteIndex,
                     })).ToArray(),
                     Type = Unity_Map.MapType.Graphics,
+                    Layer = x.Priority == 1 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                 };
             });
 
@@ -313,7 +314,6 @@ namespace R1Engine
 
                 lvl.CellSizeOverrideCollision = CollisionCellSize;
 
-                // TODO: Fill out rest of the types and add a names func
                 lvl.GetCollisionTypeGraphicFunc = c => c switch
                 {
                     0 => Unity_MapCollisionTypeGraphic.None,
@@ -331,6 +331,7 @@ namespace R1Engine
 
                     _ => Unity_MapCollisionTypeGraphic.Unknown0,
                 };
+                lvl.GetCollisionTypeNameFunc = c => $"Collision_{c}";
             }
 
             lvl.Maps = maps.ToArray();
@@ -338,7 +339,11 @@ namespace R1Engine
             Controller.DetailedState = "Loading animations";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_KlonoaHeroes(context, rom.EnemyAnimationsPack.Files.Select(GetAnimSet).Where(x => x != null), rom);
+            // Load animations
+            var animSets = rom.EnemyAnimationsPack.Files.Select((x, i) => GetAnimSet(x, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Enemy));
+            animSets = animSets.Concat(rom.GameplayPack.ParsedFiles.Select((x, i) => x.Item1 is Animation_File a ? GetAnimSet(a, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Gameplay) : null));
+
+            var objManager = new Unity_ObjectManager_KlonoaHeroes(context, animSets.Where(x => x != null), rom, lvlEntry);
             lvl.ObjManager = objManager;
 
             Controller.DetailedState = "Loading objects";
@@ -350,8 +355,8 @@ namespace R1Engine
             foreach (EnemyObject obj in map.EnemyObjects.Objects)
                 lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
 
-            // Add trigger objects
-            foreach (TriggerObject obj in map.TriggerObjects.Objects.Where(x => x.ObjType != 0))
+            // Add generic objects
+            foreach (GenericObject obj in map.GenericObjects.Objects.Where(x => x.ObjType != 0))
                 lvl.EventData.Add(new Unity_Object_KlonoaHeroes(objManager, obj));
 
             return lvl;
@@ -434,7 +439,7 @@ namespace R1Engine
             return new Unity_TileSet(tiles);
         }
 
-        public Unity_ObjectManager_KlonoaHeroes.AnimSet GetAnimSet(Animation_File animSet, int index)
+        public Unity_ObjectManager_KlonoaHeroes.AnimSet GetAnimSet(Animation_File animSet, int fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack pack)
         {
             if (animSet == null)
                 return null;
@@ -449,6 +454,12 @@ namespace R1Engine
                     var _animIndex = animIndex;
                     var anim = animSet.AnimationGroups[animGroupIndex].Animations[animIndex];
 
+                    if (anim == null)
+                        continue;
+
+                    if (anims.Any(x => x.KlonoaAnim == anim))
+                        continue;
+
                     anims.Add(new Unity_ObjectManager_KlonoaHeroes.AnimSet.Animation(
                         animFrameFunc: () => GetAnimFrames(animSet, _animGroupIndex, _animIndex).Select(x => x.CreateSprite()).ToArray(),
                         klonoaAnim: anim,
@@ -457,7 +468,7 @@ namespace R1Engine
                 }
             }
 
-            return new Unity_ObjectManager_KlonoaHeroes.AnimSet(anims, index);
+            return new Unity_ObjectManager_KlonoaHeroes.AnimSet(anims, fileIndex, pack);
         }
 
         public Texture2D[] GetAnimFrames(Animation_File animSet, int animGroupIndex, int animIndex)
