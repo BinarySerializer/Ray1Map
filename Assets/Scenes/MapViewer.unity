@@ -2145,8 +2145,6 @@ MonoBehaviour:
   collisionLinesCollision: {fileID: 1380560023}
   CollisionLinesCollision: []
   CollisionLinesCollision3D: []
-  camMaxX: 1
-  camMaxY: 1
   additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}
   isometricCollisionMaterial: {fileID: 2100000, guid: aac7422f067747f4c822967af4261022,
     type: 2}
@@ -6681,7 +6679,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 18231
+    m_Bits: 149303
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
