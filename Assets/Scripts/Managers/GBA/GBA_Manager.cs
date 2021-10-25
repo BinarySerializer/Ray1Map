@@ -1148,7 +1148,7 @@ namespace R1Engine
                         List<GBA_Animation> additionalAnimations = new List<GBA_Animation>();
                         var handledModifiedActorStates = new List<ModifiedActorState>();
 
-                        foreach (var a in allActors.Where(x => x.ActorModel?.GetPuppets[i] == modelPuppets[i]))
+                        foreach (var a in allActors.Where(x => x.ActorModel?.GetPuppets.ElementAtOrDefault(i) == modelPuppets[i]))
                         {
                             // Create additional animations for modified actor states
                             foreach (var modifiedActorState in modifiedActorStates.Where(x => x.ActorID == a.ActorID))
