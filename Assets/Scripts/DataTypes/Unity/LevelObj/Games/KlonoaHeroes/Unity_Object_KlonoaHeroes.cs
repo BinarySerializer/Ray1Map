@@ -335,11 +335,11 @@ namespace R1Engine
 
         protected class KlonoaHeroes_UIState : UIState
         {
-            public KlonoaHeroes_UIState(string displayName, byte animIndex) : base(displayName, animIndex) { }
+            public KlonoaHeroes_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_KlonoaHeroes)obj).AnimIndex = (byte)AnimIndex;
+                ((Unity_Object_KlonoaHeroes)obj).AnimIndex = AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
@@ -356,7 +356,7 @@ namespace R1Engine
 
             if (AnimSet?.Animations != null)
             {
-                for (byte i = 0; i < AnimSet.Animations.Count; i++)
+                for (int i = 0; i < AnimSet.Animations.Count; i++)
                     uiStates.Add(new KlonoaHeroes_UIState($"Animation {AnimSet.Animations[i].AnimGroupIndex}-{AnimSet.Animations[i].AnimIndex}", animIndex: i));
             }
 
