@@ -475,7 +475,7 @@ public class WebCommunicator : MonoBehaviour {
 						webObj.KlonoaHeroes_AnimSetIndex = klonoaHeroesObj.AnimSetIndex;
 
 						if(includeLists)
-							webObj.KlonoaHeroes_AnimSetNames = klonoaHeroesObj.ObjManager.AnimSets.Select(x => x.GetDisplayName()).ToArray();
+							webObj.KlonoaHeroes_AnimSetNames = klonoaHeroesObj.ObjManager.AnimSets.Select(x => x?.GetDisplayName() ?? "NULL").ToArray();
 					}
 
 					webObj.KlonoaHeroes_ObjType = klonoaHeroesObj.EnemyObject?.ObjType ?? klonoaHeroesObj.GenericObject.ObjType;
