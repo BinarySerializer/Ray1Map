@@ -215,7 +215,7 @@ namespace R1Engine.Jade {
 						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;
 					default:
-						UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
+						s.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 						break;
 				}
 			}

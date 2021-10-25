@@ -30,13 +30,13 @@ namespace R1Engine.Jade {
 					SerializeImpl_Version3(s);
 					break;
 				default:
-					UnityEngine.Debug.LogWarning($"{Offset}: DARE_ModifierSound: Unhandled version {Version}");
+					s.LogWarning($"{Offset}: DARE_ModifierSound: Unhandled version {Version}");
 					break;
 			}
 
 			uint readSize = (uint)(s.CurrentPointer - Offset);
 			if (readSize != DataSize) {
-				UnityEngine.Debug.LogWarning($"{Offset}: DARE_ModifierSound was not fully serialized: Data Size: {DataSize:X8} / Serialized: {readSize:X8}");
+				s.LogWarning($"{Offset}: DARE_ModifierSound was not fully serialized: Data Size: {DataSize:X8} / Serialized: {readSize:X8}");
 				s.Goto(Offset + DataSize);
 			}
 		}

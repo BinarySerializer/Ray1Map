@@ -290,7 +290,7 @@ namespace R1Engine.Jade {
 						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -342,7 +342,7 @@ namespace R1Engine.Jade {
 						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -415,7 +415,7 @@ namespace R1Engine.Jade {
 						//s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					//UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					//s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -531,7 +531,7 @@ namespace R1Engine.Jade {
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 			} else {
 				/*if (previouslyCached.Contains(currentRef.Key)) {
-					UnityEngine.Debug.Log($"Reserializing: {currentRef.Key}");
+					Context.Logger?.Log($"Reserializing: {currentRef.Key}");
 				}*/
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					if (ReadBinFileHeader) {
@@ -541,13 +541,13 @@ namespace R1Engine.Jade {
 							if (BinFileHeader.Key != currentRef.Key) {
 								if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_AllowSkip)) {
 									// Activate this warning in case of weird texture problems
-									//UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
+									//s.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
 									s.Goto(Bin.CurrentPosition);
 									return;
 								} else if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_NoKeyChecks)) {
 									currentRef.Key = BinFileHeader.Key;
 								} else {
-									UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
+									s.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
 								}
 							}
 						}
@@ -705,9 +705,9 @@ namespace R1Engine.Jade {
 						});
 						IsCompressed = Bin.Key.IsCompressed;
 						ReadBinFileHeader = IsCompressed;
-						UnityEngine.Debug.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
+						Context.Logger?.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {
-						UnityEngine.Debug.LogWarning($"[{key}] ({key.Type} - File not found, could not enter Speed Mode");
+						Context.Logger?.LogWarning($"[{key}] ({key.Type} - File not found, could not enter Speed Mode");
 						EndSpeedMode();
 					}
 				}

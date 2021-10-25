@@ -158,7 +158,7 @@ namespace R1Engine.Jade {
 						/*case Platform.PSP:
 							throw new NotImplementedException($"TODO: Implement {GetType()} for PSP");*/
 						default:
-							UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
+							s.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 							break;
 					}
 				}

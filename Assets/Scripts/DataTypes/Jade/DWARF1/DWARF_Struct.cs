@@ -57,7 +57,7 @@ namespace R1Engine.DWARF1 {
 		public void CheckFileSize(SerializerObject s) {
 			long readSize = s.CurrentPointer - Offset;
 			if (StructSize != readSize) {
-				UnityEngine.Debug.LogWarning($"XMW Struct @ {Offset} with type {GetType()} was not fully serialized: Struct Size: {StructSize:X8} / Serialized: {readSize:X8}");
+				s.LogWarning($"XMW Struct @ {Offset} with type {GetType()} was not fully serialized: Struct Size: {StructSize:X8} / Serialized: {readSize:X8}");
 			}
 			s.Goto(NextStructPointer);
 		}

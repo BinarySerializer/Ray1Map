@@ -1,7 +1,6 @@
 ﻿using BinarySerializer;
 using System;
 using BinarySerializer.Image;
-using UnityEngine;
 
 namespace R1Engine.Jade
 {

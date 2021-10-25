@@ -1,9 +1,9 @@
 ﻿using BinarySerializer;
 using System;
 using BinarySerializer.Image;
-using UnityEngine;
 using System.Linq;
 using System.IO;
+using UnityEngine;
 
 namespace R1Engine.Jade
 {
