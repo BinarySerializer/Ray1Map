@@ -113,6 +113,9 @@ namespace R1Engine
                 };
             }
 
+            // Remove null track managers
+            TrackManagers = TrackManagers?.Where(x => x != null).ToArray();
+
             CanMoveAlongTrack = IsometricData != null && TrackManagers != null && TrackManagers.Any(x => x.IsAvailable(LevelEditorData.MainContext, this));
 
             if (TrackManagers != null)
