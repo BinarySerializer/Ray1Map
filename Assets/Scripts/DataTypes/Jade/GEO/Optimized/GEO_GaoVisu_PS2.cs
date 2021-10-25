@@ -26,38 +26,47 @@ namespace R1Engine.Jade {
 		}
 
 		public class MeshElementRef : BinarySerializable {
-			public uint Struct0Count { get; set; }
-			public Struct0[] Struct0Array { get; set; }
-			public uint Struct1Count { get; set; }
-			public Struct1[] Struct1Array { get; set; }
+			public uint InstanceVIFProgramsCount { get; set; }
+			public InstanceVIFProgram[] InstanceVIFPrograms { get; set; }
+
+			public uint DMAChainProgramsCount { get; set; }
+			public DMAChainProgram[] DMAChainPrograms { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
-				Struct0Count = s.Serialize<uint>(Struct0Count, name: nameof(Struct0Count));
-				Struct0Array = s.SerializeObjectArray<Struct0>(Struct0Array, Struct0Count, name: nameof(Struct0Array));
+				InstanceVIFProgramsCount = s.Serialize<uint>(InstanceVIFProgramsCount, name: nameof(InstanceVIFProgramsCount));
+				InstanceVIFPrograms = s.SerializeObjectArray<InstanceVIFProgram>(InstanceVIFPrograms, InstanceVIFProgramsCount, name: nameof(InstanceVIFPrograms));
 				if (s.GetR1Settings().Platform == Platform.PS2) {
-					Struct1Count = s.Serialize<uint>(Struct1Count, name: nameof(Struct1Count));
-					Struct1Array = s.SerializeObjectArray<Struct1>(Struct1Array, Struct1Count, name: nameof(Struct1Array));
+					DMAChainProgramsCount = s.Serialize<uint>(DMAChainProgramsCount, name: nameof(DMAChainProgramsCount));
+					DMAChainPrograms = s.SerializeObjectArray<DMAChainProgram>(DMAChainPrograms, DMAChainProgramsCount, name: nameof(DMAChainPrograms));
 				}
 			}
 
-			public class Struct0 : BinarySerializable {
-				public uint UInt_00 { get; set; }
+			public class InstanceVIFProgram : BinarySerializable {
+				public uint ID { get; set; } // Used as address (ADDR = ID << 24)
 				public uint DataSize { get; set; }
 				public byte[] Bytes { get; set; }
 				public override void SerializeImpl(SerializerObject s) {
-					UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+					ID = s.Serialize<uint>(ID, name: nameof(ID));
 					DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 					Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
 				}
 			}
 
-			public class Struct1 : BinarySerializable {
-				public uint UInt_00 { get; set; }
+			public class DMAChainProgram : BinarySerializable {
+				public uint ID { get; set; } // Used as address (ADDR = ID << 24)
 				public uint DataSize { get; set; }
 				public byte[] Bytes { get; set; }
+				public PS2_DMACommand[] Commands { get; set; }
 				public override void SerializeImpl(SerializerObject s) {
-					UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+					ID = s.Serialize<uint>(ID, name: nameof(ID));
 					DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
-					Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
+					//Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
+
+					Commands = s.SerializeObjectArrayUntil<PS2_DMACommand>(Commands, gc => s.CurrentAbsoluteOffset >= Offset.AbsoluteOffset + 8 + DataSize, name: nameof(Commands));
+					if (s.CurrentAbsoluteOffset > Offset.AbsoluteOffset + 8 + DataSize) {
+						s.LogWarning($"{Offset}: Read too many DMA commands");
+					}
+					s.Goto(Offset + 8 + DataSize);
 				}
 			}
 		}
