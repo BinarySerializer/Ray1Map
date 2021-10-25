@@ -45,7 +45,7 @@ namespace R1Engine
         // Objects
         public Unity_ObjectManager ObjManager { get; set; }
         public string[] ObjectGroups { get; set; }
-        public List<Unity_SpriteObject> EventData { get; set; }
+        public List<Unity_SpriteObject> EventData { get; set; } = new List<Unity_SpriteObject>();
         public Unity_SpriteObject Rayman { get; set; }
 
         // Additional data
