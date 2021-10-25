@@ -373,8 +373,8 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load animations
-            var animSets = rom.EnemyAnimationsPack.Files.Select((x, i) => GetAnimSet(x, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Enemy));
-            animSets = animSets.Concat(rom.GameplayPack.ParsedFiles.Select((x, i) => x.Item1 is Animation_File a ? GetAnimSet(a, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Gameplay) : null));
+            var animSets = rom.EnemyAnimationsPack.Files.Select((x, i) => GetAnimSet(x, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Enemy, rom.EnemyAnimationsPack));
+            animSets = animSets.Concat(rom.GameplayPack.ParsedFiles.Select((x, i) => x.Item1 is Animation_File a ? GetAnimSet(a, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Gameplay, rom.GameplayPack) : null));
 
             var objManager = new Unity_ObjectManager_KlonoaHeroes(context, animSets.Where(x => x != null), rom, lvlEntry);
             lvl.ObjManager = objManager;
@@ -472,7 +472,7 @@ namespace R1Engine
             return new Unity_TileSet(tiles);
         }
 
-        public Unity_ObjectManager_KlonoaHeroes.AnimSet GetAnimSet(Animation_File animSet, int fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack pack)
+        public Unity_ObjectManager_KlonoaHeroes.AnimSet GetAnimSet(Animation_File animSet, int fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType packType, ArchiveFile pack)
         {
             if (animSet == null)
                 return null;
@@ -498,7 +498,7 @@ namespace R1Engine
                 }
             }
 
-            return new Unity_ObjectManager_KlonoaHeroes.AnimSet(anims, fileIndex, pack);
+            return new Unity_ObjectManager_KlonoaHeroes.AnimSet(anims, fileIndex, packType, pack);
         }
 
         public Texture2D[] GetAnimFrames(Animation_File animSet, int animGroupIndex, int animIndex)

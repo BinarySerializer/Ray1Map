@@ -468,6 +468,18 @@ public class WebCommunicator : MonoBehaviour {
                         webObj.GBAKlonoa_Param2 = klonoaObj.Object.Param_2;
                     }
 					break;
+
+                case Unity_Object_KlonoaHeroes klonoaHeroesObj:
+					if (klonoaHeroesObj.AnimSetIndex != -1) 
+                    {
+						webObj.KlonoaHeroes_AnimSetIndex = klonoaHeroesObj.AnimSetIndex;
+
+						if(includeLists)
+							webObj.KlonoaHeroes_AnimSetNames = klonoaHeroesObj.ObjManager.AnimSets.Select(x => x.GetDisplayName()).ToArray();
+					}
+
+					webObj.KlonoaHeroes_ObjType = klonoaHeroesObj.EnemyObject?.ObjType ?? klonoaHeroesObj.GenericObject.ObjType;
+                    break;
             }
 		}
 		return webObj;
@@ -842,6 +854,13 @@ public class WebCommunicator : MonoBehaviour {
                 if (msg.GBAKlonoa_AnimSetIndex.HasValue && klonoaObj.AnimSetIndex != msg.GBAKlonoa_AnimSetIndex.Value)
                 {
                     klonoaObj.AnimSetIndex = msg.GBAKlonoa_AnimSetIndex.Value;
+                    refreshObjectLists = true;
+                }
+                break;
+            case Unity_Object_KlonoaHeroes klonoaHeroesObj:
+                if (msg.KlonoaHeroes_AnimSetIndex.HasValue && klonoaHeroesObj.AnimSetIndex != msg.KlonoaHeroes_AnimSetIndex.Value)
+                {
+                    klonoaHeroesObj.AnimSetIndex = msg.KlonoaHeroes_AnimSetIndex.Value;
                     refreshObjectLists = true;
                 }
                 break;

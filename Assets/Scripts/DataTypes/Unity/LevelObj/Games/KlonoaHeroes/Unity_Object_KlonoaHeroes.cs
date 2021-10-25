@@ -15,7 +15,7 @@ namespace R1Engine
             EnemyObject = obj;
 
             var def = ObjManager.ROM.EnemyObjectDefinitions.ElementAtOrDefault(obj.ObjType);
-            SetAnimation(def?.AnimFileIndex ?? -1, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Enemy, def?.AnimGroupIndex ?? 0, def?.AnimIndex ?? 0);
+            SetAnimation(def?.AnimFileIndex ?? -1, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Enemy, def?.AnimGroupIndex ?? 0, def?.AnimIndex ?? 0);
         }
 
         public Unity_Object_KlonoaHeroes(Unity_ObjectManager_KlonoaHeroes objManager, GenericObject obj)
@@ -107,9 +107,9 @@ namespace R1Engine
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
 
-        protected void SetAnimation(int fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack pack, int animGroup = 0, int animIndex = 0)
+        protected void SetAnimation(int fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType pack, int animGroup = 0, int animIndex = 0)
         {
-            AnimSetIndex = fileIndex == -1 ? 0 : ObjManager.AnimSets.FindItemIndex(x => x?.Pack == pack && x.FileIndex == fileIndex);
+            AnimSetIndex = fileIndex == -1 ? 0 : ObjManager.AnimSets.FindItemIndex(x => x?.PackType == pack && x.FileIndex == fileIndex);
             AnimIndex = AnimSet?.Animations.FindItemIndex(x => x.AnimGroupIndex == animGroup && x.AnimIndex == animIndex) ?? 0;
         }
 
@@ -303,7 +303,7 @@ namespace R1Engine
                     break;
             }
 
-            SetAnimation(fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePack.Gameplay, animGroup, animIndex);
+            SetAnimation(fileIndex, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Gameplay, animGroup, animIndex);
         }
 
         private class LegacyEditorWrapper : BaseLegacyEditorWrapper

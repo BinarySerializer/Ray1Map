@@ -164,7 +164,7 @@ public class WebJSON {
 		public int? GameloftRK_TriggerFlags { get; set; }
 		public string GameloftRK_TriggerParams { get; set; }
 
-		// Klonoa
+		// GBA Klonoa
 		public int? GBAKlonoa_AnimSetIndex { get; set; }
 		public string[] GBAKlonoa_AnimSetNames { get; set; }
 		public int? GBAKlonoa_Index { get; set; }
@@ -175,8 +175,13 @@ public class WebJSON {
 		public string GBAKlonoa_Shapes { get; set; }
 		public int? GBAKlonoa_Param1 { get; set; }
 		public int? GBAKlonoa_Param2 { get; set; }
+
+		// Klonoa Heroes
+        public int? KlonoaHeroes_AnimSetIndex { get; set; }
+        public string[] KlonoaHeroes_AnimSetNames { get; set; }
+		public int? KlonoaHeroes_ObjType { get; set; }
 	}
-	public class Layer {
+    public class Layer {
 		public string Name { get; set; }
 		public string ShortName { get; set; }
 		public int Index { get; set; }

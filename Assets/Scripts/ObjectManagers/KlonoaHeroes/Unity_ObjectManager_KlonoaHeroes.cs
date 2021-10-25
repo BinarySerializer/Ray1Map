@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.KH;
 using UnityEngine;
 
@@ -29,19 +30,21 @@ namespace R1Engine
 
         public class AnimSet
         {
-            public AnimSet(IList<Animation> animations, int fileIndex, FilePack pack)
+            public AnimSet(IList<Animation> animations, int fileIndex, FilePackType packType, ArchiveFile pack)
             {
                 Animations = animations;
                 FileIndex = fileIndex;
+                PackType = packType;
                 Pack = pack;
             }
 
             public IList<Animation> Animations { get; }
             public int FileIndex { get; }
-            public FilePack Pack { get; }
-            public string GetDisplayName() => $"{Pack}_{FileIndex}";
+            public FilePackType PackType { get; }
+            public ArchiveFile Pack { get; }
+            public string GetDisplayName() => $"0x{Pack.Offset.StringAbsoluteOffset}_{FileIndex}";
 
-            public enum FilePack
+            public enum FilePackType
             {
                 Enemy,
                 Gameplay,

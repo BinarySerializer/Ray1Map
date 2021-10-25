@@ -976,6 +976,9 @@ function getObjVars(obj) {
 	if(obj.hasOwnProperty("GBAKlonoa_Param1")) objVars.push({"Name": "Param1", "Value": obj.GBAKlonoa_Param1});
 	if(obj.hasOwnProperty("GBAKlonoa_Param2")) objVars.push({"Name": "Param2", "Value": obj.GBAKlonoa_Param2});
 
+	// KlonoaHeroes
+	if(obj.hasOwnProperty("KlonoaHeroes_ObjType")) objVars.push({"Name": "ObjectType", "Value": obj.KlonoaHeroes_ObjType});
+
 	// Gameloft
 	if(obj.hasOwnProperty("GameloftRRR_ObjectID")) objVars.push({"Name": "ObjectID", "Value": obj.GameloftRRR_ObjectID});
 	if(obj.hasOwnProperty("GameloftRRR_ObjectParams")) objVars.push({"Name": "Parameters", "Value": obj.GameloftRRR_ObjectParams});
@@ -1186,6 +1189,11 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				fillSelectorList(graphicsSelector, obj.GBAKlonoa_AnimSetNames);
 				graphicsSelector.prop("selectedIndex", obj.GBAKlonoa_AnimSetIndex);
 				graphicsLabel.text("Animation Set");
+			} else if(obj.hasOwnProperty("KlonoaHeroes_AnimSetNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.KlonoaHeroes_AnimSetNames);
+				graphicsSelector.prop("selectedIndex", obj.KlonoaHeroes_AnimSetIndex);
+				graphicsLabel.text("Animations File");
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				fillSelectorList(graphicsSelector, obj.SNES_GraphicsGroupNames);
@@ -1231,6 +1239,9 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			} else if(obj.hasOwnProperty("GBAKlonoa_AnimSetNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.GBAKlonoa_AnimSetIndex);
+			} else if(obj.hasOwnProperty("KlonoaHeroes_AnimSetNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.KlonoaHeroes_AnimSetIndex);
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.SNES_GraphicsGroupIndex);
@@ -1426,6 +1437,9 @@ function sendObject() {
 		} else if(currentObject.hasOwnProperty("GBAKlonoa_AnimSetNames")) {
 			jsonObj.Object.GBAKlonoa_AnimSetIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.GBAKlonoa_AnimSetIndex);
+		} else if(currentObject.hasOwnProperty("KlonoaHeroes_AnimSetNames")) {
+			jsonObj.Object.KlonoaHeroes_AnimSetIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.KlonoaHeroes_AnimSetIndex);
 		} else if(currentObject.hasOwnProperty("SNES_GraphicsGroupNames")) {
 			jsonObj.Object.SNES_GraphicsGroupIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.SNES_GraphicsGroupIndex);
@@ -1574,6 +1588,10 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBAKlonoa_Param1")) oldObj.GBAKlonoa_Param1 = newObj.GBAKlonoa_Param1;
 	if(newObj.hasOwnProperty("GBAKlonoa_Param2")) oldObj.GBAKlonoa_Param2 = newObj.GBAKlonoa_Param2;
 
+	// KlonoaHeroes
+	if(newObj.hasOwnProperty("KlonoaHeroes_AnimSetIndex")) oldObj.KlonoaHeroes_AnimSetIndex = newObj.KlonoaHeroes_AnimSetIndex;
+	if(newObj.hasOwnProperty("KlonoaHeroes_ObjType")) oldObj.KlonoaHeroes_ObjType = newObj.KlonoaHeroes_ObjType;
+
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
 
@@ -1597,6 +1615,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetNames")) oldObj.GBAIsometric_AnimSetNames = newObj.GBAIsometric_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAVV_AnimSetNames")) oldObj.GBAVV_AnimSetNames = newObj.GBAVV_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAKlonoa_AnimSetNames")) oldObj.GBAKlonoa_AnimSetNames = newObj.GBAKlonoa_AnimSetNames;
+	if(newObj.hasOwnProperty("KlonoaHeroes_AnimSetNames")) oldObj.KlonoaHeroes_AnimSetNames = newObj.KlonoaHeroes_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAVV_ScriptNames")) oldObj.GBAVV_ScriptNames = newObj.GBAVV_ScriptNames;
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupNames")) oldObj.SNES_GraphicsGroupNames = newObj.SNES_GraphicsGroupNames;
