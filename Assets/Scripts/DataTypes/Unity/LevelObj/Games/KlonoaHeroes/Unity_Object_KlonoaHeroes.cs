@@ -248,7 +248,23 @@ namespace R1Engine
                 // Effect
                 case 9:
                     fileIndex = 0x2E;
-                    throw new NotImplementedException();
+
+                    var b1 = obj.Bytes_08[8 - 8];
+                    var b2 = BitHelpers.ExtractBits(obj.Bytes_08[9 - 8], 3, 0);
+
+                    animGroup = b1 switch
+                    {
+                        1 when b2 == 0 => 3,
+                        1 when b2 == 1 => 4,
+                        1 when b2 == 2 => 7,
+                        2 when b2 == 0 => 2,
+                        3 when b2 == 0 => 8,
+                        5 when b2 == 0 => 9,
+                        5 when b2 == 1 => 0,
+                        8 when b2 == 0 => 10,
+                        _ => animGroup
+                    };
+
                     break;
 
                 // Crumbling object
