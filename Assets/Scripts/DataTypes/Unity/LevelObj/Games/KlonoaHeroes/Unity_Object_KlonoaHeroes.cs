@@ -111,6 +111,9 @@ namespace R1Engine
         {
             AnimSetIndex = fileIndex == -1 ? 0 : ObjManager.AnimSets.FindItemIndex(x => x?.PackType == pack && x.FileIndex == fileIndex);
             AnimIndex = AnimSet?.Animations.FindItemIndex(x => x.AnimGroupIndex == animGroup && x.AnimIndex == animIndex) ?? 0;
+
+            if (AnimIndex == -1)
+                AnimIndex = 0;
         }
 
         protected void Init(GenericObject obj)
