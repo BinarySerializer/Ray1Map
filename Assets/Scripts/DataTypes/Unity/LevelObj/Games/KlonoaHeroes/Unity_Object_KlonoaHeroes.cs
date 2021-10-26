@@ -84,8 +84,9 @@ namespace R1Engine
 
         public override Unity_ObjectType Type => EnemyObject != null ? Unity_ObjectType.Object : Unity_ObjectType.Trigger;
 
-        public override string DebugText => $"Palette Indices {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteIndex).Distinct() ?? new byte[0])}{Environment.NewLine}" +
-                                            $"Palette Modes {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteMode).Distinct() ?? new byte[0])}{Environment.NewLine}";
+        public override string DebugText => $"Palette Indices: {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteIndex).Distinct() ?? new byte[0])}{Environment.NewLine}" +
+                                            $"Palette Modes: {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.PaletteMode).Distinct() ?? new byte[0])}{Environment.NewLine}" +
+                                            $"Priorities: {String.Join(", ", Animation?.KlonoaAnim.Frames.SelectMany(x => x.Sprites).Select(x => x.ObjAttr.Priority).Distinct() ?? new byte[0])}{Environment.NewLine}";
 
         private int _animSetIndex;
 

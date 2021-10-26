@@ -247,6 +247,9 @@ namespace R1Engine
                 SerializeMap = new KlonoaSettings_KH.MapID(lvlEntry.ID1, lvlEntry.ID2, lvlEntry.ID3)
             });
 
+            // Add the pointers
+            context.AddPreDefinedPointers(DefinedPointers.GBA_JP);
+
             // Create the level
             var lvl = new Unity_Level();
 
