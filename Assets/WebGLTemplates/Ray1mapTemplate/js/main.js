@@ -421,7 +421,7 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-showObjOffsets"), msg.ShowObjOffsets);
 	selectButton($("#btn-showGizmos"), msg.ShowGizmos);
-	if(msg.hasOwnProperty("CanShowGridMap") && msg.CanshowGridMap) {
+	if(msg.hasOwnProperty("CanShowGridMap") && msg.CanShowGridMap) {
 		$("#btn-showGridMap").removeClass("removed-button");
 		selectButton($("#btn-showGridMap"), msg.ShowGridMap);
 	} else {
