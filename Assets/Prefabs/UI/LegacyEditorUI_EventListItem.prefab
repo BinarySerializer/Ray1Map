@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 84926512048219489}
   - component: {fileID: 84926512048219495}
   m_Layer: 5
-  m_Name: EventListItem
+  m_Name: LegacyEditorUI_EventListItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

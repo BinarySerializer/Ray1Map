@@ -49,10 +49,7 @@ namespace R1Engine
         public bool[] connectedOneWayLinkLines;
         // Default sprite
         public SpriteRenderer defaultRenderer;
-        // Reference to spritepart prefab
-        public GameObject prefabSpritepart;
-        // Reference to the box prefab
-        public GameObject prefabBox;
+
         // Reference to the created renderers
         public SpriteRenderer[] animSpriteRenderers;
         public SpriteRenderer[] animCollisionRenderers;
@@ -312,7 +309,7 @@ namespace R1Engine
                     for (int i = 0; i < spritesLength; i++)
                     {
                         // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
+                        SpriteRenderer newRenderer = Instantiate(Controller.obj?.Prefabs.SpriteAnimation_Sprite, transform).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = is3D ? 0 : (Layer + i);
                         newRenderer.sortingLayerName = ObjData.MapLayer == 2 ? "Object Sprites Back" : "Object Sprites";
                         if (is3D) newRenderer.gameObject.layer = LayerMask.NameToLayer("3D Object");
@@ -329,7 +326,7 @@ namespace R1Engine
                     for (int i = 0; i < collisionLength; i++)
                     {
                         // Instantiate prefab
-                        var newRenderer = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                        var newRenderer = Instantiate(Controller.obj?.Prefabs.SpriteAnimation_CollisionVisualizationBox, transform).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = is3D ? 0 : (Layer + spritesLength + i);
                         if (is3D) newRenderer.gameObject.layer = LayerMask.NameToLayer("3D Object");
 
@@ -518,7 +515,7 @@ namespace R1Engine
 
                             // Instantiate prefabs
                             for (int i = 0; i < objCol.Length; i++) {
-                                objCollisionRenderers[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                                objCollisionRenderers[i] = Instantiate(Controller.obj?.Prefabs.SpriteAnimation_CollisionVisualizationBox, transform).GetComponent<SpriteRenderer>();
                                 objCollisionRenderers[i].sortingOrder = is3D ? 0 : Layer;
                                 if (is3D) objCollisionRenderers[i].gameObject.layer = LayerMask.NameToLayer("3D Object");
 

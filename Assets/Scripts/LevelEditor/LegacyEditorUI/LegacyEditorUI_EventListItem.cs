@@ -4,14 +4,14 @@ using UnityEngine.UI;
 
 namespace R1Engine
 {
-    public class EventListItem : MonoBehaviour, IPointerDownHandler {
+    public class LegacyEditorUI_EventListItem : MonoBehaviour, IPointerDownHandler {
         public Unity_SpriteObjBehaviour ev;
         public Text evName;
-        EventList list;
+        LegacyEditorUI_EventList list;
         Image bg;
 
         void Start() {
-            list = GetComponentInParent<EventList>();
+            list = GetComponentInParent<LegacyEditorUI_EventList>();
             bg = GetComponent<Image>();
             evName.text = ev.ObjData.Name;
         }

@@ -560,9 +560,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldSubEtat
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_SubEtat
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1129,9 +1129,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldOffsetBy
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_OffsetBy
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1315,9 +1315,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldOffsetHy
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_OffsetHy
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1459,9 +1459,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ExportTileset
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_ExportTileset
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1775,9 +1775,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2535,9 +2535,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2759,7 +2759,7 @@ RectTransform:
   - {fileID: 668974238}
   - {fileID: 351220198}
   - {fileID: 1362650565}
-  m_Father: {fileID: 1956467905}
+  m_Father: {fileID: 2003658433}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3111,9 +3111,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4001,9 +4001,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4493,9 +4493,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TabClicked
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tab_TabClicked
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5217,9 +5217,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5431,9 +5431,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: R1Engine.LevelEventController, Scripts
-        m_MethodName: FieldFollowEnabled
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Toggle_Events_OnChanged_FollowEnabled
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5866,9 +5866,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldHitSprite
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_HitSprite
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6404,9 +6404,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldXPosition
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_XPosition
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7692,9 +7692,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Dropdown_Events_OnChanged_Type
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8280,9 +8280,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9126,9 +9126,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldDes
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_DES
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9640,9 +9640,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10428,9 +10428,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11339,7 +11339,7 @@ RectTransform:
   m_Children:
   - {fileID: 1559163635}
   m_Father: {fileID: 1956467905}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -11385,7 +11385,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &918659334
 Canvas:
   m_ObjectHideFlags: 0
@@ -11643,9 +11643,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12987,9 +12987,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781303}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: RefreshTiles
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_SetPalette
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13598,9 +13598,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14287,9 +14287,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14697,9 +14697,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14830,9 +14830,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14963,9 +14963,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15211,9 +15211,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15344,9 +15344,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15477,9 +15477,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781303}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: RefreshTiles
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_SetPalette
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15558,7 +15558,7 @@ Transform:
   - {fileID: 1855268511}
   - {fileID: 1424271479}
   m_Father: {fileID: 1956467905}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1243543565
 MonoBehaviour:
@@ -15663,9 +15663,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TabClicked
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tab_TabClicked
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15872,9 +15872,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781303}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: RefreshTiles
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_SetPalette
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -16081,9 +16081,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -16305,9 +16305,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldHitPoints
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_HitPoints
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17431,9 +17431,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17564,9 +17564,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TabClicked
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tab_TabClicked
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17772,9 +17772,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17905,9 +17905,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20071,9 +20071,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -21257,9 +21257,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TabClicked
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tab_TabClicked
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -21498,6 +21498,7 @@ MonoBehaviour:
   editorUI: {fileID: 271071643}
   tempDebugText: {fileID: 1362650566}
   webCommunicator: {fileID: 1683842181}
+  Prefabs: {fileID: 1791756074}
 --- !u!4 &1683842180
 Transform:
   m_ObjectHideFlags: 0
@@ -21508,7 +21509,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 1791756073}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -22100,9 +22102,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldOffsetBx
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_OffsetBx
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22244,9 +22246,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781303}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ShowHideTemplate
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_ShowHideTemplate
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22614,9 +22616,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldEta
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_ETA
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22874,9 +22876,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -23007,9 +23009,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781303}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: RefreshTiles
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tiles_SetPalette
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -23325,6 +23327,55 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -0.000015258789, y: 40}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!1 &1791756072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1791756073}
+  - component: {fileID: 1791756074}
+  m_Layer: 0
+  m_Name: Prefabs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1791756073
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791756072}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1683842180}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1791756074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791756072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dfb2e42bd3730843a8685ab1cfa2867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpriteAnimation_Sprite: {fileID: 1118894001621329459, guid: 5bbcc489a4969e548950ae9aeb64bb4f,
+    type: 3}
+  SpriteAnimation_CollisionVisualizationBox: {fileID: 1118894001621329459, guid: 4d53572132f11a548ae6c556e54ebb7c,
+    type: 3}
+  LegacyEditorUI_EventListItem: {fileID: 84926512048219491, guid: 4448e2fb661245a4bb350f844dd79263,
+    type: 3}
 --- !u!1 &1804773973
 GameObject:
   m_ObjectHideFlags: 0
@@ -23495,9 +23546,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldYPosition
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_YPosition
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -23793,9 +23844,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781302}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TabClicked
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Tab_TabClicked
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25065,9 +25116,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldAnimIndex
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_AnimIndex
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25954,9 +26005,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 271071647}
   - {fileID: 918659331}
   - {fileID: 1243543564}
+  - {fileID: 2003658433}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -26376,9 +26427,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -26426,6 +26477,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989979141}
   m_CullTransparentMesh: 0
+--- !u!1 &2003658432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2003658433}
+  - component: {fileID: 2003658434}
+  m_Layer: 0
+  m_Name: LegacyEditorUIController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2003658433
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003658432}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 271071647}
+  m_Father: {fileID: 1956467905}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2003658434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003658432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e298de471a687040991c1f4cfba685c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Controller: {fileID: 1683842179}
 --- !u!1 &2020354924
 GameObject:
   m_ObjectHideFlags: 0
@@ -26753,9 +26849,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -27909,9 +28005,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldFollowSprite
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_FollowSprite
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -28179,9 +28275,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 172781304}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: FieldEtat
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: InputField_Events_OnEndEdit_Etat
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -28313,9 +28409,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1956467904}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetCurrentType
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Button_Types_SetCurrentType
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

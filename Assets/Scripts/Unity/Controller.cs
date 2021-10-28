@@ -25,6 +25,8 @@ namespace R1Engine
 
         public WebCommunicator webCommunicator;
 
+        public PrefabsContainer Prefabs;
+
         private static readonly Stopwatch stopwatch = new Stopwatch();
 
         public enum State {
