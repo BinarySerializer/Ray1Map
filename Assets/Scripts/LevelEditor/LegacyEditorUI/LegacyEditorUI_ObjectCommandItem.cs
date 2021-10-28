@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CommandLine : MonoBehaviour
+public class LegacyEditorUI_ObjectCommandItem : MonoBehaviour
 {
     public Command command;
 

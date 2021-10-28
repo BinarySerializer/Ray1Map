@@ -2174,26 +2174,6 @@ MonoBehaviour:
     type: 3}
   editor: {fileID: 1956467904}
   outlineManager: {fileID: 1243543565}
-  eventDropdown: {fileID: 1333982090}
-  infoName: {fileID: 1574840278}
-  infoX: {fileID: 510389468}
-  infoY: {fileID: 1816454654}
-  infoDes: {fileID: 760544910}
-  infoEta: {fileID: 1740863812}
-  infoEtat: {fileID: 2141077321}
-  infoSubEtat: {fileID: 75079848}
-  infoOffsetBx: {fileID: 1723165692}
-  infoOffsetBy: {fileID: 112262005}
-  infoOffsetHy: {fileID: 118105868}
-  infoFollowSprite: {fileID: 2124911777}
-  infoHitPoints: {fileID: 1324251708}
-  infoHitSprite: {fileID: 473042235}
-  infoAnimIndex: {fileID: 1890197087}
-  infoLayer: {fileID: 2116520117}
-  infoFollow: {fileID: 450749134}
-  infoType: {fileID: 669771873}
-  commandLines: []
-  commandListParent: {fileID: 1018030417}
   linkColorActive: {r: 1, g: 0.8117647, b: 0, a: 0.78431374}
   linkColorDeactive: {r: 0.43529412, g: 0, b: 0.06833768, a: 0.5882353}
   linkLineMaterial: {fileID: 2100000, guid: 77d7a3768f0fe1545be69a6d4ce9d654, type: 2}
@@ -16436,7 +16416,19 @@ MonoBehaviour:
     m_Options: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2003658434}
+        m_TargetAssemblyTypeName: R1Engine.LegacyEditorUIController, Scripts
+        m_MethodName: Dropdown_Events_OnChanged_EventToCreate
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!224 &1333982091
 RectTransform:
@@ -23376,6 +23368,12 @@ MonoBehaviour:
     type: 3}
   LegacyEditorUI_EventListItem: {fileID: 84926512048219491, guid: 4448e2fb661245a4bb350f844dd79263,
     type: 3}
+  Object_Behaviour: {fileID: 7508105759772431801, guid: 80516f0d7ed3bcb4bba273245b7e7d6d,
+    type: 3}
+  LegacyEditorUI_ObjectCommandLine: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
+    type: 3}
+  prefabEvent: {fileID: 0}
+  prefabCommandLine: {fileID: 0}
 --- !u!1 &1804773973
 GameObject:
   m_ObjectHideFlags: 0
@@ -26477,6 +26475,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989979141}
   m_CullTransparentMesh: 0
+--- !u!1 &1992933261
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1992933262}
+  - component: {fileID: 1992933263}
+  m_Layer: 0
+  m_Name: LegacyEditorUIController_Objects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1992933262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992933261}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2003658433}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1992933263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992933261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd3284aa17d0f74692352031b2394ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UIController: {fileID: 2003658434}
+  eventDropdown: {fileID: 1333982090}
+  infoName: {fileID: 1574840278}
+  infoX: {fileID: 510389468}
+  infoY: {fileID: 1816454654}
+  infoDes: {fileID: 760544910}
+  infoEta: {fileID: 1740863812}
+  infoEtat: {fileID: 2141077321}
+  infoSubEtat: {fileID: 75079848}
+  infoOffsetBx: {fileID: 1723165692}
+  infoOffsetBy: {fileID: 112262005}
+  infoOffsetHy: {fileID: 118105868}
+  infoFollowSprite: {fileID: 2124911777}
+  infoHitPoints: {fileID: 1324251708}
+  infoHitSprite: {fileID: 473042235}
+  infoAnimIndex: {fileID: 1890197087}
+  infoLayer: {fileID: 2116520117}
+  infoFollow: {fileID: 450749134}
+  infoType: {fileID: 669771873}
+  commandLines: []
+  commandListParent: {fileID: 1018030417}
 --- !u!1 &2003658432
 GameObject:
   m_ObjectHideFlags: 0
@@ -26506,6 +26568,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 271071647}
+  - {fileID: 1992933262}
   m_Father: {fileID: 1956467905}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -26522,6 +26585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Controller: {fileID: 1683842179}
+  ObjectsUI: {fileID: 1992933263}
 --- !u!1 &2020354924
 GameObject:
   m_ObjectHideFlags: 0

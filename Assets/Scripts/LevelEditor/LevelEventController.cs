@@ -18,15 +18,12 @@ namespace R1Engine
         /// The currently selected event
         /// </summary>
         public Unity_SpriteObjBehaviour SelectedEvent { get; set; }
-        public Unity_SpriteObjBehaviour PrevSelectedEvent { get; set; }
         public Unity_SpriteObjBehaviour ClickedEvent { get; set; }
 
         public Dictionary<Unity_SpriteObjBehaviour, Vector3?> ObjPositions { get; set; } = new Dictionary<Unity_SpriteObjBehaviour, Vector3?>();
 
         // Prefabs
         public GameObject eventParent;
-        public GameObject prefabEvent;
-        public GameObject prefabCommandLine;
 
         public LevelEditorBehaviour editor;
 
@@ -34,31 +31,6 @@ namespace R1Engine
         private float selectedHeight;
         private float addSelectedHeight;
         public OutlineManager outlineManager;
-
-        public Dropdown eventDropdown;
-
-        // Event info things for the ui
-        public Text infoName;
-        public InputField infoX;
-        public InputField infoY;
-        public Dropdown infoDes;
-        public Dropdown infoEta;
-        public Dropdown infoEtat;
-        public Dropdown infoSubEtat;
-        public InputField infoOffsetBx;
-        public InputField infoOffsetBy;
-        public InputField infoOffsetHy;
-        public InputField infoFollowSprite;
-        public InputField infoHitPoints;
-        public InputField infoHitSprite;
-        public InputField infoAnimIndex;
-        public InputField infoLayer;
-        public Toggle infoFollow;
-        public Dropdown infoType;
-
-        //Command ui stuff
-        public List<CommandLine> commandLines;
-        public Transform commandListParent;
 
         public Color linkColorActive;
         public Color linkColorDeactive;
@@ -78,57 +50,8 @@ namespace R1Engine
         public Gizmo[] gizmos;
         public LinkTypeColor[] linkTypeColors;
 
-        #endregion
+        public int ObjectIndexToCreate { get; set; } = 0;
 
-        #region Field Changed Methods
-
-        private void FieldUpdated<T>(Action<T> updateAction, T newValue, Func<T> currentValue, string logName)
-            where T : IComparable
-        {
-            if (SelectedEvent != null && !newValue.Equals(currentValue()))
-            {
-                updateAction(newValue);
-                SelectedEvent.ObjData.HasPendingEdits = true;
-
-                if (LogModifications)
-                    Debug.Log($"{logName} has been modified");
-            }
-        }
-
-        public void FieldXPosition() => FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, Int16.TryParse(infoX.text, out var v) ? v : (short)0, () => SelectedEvent.ObjData.XPosition, "XPos");
-        public void FieldYPosition() => FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, Int16.TryParse(infoY.text, out var v) ? v : (short)0, () => SelectedEvent.ObjData.YPosition, "YPos");
-        public void FieldDes() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.DES = x, infoDes.value, () => SelectedEvent.ObjData.LegacyWrapper.DES, "DES");
-        public void FieldEta() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.ETA = x, infoEta.value, () => SelectedEvent.ObjData.LegacyWrapper.ETA, "ETA");
-        public void FieldEtat() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.Etat = x, (byte)infoEtat.value, () => SelectedEvent.ObjData.LegacyWrapper.Etat, "Etat");
-        public void FieldSubEtat() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.SubEtat = x, (byte)infoSubEtat.value, () => SelectedEvent.ObjData.LegacyWrapper.SubEtat, "SubEtat");
-        public void FieldOffsetBx() => FieldUpdated(x =>
-        {
-            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
-                r1obj.EventData.OffsetBX = x;
-        }, byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetBX : default, "BX");
-        public void FieldOffsetBy() => FieldUpdated(x =>
-        {
-            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
-                r1obj.EventData.OffsetBY = x;
-        }, byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetBY : default, "BY");
-        public void FieldOffsetHy() => FieldUpdated(x =>
-        {
-            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
-                r1obj.EventData.OffsetHY = x;
-        }, byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetHY : default, "HY");
-        public void FieldFollowSprite() => FieldUpdated(x =>
-        {
-            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
-                r1obj.EventData.FollowSprite = x;
-        }, byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.FollowSprite : default, "FollowSprite");
-        public void FieldHitPoints() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.HitPoints = x, UInt32.TryParse(infoHitPoints.text, out var v) ? v : 0, () => SelectedEvent.ObjData.LegacyWrapper.HitPoints, "HitPoints");
-        public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData.LegacyWrapper.HitSprite, "HitSprite");
-        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.FollowEnabled = x, infoFollow.isOn, () => SelectedEvent.ObjData.LegacyWrapper.FollowEnabled, "FollowEnabled");
-
-        public void FieldType() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.Type = (ushort)x, infoType.value, () => SelectedEvent.ObjData.LegacyWrapper.Type, "Type");
-
-        public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
-     
         #endregion
 
         public void InitializeEvents() 
@@ -139,49 +62,6 @@ namespace R1Engine
 
             // Initialize links
             InitializeEventLinks();
-
-            // Fill eventinfo dropdown with the event types
-            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1)
-            {
-                infoType.options.AddRange(EnumHelpers.GetValues<ObjType>().Select(x => new Dropdown.OptionData
-                {
-                    text = x.ToString()
-                }));
-            }
-            else
-            {
-                infoType.options.AddRange(Enumerable.Range(0, 1000).Select(x => new Dropdown.OptionData
-                {
-                    text = x.ToString()
-                }));
-            }
-
-            // Fill the dropdown menu
-            var objs = LevelEditorData.ObjManager.GetAvailableObjects;
-            var list = new List<Dropdown.OptionData>();
-            for (int i=0; i<objs.Length; i++) {
-                var entry = new Dropdown.OptionData();
-
-                if (LevelEditorData.ObjManager.IsObjectAlways(i)) {
-                    entry.text = "A-" + objs[i];
-                }
-                else {
-                    entry.text = objs[i];
-                }
-
-                list.Add(entry);
-            }
-            eventDropdown.options = list;
-            //eventDropdown.options = LevelEditorData.ObjManager.GetAvailableObjects.Select(x => new Dropdown.OptionData {
-            //    text = x               
-            //}).ToList();
-
-            // Default to the first event
-            eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
-
-            // Fill Des and Eta dropdowns with their max values
-            infoDes.options = LevelEditorData.ObjManager.LegacyDESNames.Select(x => new Dropdown.OptionData(x)).ToList();
-            infoEta.options = LevelEditorData.ObjManager.LegacyETANames.Select(x => new Dropdown.OptionData(x)).ToList();
 
             hasLoaded = true;
         }
@@ -761,127 +641,7 @@ namespace R1Engine
             }
         }
 
-        private void Start() 
-        {
-            //Create empty list for commandlines
-            commandLines = new List<CommandLine>();
-        }
-
         private float memoryLoadTimer = 0;
-
-        private void UpdateEventFields()
-        {
-            var wrapper = SelectedEvent?.ObjData.LegacyWrapper;
-
-            // Update Etat and SubEtat drop downs
-            var etatLength = wrapper?.EtatLength ?? 0;
-            var subEtatLength = wrapper?.SubEtatLength ?? 0;
-
-            if (infoEtat.options.Count != etatLength)
-            {
-                // Clear old options
-                infoEtat.options.Clear();
-
-                // Set new options
-                infoEtat.options.AddRange(Enumerable.Range(0, etatLength).Select(x => new Dropdown.OptionData
-                {
-                    text = x.ToString()
-                }));
-            }
-            if (infoSubEtat.options.Count != subEtatLength)
-            {
-                // Clear old options
-                infoSubEtat.options.Clear();
-
-                // Set new options
-                infoSubEtat.options.AddRange(Enumerable.Range(0, subEtatLength).Select(x => new Dropdown.OptionData
-                {
-                    text = x.ToString()
-                }));
-            }
-
-            // Helper method for updating a field
-            void updateInputField<T>(InputField field, T value, Func<string, T> parser)
-                where T : IComparable
-            {
-                T parsed = parser(field.text);
-
-                if ((field.isFocused || EqualityComparer<T>.Default.Equals(parsed, value)) && !String.IsNullOrWhiteSpace(field.text) && PrevSelectedEvent == SelectedEvent) 
-                    return;
-                
-                field.text = value.ToString();
-            }
-
-            // Helper method for updating a drop down
-            void updateDropDownIndex(Dropdown field, int index)
-            {
-                var selectedIndex = field.value;
-
-                if (index == -1)
-                    index = 0;
-
-                if (selectedIndex == index && PrevSelectedEvent == SelectedEvent) 
-                    return;
-                
-                field.value = index;
-            }
-
-            // Helper method for updating a toggle
-            void updateToggle(Toggle field, bool value)
-            {
-                if (field.isOn == value && PrevSelectedEvent == SelectedEvent) 
-                    return;
-                
-                field.isOn = value;
-            }
-
-            // X Position
-            updateInputField<short>(infoX, (short)(SelectedEvent?.ObjData.XPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
-
-            // Y Position
-            updateInputField<short>(infoY, (short)(SelectedEvent?.ObjData.YPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
-
-            // DES
-            updateDropDownIndex(infoDes, wrapper?.DES ?? 0);
-
-            // ETA
-            updateDropDownIndex(infoEta, wrapper?.ETA ?? 0);
-
-            // Etat
-            updateDropDownIndex(infoEtat, wrapper?.Etat ?? 0);
-
-            // SubEtat
-            updateDropDownIndex(infoSubEtat, wrapper?.SubEtat ?? 0);
-
-            // OffsetBX
-            updateInputField<byte>(infoOffsetBx, wrapper?.OffsetBX ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
-            
-            // OffsetBY
-            updateInputField<byte>(infoOffsetBy, wrapper?.OffsetBY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
-
-            // OffsetHY
-            updateInputField<byte>(infoOffsetHy, wrapper?.OffsetHY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
-
-            // FollowSprite
-            updateInputField<byte>(infoFollowSprite, wrapper?.FollowSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
-
-            // HitPoints
-            updateInputField<uint>(infoHitPoints, wrapper?.HitPoints ?? 0, x => UInt32.TryParse(x, out var r) ? r : 0);
-
-            // HitSprite
-            updateInputField<byte>(infoHitSprite, wrapper?.HitSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
-
-            // FollowEnabled
-            updateToggle(infoFollow, wrapper?.FollowEnabled ?? false);
-
-            // Type
-            updateDropDownIndex(infoType, wrapper?.Type ?? 0);
-
-            // Set other fields
-            infoName.text = SelectedEvent?.ObjData.Name ?? String.Empty;
-
-            PrevSelectedEvent = SelectedEvent;
-        }
 
         private void SetSelectedPosition(Unity_SpriteObjBehaviour e) {
             if (e.ObjData is Unity_SpriteObject_3D && LevelEditorData.Level.IsometricData != null) {
@@ -940,9 +700,6 @@ namespace R1Engine
 
                 outlineManager.Active = null;
                 SelectedEvent = null;
-
-                // Clear info window
-                ClearInfoWindow();
             }
         }
 
@@ -970,25 +727,6 @@ namespace R1Engine
             // Updated selected event
             SelectedEvent = e;
 
-            // Change event info if event is selected
-            infoAnimIndex.text = SelectedEvent.ObjData.AnimationIndex.ToString();
-            infoLayer.text = SelectedEvent.Layer.ToString();
-
-            // Clear old commands
-            ClearCommands();
-
-            if (FileSystem.mode == FileSystem.Mode.Normal) {
-                if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
-                    // Fill out the commands
-                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new Command[0]) {
-                        CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
-                        cmd.command = c;
-                        cmd.transform.SetParent(commandListParent, false);
-                        commandLines.Add(cmd);
-                    }
-                }
-            }
-
             if (moveCamera) {
                 editor.cam.JumpTo(SelectedEvent.gameObject);
                 //Controller.obj.levelEventController.editor.cam.pos = new Vector3(SelectedEvent.ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(SelectedEvent.ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
@@ -1003,9 +741,6 @@ namespace R1Engine
         {
             if (!hasLoaded)
                 return;
-
-            // Update the fields
-            UpdateEventFields();
 
             foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked && x.connectedOneWayLinkLines != null))
             {
@@ -1121,7 +856,7 @@ namespace R1Engine
                         // Make sure we haven't exceeded the max count or are the main event
                         if (LevelEditorData.Level.EventData.Count < LevelEditorData.ObjManager.MaxObjectCount)
                         {
-                            var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
+                            var eventData = LevelEditorData.ObjManager.CreateObject(ObjectIndexToCreate);
 
                             if (eventData != null)
                             {
@@ -1219,9 +954,8 @@ namespace R1Engine
                             // Move event if in event mode
                             if (modeEvents) {
                                 var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-                                FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.XPosition, "XPos");
-                                FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.YPosition, "YPos");
+                                SelectedEvent.ObjData.XPosition = (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue);
+                                SelectedEvent.ObjData.YPosition = (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue);
 
                                 updateLinkPos = true;
                             }
@@ -1315,7 +1049,6 @@ namespace R1Engine
 
                     SelectedEvent.Delete();
                     SelectedEvent = null;
-                    ClearInfoWindow();
                 }
             } else {
                 outlineManager.Active = null;
@@ -1345,26 +1078,11 @@ namespace R1Engine
             LateUpdate();
         }
 
-        private void ClearInfoWindow() {
-            infoName.text = "";
-            infoAnimIndex.text = "";
-            infoLayer.text = "";
-
-            ClearCommands();
-        }
-
-        private void ClearCommands() {
-            foreach(var c in commandLines) {
-                Destroy(c.gameObject);
-            }
-            commandLines.Clear();
-        }
-
         // Add events to the list via the managers
         public Unity_SpriteObjBehaviour AddEvent(Unity_SpriteObject obj)
         {
             // Instantiate prefab
-            Unity_SpriteObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_SpriteObjBehaviour>();
+            Unity_SpriteObjBehaviour newEvent = Instantiate(Controller.obj?.Prefabs?.Object_Behaviour).GetComponent<Unity_SpriteObjBehaviour>();
             newEvent.gameObject.name = obj.Name;
             
             newEvent.ObjData = obj;

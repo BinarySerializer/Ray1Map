@@ -6,6 +6,7 @@ using UnityEngine;
 namespace R1Engine {
 	public class LegacyEditorUIController : MonoBehaviour {
 		public Controller Controller;
+        public LegacyEditorUIController_Objects ObjectsUI;
 
 		#region Functions referenced by UI buttons
 		public void Button_Tab_TabClicked(int tabIndex) {
@@ -27,52 +28,59 @@ namespace R1Engine {
 
 		#region Functions referenced by UI Input Fields
 		public void InputField_Events_OnEndEdit_XPosition() {
-			Controller.levelEventController.FieldXPosition();
+			ObjectsUI.FieldXPosition();
         }
         public void InputField_Events_OnEndEdit_YPosition() {
-            Controller.levelEventController.FieldYPosition();
+            ObjectsUI.FieldYPosition();
         }
         public void InputField_Events_OnEndEdit_DES() {
-            Controller.levelEventController.FieldDes();
+            ObjectsUI.FieldDes();
         }
         public void InputField_Events_OnEndEdit_ETA() {
-            Controller.levelEventController.FieldEta();
+            ObjectsUI.FieldEta();
         }
         public void InputField_Events_OnEndEdit_Etat() {
-            Controller.levelEventController.FieldEtat();
+            ObjectsUI.FieldEtat();
         }
         public void InputField_Events_OnEndEdit_SubEtat() {
-            Controller.levelEventController.FieldSubEtat();
+            ObjectsUI.FieldSubEtat();
         }
         public void InputField_Events_OnEndEdit_OffsetBx() {
-            Controller.levelEventController.FieldOffsetBx();
+            ObjectsUI.FieldOffsetBx();
         }
         public void InputField_Events_OnEndEdit_OffsetBy() {
-            Controller.levelEventController.FieldOffsetBy();
+            ObjectsUI.FieldOffsetBy();
         }
         public void InputField_Events_OnEndEdit_OffsetHy() {
-            Controller.levelEventController.FieldOffsetHy();
+            ObjectsUI.FieldOffsetHy();
         }
         public void InputField_Events_OnEndEdit_FollowSprite() {
-            Controller.levelEventController.FieldFollowSprite();
+            ObjectsUI.FieldFollowSprite();
         }
         public void InputField_Events_OnEndEdit_HitPoints() {
-            Controller.levelEventController.FieldHitPoints();
+            ObjectsUI.FieldHitPoints();
         }
         public void InputField_Events_OnEndEdit_HitSprite() {
-            Controller.levelEventController.FieldHitSprite();
+            ObjectsUI.FieldHitSprite();
         }
         public void InputField_Events_OnEndEdit_AnimIndex() {
-            Controller.levelEventController.FieldAnimIndex();
+            ObjectsUI.FieldAnimIndex();
         }
         #endregion
 
         #region Functions referenced by UI Toggles
         public void Toggle_Events_OnChanged_FollowEnabled() {
-            Controller.levelEventController.FieldFollowEnabled();
+            ObjectsUI.FieldFollowEnabled();
         }
+        #endregion
+
+        #region Functions referenced by UI Dropdowns
         public void Dropdown_Events_OnChanged_Type() {
-            Controller.levelEventController.FieldType();
+            ObjectsUI.FieldType();
+        }
+
+        public void Dropdown_Events_OnChanged_EventToCreate() {
+            ObjectsUI.FieldEventToCreate();
         }
         #endregion
     }
