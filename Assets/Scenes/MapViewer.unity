@@ -2168,10 +2168,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eventParent: {fileID: 114616739}
-  prefabEvent: {fileID: 7508105759772431801, guid: 80516f0d7ed3bcb4bba273245b7e7d6d,
-    type: 3}
-  prefabCommandLine: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
-    type: 3}
   editor: {fileID: 1956467904}
   outlineManager: {fileID: 1243543565}
   linkColorActive: {r: 1, g: 0.8117647, b: 0, a: 0.78431374}
@@ -23370,10 +23366,8 @@ MonoBehaviour:
     type: 3}
   Object_Behaviour: {fileID: 7508105759772431801, guid: 80516f0d7ed3bcb4bba273245b7e7d6d,
     type: 3}
-  LegacyEditorUI_ObjectCommandLine: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
+  LegacyEditorUI_ObjectCommandItem: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
     type: 3}
-  prefabEvent: {fileID: 0}
-  prefabCommandLine: {fileID: 0}
 --- !u!1 &1804773973
 GameObject:
   m_ObjectHideFlags: 0
