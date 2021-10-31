@@ -29,11 +29,11 @@ namespace R1Engine
                 {
                     var lastPoint = points.LastOrDefault();
 
-                    points.Add(lastPoint + PSKlonoa_DTP_BaseManager.GetPosition(frame.RelativePositionX, frame.RelativePositionY, frame.RelativePositionZ, Scale));
+                    points.Add(lastPoint + PSKlonoaHelpers.GetPosition(frame.RelativePositionX, frame.RelativePositionY, frame.RelativePositionZ, Scale));
                 }
                 else
                 {
-                    points.Add(PSKlonoa_DTP_BaseManager.GetPosition(frame.AbsolutePositionX, frame.AbsolutePositionY, frame.AbsolutePositionZ, Scale));
+                    points.Add(PSKlonoaHelpers.GetPosition(frame.AbsolutePositionX, frame.AbsolutePositionY, frame.AbsolutePositionZ, Scale));
                 }
             }
 
@@ -48,8 +48,8 @@ namespace R1Engine
 
             Quaternion GetQuaternion(float rotX, float rotY) {
                 return Quaternion.Euler(
-                    PSKlonoa_DTP_BaseManager.GetRotationInDegrees(rotX),
-                    -PSKlonoa_DTP_BaseManager.GetRotationInDegrees(rotY), 0f);
+                    PSKlonoaHelpers.GetRotationInDegrees(rotX),
+                    -PSKlonoaHelpers.GetRotationInDegrees(rotY), 0f);
             }
 
             foreach (CameraAnimationFrame frame in Animation.Frames)

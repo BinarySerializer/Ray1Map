@@ -354,7 +354,7 @@ namespace R1Engine
 
         public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, Vector3? posOffset = null)
         {
-            obj.transform.position = Manager.GetPositionVector(pos, posOffset, Scale);
+            obj.transform.position = PSKlonoaHelpers.GetPositionVector(pos, posOffset, Scale);
         }
 
         public void BG_LoadModifier(BackgroundModifierObject modifier, LoadLoop loop)
