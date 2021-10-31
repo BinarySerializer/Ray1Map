@@ -1216,7 +1216,6 @@ namespace R1Engine
             var collidersParent = new GameObject("Collision - Colliders");
             collidersParent.transform.position = Vector3.zero;
 
-            var colors = CollisionColors;
             var defaultColor = new Color(88 / 255f, 98 / 255f, 115 / 255f);
 
             foreach (CollisionTriangle c in collisionTriangles)
@@ -1236,7 +1235,8 @@ namespace R1Engine
 
                 unityMesh.SetVertices(vertices);
 
-                unityMesh.SetColors(Enumerable.Repeat(colors.TryGetItem(c.Type, defaultColor), vertices.Length).ToArray());
+                var color = new Color(BitHelpers.ExtractBits((int)c.Type, 8, 0) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 8) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 16) / 255f);
+                unityMesh.SetColors(Enumerable.Repeat(color, vertices.Length).ToArray());
 
                 unityMesh.SetTriangles(Enumerable.Range(0, vertices.Length).ToArray(), 0);
 
@@ -1264,18 +1264,12 @@ namespace R1Engine
                 gaoc.transform.localScale = Vector3.one;
                 gaoc.transform.localPosition = Vector3.zero;
                 var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
-                col3D.Type = c.Type.ToString();
+                col3D.Type = $"{c.Type:X8}";
 
             }
 
             return obj;
         }
-
-        public Dictionary<CollisionTriangle.CollisionType, Color> CollisionColors => new Dictionary<CollisionTriangle.CollisionType, Color>()
-        {
-            [CollisionTriangle.CollisionType.Solid] = new Color(50 / 255f, 55 / 255f, 64 / 255f),
-            [CollisionTriangle.CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
-        };
 
         public (GameObject, bool) CreateGameObject(
             PS1_TMD tmd, 
