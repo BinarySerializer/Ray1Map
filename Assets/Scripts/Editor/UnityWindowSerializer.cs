@@ -250,6 +250,16 @@ public class UnityWindowSerializer : SerializerObject
 
     public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) => obj;
 
+    public override void SerializeBitValues(Action<SerializeBits64> serializeFunc)
+    {
+        serializeFunc((value, length, name) =>
+        {
+            var rect = PrefixEditorField(name);
+
+            return Window.EditorField(String.Empty, value, rect: rect);
+        });
+    }
+
     public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) 
     {
         serializeFunc((value, length, name) =>
