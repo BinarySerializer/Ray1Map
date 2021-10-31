@@ -1226,17 +1226,5 @@ namespace R1Engine
                 }
             }
         }
-
-        public class AnimatedTileProperties {
-            public int x;
-            public int y;
-            public int tileIndex;
-            public float currentTimer;
-
-            public AnimatedTileProperties(int x, int y) {
-                this.x = x;
-                this.y = y;
-            }
-        }
-	}
+    }
 }
