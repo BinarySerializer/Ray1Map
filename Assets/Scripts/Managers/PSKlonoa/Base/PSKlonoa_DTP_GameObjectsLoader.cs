@@ -10,21 +10,21 @@ using Object = UnityEngine.Object;
 
 namespace R1Engine
 {
-    public class PSKlonoa_DTP_ModifiersLoader
+    public class PSKlonoa_DTP_GameObjectsLoader
     {
-        public PSKlonoa_DTP_ModifiersLoader(PSKlonoa_DTP_BaseManager manager, Loader loader, float scale, GameObject parentObject, ModifierObject[] modifiers, BackgroundModifierObject[] backgroundModifiers)
+        public PSKlonoa_DTP_GameObjectsLoader(PSKlonoa_DTP_BaseManager manager, Loader loader, float scale, GameObject parentObject, GameObject3D[] gameObjects3D, BackgroundGameObject[] backgroundObjects)
         {
             Manager = manager;
             Loader = loader;
             Scale = scale;
             ParentObject = parentObject;
-            Modifiers = modifiers;
-            BackgroundModifiers = backgroundModifiers;
+            GameObjects3D = gameObjects3D;
+            BackgroundObjects = backgroundObjects;
 
             GameObj_Objects = new List<GameObject>();
             GameObj_CameraAnimations = new List<CameraAnimations_File>();
             BG_Layers = new List<BackgroundLayer>();
-            BG_Clears = new List<BackgroundModifierData_Clear>();
+            BG_Clears = new List<BackgroundGameObjectData_Clear>();
             Anim_Manager = new PS1VRAMAnimationManager();
             Anim_TextureAnimations = new List<PS1VRAMAnimation>();
             Anim_PaletteAnimations = new List<PS1VRAMAnimation>();
@@ -36,8 +36,8 @@ namespace R1Engine
         public Loader Loader { get; }
         public float Scale { get; }
         public GameObject ParentObject { get; }
-        public ModifierObject[] Modifiers { get; }
-        public BackgroundModifierObject[] BackgroundModifiers { get; }
+        public GameObject3D[] GameObjects3D { get; }
+        public BackgroundGameObject[] BackgroundObjects { get; }
 
         // Game objects
         public bool GameObj_IsAnimated { get; set; }
@@ -47,8 +47,8 @@ namespace R1Engine
         // Backgrounds
         public bool HasHUD { get; set; }
         public List<BackgroundLayer> BG_Layers { get; }
-        public List<BackgroundModifierData_Clear> BG_Clears { get; }
-        public BackgroundModifierData_SetLightState BG_LightState { get; set; }
+        public List<BackgroundGameObjectData_Clear> BG_Clears { get; }
+        public BackgroundGameObjectData_SetLightState BG_LightState { get; set; }
 
         // Animations
         public PS1VRAMAnimationManager Anim_Manager { get; }
@@ -62,59 +62,59 @@ namespace R1Engine
             // Loop twice, ensuring all texture animations are loaded before the objects
             for (int i = 0; i < 2; i++)
             {
-                for (var modifierIndex = 0; modifierIndex < Modifiers.Length; modifierIndex++)
+                for (var objIndex = 0; objIndex < GameObjects3D.Length; objIndex++)
                 {
-                    var modifier = Modifiers[modifierIndex];
+                    var obj3D = GameObjects3D[objIndex];
 
-                    Controller.DetailedState = $"Loading modifier {modifierIndex + 1}/{Modifiers.Length} (loop {i + 1}/2)";
+                    Controller.DetailedState = $"Loading game object {objIndex + 1}/{GameObjects3D.Length} (loop {i + 1}/2)";
                     await Controller.WaitIfNecessary();
 
-                    GameObj_LoadModifier(modifier, (LoadLoop)i);
+                    LoadGameObject3D(obj3D, (LoadLoop)i);
                 }
 
-                for (var modifierIndex = 0; modifierIndex < BackgroundModifiers.Length; modifierIndex++)
+                for (var objIndex = 0; objIndex < BackgroundObjects.Length; objIndex++)
                 {
-                    var modifier = BackgroundModifiers[modifierIndex];
+                    var bgObj = BackgroundObjects[objIndex];
 
-                    Controller.DetailedState = $"Loading background modifier {modifierIndex + 1}/{BackgroundModifiers.Length} (loop {i + 1}/2)";
+                    Controller.DetailedState = $"Loading background object {objIndex + 1}/{BackgroundObjects.Length} (loop {i + 1}/2)";
                     await Controller.WaitIfNecessary();
 
-                    BG_LoadModifier(modifier, (LoadLoop)i);
+                    LoadBackgroundObject(bgObj, (LoadLoop)i);
                 }
             }
         }
 
         private HashSet<ObjTransform_ArchiveFile> _correctedTransforms;
-        public void GameObj_LoadModifier(ModifierObject modifier, LoadLoop loop)
+        public void LoadGameObject3D(GameObject3D obj3D, LoadLoop loop)
         {
-            // Ignore invalid modifiers
-            if (modifier.IsInvalid)
+            // Ignore invalid objects
+            if (obj3D.IsInvalid)
                 return;
 
-            // Log unknown modifiers
-            if (modifier.GlobalModifierType == GlobalModifierType.Unknown)
+            // Log unknown objects
+            if (obj3D.GlobalGameObjectType == GlobalGameObjectType.Unknown)
             {
                 if (loop != LoadLoop.Animations)
                     return;
 
-                Debug.LogWarning($"Unknown modifier type at {modifier.Offset} of type " +
-                                 $"{(int)modifier.PrimaryType}-{modifier.SecondaryType} with data:{Environment.NewLine}" +
-                                 $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", modifier.Data_Unknown?.Select(dataFile => $"Length: {dataFile.Data.Length} bytes{Environment.NewLine}{dataFile.Data.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
+                Debug.LogWarning($"Unknown object type at {obj3D.Offset} of type " +
+                                 $"{(int)obj3D.PrimaryType}-{obj3D.SecondaryType} with data:{Environment.NewLine}" +
+                                 $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", obj3D.Data_Unknown?.Select(dataFile => $"Length: {dataFile.Data.Length} bytes{Environment.NewLine}{dataFile.Data.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
                 return;
             }
 
             // Handle animations
             if (loop == LoadLoop.Animations)
             {
-                switch (modifier.GlobalModifierType)
+                switch (obj3D.GlobalGameObjectType)
                 {
-                    case GlobalModifierType.ScrollAnimation:
-                        Anim_ScrollAnimations.Add(modifier.Data_UVScrollAnimation);
+                    case GlobalGameObjectType.ScrollAnimation:
+                        Anim_ScrollAnimations.Add(obj3D.Data_UVScrollAnimation);
                         break;
 
-                    case GlobalModifierType.VRAMScrollAnimation:
-                    case GlobalModifierType.VRAMScrollAnimationWithTexture:
-                        KlonoaSettings_DTP.VRAMScrollInfo[] scroll = modifier.VRAMScrollInfos;
+                    case GlobalGameObjectType.VRAMScrollAnimation:
+                    case GlobalGameObjectType.VRAMScrollAnimationWithTexture:
+                        KlonoaSettings_DTP.VRAMScrollInfo[] scroll = obj3D.VRAMScrollInfos;
                         PS1_VRAM vram = Loader.VRAM;
 
                         // Kind of hacky solution, but works... The game essentially just defines what data gets copied where in VRAM
@@ -168,23 +168,23 @@ namespace R1Engine
                         }
                         break;
 
-                    case GlobalModifierType.RGBAnimation:
+                    case GlobalGameObjectType.RGBAnimation:
                         // TODO: Implement
                         break;
 
-                    case GlobalModifierType.TextureAnimation:
-                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(modifier.Data_TextureAnimation.Files.Select(x => x.Obj).ToArray(), modifier.TextureAnimationInfo.AnimSpeed, modifier.TextureAnimationInfo.PingPong));
+                    case GlobalGameObjectType.TextureAnimation:
+                        Anim_TextureAnimations.Add(new PS1VRAMAnimation(obj3D.Data_TextureAnimation.Files.Select(x => x.Obj).ToArray(), obj3D.TextureAnimationInfo.AnimSpeed, obj3D.TextureAnimationInfo.PingPong));
                         break;
 
-                    case GlobalModifierType.PaletteAnimation:
-                    case GlobalModifierType.PaletteAnimations:
-                    case GlobalModifierType.ObjectWithPaletteAnimation:
-                    case GlobalModifierType.NahatombPaletteAnimation:
-                        var anim = modifier.GlobalModifierType == GlobalModifierType.PaletteAnimation || 
-                                   modifier.GlobalModifierType == GlobalModifierType.ObjectWithPaletteAnimation ||
-                                   modifier.GlobalModifierType == GlobalModifierType.NahatombPaletteAnimation
-                            ? modifier.Data_PaletteAnimation.YieldToArray() 
-                            : modifier.Data_PaletteAnimations.Files;
+                    case GlobalGameObjectType.PaletteAnimation:
+                    case GlobalGameObjectType.PaletteAnimations:
+                    case GlobalGameObjectType.ObjectWithPaletteAnimation:
+                    case GlobalGameObjectType.NahatombPaletteAnimation:
+                        var anim = obj3D.GlobalGameObjectType == GlobalGameObjectType.PaletteAnimation || 
+                                   obj3D.GlobalGameObjectType == GlobalGameObjectType.ObjectWithPaletteAnimation ||
+                                   obj3D.GlobalGameObjectType == GlobalGameObjectType.NahatombPaletteAnimation
+                            ? obj3D.Data_PaletteAnimation.YieldToArray() 
+                            : obj3D.Data_PaletteAnimations.Files;
 
                         // Correct the alpha in the colors. Sometimes it's incorrect. Seems the game for model graphics only uses
                         // transparency if the color index is 0?
@@ -194,12 +194,12 @@ namespace R1Engine
                                 p[c] |= 0x80;
                         }
 
-                        for (int i = 0; i < modifier.PaletteAnimationVRAMRegions.Length; i++)
+                        for (int i = 0; i < obj3D.PaletteAnimationVRAMRegions.Length; i++)
                         {
-                            var region = modifier.PaletteAnimationVRAMRegions[i];
+                            var region = obj3D.PaletteAnimationVRAMRegions[i];
                             var palettes = anim[i % anim.Length].Files;
                             var colors = palettes.Select(x => x.Colors).ToArray();
-                            Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, modifier.PaletteAnimationInfo.AnimSpeed, true));
+                            Anim_PaletteAnimations.Add(new PS1VRAMAnimation(region, colors, obj3D.PaletteAnimationInfo.AnimSpeed, true));
                         }
                         break;
                 }
@@ -207,16 +207,16 @@ namespace R1Engine
             // Handle objects
             else
             {
-                if (modifier.Data_TMD == null)
+                if (obj3D.Data_TMD == null)
                     return;
 
-                if (modifier.GlobalModifierType == GlobalModifierType.GeyserPlatform)
+                if (obj3D.GlobalGameObjectType == GlobalGameObjectType.GeyserPlatform)
                 {
-                    var positions = modifier.GeyserPlatformPositions;
+                    var positions = obj3D.GeyserPlatformPositions;
 
                     for (int i = 0; i < positions.Length; i++)
                     {
-                        var geyserObj = GameObj_LoadTMD(modifier, modifier.Data_TMD, index: i);
+                        var geyserObj = GameObj_LoadTMD(obj3D, obj3D.Data_TMD, index: i);
                         GameObj_ApplyPosition(geyserObj, positions[i].Position);
                     }
 
@@ -226,44 +226,44 @@ namespace R1Engine
                 bool isMultiple = false;
                 Vector3Int objPosOffset = Vector3Int.zero;
 
-                // TODO: Hard-code this in the modifier object
-                switch (modifier.GlobalModifierType)
+                // TODO: Hard-code this in the object
+                switch (obj3D.GlobalGameObjectType)
                 {
-                    case GlobalModifierType.WindSwirl:
+                    case GlobalGameObjectType.WindSwirl:
                         objPosOffset = new Vector3Int(0, 182, 0);
                         break;
 
-                    case GlobalModifierType.MultiWheel:
+                    case GlobalGameObjectType.MultiWheel:
                         isMultiple = true;
                         break;
 
-                    case GlobalModifierType.FallingTargetPlatform:
+                    case GlobalGameObjectType.FallingTargetPlatform:
                         _correctedTransforms ??= new HashSet<ObjTransform_ArchiveFile>();
 
-                        foreach (var rot in modifier.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Rotations).SelectMany(x => x))
+                        foreach (var rot in obj3D.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Rotations).SelectMany(x => x))
                             rot.RotationX += 0x400;
                         
-                        foreach (var f in modifier.Data_LocalTransforms.Files)
+                        foreach (var f in obj3D.Data_LocalTransforms.Files)
                             _correctedTransforms.Add(f);
                         break;
                 }
 
                 // Load the object model from the TMD data
                 var obj = GameObj_LoadTMD(
-                    modifier: modifier, 
-                    tmd: modifier.Data_TMD, 
-                    localTransforms: modifier.Data_LocalTransform?.YieldToArray() ?? modifier.Data_LocalTransforms?.Files, 
-                    absoluteTransforms: modifier.Data_AbsoluteTransform?.YieldToArray() ?? modifier.Data_AbsoluteTransforms?.Files, 
+                    obj3D: obj3D, 
+                    tmd: obj3D.Data_TMD, 
+                    localTransforms: obj3D.Data_LocalTransform?.YieldToArray() ?? obj3D.Data_LocalTransforms?.Files, 
+                    absoluteTransforms: obj3D.Data_AbsoluteTransform?.YieldToArray() ?? obj3D.Data_AbsoluteTransforms?.Files, 
                     multiple: isMultiple);
 
                 // Apply a position if available
-                if (modifier.Data_Position != null)
-                    GameObj_ApplyPosition(obj, modifier.Data_Position, objPosOffset);
+                if (obj3D.Data_Position != null)
+                    GameObj_ApplyPosition(obj, obj3D.Data_Position, objPosOffset);
 
                 // Apply a constant rotation if available
-                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.X, modifier.ConstantRotationX);
-                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Y, modifier.ConstantRotationY);
-                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Z, modifier.ConstantRotationZ);
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.X, obj3D.ConstantRotationX);
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Y, obj3D.ConstantRotationY);
+                addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Z, obj3D.ConstantRotationZ);
 
                 void addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed)
                 {
@@ -275,30 +275,30 @@ namespace R1Engine
                     rotComponent.initialRotation = obj.transform.localRotation;
                     rotComponent.axis = axis;
                     rotComponent.rotationSpeed = speed.Value;
-                    rotComponent.minValue = modifier.ConstantRotationMin;
-                    rotComponent.length = modifier.ConstantRotationLength;
+                    rotComponent.minValue = obj3D.ConstantRotationMin;
+                    rotComponent.length = obj3D.ConstantRotationLength;
                 }
 
                 // Load secondary object if available
-                if (modifier.Data_TMD_Secondary != null)
+                if (obj3D.Data_TMD_Secondary != null)
                 {
                     var secondaryObj = GameObj_LoadTMD(
-                        modifier: modifier,
-                        tmd: modifier.Data_TMD_Secondary,
+                        obj3D: obj3D,
+                        tmd: obj3D.Data_TMD_Secondary,
                         index: 1);
 
                     // Apply a position if available (without the offset)
-                    if (modifier.Data_Position != null)
-                        GameObj_ApplyPosition(secondaryObj, modifier.Data_Position);
+                    if (obj3D.Data_Position != null)
+                        GameObj_ApplyPosition(secondaryObj, obj3D.Data_Position);
                 }
 
-                if (modifier.Data_CameraAnimations != null)
-                    GameObj_CameraAnimations.Add(modifier.Data_CameraAnimations);
+                if (obj3D.Data_CameraAnimations != null)
+                    GameObj_CameraAnimations.Add(obj3D.Data_CameraAnimations);
             }
         }
 
         public GameObject GameObj_LoadTMD(
-            ModifierObject modifier, 
+            GameObject3D obj3D, 
             PS1_TMD tmd, 
             ObjTransform_ArchiveFile[] localTransforms = null, 
             ObjTransform_ArchiveFile[] absoluteTransforms = null, 
@@ -315,12 +315,12 @@ namespace R1Engine
                 tmd: tmd,
                 loader: Loader,
                 scale: Scale,
-                name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType} ({modifier.GlobalModifierType})",
-                modifiersLoader: this,
+                name: $"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})",
+                objectsLoader: this,
                 isPrimaryObj: false,
                 transforms: localTransforms,
-                animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedLocalTransformSpeed),
-                animLoopMode: modifier.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+                animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
+                animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
@@ -337,8 +337,8 @@ namespace R1Engine
                     transforms: absoluteTransforms, 
                     scale: Scale, 
                     objIndex: i, 
-                    animSpeed: new AnimSpeed_FrameIncrease(modifier.AnimatedAbsoluteTransformSpeed), 
-                    animLoopMode: modifier.DoesAnimatedAbsoluteTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+                    animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedAbsoluteTransformSpeed), 
+                    animLoopMode: obj3D.DoesAnimatedAbsoluteTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
 
                 if (isAnimated)
                     GameObj_IsAnimated = true;
@@ -357,11 +357,11 @@ namespace R1Engine
             obj.transform.position = PSKlonoaHelpers.GetPositionVector(pos, posOffset, Scale);
         }
 
-        public void BG_LoadModifier(BackgroundModifierObject modifier, LoadLoop loop)
+        public void LoadBackgroundObject(BackgroundGameObject bgObj, LoadLoop loop)
         {
-            switch (modifier.Type)
+            switch (bgObj.Type)
             {
-                case BackgroundModifierObject.BackgroundModifierType.HUD:
+                case BackgroundGameObject.BackgroundGameObjectType.HUD:
                     {
                         if (loop != LoadLoop.Objects)
                             return;
@@ -370,34 +370,34 @@ namespace R1Engine
                     }
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19:
-                case BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_22:
+                case BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_19:
+                case BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_22:
                     {
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        var (frames, speed) = Manager.GetBackgroundFrames(Loader, this, Loader.BackgroundPack, modifier);
+                        var (frames, speed) = Manager.GetBackgroundFrames(Loader, this, Loader.BackgroundPack, bgObj);
 
-                        BG_Layers.Add(new BackgroundLayer(modifier, frames, speed));
+                        BG_Layers.Add(new BackgroundLayer(bgObj, frames, speed));
                     }
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.Clear_Gradient:
-                case BackgroundModifierObject.BackgroundModifierType.Clear:
+                case BackgroundGameObject.BackgroundGameObjectType.Clear_Gradient:
+                case BackgroundGameObject.BackgroundGameObjectType.Clear:
                     {
                         if (loop != LoadLoop.Objects)
                             return;
 
-                        BG_Clears.Add(modifier.Data_Clear);
+                        BG_Clears.Add(bgObj.Data_Clear);
                     }
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.PaletteScroll:
+                case BackgroundGameObject.BackgroundGameObjectType.PaletteScroll:
                     {
                         if (loop != LoadLoop.Animations)
                             return;
 
-                        BackgroundModifierData_PaletteScroll scroll = modifier.Data_PaletteScroll;
+                        BackgroundGameObjectData_PaletteScroll scroll = bgObj.Data_PaletteScroll;
                         PS1_VRAM vram = Loader.VRAM;
 
                         var frames = new byte[scroll.Length][];
@@ -435,21 +435,21 @@ namespace R1Engine
                     }
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.SetLightState:
+                case BackgroundGameObject.BackgroundGameObjectType.SetLightState:
                     {
                         if (loop != LoadLoop.Animations)
                             return;
 
-                        BG_LightState = modifier.Data_SetLightState;
+                        BG_LightState = bgObj.Data_SetLightState;
                     }
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.PaletteSwap:
+                case BackgroundGameObject.BackgroundGameObjectType.PaletteSwap:
                     // TODO: Implement
                     break;
 
-                case BackgroundModifierObject.BackgroundModifierType.Unknown_1:
-                case BackgroundModifierObject.BackgroundModifierType.Reset:
+                case BackgroundGameObject.BackgroundGameObjectType.Unknown_1:
+                case BackgroundGameObject.BackgroundGameObjectType.Reset:
                 default:
                     // Do nothing
                     break;
@@ -474,14 +474,14 @@ namespace R1Engine
 
         public class BackgroundLayer
         {
-            public BackgroundLayer(BackgroundModifierObject modifierObject, Texture2D[] frames, int speed)
+            public BackgroundLayer(BackgroundGameObject obj, Texture2D[] frames, int speed)
             {
-                ModifierObject = modifierObject;
+                Object = obj;
                 Frames = frames;
                 Speed = speed;
             }
 
-            public BackgroundModifierObject ModifierObject { get; }
+            public BackgroundGameObject Object { get; }
             public Texture2D[] Frames { get; }
             public int Speed { get; }
         }

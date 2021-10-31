@@ -350,48 +350,48 @@ namespace R1Engine
                     }
                 }
 
-                // MODIFIER TEXTURES
+                // GAME OBJECT TEXTURES
                 if (loader.LevelData3D != null)
                 {
-                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorModifiers.Length; sectorIndex++)
+                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorGameObjects3D.Length; sectorIndex++)
                     {
-                        var sectorModifiers = loader.LevelData3D.SectorModifiers[sectorIndex].Modifiers;
+                        var sectorGameObjects = loader.LevelData3D.SectorGameObjects3D[sectorIndex].Objects;
 
-                        for (int modifierIndex = 0; modifierIndex < sectorModifiers.Length; modifierIndex++)
+                        for (int objIndex = 0; objIndex < sectorGameObjects.Length; objIndex++)
                         {
-                            var modifier = sectorModifiers[modifierIndex];
+                            var obj = sectorGameObjects[objIndex];
 
-                            if (modifier.Data_TIM != null)
+                            if (obj.Data_TIM != null)
                             {
                                 exportTex(
-                                    getTex: () => GetTexture(modifier.Data_TIM),
-                                    blockName: $"{blockIndex} - ModifierTextures",
-                                    name: $"{sectorIndex} - {modifierIndex} - Texture");
+                                    getTex: () => GetTexture(obj.Data_TIM),
+                                    blockName: $"{blockIndex} - GameObjectTextures",
+                                    name: $"{sectorIndex} - {objIndex} - Texture");
                             }
                             
-                            if (modifier.Data_TIMArchive != null)
+                            if (obj.Data_TIMArchive != null)
                             {
-                                var textures = modifier.Data_TIMArchive;
+                                var textures = obj.Data_TIMArchive;
 
                                 for (int texIndex = 0; texIndex < textures.Files.Length; texIndex++)
                                 {
                                     exportTex(
                                         getTex: () => GetTexture(textures.Files[texIndex]),
-                                        blockName: $"{blockIndex} - ModifierTextures",
-                                        name: $"{sectorIndex} - {modifierIndex} - Textures - {texIndex}");
+                                        blockName: $"{blockIndex} - GameObjectTextures",
+                                        name: $"{sectorIndex} - {objIndex} - Textures - {texIndex}");
                                 }
                             }
 
-                            if (modifier.Data_TextureAnimation != null)
+                            if (obj.Data_TextureAnimation != null)
                             {
-                                var texAnim = modifier.Data_TextureAnimation;
+                                var texAnim = obj.Data_TextureAnimation;
 
                                 for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
                                 {
                                     exportTex(
                                         getTex: () => GetTexture(texAnim.Files[texIndex]),
-                                        blockName: $"{blockIndex} - ModifierTextures",
-                                        name: $"{sectorIndex} - {modifierIndex} - TextureAnimation - {texIndex}");
+                                        blockName: $"{blockIndex} - GameObjectTextures",
+                                        name: $"{sectorIndex} - {objIndex} - TextureAnimation - {texIndex}");
                                 }
                             }
                         }
@@ -412,22 +412,22 @@ namespace R1Engine
                 // BACKGROUND ANIMATIONS (MAPS)
                 if (bgPack != null)
                 {
-                    var exportedLayers = new HashSet<BackgroundModifierObject>();
+                    var exportedLayers = new HashSet<BackgroundGameObject>();
 
-                    for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundModifiersFiles.Files.Length; sectorIndex++)
+                    for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundGameObjectsFiles.Files.Length; sectorIndex++)
                     {
-                        var modifiers = bgPack.BackgroundModifiersFiles.Files[sectorIndex].Modifiers.Where(x => !exportedLayers.Contains(x)).ToArray();
-                        var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, 0, null, new ModifierObject[0], modifiers);
+                        var objects = bgPack.BackgroundGameObjectsFiles.Files[sectorIndex].Objects.Where(x => !exportedLayers.Contains(x)).ToArray();
+                        var objectsLoader = new PSKlonoa_DTP_GameObjectsLoader(this, loader, 0, null, new GameObject3D[0], objects);
 
                         // Load to get the backgrounds with their animations
-                        await modifiersLoader.LoadAsync();
-                        await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+                        await objectsLoader.LoadAsync();
+                        await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
 
                         // Export every layer
-                        foreach (PSKlonoa_DTP_ModifiersLoader.BackgroundLayer layer in modifiersLoader.BG_Layers)
+                        foreach (PSKlonoa_DTP_GameObjectsLoader.BackgroundLayer layer in objectsLoader.BG_Layers)
                         {
-                            exportedLayers.Add(layer.ModifierObject);
-                            export(layer.Frames, layer.Speed, layer.ModifierObject.BGDIndex);
+                            exportedLayers.Add(layer.Object);
+                            export(layer.Frames, layer.Speed, layer.Object.BGDIndex);
                         }
                     }
 
@@ -437,9 +437,9 @@ namespace R1Engine
                         if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
                             continue;
 
-                        var tex = GetTexture(loader, bgPack, new BackgroundModifierObject()
+                        var tex = GetTexture(loader, bgPack, new BackgroundGameObject()
                         {
-                            Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
+                            Type = BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_19,
                             BGDIndex = bgdIndex,
                             CELIndex = 0,
                         });
@@ -797,10 +797,10 @@ namespace R1Engine
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
-            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
-                ElementAtOrDefault(sector)?.Modifiers.
-                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient ||
-                           x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
+            var bgClear = loader.BackgroundPack?.BackgroundGameObjectsFiles.Files.
+                ElementAtOrDefault(sector)?.Objects.
+                Where(x => x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear_Gradient ||
+                           x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear).
                 Select(x => x.Data_Clear).
                 ToArray();
 
@@ -841,7 +841,7 @@ namespace R1Engine
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles;
 
-            Controller.DetailedState = "Loading modifiers";
+            Controller.DetailedState = "Loading game objects";
             await Controller.WaitIfNecessary();
 
             var gao_3dObjParent = new GameObject("3D Objects");
@@ -849,16 +849,16 @@ namespace R1Engine
             gao_3dObjParent.transform.localRotation = Quaternion.identity;
             gao_3dObjParent.transform.localScale = Vector3.one;
 
-            // Load the modifiers first so we get the VRAM animations
-            var modifiersLoader = new PSKlonoa_DTP_ModifiersLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorModifiers[sector].Modifiers, loader.BackgroundPack.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers);
-            await modifiersLoader.LoadAsync();
+            // Load the objects first so we get the VRAM animations
+            var objectsLoader = new PSKlonoa_DTP_GameObjectsLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorGameObjects3D[sector].Objects, loader.BackgroundPack.BackgroundGameObjectsFiles.Files.ElementAtOrDefault(sector)?.Objects);
+            await objectsLoader.LoadAsync();
 
             if (IncludeDebugInfo)
             {
                 Debug.Log($"TEXTURE ANIMATIONS:{Environment.NewLine}" +
-                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                          $"{String.Join(Environment.NewLine, objectsLoader.Anim_TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
                 Debug.Log($"PALETTE ANIMATIONS:{Environment.NewLine}" +
-                          $"{String.Join(Environment.NewLine, modifiersLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                          $"{String.Join(Environment.NewLine, objectsLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
             }
 
             // Load tracks
@@ -867,7 +867,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // TODO: Add cutscene tracks too
-            level.TrackManagers = modifiersLoader.GameObj_CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
+            level.TrackManagers = objectsLoader.GameObj_CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
@@ -877,18 +877,18 @@ namespace R1Engine
             layers.AddRange(backgroundsClear);
 
             // Load backgrounds
-            var backgrounds = Load_Layers_Backgrounds(loader, modifiersLoader, scale);
+            var backgrounds = Load_Layers_Backgrounds(loader, objectsLoader, scale);
             layers.AddRange(backgrounds);
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
             // Load level object
-            var levelObj = Load_Layers_LevelObject(loader, parent3d, modifiersLoader, sector, scale);
+            var levelObj = Load_Layers_LevelObject(loader, parent3d, objectsLoader, sector, scale);
             layers.Add(levelObj);
 
             // Add layer for 3D objects last
-            layers.Add(new Unity_Layer_GameObject(true, isAnimated: modifiersLoader.GameObj_IsAnimated)
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: objectsLoader.GameObj_IsAnimated)
             {
                 Name = "3D Objects",
                 ShortName = $"3DO",
@@ -900,25 +900,25 @@ namespace R1Engine
             if (IncludeDebugInfo)
             {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
-                          $"{modifiersLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
-                          $"{modifiersLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
-                          $"Modifiers:{Environment.NewLine}\t" +
-                          $"{String.Join($"{Environment.NewLine}\t", modifiersLoader.Modifiers.Take(modifiersLoader.Modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalModifierType})"))}");
+                          $"{objectsLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
+                          $"{objectsLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                          $"Objects:{Environment.NewLine}\t" +
+                          $"{String.Join($"{Environment.NewLine}\t", objectsLoader.GameObjects3D.Take(objectsLoader.GameObjects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalGameObjectType})"))}");
             }
 
-            await modifiersLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+            await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
 
             level.Layers = layers.ToArray();
         }
 
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader loader, int sector, float scale) {
 
-            // Add background modifiers
-            var modifiers = loader.BackgroundPack?.BackgroundModifiersFiles.Files.
-                ElementAtOrDefault(sector)?.Modifiers;
-            var bgClear = modifiers?.
-                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear_Gradient ||
-                           x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).
+            // Add background objects
+            var bgObjects = loader.BackgroundPack?.BackgroundGameObjectsFiles.Files.
+                ElementAtOrDefault(sector)?.Objects;
+            var bgClear = bgObjects?.
+                Where(x => x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear_Gradient ||
+                           x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear).
                 Select(x => x.Data_Clear);
 
             List<Unity_Layer_GameObject> gaoLayers = new List<Unity_Layer_GameObject>();
@@ -928,8 +928,8 @@ namespace R1Engine
                 Mesh m = new Mesh();
                 Vector3[] vertices = clear.Entries.Select(e =>
                     new Vector3(
-                        ((e.XPos_RelativeObj != -1 ? modifiers[e.XPos_RelativeObj].XPos : 0) + e.XPos) / pixelsPerUnit,
-                        -((e.YPos_RelativeObj != -1 ? modifiers[e.YPos_RelativeObj].YPos : 0) + e.YPos) / pixelsPerUnit,
+                        ((e.XPos_RelativeObj != -1 ? bgObjects[e.XPos_RelativeObj].XPos : 0) + e.XPos) / pixelsPerUnit,
+                        -((e.YPos_RelativeObj != -1 ? bgObjects[e.YPos_RelativeObj].YPos : 0) + e.YPos) / pixelsPerUnit,
                         0)).ToArray();
                 Color[] colors = clear.Entries.Select(e =>
                     e.Color.GetColor()).ToArray();
@@ -968,7 +968,7 @@ namespace R1Engine
                 m.RecalculateNormals();
 
 
-                int index = modifiers.FindItemIndex(clearData => clearData.Data_Clear == clear);
+                int index = bgObjects.FindItemIndex(clearData => clearData.Data_Clear == clear);
                 GameObject gao = new GameObject($"Gradient {index}");
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -992,10 +992,10 @@ namespace R1Engine
             return gaoLayers;
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, float scale)
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, PSKlonoa_DTP_GameObjectsLoader objectsLoader, float scale)
         {
             // Get the background textures
-            var bgLayers = modifiersLoader.BG_Layers;
+            var bgLayers = objectsLoader.BG_Layers;
             int pixelsPerUnit = 16;
             // Add the backgrounds
             return bgLayers.Select((t, i) => new Unity_Layer_Texture
@@ -1004,11 +1004,11 @@ namespace R1Engine
                 ShortName = $"BG{i}",
                 Textures = t.Frames,
                 AnimSpeed = t.Speed,
-                PositionOffset = new Vector3(t.ModifierObject.XPos, -t.ModifierObject.YPos, 0) / pixelsPerUnit
+                PositionOffset = new Vector3(t.Object.XPos, -t.Object.YPos, 0) / pixelsPerUnit
             }).Reverse();
         }
 
-        public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, PSKlonoa_DTP_ModifiersLoader modifiersLoader, int sector, float scale)
+        public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, PSKlonoa_DTP_GameObjectsLoader objectsLoader, int sector, float scale)
         {
             GameObject obj;
             bool isAnimated;
@@ -1018,7 +1018,7 @@ namespace R1Engine
                 loader: loader, 
                 scale: scale, 
                 name: "Map", 
-                modifiersLoader: modifiersLoader, 
+                objectsLoader: objectsLoader, 
                 isPrimaryObj: true);
 
             var levelBounds = PSKlonoaHelpers.GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
@@ -1146,7 +1146,7 @@ namespace R1Engine
             }));
 
             // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.
+            objects.AddRange(loader.LevelData3D.SectorGameObjects3D[sector].Objects.
                 Where(x => x.Data_ScenerySprites != null || x.Data_LightPositions != null).
                 SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Positions[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
@@ -1276,7 +1276,7 @@ namespace R1Engine
             Loader loader, 
             float scale, 
             string name, 
-            PSKlonoa_DTP_ModifiersLoader modifiersLoader, 
+            PSKlonoa_DTP_GameObjectsLoader objectsLoader, 
             bool isPrimaryObj,
             ObjTransform_ArchiveFile[] transforms = null, 
             AnimSpeed animSpeed = null, 
@@ -1297,7 +1297,7 @@ namespace R1Engine
 
                 var overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
 
-                if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                if (isPrimaryObj && packet.UV.Any(x => objectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                 {
                     tex.ExpandWithUVScroll();
                 }
@@ -1322,7 +1322,7 @@ namespace R1Engine
                 vramTex.SetTexture(vramTex.GetTexture(loader.VRAM));
 
                 // Check if the texture is animated
-                var vramAnims = modifiersLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion).ToArray();
+                var vramAnims = objectsLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion).ToArray();
 
                 if (!vramAnims.Any()) 
                     continue;
@@ -1332,7 +1332,7 @@ namespace R1Engine
                     vramTex.GetTexture(loader.VRAM, tex);
                 }, vramAnims);
                 
-                modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
+                objectsLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
                 vramTex.SetAnimatedTexture(animatedTexture);
             }
 
@@ -1495,7 +1495,7 @@ namespace R1Engine
                             mr.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, ABR: {packet.TSB.ABR}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
-                        if (isPrimaryObj && packet.UV.Any(x => modifiersLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
+                        if (isPrimaryObj && packet.UV.Any(x => objectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
@@ -1687,7 +1687,7 @@ namespace R1Engine
             return (tex, new RectInt(minX, minY, width, height));
         }
 
-        public (Texture2D[], int) GetBackgroundFrames(Loader loader, PSKlonoa_DTP_ModifiersLoader modifiersLoader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer)
+        public (Texture2D[], int) GetBackgroundFrames(Loader loader, PSKlonoa_DTP_GameObjectsLoader objectsLoader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
@@ -1701,16 +1701,16 @@ namespace R1Engine
 
             var anims = new HashSet<PS1VRAMAnimation>();
 
-            if (modifiersLoader.Anim_BGPaletteAnimations.Any())
+            if (objectsLoader.Anim_BGPaletteAnimations.Any())
             {
                 foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
                 {
                     var region = new RectInt((clut & 0x3F) * 16 * 2, clut >> 6, palLength, 1);
 
-                    foreach (var anim in modifiersLoader.Anim_GetBGAnimationsFromRegion(region))
+                    foreach (var anim in objectsLoader.Anim_GetBGAnimationsFromRegion(region))
                         anims.Add(anim);
 
-                    if (anims.Count == modifiersLoader.Anim_BGPaletteAnimations.Count)
+                    if (anims.Count == objectsLoader.Anim_BGPaletteAnimations.Count)
                         break;
                 }
             }
@@ -1729,12 +1729,12 @@ namespace R1Engine
                 GetTexture(loader, bg, layer, tex);
             }, anims.ToArray());
 
-            modifiersLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
+            objectsLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
 
             return (animatedTex.Textures, animatedTex.Speed);
         }
 
-        public Texture2D GetTexture(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject layer, Texture2D tex = null)
+        public Texture2D GetTexture(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer, Texture2D tex = null)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
