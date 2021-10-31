@@ -377,7 +377,7 @@ namespace R1Engine
 
             // Load animations
             var animSets = rom.EnemyAnimationsPack.Files.Select((x, i) => GetAnimSet(x, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Enemy, rom.EnemyAnimationsPack));
-            animSets = animSets.Concat(rom.GameplayPack.ParsedFiles.Select((x, i) => x.Item1 is Animation_File a ? GetAnimSet(a, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Gameplay, rom.GameplayPack) : null));
+            animSets = animSets.Concat(rom.GameplayPack.ParsedFiles.Select((x, i) => x?.Obj is Animation_File a ? GetAnimSet(a, i, Unity_ObjectManager_KlonoaHeroes.AnimSet.FilePackType.Gameplay, rom.GameplayPack) : null));
 
             var objManager = new Unity_ObjectManager_KlonoaHeroes(context, animSets.Where(x => x != null), rom, lvlEntry);
             lvl.ObjManager = objManager;
