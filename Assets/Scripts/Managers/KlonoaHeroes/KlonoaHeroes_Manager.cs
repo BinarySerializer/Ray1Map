@@ -296,7 +296,7 @@ namespace R1Engine
                     },
                     MapTiles = x.TileMap.Select(t => new Unity_Tile(new MapTile
                     {
-                        TileMapY = (ushort)t.TileSetIndex,
+                        TileMapY = (ushort)t.TileIndex,
                         HorizontalFlip = t.FlipX,
                         VerticalFlip = t.FlipY,
                         PaletteIndex = (byte)t.PaletteIndex,
@@ -398,7 +398,7 @@ namespace R1Engine
             return lvl;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, GraphicsTile[] mapTiles)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, BinarySerializer.GBA.MapTile[] mapTiles)
         {
             var additionalTiles = new List<Texture2D>();
             const int tileSize = 0x20;
@@ -409,8 +409,8 @@ namespace R1Engine
 
             foreach (var m in mapTiles)
             {
-                if (m.TileSetIndex < paletteIndices.Length && !paletteIndices[m.TileSetIndex].Contains(m.PaletteIndex))
-                    paletteIndices[m.TileSetIndex].Add(m.PaletteIndex);
+                if (m.TileIndex < paletteIndices.Length && !paletteIndices[m.TileIndex].Contains(m.PaletteIndex))
+                    paletteIndices[m.TileIndex].Add(m.PaletteIndex);
             }
 
             Texture2D tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false,
@@ -441,8 +441,8 @@ namespace R1Engine
                         tileY: 0);
 
                     // Modify all tiles where this is used
-                    foreach (GraphicsTile t in mapTiles.Where(x => x.TileSetIndex == tileIndex && x.PaletteIndex == p))
-                        t.TileSetIndex = (ushort)(tilesCount + additionalTiles.Count);
+                    foreach (BinarySerializer.GBA.MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
+                        t.TileIndex = (ushort)(tilesCount + additionalTiles.Count);
 
                     // Add to additional tiles list
                     additionalTiles.Add(tileTex);
