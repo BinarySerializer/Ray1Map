@@ -174,10 +174,7 @@ namespace R1Engine.Jade {
 			onPostSerialize?.Invoke(s, Value);
 		}
 
-		public override bool IsShortLog => true;
-		public override string ShortLog => $"GenericReference({Key}{FileType.Extension} - {Type})";
-		public override string ToString() {
-			return ShortLog;
-		}
+		public override bool UseShortLog => true;
+		public override string ToString() => $"GenericReference({Key}{FileType.Extension} - {Type})";
 	}
 }

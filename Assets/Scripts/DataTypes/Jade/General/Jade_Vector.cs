@@ -11,11 +11,7 @@ namespace R1Engine.Jade {
 			Y = s.Serialize<float>(Y, name: nameof(Y));
 			Z = s.Serialize<float>(Z, name: nameof(Z));
 		}
-		public override string ToString() {
-			return $"Vector({X}, {Y}, {Z})";
-		}
-
-		public override bool IsShortLog => true;
-		public override string ShortLog => ToString();
+        public override bool UseShortLog => true;
+		public override string ToString() => $"Vector({X}, {Y}, {Z})";
 	}
 }

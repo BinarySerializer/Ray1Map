@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 			FileKey = s.SerializeObject<Jade_Key>(FileKey, name: nameof(FileKey));
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => $"DebugLink({DebugLinkContent})";
 
 		public string DebugLinkContent => IsNull ? "" : $"{FileKey}:{LineNumber}";

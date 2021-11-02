@@ -68,7 +68,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => ToString(null, null);
 
 		public string ToString(Dictionary<long, int> stringOffsetDictionary, string[] stringList) {

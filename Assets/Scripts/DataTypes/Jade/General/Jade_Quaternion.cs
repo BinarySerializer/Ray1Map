@@ -13,11 +13,7 @@ namespace R1Engine.Jade {
 			Z = s.Serialize<float>(Z, name: nameof(Z));
 			W = s.Serialize<float>(W, name: nameof(W));
 		}
-		public override string ToString() {
-			return $"Quaternion({X}, {Y}, {Z}, {W})";
-		}
-
-		public override bool IsShortLog => true;
-		public override string ShortLog => ToString();
+        public override bool UseShortLog => true;
+		public override string ToString() => $"Quaternion({X}, {Y}, {Z}, {W})";
 	}
 }

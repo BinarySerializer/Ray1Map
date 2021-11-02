@@ -15,7 +15,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog {
 			get {
 				if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {

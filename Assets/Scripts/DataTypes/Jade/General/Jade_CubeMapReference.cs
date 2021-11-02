@@ -1,6 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
 using BinarySerializer;
 
 namespace R1Engine.Jade {
@@ -41,12 +39,12 @@ namespace R1Engine.Jade {
 				Value = f?.ConvertType<TEX_CubeMap>();
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
-			name: typeof(TEX_CubeMap).Name,
+			name: nameof(TEX_CubeMap),
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			return this;
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => Key.ToString();
 	}
 }

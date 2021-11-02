@@ -55,7 +55,7 @@ namespace R1Engine.Jade {
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureInfo,
 				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-				name: typeof(TEX_File).Name);
+				name: nameof(TEX_File));
 
 				loader.RequestFile(Info.ContentKey, Content, (s, configureAction) => {
 					Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
@@ -68,7 +68,7 @@ namespace R1Engine.Jade {
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureContent,
 				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-				name: typeof(TEX_File).Name);
+				name: nameof(TEX_File));
 			} else {
 				loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
 					if (Content == null) Content = Info;
@@ -84,7 +84,7 @@ namespace R1Engine.Jade {
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureInfo,
 				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-				name: typeof(TEX_File).Name);
+				name: nameof(TEX_File));
 			}
 			return this;
 		}
@@ -106,7 +106,7 @@ namespace R1Engine.Jade {
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureInfo,
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-			name: typeof(TEX_File).Name);
+			name: nameof(TEX_File));
 			return this;
 		}
 
@@ -131,11 +131,11 @@ namespace R1Engine.Jade {
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureContent,
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
-			name: typeof(TEX_File).Name);
+			name: nameof(TEX_File));
 			return this;
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => RRR2_Bool ? $"{Key},{RRR2_Bool}" : Key.ToString();
 	}
 }

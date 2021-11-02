@@ -78,7 +78,7 @@ namespace R1Engine.Jade {
 			onPostSerialize?.Invoke(s, Value);
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => Key.ToString();
 
 		public override string ToString() {

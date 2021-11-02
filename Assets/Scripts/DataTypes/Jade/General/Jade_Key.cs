@@ -5,8 +5,7 @@ namespace R1Engine.Jade {
 	public class Jade_Key : BinarySerializable, IEquatable<Jade_Key> {
 		public uint Key { get; set; }
 		public bool IsNull => Key == 0 || Key == 0xFFFFFFFF;
-		public override bool IsShortLog => true;
-		public override string ShortLog => ToString();
+		public override bool UseShortLog => true;
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

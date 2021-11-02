@@ -66,7 +66,7 @@ namespace R1Engine.Jade {
 			return this;
 		}
 
-		public override bool IsShortLog => true;
+		public override bool UseShortLog => true;
 		public override string ShortLog => Key.ToString();
 	}
 }
