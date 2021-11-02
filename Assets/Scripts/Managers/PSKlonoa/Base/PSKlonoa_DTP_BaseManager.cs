@@ -1344,11 +1344,49 @@ namespace R1Engine
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
+                int getBoneForVertex(int vertexIndex) {
+                    if(obj.Parts == null) return -1;
+                    return obj.Parts.FindItemIndex(b => b.VertexIndex <= vertexIndex && b.VertexIndex + b.VerticesCount > vertexIndex) + 1;
+                }
 
                 GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
 
                 gameObject.transform.SetParent(gaoParent.transform, false);
                 gameObject.transform.localScale = Vector3.one;
+
+                // Init bones
+                bool hasBones = obj.PartsCount > 0;
+                Transform[] bones = null;
+                Matrix4x4[] bindPoses = null;
+                if (hasBones) {
+                    bones = new Transform[obj.Parts.Length + 1];
+                    for (int i = 0; i < bones.Length; i++) {
+                        var b = new GameObject($"Bone {i}");
+                        b.transform.SetParent(gameObject.transform);
+                        bones[i] = b.transform;
+                    }
+                    // Init Root bone
+                    {
+                        var b = bones[0];
+                        b.transform.localPosition = Vector3.zero;
+                        b.transform.localRotation = Quaternion.identity;
+                        b.transform.localScale = Vector3.one;
+                    }
+                    // Init other bones
+                    for (int i = 0; i < obj.Parts.Length; i++) {
+                        var b = bones[i+1];
+                        b.transform.SetParent(bones[obj.Parts[i].ParentPartIndex]);
+                        b.transform.localPosition = Vector3.zero;
+                        b.transform.localRotation = Quaternion.identity;
+                        b.transform.localScale = Vector3.one;
+                    }
+
+                    bindPoses = new Matrix4x4[bones.Length];
+                    for (int i = 0; i < bindPoses.Length; i++) {
+                        bindPoses[i] = bones[i].worldToLocalMatrix * gameObject.transform.localToWorldMatrix;
+                    }
+                }
+
 
                 var isTransformAnimated = ApplyTransform(
                     gameObj: gameObject, 
@@ -1450,25 +1488,45 @@ namespace R1Engine
                     if (normals == null) 
                         unityMesh.RecalculateNormals();
 
+                    if (hasBones) {
+                        BoneWeight[] weights = packet.Vertices.Select(x => new BoneWeight() {
+                            boneIndex0 = getBoneForVertex(x),
+                            weight0 = 1f
+                        }).ToArray();
+                        unityMesh.boneWeights = weights;
+                        unityMesh.bindposes = bindPoses;
+                    }
+
                     GameObject gao = new GameObject($"Packet_{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
-                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                     gao.layer = LayerMask.NameToLayer("3D Collision");
                     gao.transform.SetParent(gameObject.transform, false);
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
-                    mf.mesh = unityMesh;
+                    mf.sharedMesh = unityMesh;
 
+                    Material mat = null;
                     if (packet.Mode.ABE)
-                        mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                        mat = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
                     else
-                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                        mat = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
+                    if (hasBones) {
+                        SkinnedMeshRenderer smr = gao.AddComponent<SkinnedMeshRenderer>();
+                        smr.sharedMaterial = new Material(mat);
+                        smr.sharedMesh = unityMesh;
+                        smr.bones = bones;
+                        smr.rootBone = bones[0];
+                    } else {
+                        MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                        mr.sharedMaterial = new Material(mat);
+                    }
                     // Add texture
                     if (packet.Mode.TME)
                     {
                         var tex = vramTexturesLookup[packet];
+                        mat.SetTexture("_MainTex", tex.Texture);
 
                         unityMesh.SetUVs(0, packet.UV.Select((uv, i) =>
                         {
@@ -1484,22 +1542,20 @@ namespace R1Engine
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
-                            animTex.material = mr.material;
+                            animTex.material = mat;
                             animTex.animatedTextures = tex.AnimatedTexture.Textures;
                             animTex.speed = new AnimSpeed_FrameDelay(tex.AnimatedTexture.Speed);
                         }
 
-                        mr.material.SetTexture("_MainTex", tex.Texture);
-
                         if (IncludeDebugInfo)
-                            mr.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, ABR: {packet.TSB.ABR}, IsAnimated: {tex.AnimatedTexture != null}";
+                            gao.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, ABR: {packet.TSB.ABR}, IsAnimated: {tex.AnimatedTexture != null}";
 
                         // Check for UV scroll animations
                         if (isPrimaryObj && packet.UV.Any(x => objectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
-                            animTex.material = mr.material;
+                            animTex.material = mat;
                             animTex.scrollV = -2f * 60f / (tex?.Bounds.height ?? 256);
                         }
                     }
