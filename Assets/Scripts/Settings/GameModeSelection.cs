@@ -1,11 +1,25 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Ray1Map.Gameloft;
+using Ray1Map.GBA;
+using Ray1Map.GBAIsometric;
+using Ray1Map.GBAKlonoa;
+using Ray1Map.GBARRR;
+using Ray1Map.GBAVV;
+using Ray1Map.GBC;
+using Ray1Map.GEN;
+using Ray1Map.KlonoaHeroes;
+using Ray1Map.PSKlonoa;
+using Ray1Map.Rayman1;
+using Ray1Map.Rayman1_Jaguar;
+using Ray1Map.SNES;
 
-namespace R1Engine {
-	/// <summary>
-	/// The available game modes to select from
-	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
+namespace Ray1Map
+{
+    /// <summary>
+    /// The available game modes to select from
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
 		#region Rayman 1

@@ -1,6 +1,6 @@
 ﻿using BinarySerializer.Ray1;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Extension methods for event types

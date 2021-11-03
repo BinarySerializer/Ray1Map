@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class PrefabsContainer : MonoBehaviour {
         // Reference to spritepart prefab
         public GameObject SpriteAnimation_Sprite;

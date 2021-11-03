@@ -7,7 +7,7 @@ using BinarySerializer;
 using BinarySerializer.Ray1;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class LevelEditorData
     {

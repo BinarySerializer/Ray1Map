@@ -1,4 +1,4 @@
-﻿namespace R1Engine
+﻿namespace Ray1Map
 {
     /// <summary>
     /// Editor history item for the Ray1Map editor

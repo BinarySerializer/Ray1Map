@@ -1,7 +1,9 @@
-﻿using R1Engine;
+﻿using Ray1Map;
 using System;
 using System.Linq;
 using BinarySerializer;
+using Ray1Map.GBAVV;
+using Ray1Map.Rayman1;
 using UnityEditor;
 using UnityEngine;
 

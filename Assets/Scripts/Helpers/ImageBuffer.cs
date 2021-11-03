@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Cysharp.Threading.Tasks;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class ImageBuffer {
 		private byte[] imageBuffer;
 		public void AddData(byte[] data) {

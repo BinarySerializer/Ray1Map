@@ -6,10 +6,12 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using Ray1Map.GBA;
+using Ray1Map.Rayman1;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace R1Engine
+namespace Ray1Map
 {
     [Serializable]
     public class UiTab {

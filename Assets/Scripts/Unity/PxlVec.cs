@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
     [System.Serializable]
     public struct PxlVec {
         public ushort x, y;

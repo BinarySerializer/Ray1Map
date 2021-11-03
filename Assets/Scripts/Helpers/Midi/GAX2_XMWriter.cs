@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using Cysharp.Threading.Tasks;
+using Ray1Map.GBARRR;
+using System;
 using System.Linq;
-using System.Text;
-using BinarySerializer;
-using Cysharp.Threading.Tasks;
-using UnityEngine;
 
-namespace R1Engine {
-	public class GAX2_XMWriter {
+namespace Ray1Map
+{
+    public class GAX2_XMWriter {
         public XM ConvertToXM(GAX2_Song song) {
             XM xm = new XM();
             UnityEngine.Debug.Log($"Exporting song: {song.ParsedName}");

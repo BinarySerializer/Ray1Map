@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Serializes a byte array as a hex string

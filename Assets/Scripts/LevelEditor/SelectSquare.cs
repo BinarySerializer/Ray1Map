@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace R1Engine {
+namespace Ray1Map {
     public class SelectSquare : MonoBehaviour {
         Unity_Level lvl => LevelEditorData.Level;
         Image main, overlay;

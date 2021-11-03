@@ -8,7 +8,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class PartialHttpStream : Stream, IDisposable {
 		private SortedList<long, byte[]> caches;
 		private const int CacheLen = 8192;

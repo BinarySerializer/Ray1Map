@@ -1,9 +1,10 @@
 ﻿using System;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using Ray1Map.Rayman1;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class R1MemoryData
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// A temporary file

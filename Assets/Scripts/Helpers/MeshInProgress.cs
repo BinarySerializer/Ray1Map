@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class MeshInProgress {
 		public string name;
 		public List<Vector3> vertices = new List<Vector3>();

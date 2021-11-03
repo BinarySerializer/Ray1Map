@@ -1,11 +1,21 @@
-﻿using Cysharp.Threading.Tasks;
-using R1Engine;
-
+﻿using BinarySerializer;
+using Cysharp.Threading.Tasks;
+using Ray1Map;
+using Ray1Map.Gameloft;
+using Ray1Map.GBA;
+using Ray1Map.GBAIsometric;
+using Ray1Map.GBAKlonoa;
+using Ray1Map.GBARRR;
+using Ray1Map.GBAVV;
+using Ray1Map.GBC;
+using Ray1Map.KlonoaHeroes;
+using Ray1Map.Rayman1;
+using Ray1Map.Rayman1_Jaguar;
+using Ray1Map.SNES;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using BinarySerializer;
 using UnityEngine;
 
 public class WebCommunicator : MonoBehaviour {

@@ -4,7 +4,7 @@ using BinarySerializer;
 using BinarySerializer.PS1;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Helper methods for palettes

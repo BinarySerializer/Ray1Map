@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class Controller : MonoBehaviour {
         public static Controller obj;
@@ -91,7 +91,7 @@ namespace R1Engine
             DetailedState = "Starting...";
 
             // Create the context
-            LevelEditorData.MainContext = new R1Context(Settings.GetGameSettings);
+            LevelEditorData.MainContext = new Ray1MapContext(Settings.GetGameSettings);
             await levelController.LoadLevelAsync(Settings.GetGameManager, LevelEditorData.MainContext);
             if (Settings.ScreenshotEnumeration) return;
 

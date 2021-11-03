@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Extension methods for <see cref="Enum"/>

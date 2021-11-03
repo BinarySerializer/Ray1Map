@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Attribute for the <see cref="GameModeSelection"/>

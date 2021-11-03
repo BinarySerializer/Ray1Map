@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using Ray1Map.GBA;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Pointer tables for rom games

@@ -4,7 +4,7 @@ using System.Linq;
 using BinarySerializer.PS1;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class PS1VRAMAnimation
     {

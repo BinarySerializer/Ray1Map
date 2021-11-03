@@ -1,12 +1,14 @@
 ﻿using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
-using R1Engine;
+using Ray1Map;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
+using Ray1Map.GBAVV;
+using Ray1Map.Rayman1;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -657,7 +659,7 @@ public class SettingsWindow : UnityWindow
                     settings.Level = lvl;
 
                     // Create the context
-                    var context = new R1Context(settings);
+                    var context = new Ray1MapContext(settings);
 
                     // Load the files
                     await manager.LoadFilesAsync(context);

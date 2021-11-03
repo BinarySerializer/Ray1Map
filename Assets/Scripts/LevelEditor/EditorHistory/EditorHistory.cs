@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Generic editor history

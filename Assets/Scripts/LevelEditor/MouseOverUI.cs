@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class MouseOverUI : MonoBehaviour {
         public Text textGraphic, textCollision;

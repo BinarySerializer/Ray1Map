@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Extension methods for <see cref="Dictionary{TKey,TValue}"/>

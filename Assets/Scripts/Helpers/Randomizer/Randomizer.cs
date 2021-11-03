@@ -1,8 +1,9 @@
-﻿using System;
+﻿using BinarySerializer.Ray1;
+using Ray1Map.Rayman1;
+using System;
 using System.Linq;
-using BinarySerializer.Ray1;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// The Rayman 1 event randomizer

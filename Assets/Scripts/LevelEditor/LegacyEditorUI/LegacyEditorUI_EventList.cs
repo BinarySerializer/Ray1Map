@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class LegacyEditorUI_EventList : MonoBehaviour {
         public RectTransform list;

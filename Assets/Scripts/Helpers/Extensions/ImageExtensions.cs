@@ -5,7 +5,7 @@ using BinarySerializer.Image;
 using ImageMagick;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class ImageExtensions
     {

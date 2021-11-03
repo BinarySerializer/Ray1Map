@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Extension method for <see cref="IEnumerable{T}"/>

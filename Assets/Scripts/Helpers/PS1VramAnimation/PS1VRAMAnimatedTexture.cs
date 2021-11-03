@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class PS1VRAMAnimatedTexture
     {

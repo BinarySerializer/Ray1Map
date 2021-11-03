@@ -10,7 +10,7 @@ using BinarySerializer;
 using BinarySerializer.GBA;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class Util {
         public static bool ByteArrayToFile(string fileName, byte[] byteArray) {

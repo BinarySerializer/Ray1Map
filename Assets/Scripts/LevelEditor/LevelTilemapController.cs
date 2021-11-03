@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class LevelTilemapController : MonoBehaviour {
         public bool[] IsLayerVisible { get; set; }

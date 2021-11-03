@@ -9,7 +9,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace R1Engine {
+namespace Ray1Map {
     public static class FileSystem {
 		public enum Mode {
 			Normal, Web

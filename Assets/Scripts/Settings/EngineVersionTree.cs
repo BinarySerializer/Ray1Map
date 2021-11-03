@@ -1,6 +1,6 @@
 ﻿using BinarySerializer;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class EngineVersionTree : VersionTree<EngineVersion>
     {

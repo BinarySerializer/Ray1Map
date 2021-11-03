@@ -11,7 +11,7 @@ using System.IO;
 #if (ISWINDOWS || ISLINUX)
 using System.Runtime.Remoting;
 #endif
-namespace R1Engine {
+namespace Ray1Map {
 	/// <summary>
 	/// Wraps a stream for all operations except Close and Dispose, which
 	/// merely flush the stream and prevent further operations from being

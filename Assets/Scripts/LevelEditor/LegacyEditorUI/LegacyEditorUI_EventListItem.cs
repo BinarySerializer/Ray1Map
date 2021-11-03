@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class LegacyEditorUI_EventListItem : MonoBehaviour, IPointerDownHandler {
         public Unity_SpriteObjBehaviour ev;

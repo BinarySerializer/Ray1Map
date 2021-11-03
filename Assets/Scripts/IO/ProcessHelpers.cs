@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Debug = UnityEngine.Debug;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class ProcessHelpers
     {

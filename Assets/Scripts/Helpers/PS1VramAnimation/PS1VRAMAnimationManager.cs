@@ -4,7 +4,7 @@ using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class PS1VRAMAnimationManager
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class LegacyEditorUIController : MonoBehaviour {
 		public Controller Controller;
         public LegacyEditorUIController_Objects ObjectsUI;

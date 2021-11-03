@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace R1Engine {
+namespace Ray1Map {
     public class EditorCam : MonoBehaviour {
 
         public bool pixelSnap;

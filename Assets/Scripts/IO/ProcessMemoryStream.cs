@@ -29,7 +29,7 @@ using c_long = System.Int32; // Mandated to be same size as pointer on Linux
 #endif
 #endif
 
-namespace R1Engine {
+namespace Ray1Map {
     public class ProcessMemoryStream : Stream {
 #if ISWINDOWS
         [DllImport("kernel32.dll")]

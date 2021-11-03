@@ -1,4 +1,4 @@
-﻿namespace R1Engine
+﻿namespace Ray1Map
 {
     public enum GBAVV_Pointer
     {

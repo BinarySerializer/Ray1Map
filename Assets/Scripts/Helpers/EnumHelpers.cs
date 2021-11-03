@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Helper methods for an <see cref="Enum"/>

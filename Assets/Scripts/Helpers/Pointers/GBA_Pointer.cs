@@ -1,4 +1,4 @@
-﻿namespace R1Engine
+﻿namespace Ray1Map
 {
     /// <summary>
     /// The type of Rayman 3 GBA pointers

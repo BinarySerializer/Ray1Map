@@ -1,6 +1,11 @@
 ﻿using BinarySerializer.Ray1;
+using Ray1Map.Gameloft;
+using Ray1Map.GBAIsometric;
+using Ray1Map.GBARRR;
+using Ray1Map.GBAVV;
+using Ray1Map.GBC;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class TileCollisionTypeExtensions
     {

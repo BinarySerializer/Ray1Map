@@ -1,13 +1,16 @@
-﻿using System;
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
+using Ray1Map.Gameloft;
+using Ray1Map.GBAVV;
+using Ray1Map.Rayman1;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BinarySerializer;
-using BinarySerializer.Ray1;
 using UnityEngine;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class WebJSONHelpers
     {
@@ -75,7 +78,7 @@ namespace R1Engine
             {
                 var settings = new GameSettings(mode, subDir, 1, 1);
 
-                using (var context = new R1Context(settings))
+                using (var context = new Ray1MapContext(settings))
                 {
                     foreach (var v in m.GetLevels(settings))
                     {
@@ -291,7 +294,7 @@ namespace R1Engine
 
                 var worldCounts = new int[worlds.Length];
 
-                using (var context = new R1Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                using (var context = new Ray1MapContext(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
                 {
                     var m = (Gameloft_RRR_Manager)context.GetR1Settings().GetGameManager;
                     await m.LoadFilesAsync(context);
@@ -333,7 +336,7 @@ namespace R1Engine
             {
                 var values = mode.ToString().Split('_');
 
-                using (var context = new R1Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                using (var context = new Ray1MapContext(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
                 {
                     var m = (Gameloft_RK_Manager)context.GetR1Settings().GetGameManager;
                     await m.LoadFilesAsync(context);

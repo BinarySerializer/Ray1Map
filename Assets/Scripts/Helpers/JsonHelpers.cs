@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// Helper methods for JSON

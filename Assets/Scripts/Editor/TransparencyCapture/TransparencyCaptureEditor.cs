@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using R1Engine;
+using Ray1Map;
 
 [CustomEditor(typeof(TransparencyCaptureBehaviour))]
 public class TransparencyCaptureBehaviourEditor : Editor {

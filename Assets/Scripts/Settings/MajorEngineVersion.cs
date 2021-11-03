@@ -1,4 +1,4 @@
-﻿namespace R1Engine
+﻿namespace Ray1Map
 {
     /// <summary>
     /// The major engine versions supported by Ray1Map

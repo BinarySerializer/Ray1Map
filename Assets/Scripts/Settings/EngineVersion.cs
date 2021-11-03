@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace R1Engine
+namespace Ray1Map
 {
     /// <summary>
     /// The available game modes

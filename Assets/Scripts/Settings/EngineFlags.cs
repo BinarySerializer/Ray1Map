@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace R1Engine
+namespace Ray1Map
 {
     [Flags]
     public enum EngineFlags

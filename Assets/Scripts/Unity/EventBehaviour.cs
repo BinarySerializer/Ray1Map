@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
     public class EventBehaviour : MonoBehaviour {
         public static GameObject resource { get {
                 if (_resource == null) _resource = Resources.Load<GameObject>("Event");

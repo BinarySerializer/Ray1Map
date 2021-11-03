@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace R1Engine {
+namespace Ray1Map {
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoad]
 #endif

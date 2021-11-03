@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static UnityEngine.Input;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public class LevelEditorBehaviour : MonoBehaviour {
         //Settings

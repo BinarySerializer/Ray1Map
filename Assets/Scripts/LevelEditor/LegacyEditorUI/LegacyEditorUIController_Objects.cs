@@ -3,10 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Ray1Map.Rayman1;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine {
+namespace Ray1Map {
 	public class LegacyEditorUIController_Objects : MonoBehaviour {
 		public LegacyEditorUIController UIController;
 

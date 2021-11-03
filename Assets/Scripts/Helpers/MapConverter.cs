@@ -2,15 +2,16 @@
 using BinarySerializer;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
+using Ray1Map.Rayman1;
 
-namespace R1Engine
+namespace Ray1Map
 {
     public static class MapConverter
     {
         public static async UniTask MapperToKITAsync(GameSettings inputSettings, GameSettings outputSettings)
         {
-            using var inputContext = new R1Context(inputSettings);
-            using var outputContext = new R1Context(outputSettings);
+            using var inputContext = new Ray1MapContext(inputSettings);
+            using var outputContext = new Ray1MapContext(outputSettings);
 
             // Create managers
             var mapperManager = new R1_Mapper_Manager();
