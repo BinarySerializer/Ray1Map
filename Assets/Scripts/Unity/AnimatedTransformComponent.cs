@@ -61,12 +61,12 @@ public class AnimatedTransformComponent : MonoBehaviour
 
         var lerpFactor = speed.CurrentFrame - frameInt;
 
-        transform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
-        transform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);
+        animatedTransform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
+        animatedTransform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);
 
         if (currentFrame.IsHidden)
-            transform.localScale = Vector3.zero;
+            animatedTransform.localScale = Vector3.zero;
         else
-            transform.localScale = Vector3.Lerp(currentFrame.Scale, nextFrame.Scale, lerpFactor);
+            animatedTransform.localScale = Vector3.Lerp(currentFrame.Scale, nextFrame.Scale, lerpFactor);
     }
 }

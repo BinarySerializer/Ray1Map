@@ -1148,7 +1148,7 @@ namespace R1Engine
             // Add scenery objects
             objects.AddRange(loader.LevelData3D.SectorGameObjects3D[sector].Objects.
                 Where(x => x.Data_ScenerySprites != null || x.Data_LightPositions != null).
-                SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Positions[0]).
+                SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Vectors[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
             {
                 Position = PSKlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
@@ -1278,9 +1278,10 @@ namespace R1Engine
             string name, 
             PSKlonoa_DTP_GameObjectsLoader objectsLoader, 
             bool isPrimaryObj,
-            ObjTransform_ArchiveFile[] transforms = null, 
+            ModelAnimation_ArchiveFile[] animations = null, 
             AnimSpeed animSpeed = null, 
-            AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
+            AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
+            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null)
         {
             bool isAnimated = false;
 
@@ -1345,8 +1346,8 @@ namespace R1Engine
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
                 int getBoneForVertex(int vertexIndex) {
-                    if(obj.Parts == null) return -1;
-                    return obj.Parts.FindItemIndex(b => b.VertexIndex <= vertexIndex && b.VertexIndex + b.VerticesCount > vertexIndex) + 1;
+                    if(obj.Bones == null) return -1;
+                    return obj.Bones.FindItemIndex(b => b.VerticesIndex <= vertexIndex && b.VerticesIndex + b.VerticesCount > vertexIndex) + 1;
                 }
 
                 GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
@@ -1355,11 +1356,11 @@ namespace R1Engine
                 gameObject.transform.localScale = Vector3.one;
 
                 // Init bones
-                bool hasBones = obj.PartsCount > 0;
+                bool hasBones = obj.BonesCount > 0;
                 Transform[] bones = null;
                 Matrix4x4[] bindPoses = null;
                 if (hasBones) {
-                    bones = new Transform[obj.Parts.Length + 1];
+                    bones = new Transform[obj.Bones.Length + 1];
                     for (int i = 0; i < bones.Length; i++) {
                         var b = new GameObject($"Bone {i}");
                         b.transform.SetParent(gameObject.transform);
@@ -1373,9 +1374,9 @@ namespace R1Engine
                         b.transform.localScale = Vector3.one;
                     }
                     // Init other bones
-                    for (int i = 0; i < obj.Parts.Length; i++) {
+                    for (int i = 0; i < obj.Bones.Length; i++) {
                         var b = bones[i+1];
-                        b.transform.SetParent(bones[obj.Parts[i].ParentPartIndex]);
+                        b.transform.SetParent(bones[obj.Bones[i].ParentIndex]);
                         b.transform.localPosition = Vector3.zero;
                         b.transform.localRotation = Quaternion.identity;
                         b.transform.localScale = Vector3.one;
@@ -1385,12 +1386,57 @@ namespace R1Engine
                     for (int i = 0; i < bindPoses.Length; i++) {
                         bindPoses[i] = bones[i].worldToLocalMatrix * gameObject.transform.localToWorldMatrix;
                     }
-                }
 
+                    if (boneAnimations != null)
+                    {
+                        // TODO: Support multiple animations
+                        ModelBoneAnimation_ArchiveFile anim = boneAnimations.Files[10];
+
+                        for (int boneIndex = 0; boneIndex < anim.Rotations.BonesCount; boneIndex++)
+                        {
+                            short frameCount = anim.Rotations.FramesCount;
+
+                            var animComponent = gameObject.AddComponent<AnimatedTransformComponent>();
+                            animComponent.animatedTransform = bones[boneIndex + 1];
+
+                            if (animSpeed != null)
+                                animComponent.speed = animSpeed;
+
+                            animComponent.loopMode = animLoopMode;
+
+                            var rotX = anim.Rotations.GetValues(boneIndex * 3 + 0);
+                            var rotY = anim.Rotations.GetValues(boneIndex * 3 + 1);
+                            var rotZ = anim.Rotations.GetValues(boneIndex * 3 + 2);
+
+                            var positions = anim.Positions.Vectors.
+                                Select(x => PSKlonoaHelpers.GetPositionVector(x[boneIndex], Vector3.zero, scale)).
+                                ToArray();
+                            var rotations = Enumerable.Range(0, frameCount).
+                                Select(x => PSKlonoaHelpers.GetQuaternion(rotX[x], rotY[x], rotZ[x])).
+                                ToArray();
+
+                            animComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
+
+                            for (int i = 0; i < frameCount; i++)
+                            {
+                                animComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                                {
+                                    Position = positions[i],
+                                    Rotation = rotations[i],
+                                    Scale = Vector3.one,
+                                };
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Object has bones but no animation");
+                    }
+                }
 
                 var isTransformAnimated = ApplyTransform(
                     gameObj: gameObject, 
-                    transforms: transforms, 
+                    transforms: animations, 
                     scale: scale, 
                     objIndex: objIndex, 
                     animSpeed: animSpeed?.CloneAnimSpeed(), 
@@ -1565,15 +1611,15 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public bool ApplyTransform(GameObject gameObj, ObjTransform_ArchiveFile[] transforms, float scale, int objIndex = 0, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
+        public bool ApplyTransform(GameObject gameObj, ModelAnimation_ArchiveFile[] transforms, float scale, int objIndex = 0, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
         {
-            if (transforms?.Any() == true && transforms[0].Positions.Positions[0].Length == 1)
+            if (transforms?.Any() == true && transforms[0].Positions.Vectors[0].Length == 1)
                 objIndex = 0;
 
             if (transforms != null && transforms.Any() && transforms[0].Positions.ObjectsCount > objIndex)
             {
-                gameObj.transform.localPosition = PSKlonoaHelpers.GetPositionVector(transforms[0].Positions.Positions[0][objIndex], null, scale);
-                gameObj.transform.localRotation = PSKlonoaHelpers.GetQuaternion(transforms[0].Rotations.Rotations[0][objIndex]);
+                gameObj.transform.localPosition = PSKlonoaHelpers.GetPositionVector(transforms[0].Positions.Vectors[0][objIndex], null, scale);
+                gameObj.transform.localRotation = PSKlonoaHelpers.GetQuaternion(transforms[0].Rotations.Vectors[0][objIndex]);
             }
             else
             {
@@ -1581,7 +1627,7 @@ namespace R1Engine
                 gameObj.transform.localRotation = Quaternion.identity;
             }
 
-            if (transforms?.FirstOrDefault()?.Positions.Positions.Length > 1)
+            if (transforms?.FirstOrDefault()?.Positions.Vectors.Length > 1)
             {
                 var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                 mtComponent.animatedTransform = gameObj.transform;
@@ -1592,11 +1638,11 @@ namespace R1Engine
                 mtComponent.loopMode = animLoopMode;
 
                 var positions = transforms.
-                    SelectMany(x => x.Positions.Positions).
+                    SelectMany(x => x.Positions.Vectors).
                     Select(x => x.Length > objIndex ? PSKlonoaHelpers.GetPositionVector(x[objIndex], null, scale) : (Vector3?)null).
                     ToArray();
                 var rotations = transforms.
-                    SelectMany(x => x.Rotations.Rotations).
+                    SelectMany(x => x.Rotations.Vectors).
                     Select(x => x.Length > objIndex ? PSKlonoaHelpers.GetQuaternion(x[objIndex]) : (Quaternion?)null).
                     ToArray();
 

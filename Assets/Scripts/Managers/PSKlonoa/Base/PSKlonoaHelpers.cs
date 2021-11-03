@@ -206,9 +206,9 @@ namespace R1Engine
             return value * (360f / 0x1000);
         }
 
-        public static Quaternion GetQuaternion(ObjRotation rot)
+        public static Quaternion GetQuaternion(KlonoaVector16 rot)
         {
-            return GetQuaternion(rot.RotationX, rot.RotationY, rot.RotationZ);
+            return GetQuaternion(rot.X, rot.Y, rot.Z);
         }
 
         public static Quaternion GetQuaternion(float rotX, float rotY, float rotZ)

@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Klonoa;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -84,7 +85,7 @@ namespace R1Engine
             }
         }
 
-        private HashSet<ObjTransform_ArchiveFile> _correctedTransforms;
+        private HashSet<ModelAnimation_ArchiveFile> _correctedTransforms;
         public void LoadGameObject3D(GameObject3D obj3D, LoadLoop loop)
         {
             // Ignore invalid objects
@@ -238,10 +239,10 @@ namespace R1Engine
                         break;
 
                     case GlobalGameObjectType.FallingTargetPlatform:
-                        _correctedTransforms ??= new HashSet<ObjTransform_ArchiveFile>();
+                        _correctedTransforms ??= new HashSet<ModelAnimation_ArchiveFile>();
 
-                        foreach (var rot in obj3D.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Rotations).SelectMany(x => x))
-                            rot.RotationX += 0x400;
+                        foreach (var rot in obj3D.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Vectors).SelectMany(x => x))
+                            rot.X += 0x400;
                         
                         foreach (var f in obj3D.Data_LocalTransforms.Files)
                             _correctedTransforms.Add(f);
@@ -254,7 +255,8 @@ namespace R1Engine
                     tmd: obj3D.Data_TMD, 
                     localTransforms: obj3D.Data_LocalTransform?.YieldToArray() ?? obj3D.Data_LocalTransforms?.Files, 
                     absoluteTransforms: obj3D.Data_AbsoluteTransform?.YieldToArray() ?? obj3D.Data_AbsoluteTransforms?.Files, 
-                    multiple: isMultiple);
+                    multiple: isMultiple,
+                    modelAnims: obj3D.ModelAnimations);
 
                 // Apply a position if available
                 if (obj3D.Data_Position != null)
@@ -300,10 +302,11 @@ namespace R1Engine
         public GameObject GameObj_LoadTMD(
             GameObject3D obj3D, 
             PS1_TMD tmd, 
-            ObjTransform_ArchiveFile[] localTransforms = null, 
-            ObjTransform_ArchiveFile[] absoluteTransforms = null, 
+            ModelAnimation_ArchiveFile[] localTransforms = null, 
+            ModelAnimation_ArchiveFile[] absoluteTransforms = null, 
             int index = 0, 
-            bool multiple = false)
+            bool multiple = false,
+            ArchiveFile<ModelBoneAnimation_ArchiveFile> modelAnims = null)
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
@@ -318,9 +321,10 @@ namespace R1Engine
                 name: $"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})",
                 objectsLoader: this,
                 isPrimaryObj: false,
-                transforms: localTransforms,
+                animations: localTransforms,
                 animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
-                animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+                animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
+                boneAnimations: modelAnims);
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
