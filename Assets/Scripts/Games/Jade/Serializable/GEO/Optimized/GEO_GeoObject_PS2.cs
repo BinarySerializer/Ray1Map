@@ -25,11 +25,11 @@ namespace Ray1Map.Jade {
 		}
 
 		public class Bone : BinarySerializable {
-			public uint UInt_00 { get; set; }
+			public uint Index { get; set; }
 			public Jade_Matrix Matrix { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+				Index = s.Serialize<uint>(Index, name: nameof(Index));
 				Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 			}
 		}
@@ -72,10 +72,10 @@ namespace Ray1Map.Jade {
 				public uint UInt2 { get; set; } // Unused
 				public uint BonesCount { get; set; }
 				public byte[] Bones { get; set; }
-				public uint VIFPrograms1Count { get; set; }
-				public VIFProgram1[] VIFPrograms1 { get; set; }
-				public uint VIFPrograms2Count { get; set; }
-				public VIFProgram2[] VIFPrograms2 { get; set; }
+				public uint VIFProgramsCount { get; set; }
+				public VIFProgram[] VIFPrograms { get; set; }
+				public uint DMAChainProgramsCount { get; set; }
+				public PS2_DMAChainProgram[] DMAChainPrograms { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					BoundingVolumeMin = s.SerializeObject<Jade_Vector>(BoundingVolumeMin, name: nameof(BoundingVolumeMin));
@@ -85,49 +85,27 @@ namespace Ray1Map.Jade {
 					UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
 					BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 					Bones = s.SerializeArray<byte>(Bones, BonesCount, name: nameof(Bones));
-					VIFPrograms1Count = s.Serialize<uint>(VIFPrograms1Count, name: nameof(VIFPrograms1Count));
-					VIFPrograms1 = s.SerializeObjectArray<VIFProgram1>(VIFPrograms1, VIFPrograms1Count, name: nameof(VIFPrograms1));
-					if (s.GetR1Settings().Platform != Platform.PSP) {
-						VIFPrograms2Count = s.Serialize<uint>(VIFPrograms2Count, name: nameof(VIFPrograms2Count));
-						VIFPrograms2 = s.SerializeObjectArray<VIFProgram2>(VIFPrograms2, VIFPrograms2Count, name: nameof(VIFPrograms2));
+					VIFProgramsCount = s.Serialize<uint>(VIFProgramsCount, name: nameof(VIFProgramsCount));
+					VIFPrograms = s.SerializeObjectArray<VIFProgram>(VIFPrograms, VIFProgramsCount, name: nameof(VIFPrograms));
+					if (s.GetR1Settings().Platform == Platform.PS2) {
+						DMAChainProgramsCount = s.Serialize<uint>(DMAChainProgramsCount, name: nameof(DMAChainProgramsCount));
+						DMAChainPrograms = s.SerializeObjectArray<PS2_DMAChainProgram>(DMAChainPrograms, DMAChainProgramsCount, name: nameof(DMAChainPrograms));
 					}
 				}
 
-				public class VIFProgram2 : BinarySerializable {
-					public uint ID { get; set; } // Used as address (ADDR = ID << 24)
+				public class VIFProgram : BinarySerializable {
+					public int ID { get; set; } // Used as address (ADDR = ID << 24)
 					public uint DataSize { get; set; }
 					public byte[] Bytes { get; set; } // GeometryCommands
-					public PS2_GeometryCommand[] Commands { get; set; }
-					public override void SerializeImpl(SerializerObject s) {
-						ID = s.Serialize<uint>(ID, name: nameof(ID));
-						DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
-						Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
-						/*Commands = s.SerializeObjectArrayUntil<PS2_GeometryCommand>(Commands, gc => s.CurrentAbsoluteOffset >= Offset.AbsoluteOffset + 8 + DataSize, name: nameof(Commands));
-						if(s.CurrentAbsoluteOffset > Offset.AbsoluteOffset + 8 + DataSize) {
-							s.LogWarning($"{Offset}: Read too many geometry commands");
-						}
-						s.Goto(Offset + 8 + DataSize);*/
-					}
-				}
 
-				public class VIFProgram1 : BinarySerializable {
-					public uint ID { get; set; } // Used as address (ADDR = ID << 24)
-					public uint DataSize { get; set; }
-					public byte[] Bytes { get; set; } // GeometryCommands
-					public PS2_GeometryCommand[] Commands { get; set; }
 					public override void SerializeImpl(SerializerObject s) {
 						if (s.GetR1Settings().Platform == Platform.PSP) {
 							ID = s.Serialize<ushort>((ushort)ID, name: nameof(ID));
 						} else {
-							ID = s.Serialize<uint>(ID, name: nameof(ID));
+							ID = s.Serialize<int>(ID, name: nameof(ID));
 						}
 						DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 						Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
-						/*Commands = s.SerializeObjectArrayUntil<PS2_GeometryCommand>(Commands, gc => s.CurrentAbsoluteOffset >= Offset.AbsoluteOffset + 8 + DataSize, name: nameof(Commands));
-						if (s.CurrentAbsoluteOffset > Offset.AbsoluteOffset + 8 + DataSize) {
-							s.LogWarning($"{Offset}: Read too many geometry commands");
-						}
-						s.Goto(Offset + 8 + DataSize);*/
 					}
 				}
 			}
