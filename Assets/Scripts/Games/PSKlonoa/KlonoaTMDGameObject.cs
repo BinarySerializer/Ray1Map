@@ -72,37 +72,44 @@ namespace Ray1Map.PSKlonoa
                 return;
             }
 
-            // TODO: Support multiple animations
-            ModelBoneAnimation_ArchiveFile anim = BoneAnimations.Files[10];
             var animComponent = gameObject.AddComponent<SkeletonAnimationComponent>();
-            animComponent.bones = new SkeletonAnimationComponent.Bone[obj.Bones.Length];
+            animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Files.Length];
 
             if (AnimSpeed != null)
                 animComponent.speed = AnimSpeed;
 
             animComponent.loopMode = AnimLoopMode;
 
-            for (int boneIndex = 0; boneIndex < animComponent.bones.Length; boneIndex++)
+            for (int animIndex = 0; animIndex < BoneAnimations.Files.Length; animIndex++)
             {
+                ModelBoneAnimation_ArchiveFile anim = BoneAnimations.Files[animIndex];
+                animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[obj.Bones.Length];
+
                 short frameCount = anim.Rotations.FramesCount;
 
-                animComponent.bones[boneIndex].animatedTransform = bones[boneIndex + 1];
-
-                Vector3[] positions = anim.GetPositions(boneIndex, Scale);
-                Quaternion[] rotations = anim.GetRotations(boneIndex);
-
-                animComponent.bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
-
-                for (int i = 0; i < frameCount; i++)
+                for (int boneIndex = 0; boneIndex < animComponent.animations[animIndex].bones.Length; boneIndex++)
                 {
-                    animComponent.bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
+                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + 1];
+
+                    Vector3[] positions = anim.GetPositions(boneIndex, Scale);
+                    Quaternion[] rotations = anim.GetRotations(boneIndex);
+
+                    animComponent.animations[animIndex].bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
+
+                    for (int i = 0; i < frameCount; i++)
                     {
-                        Position = positions[i],
-                        Rotation = rotations[i],
-                        Scale = Vector3.one,
-                    };
+                        animComponent.animations[animIndex].bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
+                        {
+                            Position = positions[i],
+                            Rotation = rotations[i],
+                            Scale = Vector3.one,
+                        };
+                    }
                 }
             }
+
+            // TODO: Support selecting multiple animations
+            animComponent.CombineAnimations(obj.BonesCount);
         }
 
         protected override void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex)

@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class SkeletonAnimationComponent : MonoBehaviour
 {
-    public Bone[] bones;
+    public Animation[] animations;
     public AnimSpeed speed = new AnimSpeed_FrameDelay(1);
     public AnimLoopMode loopMode = AnimLoopMode.Repeat;
+    public int animIndex;
 
-    public int FramesCount => bones?.FirstOrDefault().frames?.Length ?? 0;
+    public Animation CurrentAnimation => animations[animIndex];
+
+    public struct Animation
+    {
+        public Bone[] bones;
+        public int FramesCount => bones?.FirstOrDefault().frames?.Length ?? 0;
+    }
 
     public struct Bone
     {
@@ -30,14 +37,15 @@ public class SkeletonAnimationComponent : MonoBehaviour
         if (Controller.LoadState != Controller.State.Finished || !Settings.AnimateTiles) 
             return;
 
-        if (bones == null || speed == null)
+        if (animations == null || speed == null)
             return;
 
-        int framesCount = FramesCount;
+        Animation anim = CurrentAnimation;
+        int framesCount = anim.FramesCount;
 
         speed.Update(framesCount, loopMode);
 
-        var frameInt = speed.CurrentFrameInt;
+        int frameInt = speed.CurrentFrameInt;
 
         int nextFrameIndex = frameInt + 1 * speed.Direction;
 
@@ -66,7 +74,7 @@ public class SkeletonAnimationComponent : MonoBehaviour
 
         float lerpFactor = speed.CurrentFrame - frameInt;
 
-        foreach (Bone bone in bones)
+        foreach (Bone bone in anim.bones)
         {
             Frame currentFrame = bone.frames[frameInt];
             Frame nextFrame = bone.frames[nextFrameIndex];
@@ -79,5 +87,27 @@ public class SkeletonAnimationComponent : MonoBehaviour
             else
                 bone.animatedTransform.localScale = Vector3.Lerp(currentFrame.Scale, nextFrame.Scale, lerpFactor);
         }
+    }
+
+    public void CombineAnimations(int bonesCount)
+    {
+        var bones = new Bone[bonesCount];
+
+        for (int boneIndex = 0; boneIndex < bonesCount; boneIndex++)
+        {
+            bones[boneIndex] = new Bone()
+            {
+                animatedTransform = animations[0].bones[boneIndex].animatedTransform,
+                frames = animations.SelectMany(x => x.bones[boneIndex].frames).ToArray(),
+            };
+        }
+
+        animations = new Animation[]
+        {
+            new Animation()
+            {
+                bones = bones
+            }
+        };
     }
 }
