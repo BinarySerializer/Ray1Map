@@ -310,21 +310,20 @@ namespace Ray1Map.PSKlonoa
         {
             if (tmd == null) 
                 throw new ArgumentNullException(nameof(tmd));
-            
-            GameObject gameObj;
-            bool isAnimated;
 
-            (gameObj, isAnimated) = Manager.CreateGameObject(
-                tmd: tmd,
-                loader: Loader,
-                scale: Scale,
-                name: $"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})",
-                objectsLoader: this,
-                isPrimaryObj: false,
-                animations: localTransforms,
-                animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
-                animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
-                boneAnimations: modelAnims);
+            var tmdGameObj = new KlonoaTMDGameObject(
+                    tmd: tmd,
+                    loader: Loader,
+                    scale: Scale,
+                    objectsLoader: this,
+                    isPrimaryObj: false,
+                    animations: localTransforms,
+                    animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
+                    animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
+                    boneAnimations: modelAnims);
+
+            GameObject gameObj = tmdGameObj.CreateGameObject($"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
+            bool isAnimated = tmdGameObj.HasAnimations;
 
             if (isAnimated)
                 GameObj_IsAnimated = true;
@@ -336,7 +335,7 @@ namespace Ray1Map.PSKlonoa
                 var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
 
                 // Apply the absolute transform
-                isAnimated = Manager.ApplyTransform(
+                isAnimated = KlonoaHelpers.ApplyTransform(
                     gameObj: gameObj, 
                     transforms: absoluteTransforms, 
                     scale: Scale, 
@@ -358,7 +357,7 @@ namespace Ray1Map.PSKlonoa
 
         public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, Vector3? posOffset = null)
         {
-            obj.transform.position = PSKlonoaHelpers.GetPositionVector(pos, posOffset, Scale);
+            obj.transform.position = pos.GetPositionVector(posOffset, Scale);
         }
 
         public void LoadBackgroundObject(BackgroundGameObject bgObj, LoadLoop loop)

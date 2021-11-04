@@ -6,10 +6,10 @@ namespace Ray1Map.PSKlonoa
 {
     public sealed class Unity_Object_PSKlonoa_DTP_Enemy : Unity_Object_BasePSKlonoa_DTP
     {
-        public Unity_Object_PSKlonoa_DTP_Enemy(Unity_ObjectManager_PSKlonoa_DTP objManager, EnemyObject obj, float scale, PSKlonoaHelpers.ObjSpriteInfo spriteInfo) : base(objManager)
+        public Unity_Object_PSKlonoa_DTP_Enemy(Unity_ObjectManager_PSKlonoa_DTP objManager, EnemyObject obj, float scale, PSKlonoa_DTP_BaseManager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
-            Position = PSKlonoaHelpers.GetPosition(obj.Position.X.Value, obj.Position.Y.Value, obj.Position.Z.Value, scale);
+            Position = KlonoaHelpers.GetPosition(obj.Position.X.Value, obj.Position.Y.Value, obj.Position.Z.Value, scale);
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;

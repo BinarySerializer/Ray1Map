@@ -29,11 +29,11 @@ namespace Ray1Map.PSKlonoa
                 {
                     var lastPoint = points.LastOrDefault();
 
-                    points.Add(lastPoint + PSKlonoaHelpers.GetPosition(frame.RelativePositionX, frame.RelativePositionY, frame.RelativePositionZ, Scale));
+                    points.Add(lastPoint + KlonoaHelpers.GetPosition(frame.RelativePositionX, frame.RelativePositionY, frame.RelativePositionZ, Scale));
                 }
                 else
                 {
-                    points.Add(PSKlonoaHelpers.GetPosition(frame.AbsolutePositionX, frame.AbsolutePositionY, frame.AbsolutePositionZ, Scale));
+                    points.Add(KlonoaHelpers.GetPosition(frame.AbsolutePositionX, frame.AbsolutePositionY, frame.AbsolutePositionZ, Scale));
                 }
             }
 
@@ -48,8 +48,8 @@ namespace Ray1Map.PSKlonoa
 
             Quaternion GetQuaternion(float rotX, float rotY) {
                 return Quaternion.Euler(
-                    PSKlonoaHelpers.GetRotationInDegrees(rotX),
-                    -PSKlonoaHelpers.GetRotationInDegrees(rotY), 0f);
+                    KlonoaHelpers.GetRotationInDegrees(rotX),
+                    -KlonoaHelpers.GetRotationInDegrees(rotY), 0f);
             }
 
             foreach (CameraAnimationFrame frame in Animation.Frames)

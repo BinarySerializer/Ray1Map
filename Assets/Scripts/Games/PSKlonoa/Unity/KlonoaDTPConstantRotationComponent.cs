@@ -43,7 +43,7 @@ public class KlonoaDTPConstantRotationComponent : MonoBehaviour
             case RotationAxis.Z: rotZ = value; break;
         }
 
-        animatedTransform.localRotation = initialRotation * PSKlonoaHelpers.GetQuaternion(rotX, rotY, rotZ);
+        animatedTransform.localRotation = initialRotation * KlonoaHelpers.GetQuaternion(rotX, rotY, rotZ);
     }
 
     public enum RotationAxis

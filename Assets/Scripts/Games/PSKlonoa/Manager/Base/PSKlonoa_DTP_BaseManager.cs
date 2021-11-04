@@ -19,7 +19,7 @@ namespace Ray1Map.PSKlonoa
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
-        private static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
+        public static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
 
         public virtual (string, int)[] Levels => new (string, int)[]
         {
@@ -255,10 +255,10 @@ namespace Ray1Map.PSKlonoa
                 // WORLD MAP TEXTURES
                 for (var i = 0; i < wldMap?.SpriteSheets.Files.Length; i++)
                 {
-                    var tim = wldMap.SpriteSheets.Files[i];
+                    PS1_TIM tim = wldMap.SpriteSheets.Files[i];
 
                     exportTex(
-                        getTex: () => GetTexture(tim),
+                        getTex: () => tim.GetTexture(),
                         blockName: $"{blockIndex} - WorldMapTextures",
                         name: $"{i}");
                 }
@@ -326,9 +326,9 @@ namespace Ray1Map.PSKlonoa
 
                     for (var j = 0; j < tims.Files.Length; j++)
                     {
-                        var tim = tims.Files[j];
+                        PS1_TIM tim = tims.Files[j];
                         exportTex(
-                            getTex: () => GetTexture(tim, onlyFirstTransparent: true),
+                            getTex: () => tim.GetTexture(onlyFirstTransparent: true),
                             blockName: $"{blockIndex} - MenuBackgrounds",
                             name: $"{i} - {j}");
                     }
@@ -342,9 +342,9 @@ namespace Ray1Map.PSKlonoa
                     
                     for (var i = 0; i < timArchive.Files.Length; i++)
                     {
-                        var tim = timArchive.Files[i];
+                        PS1_TIM tim = timArchive.Files[i];
                         exportTex(
-                            getTex: () => GetTexture(tim),
+                            getTex: () => tim.GetTexture(),
                             blockName: $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
                             name: $"{fileIndex} - {i}");
                     }
@@ -364,7 +364,7 @@ namespace Ray1Map.PSKlonoa
                             if (obj.Data_TIM != null)
                             {
                                 exportTex(
-                                    getTex: () => GetTexture(obj.Data_TIM),
+                                    getTex: () => obj.Data_TIM.GetTexture(),
                                     blockName: $"{blockIndex} - GameObjectTextures",
                                     name: $"{sectorIndex} - {objIndex} - Texture");
                             }
@@ -376,7 +376,7 @@ namespace Ray1Map.PSKlonoa
                                 for (int texIndex = 0; texIndex < textures.Files.Length; texIndex++)
                                 {
                                     exportTex(
-                                        getTex: () => GetTexture(textures.Files[texIndex]),
+                                        getTex: () => textures.Files[texIndex].Obj.GetTexture(),
                                         blockName: $"{blockIndex} - GameObjectTextures",
                                         name: $"{sectorIndex} - {objIndex} - Textures - {texIndex}");
                                 }
@@ -389,7 +389,7 @@ namespace Ray1Map.PSKlonoa
                                 for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
                                 {
                                     exportTex(
-                                        getTex: () => GetTexture(texAnim.Files[texIndex]),
+                                        getTex: () => texAnim.Files[texIndex].Obj.GetTexture(),
                                         blockName: $"{blockIndex} - GameObjectTextures",
                                         name: $"{sectorIndex} - {objIndex} - TextureAnimation - {texIndex}");
                                 }
@@ -404,7 +404,7 @@ namespace Ray1Map.PSKlonoa
                 {
                     var tim = bgPack.TIMFiles.Files[i];
                     exportTex(
-                        getTex: () => GetTexture(tim, noPal: true),
+                        getTex: () => tim.GetTexture(noPal: true),
                         blockName: $"{blockIndex} - BackgroundTileSets",
                         name: $"{i}");
                 }
@@ -437,7 +437,7 @@ namespace Ray1Map.PSKlonoa
                         if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
                             continue;
 
-                        var tex = GetTexture(loader, bgPack, new BackgroundGameObject()
+                        var tex = GetTexture(loader.VRAM, bgPack, new BackgroundGameObject()
                         {
                             Type = BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_19,
                             BGDIndex = bgdIndex,
@@ -494,9 +494,9 @@ namespace Ray1Map.PSKlonoa
                             exportTex(() =>
                             {
                                 if (file.TIM != null)
-                                    return GetTexture(file.TIM, palette: pal);
+                                    return file.TIM.GetTexture(palette: pal);
                                 else
-                                    return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height,
+                                    return PS1Helpers.GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height,
                                         PS1_TIM.TIM_ColorFormat.BPP_8);
                             }, $"{blockIndex} - PlayerSprites", $"{i}");
                         }
@@ -525,7 +525,7 @@ namespace Ray1Map.PSKlonoa
                 // CUTSCENE CHARACTER NAMES
                 if (cutscenePack?.CharacterNamesImgData != null)
                     exportTex(
-                        getTex: () => GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4), 
+                        getTex: () => PS1Helpers.GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4), 
                         blockName: $"{blockIndex} - CutsceneCharacterNames",
                         name: $"0");
 
@@ -538,7 +538,7 @@ namespace Ray1Map.PSKlonoa
                     {
                         var file = cutscenePack.PlayerFramesImgData.Files[i];
                         exportTex(
-                            getTex: () => GetTexture(file.ImgData, playerPal, file.Width, file.Height,
+                            getTex: () => PS1Helpers.GetTexture(file.ImgData, playerPal, file.Width, file.Height,
                                 PS1_TIM.TIM_ColorFormat.BPP_8), 
                             blockName: $"{blockIndex} - CutscenePlayerSprites",
                             name: $"{i}");
@@ -1010,21 +1010,20 @@ namespace Ray1Map.PSKlonoa
 
         public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, PSKlonoa_DTP_GameObjectsLoader objectsLoader, int sector, float scale)
         {
-            GameObject obj;
-            bool isAnimated;
+            var tmdGameObj = new KlonoaTMDGameObject(
+                    tmd: loader.LevelPack.Sectors[sector].LevelModel,
+                    loader: loader,
+                    scale: scale,
+                    objectsLoader: objectsLoader,
+                    isPrimaryObj: true);
 
-            (obj, isAnimated) = CreateGameObject(
-                tmd: loader.LevelPack.Sectors[sector].LevelModel, 
-                loader: loader, 
-                scale: scale, 
-                name: "Map", 
-                objectsLoader: objectsLoader, 
-                isPrimaryObj: true);
+            GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo);
 
-            var levelBounds = PSKlonoaHelpers.GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
+            Bounds levelBounds = loader.LevelPack.Sectors[sector].LevelModel.GetDimensions(scale);
 
             // Calculate actual level dimensions: switched axes for unity & multiplied by cellSize
-            var cellSize = 16;
+            int cellSize = 16;
+
             //var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
             var layerDimensions = new Rect(
                 levelBounds.min.x * cellSize, -levelBounds.max.z * cellSize,
@@ -1037,7 +1036,7 @@ namespace Ray1Map.PSKlonoa
             var collisionObj = CreateCollisionGameObject(loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles, scale);
             collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
-            return new Unity_Layer_GameObject(true, isAnimated: isAnimated)
+            return new Unity_Layer_GameObject(true, isAnimated: tmdGameObj.HasAnimations)
             {
                 Name = "Map",
                 ShortName = "MAP",
@@ -1095,7 +1094,7 @@ namespace Ray1Map.PSKlonoa
 
                 void addEnemyObj(EnemyObject obj)
                 {
-                    var spriteInfo = PSKlonoaHelpers.GetSprite_Enemy(obj);
+                    var spriteInfo = GetSprite_Enemy(obj);
 
                     if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                         Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {obj.SecondaryType} and graphics index {obj.GraphicsIndex}");
@@ -1114,7 +1113,7 @@ namespace Ray1Map.PSKlonoa
                     if (obj.GlobalSectorIndex != loader.GlobalSectorIndex)
                         continue;
 
-                    var pos = PSKlonoaHelpers.GetPosition(movementPaths[pathIndex].Blocks, obj.MovementPathSpawnPosition, Vector3.zero, scale);
+                    var pos = movementPaths[pathIndex].Blocks.GetPosition(obj.MovementPathSpawnPosition, Vector3.zero, scale);
 
                     objects.Add(new Unity_Object_Dummy(obj, Unity_ObjectType.Trigger, objLinks: new int[]
                     {
@@ -1133,11 +1132,11 @@ namespace Ray1Map.PSKlonoa
 
                 // If the path index is -1 then the position is absolute, otherwise it's relative
                 if (x.MovementPath == -1)
-                    pos = PSKlonoaHelpers.GetPosition(x.Position.X.Value, x.Position.Y.Value, x.Position.Z.Value, scale);
+                    pos = KlonoaHelpers.GetPosition(x.Position.X.Value, x.Position.Y.Value, x.Position.Z.Value, scale);
                 else
-                    pos = PSKlonoaHelpers.GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.Position.Y.Value, 0), scale);
+                    pos = movementPaths[x.MovementPath].Blocks.GetPosition(x.MovementPathPosition, new Vector3(0, x.Position.Y.Value, 0), scale);
 
-                var spriteInfo = PSKlonoaHelpers.GetSprite_Collectible(x);
+                var spriteInfo = GetSprite_Collectible(x);
 
                 if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                     Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
@@ -1151,7 +1150,7 @@ namespace Ray1Map.PSKlonoa
                 SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Vectors[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
             {
-                Position = PSKlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
+                Position = KlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
             }));
 
             var wpIndex = objects.Count;
@@ -1191,9 +1190,9 @@ namespace Ray1Map.PSKlonoa
             {
                 foreach (var pathBlock in path.Blocks)
                 {
-                    var origin = PSKlonoaHelpers.GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
+                    var origin = KlonoaHelpers.GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
                                  + up;
-                    var end = PSKlonoaHelpers.GetPosition(
+                    var end = KlonoaHelpers.GetPosition(
                                   x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength, 
                                   y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength, 
                                   z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength, 
@@ -1271,463 +1270,9 @@ namespace Ray1Map.PSKlonoa
             return obj;
         }
 
-        public (GameObject, bool) CreateGameObject(
-            PS1_TMD tmd, 
-            Loader loader, 
-            float scale, 
-            string name, 
-            PSKlonoa_DTP_GameObjectsLoader objectsLoader, 
-            bool isPrimaryObj,
-            ModelAnimation_ArchiveFile[] animations = null, 
-            AnimSpeed animSpeed = null, 
-            AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null)
-        {
-            bool isAnimated = false;
-
-            GameObject gaoParent = new GameObject(name);
-            gaoParent.transform.position = Vector3.zero;
-
-            var vramTextures = new HashSet<PS1VRAMTexture>();
-            var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
-
-            // Get texture bounds
-            foreach (PS1_TMD_Packet packet in tmd.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
-            {
-                var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
-
-                var overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
-
-                if (isPrimaryObj && packet.UV.Any(x => objectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
-                {
-                    tex.ExpandWithUVScroll();
-                }
-
-
-                if (overlappingTex != null)
-                {
-                    overlappingTex.ExpandWithBounds(tex);
-                    vramTexturesLookup.Add(packet, overlappingTex);
-                }
-                else
-                {
-                    vramTextures.Add(tex);
-                    vramTexturesLookup.Add(packet, tex);
-                }
-            }
-
-            // Create textures
-            foreach (PS1VRAMTexture vramTex in vramTextures)
-            {
-                // Create the default texture
-                vramTex.SetTexture(vramTex.GetTexture(loader.VRAM));
-
-                // Check if the texture is animated
-                var vramAnims = objectsLoader.Anim_GetAnimationsFromRegion(vramTex.TextureRegion, vramTex.PaletteRegion).ToArray();
-
-                if (!vramAnims.Any()) 
-                    continue;
-                
-                var animatedTexture = new PS1VRAMAnimatedTexture(vramTex.Bounds.width, vramTex.Bounds.height, true, tex =>
-                {
-                    vramTex.GetTexture(loader.VRAM, tex);
-                }, vramAnims);
-                
-                objectsLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
-                vramTex.SetAnimatedTexture(animatedTexture);
-            }
-
-            // Create each object
-            for (var objIndex = 0; objIndex < tmd.Objects.Length; objIndex++)
-            {
-                var obj = tmd.Objects[objIndex];
-
-                // Helper methods
-                Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
-                Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
-                int getBoneForVertex(int vertexIndex) {
-                    if(obj.Bones == null) return -1;
-                    return obj.Bones.FindItemIndex(b => b.VerticesIndex <= vertexIndex && b.VerticesIndex + b.VerticesCount > vertexIndex) + 1;
-                }
-
-                GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
-
-                gameObject.transform.SetParent(gaoParent.transform, false);
-                gameObject.transform.localScale = Vector3.one;
-
-                // Init bones
-                bool hasBones = obj.BonesCount > 0;
-                Transform[] bones = null;
-                Matrix4x4[] bindPoses = null;
-                if (hasBones) {
-                    bones = new Transform[obj.Bones.Length + 1];
-                    for (int i = 0; i < bones.Length; i++) {
-                        var b = new GameObject($"Bone {i}");
-                        b.transform.SetParent(gameObject.transform);
-                        bones[i] = b.transform;
-                    }
-                    // Init Root bone
-                    {
-                        var b = bones[0];
-                        b.transform.localPosition = Vector3.zero;
-                        b.transform.localRotation = Quaternion.identity;
-                        b.transform.localScale = Vector3.one;
-                    }
-                    // Init other bones
-                    for (int i = 0; i < obj.Bones.Length; i++) {
-                        var b = bones[i+1];
-                        b.transform.SetParent(bones[obj.Bones[i].ParentIndex]);
-                        b.transform.localPosition = Vector3.zero;
-                        b.transform.localRotation = Quaternion.identity;
-                        b.transform.localScale = Vector3.one;
-                    }
-
-                    bindPoses = new Matrix4x4[bones.Length];
-                    for (int i = 0; i < bindPoses.Length; i++) {
-                        bindPoses[i] = bones[i].worldToLocalMatrix * gameObject.transform.localToWorldMatrix;
-                    }
-
-                    if (boneAnimations != null)
-                    {
-                        // TODO: Support multiple animations
-                        ModelBoneAnimation_ArchiveFile anim = boneAnimations.Files[10];
-                        var animComponent = gameObject.AddComponent<SkeletonAnimationComponent>();
-                        animComponent.bones = new SkeletonAnimationComponent.Bone[obj.Bones.Length];
-
-                        if (animSpeed != null)
-                            animComponent.speed = animSpeed;
-
-                        animComponent.loopMode = animLoopMode;
-
-                        for (int boneIndex = 0; boneIndex < animComponent.bones.Length; boneIndex++)
-                        {
-                            short frameCount = anim.Rotations.FramesCount;
-
-                            animComponent.bones[boneIndex].animatedTransform = bones[boneIndex + 1];
-
-                            var rotX = anim.Rotations.GetValues(boneIndex * 3 + 0);
-                            var rotY = anim.Rotations.GetValues(boneIndex * 3 + 1);
-                            var rotZ = anim.Rotations.GetValues(boneIndex * 3 + 2);
-
-                            var positions = anim.Positions.Vectors.
-                                Select(x => PSKlonoaHelpers.GetPositionVector(x[boneIndex], Vector3.zero, scale)).
-                                ToArray();
-                            var rotations = Enumerable.Range(0, frameCount).
-                                Select(x => PSKlonoaHelpers.GetQuaternion(rotX[x], rotY[x], rotZ[x])).
-                                ToArray();
-
-                            animComponent.bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
-
-                            for (int i = 0; i < frameCount; i++)
-                            {
-                                animComponent.bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
-                                {
-                                    Position = positions[i],
-                                    Rotation = rotations[i],
-                                    Scale = Vector3.one,
-                                };
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Object has bones but no animation");
-                    }
-                }
-
-                var isTransformAnimated = ApplyTransform(
-                    gameObj: gameObject, 
-                    transforms: animations, 
-                    scale: scale, 
-                    objIndex: objIndex, 
-                    animSpeed: animSpeed?.CloneAnimSpeed(), 
-                    animLoopMode: animLoopMode);
-
-                if (isTransformAnimated)
-                    isAnimated = true;
-
-                // Add each primitive
-                for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
-                {
-                    var packet = obj.Primitives[packetIndex];
-
-                    //if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
-                    //    Debug.LogWarning($"Packet has light source");
-
-                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
-                    {
-                        if (packet.Mode.Code != 0)
-                            Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
-                        continue;
-                    }
-
-                    Mesh unityMesh = new Mesh();
-
-                    var vertices = packet.Vertices.Select(x => toVertex(obj.Vertices[x])).ToArray();
-
-                    Vector3[] normals = null;
-
-                    if (packet.Normals != null) 
-                    {
-                        normals = packet.Normals.Select(x => toNormal(obj.Normals[x])).ToArray();
-                        if(normals.Length == 1)
-                            normals = Enumerable.Repeat(normals[0], vertices.Length).ToArray();
-                    }
-                    int[] triangles;
-
-                    // Set vertices
-                    unityMesh.SetVertices(vertices);
-
-                    // Set normals
-                    if (normals != null) 
-                        unityMesh.SetNormals(normals);
-
-                    if (packet.Mode.IsQuad)
-                    {
-                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
-                        {
-                            triangles = new int[]
-                            {
-                                // Lower left triangle
-                                0, 1, 2, 0, 2, 1,
-                                // Upper right triangle
-                                3, 2, 1, 3, 1, 2,
-                            };
-                        }
-                        else
-                        {
-                            triangles = new int[]
-                            {
-                                // Lower left triangle
-                                0, 1, 2,
-                                // Upper right triangle
-                                3, 2, 1,
-                            };
-                        }
-                    }
-                    else
-                    {
-                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
-                        {
-                            triangles = new int[]
-                            {
-                                0, 1, 2, 0, 2, 1,
-                            };
-                        }
-                        else
-                        {
-                            triangles = new int[]
-                            {
-                                0, 1, 2,
-                            };
-                        }
-                    }
-
-                    unityMesh.SetTriangles(triangles, 0);
-
-                    var colors = packet.RGB.Select(x => x.Color.GetColor()).ToArray();
-
-                    if (colors.Length == 1)
-                        colors = Enumerable.Repeat(colors[0], vertices.Length).ToArray();
-
-                    unityMesh.SetColors(colors);
-
-                    if (normals == null) 
-                        unityMesh.RecalculateNormals();
-
-                    if (hasBones) {
-                        BoneWeight[] weights = packet.Vertices.Select(x => new BoneWeight() {
-                            boneIndex0 = getBoneForVertex(x),
-                            weight0 = 1f
-                        }).ToArray();
-                        unityMesh.boneWeights = weights;
-                        unityMesh.bindposes = bindPoses;
-                    }
-
-                    GameObject gao = new GameObject($"Packet_{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
-
-                    MeshFilter mf = gao.AddComponent<MeshFilter>();
-                    gao.layer = LayerMask.NameToLayer("3D Collision");
-                    gao.transform.SetParent(gameObject.transform, false);
-                    gao.transform.localScale = Vector3.one;
-                    gao.transform.localPosition = Vector3.zero;
-                    mf.sharedMesh = unityMesh;
-
-                    Material mat = null;
-                    if (packet.Mode.ABE)
-                        mat = new Material(Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial);
-                    else
-                        mat = new Material(Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial);
-
-                    if (hasBones) {
-                        SkinnedMeshRenderer smr = gao.AddComponent<SkinnedMeshRenderer>();
-                        smr.sharedMaterial = mat;
-                        smr.sharedMesh = unityMesh;
-                        smr.bones = bones;
-                        smr.rootBone = bones[0];
-                    } else {
-                        MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                        mr.sharedMaterial = mat;
-                    }
-                    // Add texture
-                    if (packet.Mode.TME)
-                    {
-                        var tex = vramTexturesLookup[packet];
-                        mat.SetTexture("_MainTex", tex.Texture);
-
-                        unityMesh.SetUVs(0, packet.UV.Select((uv, i) =>
-                        {
-                            var u = uv.U - tex.Bounds.x;
-                            var v = uv.V - tex.Bounds.y;
-                            if (i % 2 == 1) u += 1;
-                            if (i >= 2) v += 1;
-
-                            return new Vector2(u / (float)(tex.Bounds.width), v / (float)(tex.Bounds.height));
-                        }).ToArray());
-
-                        if (tex.AnimatedTexture != null)
-                        {
-                            isAnimated = true;
-                            var animTex = gao.AddComponent<AnimatedTextureComponent>();
-                            animTex.material = mat;
-                            animTex.animatedTextures = tex.AnimatedTexture.Textures;
-                            animTex.speed = new AnimSpeed_FrameDelay(tex.AnimatedTexture.Speed);
-                        }
-
-                        if (IncludeDebugInfo)
-                            gao.name = $"{packet.Offset}: {objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, ABR: {packet.TSB.ABR}, IsAnimated: {tex.AnimatedTexture != null}";
-
-                        // Check for UV scroll animations
-                        if (isPrimaryObj && packet.UV.Any(x => objectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
-                        {
-                            isAnimated = true;
-                            var animTex = gao.AddComponent<AnimatedTextureComponent>();
-                            animTex.material = mat;
-                            animTex.scrollV = -2f * 60f / (tex?.Bounds.height ?? 256);
-                        }
-                    }
-                }
-            }
-
-            return (gaoParent, isAnimated);
-        }
-
-        public bool ApplyTransform(GameObject gameObj, ModelAnimation_ArchiveFile[] transforms, float scale, int objIndex = 0, AnimSpeed animSpeed = null, AnimLoopMode animLoopMode = AnimLoopMode.Repeat)
-        {
-            if (transforms?.Any() == true && transforms[0].Positions.Vectors[0].Length == 1)
-                objIndex = 0;
-
-            if (transforms != null && transforms.Any() && transforms[0].Positions.ObjectsCount > objIndex)
-            {
-                gameObj.transform.localPosition = PSKlonoaHelpers.GetPositionVector(transforms[0].Positions.Vectors[0][objIndex], null, scale);
-                gameObj.transform.localRotation = PSKlonoaHelpers.GetQuaternion(transforms[0].Rotations.Vectors[0][objIndex]);
-            }
-            else
-            {
-                gameObj.transform.localPosition = Vector3.zero;
-                gameObj.transform.localRotation = Quaternion.identity;
-            }
-
-            if (transforms?.FirstOrDefault()?.Positions.Vectors.Length > 1)
-            {
-                var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                mtComponent.animatedTransform = gameObj.transform;
-
-                if (animSpeed != null)
-                    mtComponent.speed = animSpeed;
-
-                mtComponent.loopMode = animLoopMode;
-
-                var positions = transforms.
-                    SelectMany(x => x.Positions.Vectors).
-                    Select(x => x.Length > objIndex ? PSKlonoaHelpers.GetPositionVector(x[objIndex], null, scale) : (Vector3?)null).
-                    ToArray();
-                var rotations = transforms.
-                    SelectMany(x => x.Rotations.Vectors).
-                    Select(x => x.Length > objIndex ? PSKlonoaHelpers.GetQuaternion(x[objIndex]) : (Quaternion?)null).
-                    ToArray();
-
-                var frameCount = Math.Max(positions.Length, rotations.Length);
-                mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-
-                for (int i = 0; i < frameCount; i++)
-                {
-                    mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                    {
-                        Position = positions[i] ?? Vector3.zero,
-                        Rotation = rotations[i] ?? Quaternion.identity,
-                        Scale = Vector3.one,
-                        IsHidden = positions[i] == null || rotations[i] == null,
-                    };
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
         {
             return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
-        }
-
-        public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
-        {
-            if (tim.Region.XPos == 0 && tim.Region.YPos == 0)
-                return null;
-
-            var pal = noPal ? null : palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
-
-            if (onlyFirstTransparent && pal != null)
-                for (int i = 0; i < pal.Length; i++)
-                    pal[i].a = i == 0 ? 0 : 1;
-
-            return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
-        }
-
-        public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
-        {
-            Util.TileEncoding encoding;
-
-            int palLength;
-
-            switch (colorFormat)
-            {
-                case PS1_TIM.TIM_ColorFormat.BPP_4:
-                    width *= 2 * 2;
-                    encoding = Util.TileEncoding.Linear_4bpp;
-                    palLength = 16;
-                    break;
-
-                case PS1_TIM.TIM_ColorFormat.BPP_8:
-                    width *= 2;
-                    encoding = Util.TileEncoding.Linear_8bpp;
-                    palLength = 256;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            pal ??= Util.CreateDummyPalette(palLength).Select(x => x.GetColor()).ToArray();
-
-            var tex = TextureHelpers.CreateTexture2D(width, height);
-
-            tex.FillRegion(
-                imgData: imgData,
-                imgDataOffset: 0,
-                pal: pal,
-                encoding: encoding,
-                regionX: 0,
-                regionY: 0,
-                regionWidth: tex.width,
-                regionHeight: tex.height,
-                flipTextureY: flipTextureY);
-
-            return tex;
         }
 
         public (Texture2D Texture, RectInt Rect) GetTexture(SpriteTexture[] spriteTextures, PS1_VRAM vram, int palX, int palY)
@@ -1761,9 +1306,8 @@ namespace Ray1Map.PSKlonoa
 
                 try
                 {
-                    PSKlonoaHelpers.FillTextureFromVRAM(
+                    vram.FillTexture(
                         tex: tex,
-                        vram: vram,
                         width: sprite.Width,
                         height: sprite.Height,
                         colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
@@ -1821,7 +1365,7 @@ namespace Ray1Map.PSKlonoa
             if (!anims.Any())
                 return (new Texture2D[]
                 {
-                    GetTexture(loader, bg, layer)
+                    GetTexture(loader.VRAM, bg, layer)
                 }, 0);
 
             var width = map.MapWidth * map.CellWidth;
@@ -1829,7 +1373,7 @@ namespace Ray1Map.PSKlonoa
 
             var animatedTex = new PS1VRAMAnimatedTexture(width, height, true, tex =>
             {
-                GetTexture(loader, bg, layer, tex);
+                GetTexture(loader.VRAM, bg, layer, tex);
             }, anims.ToArray());
 
             objectsLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
@@ -1837,51 +1381,16 @@ namespace Ray1Map.PSKlonoa
             return (animatedTex.Textures, animatedTex.Speed);
         }
 
-        public Texture2D GetTexture(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer, Texture2D tex = null)
+        public Texture2D GetTexture(PS1_VRAM vram, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer, Texture2D tex = null)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
 
-            var tim = bg.TIMFiles.Files[celIndex];
-            var cel = bg.CELFiles.Files[celIndex];
-            var map = bg.BGDFiles.Files[bgIndex];
+            PS1_TIM tim = bg.TIMFiles.Files[celIndex];
+            PS1_CEL cel = bg.CELFiles.Files[celIndex];
+            PS1_BGD map = bg.BGDFiles.Files[bgIndex];
 
-            tex ??= TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-            for (int mapY = 0; mapY < map.MapHeight; mapY++)
-            {
-                for (int mapX = 0; mapX < map.MapWidth; mapX++)
-                {
-                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
-
-                    if (cellIndex == 0xFF)
-                        continue;
-
-                    var cell = cel.Cells[cellIndex];
-
-                    if (cell.ABE)
-                        Debug.LogWarning($"CEL ABE flag is set!");
-
-                    PSKlonoaHelpers.FillTextureFromVRAM(
-                        tex: tex,
-                        vram: loader.VRAM,
-                        width: map.CellWidth,
-                        height: map.CellHeight,
-                        colorFormat: tim.ColorFormat,
-                        texX: mapX * map.CellWidth,
-                        texY: mapY * map.CellHeight,
-                        clutX: cell.ClutX * 16,
-                        clutY: cell.ClutY,
-                        texturePageOriginX: tim.Region.XPos,
-                        texturePageOriginY: tim.Region.YPos,
-                        texturePageOffsetX: cell.XOffset,
-                        texturePageOffsetY: cell.YOffset);
-                }
-            }
-
-            tex.Apply();
-
-            return tex;
+            return vram.FillMapTexture(tim, cel, map, tex);
         }
 
         public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
@@ -1903,7 +1412,7 @@ namespace Ray1Map.PSKlonoa
                             {
                                 var playerSprite = playerSprites[frame.SpriteIndex - 1];
 
-                                textures[i] = GetTexture(playerSprite.ImgData, playerPalette, playerSprite.Width,
+                                textures[i] = PS1Helpers.GetTexture(playerSprite.ImgData, playerPalette, playerSprite.Width,
                                     playerSprite.Height, PS1_TIM.TIM_ColorFormat.BPP_8);
                                 rects[i] = new RectInt(frame.XPosition, 0, textures[i].width, textures[i].height);
                             }
@@ -1940,6 +1449,118 @@ namespace Ray1Map.PSKlonoa
             return (textures, rects.Select((x, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x - minX, rects[i].Value.y - minY)).ToArray());
         }
 
+        public ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
+        {
+            // TODO: Some enemies have palette swaps. This is done by modifying the x and y palette offsets (by default they are 0 and 500). For example the shielded Moo enemies in Vision 1-2
+
+            // There are 42 object types (0-41). The graphics index is an index to an array of functions for displaying the graphics. The game
+            // normally doesn't directly use the graphics index as it sometimes modifies it, but it appears the value initially set
+            // in the object data will always match the correct sprite to show, so we can use that.
+            var graphicsIndex = obj.GraphicsIndex;
+
+            // Usually the graphics index matches the sprite set index (minus 1), but some are special cases, and since we don't want to show the
+            // first sprite we hard-code this. Ideally we would animate them, but that is sadly entirely hard-coded :(
+            return graphicsIndex switch
+            {
+                01 => new ObjSpriteInfo(0, 81), // Moo
+                02 => new ObjSpriteInfo(1, 0),
+                03 => new ObjSpriteInfo(2, 36), // Pinkie
+
+                05 => new ObjSpriteInfo(4, 0), // Portal
+                06 => new ObjSpriteInfo(5, 12),
+                07 => new ObjSpriteInfo(6, 36), // Flying Moo
+                08 => new ObjSpriteInfo(7, 16),
+                09 => new ObjSpriteInfo(8, 4), // Spiker
+                10 => new ObjSpriteInfo(9, 68),
+                11 => new ObjSpriteInfo(10, 4),
+                12 => new ObjSpriteInfo(11, 72),
+                13 => new ObjSpriteInfo(12, 54),
+                14 => new ObjSpriteInfo(13, 24),
+                15 => new ObjSpriteInfo(14, 0), // Moo with shield
+                16 => new ObjSpriteInfo(15, 154),
+                17 => new ObjSpriteInfo(16, 0), // Moo with spiky shield
+                18 => new ObjSpriteInfo(17, 0),
+                19 => new ObjSpriteInfo(18, 8),
+                20 => new ObjSpriteInfo(19, 28),
+                21 => new ObjSpriteInfo(20, 0),
+
+                23 => new ObjSpriteInfo(22, 44),
+                24 => new ObjSpriteInfo(23, 76),
+                25 => new ObjSpriteInfo(24, 0), // Big spiky ball
+                26 => new ObjSpriteInfo(25, 36),
+
+                28 => new ObjSpriteInfo(27, 118),
+                29 => new ObjSpriteInfo(28, 165),
+                30 => new ObjSpriteInfo(29, 41),
+                31 => new ObjSpriteInfo(30, 157),
+                32 => new ObjSpriteInfo(31, 16),
+
+                35 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
+                36 => new ObjSpriteInfo(1, 0, scale: 2),
+                37 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
+
+                39 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo with shield
+
+                112 => new ObjSpriteInfo(11, 149),
+                137 => new ObjSpriteInfo(11, 149, scale: 2),
+                _ => new ObjSpriteInfo(-1, -1)
+            };
+        }
+
+        public ObjSpriteInfo GetSprite_Collectible(CollectibleObject obj)
+        {
+            switch (obj.SecondaryType)
+            {
+                // Switch
+                case 1:
+                    return new ObjSpriteInfo(68, 10);
+
+                // Dream Stone
+                case 2:
+                    return obj.Ushort_14 == 0 ? new ObjSpriteInfo(68, 0) : new ObjSpriteInfo(68, 5);
+
+                // Heart, life
+                case 3:
+                case 4:
+                    return obj.Short_0E switch
+                    {
+                        3 => new ObjSpriteInfo(68, 30),
+                        4 => new ObjSpriteInfo(68, 22),
+                        15 => new ObjSpriteInfo(68, 57),
+                        _ => new ObjSpriteInfo(-1, -1)
+                    };
+
+                // Bubble
+                case 5:
+                case 6:
+                case 16:
+                case 17:
+                    return obj.Short_0E switch
+                    {
+                        5 => new ObjSpriteInfo(68, 42), // Checkpoint
+                        9 => new ObjSpriteInfo(68, 43), // Item
+                        13 => new ObjSpriteInfo(68, 44), // x2
+                        _ => new ObjSpriteInfo(-1, -1)
+                    };
+
+                // Nagapoko Egg
+                case 8:
+                case 9:
+                    return new ObjSpriteInfo(68, 76);
+
+                // Bouncy spring
+                case 10:
+                    return new ObjSpriteInfo(21, 2);
+
+                // Colored orb (Vision 5-1)
+                case 15:
+                    return new ObjSpriteInfo(68, 81 + (6 * (obj.Ushort_14 - 2)));
+
+                default:
+                    return new ObjSpriteInfo(-1, -1);
+            }
+        }
+
         public async UniTask LoadFilesAsync(Context context, KlonoaSettings_DTP config)
         {
             // The game only loads portions of the BIN at a time
@@ -1952,114 +1573,22 @@ namespace Ray1Map.PSKlonoa
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
         }
 
-        public class PS1VRAMTexture
+        public class ObjSpriteInfo
         {
-            public PS1VRAMTexture(PS1_TSB tsb, PS1_CBA cba, PS1_TMD_UV[] uvs)
+            public ObjSpriteInfo(int spriteSet, int spriteIndex, int scale = 1, int palOffsetX = 0, int palOffsetY = 500)
             {
-                TSB = tsb;
-                CBA = cba;
-
-                int xMin = uvs.Min(x => x.U);
-                int xMax = uvs.Max(x => x.U) + 1;
-                int yMin = uvs.Min(x => x.V);
-                int yMax = uvs.Max(x => x.V) + 1;
-                int w = xMax - xMin;
-                int h = yMax - yMin;
-
-                Bounds = new RectInt(xMin, yMin, w, h);
-
-                bool is8bit = TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
-                TextureRegion = new RectInt(TSB.TX * PS1_VRAM.PageWidth + Bounds.x / (is8bit ? 1 : 2), TSB.TY * PS1_VRAM.PageHeight + Bounds.y, Bounds.width / (is8bit ? 1 : 2), Bounds.height);
-
-                int palLength = (is8bit ? 256 : 16) * 2;
-                PaletteRegion = new RectInt(CBA.ClutX * 2 * 16, CBA.ClutY, palLength, 1);
+                SpriteSet = spriteSet;
+                SpriteIndex = spriteIndex;
+                Scale = scale;
+                PalOffsetX = palOffsetX;
+                PalOffsetY = palOffsetY;
             }
 
-            public PS1_TSB TSB { get; }
-            public PS1_CBA CBA { get; }
-            public RectInt Bounds { get; protected set; }
-            public RectInt TextureRegion { get; }
-            public RectInt PaletteRegion { get; }
-            public Texture2D Texture { get; protected set; }
-            public PS1VRAMAnimatedTexture AnimatedTexture { get; protected set; }
-
-            public bool HasOverlap(PS1VRAMTexture b)
-            {
-                if (b.TSB.TP != TSB.TP ||
-                    b.TSB.TX != TSB.TX ||
-                    b.TSB.TY != TSB.TY ||
-                    b.CBA.ClutX != CBA.ClutX ||
-                    b.CBA.ClutY != CBA.ClutY)
-                    return false;
-
-                return Bounds.Overlaps(b.Bounds);
-            }
-
-            public Texture2D GetTexture(PS1_VRAM vram, Texture2D tex = null)
-            {
-                PS1_TIM.TIM_ColorFormat colFormat = TSB.TP switch
-                {
-                    PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                    PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                    PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
-                    _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {TSB.TP}")
-                };
-
-                tex ??= TextureHelpers.CreateTexture2D(Bounds.width, Bounds.height, clear: true);
-                tex.wrapMode = TextureWrapMode.Repeat;
-
-                PSKlonoaHelpers.FillTextureFromVRAM(
-                    tex: tex,
-                    vram: vram,
-                    width: Bounds.width,
-                    height: Bounds.height,
-                    colorFormat: colFormat,
-                    texX: 0,
-                    texY: 0,
-                    clutX: CBA.ClutX * 16,
-                    clutY: CBA.ClutY,
-                    texturePageX: TSB.TX,
-                    texturePageY: TSB.TY,
-                    texturePageOffsetX: Bounds.x,
-                    texturePageOffsetY: Bounds.y,
-                    flipY: true);
-
-                tex.Apply();
-
-                return tex;
-            }
-
-            public void SetTexture(Texture2D tex)
-            {
-                Texture = tex;
-            }
-
-            public void SetAnimatedTexture(PS1VRAMAnimatedTexture tex)
-            {
-                AnimatedTexture = tex;
-            }
-
-            public void ExpandWithBounds(PS1VRAMTexture b)
-            {
-                var minX = Math.Min(Bounds.x, b.Bounds.x);
-                var minY = Math.Min(Bounds.y, b.Bounds.y);
-                var maxX = Math.Max(Bounds.x + Bounds.width, b.Bounds.x + b.Bounds.width);
-                var maxY = Math.Max(Bounds.y + Bounds.height, b.Bounds.y + b.Bounds.height);
-                Bounds = new RectInt(
-                    minX,
-                    minY,
-                    maxX - minX,
-                    maxY - minY);
-            }
-
-            public void ExpandWithUVScroll() {
-                Bounds = new RectInt(
-                    Bounds.x,
-                    0,
-                    Bounds.width,
-                    192);
-
-            }
+            public int SpriteSet { get; }
+            public int SpriteIndex { get; }
+            public int Scale { get; }
+            public int PalOffsetX { get; }
+            public int PalOffsetY { get; }
         }
     }
 }
