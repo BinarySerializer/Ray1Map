@@ -31,7 +31,7 @@ namespace Ray1Map
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.File);
 
             // Serialize the offset table
-            s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));
+            s.DoAt(pointerTable[DefinedPointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));
 
             var manager = (GBA_Manager)s.Context.GetR1Settings().GetGameManager;
 

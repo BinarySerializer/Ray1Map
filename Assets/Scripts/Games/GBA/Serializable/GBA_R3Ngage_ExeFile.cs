@@ -11,7 +11,7 @@ namespace Ray1Map
         {
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.File);
 
-            s.DoAt(pointerTable[GBA_Pointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
+            s.DoAt(pointerTable[DefinedPointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
         }
     }
 }

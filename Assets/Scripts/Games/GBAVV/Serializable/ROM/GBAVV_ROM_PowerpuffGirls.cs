@@ -19,7 +19,7 @@ namespace Ray1Map.GBAVV
             var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize level infos
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 if (LevelInfos == null)
                     LevelInfos = new GBAVV_PowerpuffGirls_LevelInfo[58];

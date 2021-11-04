@@ -1,6 +1,6 @@
-﻿namespace Ray1Map
+﻿namespace Ray1Map.GBARRR
 {
-    public enum GBARRR_Pointer
+    public enum DefinedPointer
     {
         VillageLevelInfo,
         LevelInfo,

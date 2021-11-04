@@ -32,7 +32,7 @@ namespace Ray1Map.GEN
 
             using var context = new Ray1MapContext(settings);
             var s = context.Deserializer;
-            var pal = Util.CreateDummyPalette(256, false);
+            var pal = PaletteHelpers.CreateDummyPalette(256, false);
 
             bool hasMainPal = false;
             string palettePath = "COMMUN/PAL.PAL";

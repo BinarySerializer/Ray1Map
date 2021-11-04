@@ -587,7 +587,7 @@ namespace Ray1Map.PSKlonoa
                     }
                 }
 
-                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
+                loader.VRAM.ExportToFile(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"));
             }
 
             void exportTex(Func<Texture2D> getTex, string blockName, string name)

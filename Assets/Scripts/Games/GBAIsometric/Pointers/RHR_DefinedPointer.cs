@@ -1,6 +1,6 @@
-﻿namespace Ray1Map
+﻿namespace Ray1Map.GBAIsometric
 {
-    public enum GBAIsometric_RHR_Pointer
+    public enum RHR_DefinedPointer
     {
         MusyxFile,
         Levels,

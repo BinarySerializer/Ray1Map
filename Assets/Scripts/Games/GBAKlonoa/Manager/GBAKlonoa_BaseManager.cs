@@ -232,7 +232,7 @@ namespace Ray1Map.GBAKlonoa
                         if (singlePal)
                             pal = palettes.First();
                         else
-                            pal = palettes.ElementAtOrDefault(oam.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(c => c.GetColor()).ToArray();
+                            pal = palettes.ElementAtOrDefault(oam.PaletteIndex) ?? PaletteHelpers.CreateDummyPalette(16).Select(c => c.GetColor()).ToArray();
 
                         for (int y = 0; y < shape.Height; y += CellSize)
                         {

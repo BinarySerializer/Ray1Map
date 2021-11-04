@@ -77,7 +77,7 @@ namespace Ray1Map.GBAVV
             // Serialize animation sets
             AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBAVV_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
 
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Mode7_SpongeBob_SpecialAnimSets), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.Mode7_SpongeBob_SpecialAnimSets), () =>
             {
                 var framesCounts = new int[] { 1, 12, 12, 1, 9, 9, 9, 9, 9, 5 };
 
@@ -113,21 +113,21 @@ namespace Ray1Map.GBAVV
             {
                 AnimSet_Chase = new GBAVV_Mode7_AnimSet()
                 {
-                    AnimationsPointer = pointerTable[GBAVV_Pointer.Mode7_Type0_ChaseObjAnimations],
-                    FrameOffsetsPointer = pointerTable[GBAVV_Pointer.Mode7_Type0_ChaseObjFrames],
+                    AnimationsPointer = pointerTable[DefinedPointer.Mode7_Type0_ChaseObjAnimations],
+                    FrameOffsetsPointer = pointerTable[DefinedPointer.Mode7_Type0_ChaseObjFrames],
                     PaletteIndex = (uint)(s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 ? 0x1F : 0x12), // Tile pal 0x0F and 0x02
                 };
             }
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 1)
                 // Load the blimp
-                SpecialFrames = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type1_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 4, name: nameof(SpecialFrames)));
+                SpecialFrames = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type1_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 4, name: nameof(SpecialFrames)));
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 2)
                 // Load N. Gin
-                SpecialFrames = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
+                SpecialFrames = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
-                Crash1_PolarDeathPalette = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeObjectArray<RGBA5551Color>(Crash1_PolarDeathPalette, 16, name: nameof(Crash1_PolarDeathPalette)));
+                Crash1_PolarDeathPalette = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeObjectArray<RGBA5551Color>(Crash1_PolarDeathPalette, 16, name: nameof(Crash1_PolarDeathPalette)));
         }
 
         public void SerializeAnimations(SerializerObject s, IEnumerable<GBAVV_Mode7_AnimSet> animSets)

@@ -63,19 +63,19 @@ namespace Ray1Map.GBAVV
         // Common
         public GBAVV_Crash_LevelInfo[] LevelInfos { get; set; }
 
-        public override void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
+        public override void SerializeLevelInfo(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable)
         {
             // Serialize localization
-            if (pointerTable.ContainsKey(GBAVV_Pointer.Localization))
+            if (pointerTable.ContainsKey(DefinedPointer.Localization))
             {
                 var multipleLanguages = s.GetR1Settings().GameModeSelection == GameModeSelection.Crash1GBAEU || s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAEU;
 
                 if (multipleLanguages)
-                    LocTablePointers = s.DoAt(pointerTable[GBAVV_Pointer.Localization], () => s.SerializePointerArray(LocTablePointers, 6, name: nameof(LocTablePointers)));
+                    LocTablePointers = s.DoAt(pointerTable[DefinedPointer.Localization], () => s.SerializePointerArray(LocTablePointers, 6, name: nameof(LocTablePointers)));
                 else
                     LocTablePointers = new Pointer[]
                     {
-                        pointerTable[GBAVV_Pointer.Localization]
+                        pointerTable[DefinedPointer.Localization]
                     };
 
                 if (LocTables == null)
@@ -96,7 +96,7 @@ namespace Ray1Map.GBAVV
             var manager = s.GetR1Settings().GetGameManagerOfType<GBAVV_Crash_BaseManager>();
 
             // Serialize level infos
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 if (LevelInfos == null)
                     LevelInfos = new GBAVV_Crash_LevelInfo[manager.LevInfos.Max(x => x.LevelIndex) + 1];

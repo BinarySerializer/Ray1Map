@@ -14,9 +14,9 @@ namespace Ray1Map.GBAVV
         // Common
         public GBAVV_SpongeBobRevengeOfTheFlyingDutchman_LevelInfo[] LevelInfos { get; set; } // Note: This is actually two arrays, but we treat is as one
 
-        public override void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
+        public override void SerializeLevelInfo(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable)
         {
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 // Serialize level infos
                 if (LevelInfos == null)

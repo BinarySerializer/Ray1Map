@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ray1Map {
-    public static class GeometryHelpers {
-
-
+namespace Ray1Map
+{
+    public static class GeometryHelpers 
+    {
         public static Mesh CreateBox(float size_x, float size_y, float size_z) {
             Mesh mesh = new Mesh();
 
@@ -833,6 +829,7 @@ namespace Ray1Map {
 
 
         #region Textures
+
         public static Texture2D CreateDummyTexture() {
             Texture2D texture = new Texture2D(1, 1);
             texture.SetPixel(0, 0, UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f, 1f, 1f));
@@ -878,6 +875,7 @@ namespace Ray1Map {
             texture.Apply();
             return texture;
         }
+
 		#endregion
 	}
 }

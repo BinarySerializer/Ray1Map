@@ -86,7 +86,7 @@ namespace Ray1Map.GBARRR
             var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize offset table
-            OffsetTable = s.DoAt(pointerTable[GBARRR_Pointer.OffsetTable], () => s.SerializeObject<GBARRR_OffsetTable>(OffsetTable, name: nameof(OffsetTable)));
+            OffsetTable = s.DoAt(pointerTable[DefinedPointer.OffsetTable], () => s.SerializeObject<GBARRR_OffsetTable>(OffsetTable, name: nameof(OffsetTable)));
 
             // Serialize localization
             OffsetTable.DoAtBlock(s.Context, 3, size =>
@@ -97,12 +97,12 @@ namespace Ray1Map.GBARRR
             if (gameMode == GBA_RRR_Manager.GameMode.Game || gameMode == GBA_RRR_Manager.GameMode.Village)
             {
                 // Serialize level info
-                VillageLevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.VillageLevelInfo],
+                VillageLevelInfo = s.DoAt(pointerTable[DefinedPointer.VillageLevelInfo],
                     () => s.SerializeObjectArray<GBARRR_LevelInfo>(VillageLevelInfo, 3,
                         name: nameof(VillageLevelInfo)));
-                LevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.LevelInfo],
+                LevelInfo = s.DoAt(pointerTable[DefinedPointer.LevelInfo],
                     () => s.SerializeObjectArray<GBARRR_LevelInfo>(LevelInfo, 32, name: nameof(LevelInfo)));
-                LevelProperties = s.DoAt(pointerTable[GBARRR_Pointer.LevelProperties],
+                LevelProperties = s.DoAt(pointerTable[DefinedPointer.LevelProperties],
                     () => s.SerializeObjectArray<GBARRR_LevelProperties>(LevelProperties, 32, name: nameof(LevelProperties)));
 
                 // Get the current level info
@@ -157,7 +157,7 @@ namespace Ray1Map.GBARRR
                         AnimatedPalettes[i] = s.SerializeObjectArray<RGBA5551Color>(AnimatedPalettes[i], 0x100, name: $"{nameof(AnimatedPalettes)}[{i}]"));
 
                 // Serialize tables
-                s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
+                s.DoAt(pointerTable[DefinedPointer.GraphicsTables], () =>
                 {
                     var counts = new uint[] {0x47, 0x40, 0x45, 0x44, 0x50, 0x42};
 
@@ -186,20 +186,20 @@ namespace Ray1Map.GBARRR
             else if (gameMode == GBA_RRR_Manager.GameMode.Mode7)
             {
                 // Serialize pointer tables
-                Mode7_MapTilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_MapTiles], () => s.SerializePointerArray(Mode7_MapTilesPointers, 3, name: nameof(Mode7_MapTilesPointers)));
-                Mode7_BG1TilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG1Tiles], () => s.SerializePointerArray(Mode7_BG1TilesPointers, 3, name: nameof(Mode7_BG1TilesPointers)));
-                Mode7_BG1MapPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Bg1Map], () => s.SerializePointerArray(Mode7_BG1MapPointers, 3, name: nameof(Mode7_BG1MapPointers)));
-                Mode7_BG0TilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Tiles], () => s.SerializePointerArray(Mode7_BG0TilesPointers, 3, name: nameof(Mode7_BG0TilesPointers)));
-                Mode7_BG0MapPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Map], () => s.SerializePointerArray(Mode7_BG0MapPointers, 3, name: nameof(Mode7_BG0MapPointers)));
-                Mode7_MapPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_MapData], () => s.SerializePointerArray(Mode7_MapPointers, 3, name: nameof(Mode7_MapPointers)));
-                Mode7_CollisionMapDataPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_CollisionMapData], () => s.SerializePointerArray(Mode7_CollisionMapDataPointers, 3, name: nameof(Mode7_CollisionMapDataPointers)));
-                Mode7_MapPalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_TilePalette], () => s.SerializePointerArray(Mode7_MapPalettePointers, 3, name: nameof(Mode7_MapPalettePointers)));
-                Mode7_BG1PalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG1Palette], () => s.SerializePointerArray(Mode7_BG1PalettePointers, 3, name: nameof(Mode7_BG1PalettePointers)));
-                Mode7_BG0PalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Palette], () => s.SerializePointerArray(Mode7_BG0PalettePointers, 3, name: nameof(Mode7_BG0PalettePointers)));
-                Mode7_ObjectsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Objects], () => s.SerializePointerArray(Mode7_ObjectsPointers, 3, name: nameof(Mode7_ObjectsPointers)));
-                Mode7_CollisionTypesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_CollisionTypesArray], () => s.SerializePointerArray(Mode7_CollisionTypesPointers, 3, name: nameof(Mode7_CollisionTypesPointers)));
-                Mode7_WaypointsCount = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_WaypointsCount], () => s.SerializeArray<short>(Mode7_WaypointsCount, 3, name: nameof(Mode7_WaypointsCount)));
-                Mode7_WaypointsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Waypoints], () => s.SerializePointerArray(Mode7_WaypointsPointers, 3, name: nameof(Mode7_WaypointsPointers)));
+                Mode7_MapTilesPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_MapTiles], () => s.SerializePointerArray(Mode7_MapTilesPointers, 3, name: nameof(Mode7_MapTilesPointers)));
+                Mode7_BG1TilesPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_BG1Tiles], () => s.SerializePointerArray(Mode7_BG1TilesPointers, 3, name: nameof(Mode7_BG1TilesPointers)));
+                Mode7_BG1MapPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_Bg1Map], () => s.SerializePointerArray(Mode7_BG1MapPointers, 3, name: nameof(Mode7_BG1MapPointers)));
+                Mode7_BG0TilesPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_BG0Tiles], () => s.SerializePointerArray(Mode7_BG0TilesPointers, 3, name: nameof(Mode7_BG0TilesPointers)));
+                Mode7_BG0MapPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_BG0Map], () => s.SerializePointerArray(Mode7_BG0MapPointers, 3, name: nameof(Mode7_BG0MapPointers)));
+                Mode7_MapPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_MapData], () => s.SerializePointerArray(Mode7_MapPointers, 3, name: nameof(Mode7_MapPointers)));
+                Mode7_CollisionMapDataPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_CollisionMapData], () => s.SerializePointerArray(Mode7_CollisionMapDataPointers, 3, name: nameof(Mode7_CollisionMapDataPointers)));
+                Mode7_MapPalettePointers = s.DoAt(pointerTable[DefinedPointer.Mode7_TilePalette], () => s.SerializePointerArray(Mode7_MapPalettePointers, 3, name: nameof(Mode7_MapPalettePointers)));
+                Mode7_BG1PalettePointers = s.DoAt(pointerTable[DefinedPointer.Mode7_BG1Palette], () => s.SerializePointerArray(Mode7_BG1PalettePointers, 3, name: nameof(Mode7_BG1PalettePointers)));
+                Mode7_BG0PalettePointers = s.DoAt(pointerTable[DefinedPointer.Mode7_BG0Palette], () => s.SerializePointerArray(Mode7_BG0PalettePointers, 3, name: nameof(Mode7_BG0PalettePointers)));
+                Mode7_ObjectsPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_Objects], () => s.SerializePointerArray(Mode7_ObjectsPointers, 3, name: nameof(Mode7_ObjectsPointers)));
+                Mode7_CollisionTypesPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_CollisionTypesArray], () => s.SerializePointerArray(Mode7_CollisionTypesPointers, 3, name: nameof(Mode7_CollisionTypesPointers)));
+                Mode7_WaypointsCount = s.DoAt(pointerTable[DefinedPointer.Mode7_WaypointsCount], () => s.SerializeArray<short>(Mode7_WaypointsCount, 3, name: nameof(Mode7_WaypointsCount)));
+                Mode7_WaypointsPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_Waypoints], () => s.SerializePointerArray(Mode7_WaypointsPointers, 3, name: nameof(Mode7_WaypointsPointers)));
 
                 // Serialize compressed tile data
                 s.DoAt(Mode7_MapTilesPointers[s.GetR1Settings().Level], () => {
@@ -289,7 +289,7 @@ namespace Ray1Map.GBARRR
             }
             else if (gameMode == GBA_RRR_Manager.GameMode.Menu)
             {
-                Menu_Pointers = s.DoAt(pointerTable[GBARRR_Pointer.MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
+                Menu_Pointers = s.DoAt(pointerTable[DefinedPointer.MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
 
                 var manager = (GBA_RRR_Manager)s.GetR1Settings().GetGameManager;
                 var menuLevels = manager.GetMenuLevels(s.GetR1Settings().Level);

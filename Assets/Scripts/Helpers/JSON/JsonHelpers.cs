@@ -56,14 +56,13 @@ namespace Ray1Map
         /// <returns>The deserialized object</returns>
         public static T DeserializeFromFile<T>(Stream fileStream)
         {
-            using (var streamReader = new StreamReader(fileStream))
-            {
-                // Read the JSON
-                var json = streamReader.ReadToEnd();
+            using var streamReader = new StreamReader(fileStream);
+            
+            // Read the JSON
+            var json = streamReader.ReadToEnd();
 
-                // Return the deserialized object
-                return JsonConvert.DeserializeObject<T>(json, new ByteArrayHexConverter());
-            }
+            // Return the deserialized object
+            return JsonConvert.DeserializeObject<T>(json, new ByteArrayHexConverter());
         }
 
         /// <summary>

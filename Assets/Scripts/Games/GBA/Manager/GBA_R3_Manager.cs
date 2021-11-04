@@ -146,10 +146,10 @@ namespace Ray1Map.GBA
                 var palettes = new RGBA5551Color[vigCount][];
 
                 for (int i = 0; i < vigCount; i++)
-                    palettes[i] = s.DoAt(pointerTable[GBA_Pointer.VignettePalettes] + (512 * i), () => s.SerializeObjectArray<RGBA5551Color>(default, 256));
+                    palettes[i] = s.DoAt(pointerTable[DefinedPointer.VignettePalettes] + (512 * i), () => s.SerializeObjectArray<RGBA5551Color>(default, 256));
 
                 // Go to vignette offset
-                s.Goto(pointerTable[GBA_Pointer.Vignette]);
+                s.Goto(pointerTable[DefinedPointer.Vignette]);
 
                 // Export every vignette
                 for (int i = 0; i < vigCount; i++)

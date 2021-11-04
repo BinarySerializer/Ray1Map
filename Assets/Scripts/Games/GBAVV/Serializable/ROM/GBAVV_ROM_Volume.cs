@@ -36,10 +36,10 @@ namespace Ray1Map.GBAVV
             var volumesCount = s.GetR1Settings().GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount;
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedge || s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
-                VolumeLevelInfoCounts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo) + 4 * volumesCount, () => s.SerializeArray<int>(VolumeLevelInfoCounts, volumesCount, name: nameof(VolumeLevelInfoCounts)));
+                VolumeLevelInfoCounts = s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo) + 4 * volumesCount, () => s.SerializeArray<int>(VolumeLevelInfoCounts, volumesCount, name: nameof(VolumeLevelInfoCounts)));
 
             // Serialize level infos
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 if (Volumes == null)
                     Volumes = new GBAVV_Volume[volumesCount];

@@ -99,7 +99,6 @@ namespace Ray1Map
             return newTex;
         }
 
-
         public static void ResizeImageData(this Texture2D texture2D, int targetX, int targetY, bool mipmap = true, FilterMode filter = FilterMode.Bilinear) {
             //create a temporary RenderTexture with the target size
             RenderTexture rt = RenderTexture.GetTemporary(targetX, targetY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);

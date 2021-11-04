@@ -31,10 +31,10 @@ namespace Ray1Map.GBA
             var manager = (GBA_Manager)Offset.Context.GetR1Settings().GetGameManager;
             var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(manager.GetROMFilePath(Context)));
 
-            var root = pointerTable[GBA_Pointer.UiOffsetTable];
+            var root = pointerTable[DefinedPointer.UiOffsetTable];
 
             if (manager.GetLevelType(Context) == GBA_Manager.LevelType.R3SinglePak)
-                root = pointerTable[GBA_Pointer.R3SinglePak_OffsetTable];
+                root = pointerTable[DefinedPointer.R3SinglePak_OffsetTable];
 
             if (Context.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                 if (Block == null) {

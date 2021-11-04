@@ -24,10 +24,10 @@ namespace Ray1Map.GBAIsometric
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
                 // Parse loc tables
-                LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));
-                LocalizationDecompressionBlockIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
+                LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));
+                LocalizationDecompressionBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationDecompressionBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
 
-                LocTables = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocTables), () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
+                LocTables = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocTables), () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
 
                 // Parse block data
 
@@ -50,7 +50,7 @@ namespace Ray1Map.GBAIsometric
             }
             else
             {
-                LocalizationPointers = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationPointers), () => s.SerializePointerArray(LocalizationPointers, langCount, name: nameof(LocalizationPointers)));
+                LocalizationPointers = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationPointers), () => s.SerializePointerArray(LocalizationPointers, langCount, name: nameof(LocalizationPointers)));
 
                 if (LocBlocks == null)
                     LocBlocks = new GBAIsometric_Spyro_LocBlock[langCount];

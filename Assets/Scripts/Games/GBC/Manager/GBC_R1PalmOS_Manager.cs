@@ -34,7 +34,7 @@ namespace Ray1Map.GBC
             };
         }
 
-        public static BaseColor[] GetPalmOS4BitPalette() => Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+        public static BaseColor[] GetPalmOS4BitPalette() => PaletteHelpers.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
         public static BaseColor[] GetPalmOS8BitPalette() {
             BaseColor[] pal = new BaseColor[256];

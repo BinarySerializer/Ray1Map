@@ -26,7 +26,7 @@ namespace Ray1Map.GBAVV
             var manager = s.GetR1Settings().GetGameManagerOfType<GBAVV_Fusion_Manager>();
 
             // Serialize level infos
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 var levelsCount = manager.LevInfos.Max(x => x.LevelIndex) + 1;
 

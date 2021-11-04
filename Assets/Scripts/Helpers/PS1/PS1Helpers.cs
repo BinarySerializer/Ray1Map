@@ -21,7 +21,7 @@ namespace Ray1Map
             bool flipX = false, bool flipY = false,
             bool useDummyPal = false)
         {
-            var dummyPal = useDummyPal ? Util.CreateDummyPalette(colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8 ? 256 : 16) : null;
+            var dummyPal = useDummyPal ? PaletteHelpers.CreateDummyPalette(colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8 ? 256 : 16) : null;
 
             texturePageOriginX *= 2;
 
@@ -148,7 +148,7 @@ namespace Ray1Map
                     throw new ArgumentOutOfRangeException();
             }
 
-            pal ??= Util.CreateDummyPalette(palLength).Select(x => x.GetColor()).ToArray();
+            pal ??= PaletteHelpers.CreateDummyPalette(palLength).Select(x => x.GetColor()).ToArray();
 
             var tex = TextureHelpers.CreateTexture2D(width, height);
 
@@ -164,6 +164,28 @@ namespace Ray1Map
                 flipTextureY: flipTextureY);
 
             return tex;
+        }
+
+        /// <summary>
+        /// Exports the v-ram as an image
+        /// </summary>
+        /// <param name="vram">The VRAM</param>
+        /// <param name="outputPath">The path to export to</param>
+        public static void ExportToFile(this PS1_VRAM vram, string outputPath)
+        {
+            Texture2D vramTex = TextureHelpers.CreateTexture2D(16 * 128, 2 * 256);
+
+            for (int x = 0; x < 16 * 128; x++)
+            {
+                for (int y = 0; y < 2 * 256; y++)
+                {
+                    byte val = vram.GetPixel8(0, y / 256, x, y % 256);
+                    vramTex.SetPixel(x, (2 * 256) - 1 - y, new Color(val / 255f, val / 255f, val / 255f));
+                }
+            }
+
+            vramTex.Apply();
+            Util.ByteArrayToFile(outputPath, vramTex.EncodeToPNG());
         }
     }
 }

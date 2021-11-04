@@ -322,9 +322,7 @@ public class SettingsWindow : UnityWindow
                     string outputFile = EditorUtility.SaveFilePanel("Save file", null, "vram", "png");
 
                     if (!String.IsNullOrEmpty(outputFile))
-                    {
-                        PaletteHelpers.ExportVram(outputFile, lvl.PS1_VRAM);
-                    }
+                        lvl.PS1_VRAM.ExportToFile(outputFile);
                 }
 
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {

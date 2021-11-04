@@ -53,7 +53,7 @@ namespace Ray1Map.GBC
             int w = (int)vignette.Width;
             int h = (int)vignette.Height;
 
-            var palette = vignette.BPP == 8 ? Util.CreateDummyPalette(256, firstTransparent: false) : Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+            var palette = vignette.BPP == 8 ? PaletteHelpers.CreateDummyPalette(256, firstTransparent: false) : PaletteHelpers.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
             Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
             for (int y = 0; y < h; y++) {

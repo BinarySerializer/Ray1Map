@@ -24,12 +24,12 @@ namespace Ray1Map.GBAVV
         public GBAVV_Generic_MapInfo[] MapInfos { get; set; }
         public GBAVV_Frogger_AdditionalLevelInfo[] AdditionalLevelInfos { get; set; }
 
-        public override void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
+        public override void SerializeLevelInfo(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable)
         {
             // Serialize level infos
             if (s.GetR1Settings().World == 0)
             {
-                MapInfoPointers = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () => s.SerializePointerArray(MapInfoPointers, 17, name: nameof(MapInfoPointers)));
+                MapInfoPointers = s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () => s.SerializePointerArray(MapInfoPointers, 17, name: nameof(MapInfoPointers)));
 
                 if (MapInfos == null)
                     MapInfos = new GBAVV_Generic_MapInfo[MapInfoPointers.Length];
@@ -39,7 +39,7 @@ namespace Ray1Map.GBAVV
             }
             else
             {
-                s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Frogger_AdditionalLevels), () =>
+                s.DoAt(pointerTable.TryGetItem(DefinedPointer.Frogger_AdditionalLevels), () =>
                 {
                     if (AdditionalLevelInfos == null)
                         AdditionalLevelInfos = new GBAVV_Frogger_AdditionalLevelInfo[5];

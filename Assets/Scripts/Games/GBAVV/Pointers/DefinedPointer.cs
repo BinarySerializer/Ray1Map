@@ -1,6 +1,6 @@
-﻿namespace Ray1Map
+﻿namespace Ray1Map.GBAVV
 {
-    public enum GBAVV_Pointer
+    public enum DefinedPointer
     {
         LevelInfo,
         Localization,

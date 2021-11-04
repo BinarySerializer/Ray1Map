@@ -93,7 +93,7 @@ namespace Ray1Map.GBA
             var pointerTable = PointerTables.GBA_PointerTable(context, context.GetFile(GetROMFilePath(context)));
             var s = context.Deserializer;
 
-            s.Goto(pointerTable[GBA_Pointer.MadTrax_Sprites]);
+            s.Goto(pointerTable[DefinedPointer.MadTrax_Sprites]);
 
             int index = 0;
 

@@ -1,6 +1,6 @@
-﻿namespace Ray1Map
+﻿namespace Ray1Map.GBAIsometric
 {
-    public enum GBAIsometric_Spyro_Pointer
+    public enum Spyro_DefinedPointer
     {
         DataTable,
         

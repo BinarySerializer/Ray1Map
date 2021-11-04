@@ -27,7 +27,7 @@ namespace Ray1Map.GBAVV
             SerializeScripts(s);
 
             // Serialize level meta data
-            s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_HubWorldPortals], () =>
+            s.DoAt(pointerTable[DefinedPointer.NitroKart_HubWorldPortals], () =>
             {
                 if (HubWorldPortals == null)
                     HubWorldPortals = new GBAVV_NitroKart_HubWorldPortal[5][];
@@ -37,7 +37,7 @@ namespace Ray1Map.GBAVV
             });
 
             // Serialize level infos
-            s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelInfos], () =>
+            s.DoAt(pointerTable[DefinedPointer.NitroKart_LevelInfos], () =>
             {
                 if (LevelInfos == null)
                     LevelInfos = new GBAVV_NitroKart_LevelInfo[26];

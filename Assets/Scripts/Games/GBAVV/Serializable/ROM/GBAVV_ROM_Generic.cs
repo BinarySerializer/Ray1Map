@@ -68,10 +68,10 @@ namespace Ray1Map.GBAVV
             SerializeAdditionalData(s, pointerTable);
         }
 
-        public void SerializeMode7(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
+        public void SerializeMode7(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable)
         {
             // Serialize Mode7 level infos
-            s.DoAt(pointerTable[GBAVV_Pointer.Mode7_LevelInfo], () =>
+            s.DoAt(pointerTable[DefinedPointer.Mode7_LevelInfo], () =>
             {
                 if (Mode7_LevelInfos == null)
                     Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GetR1Settings().GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7LevelsCount];
@@ -87,22 +87,22 @@ namespace Ray1Map.GBAVV
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
             {
-                GBAVV_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBAVV_Pointer.Mode7_TilePalette_Type0 : GBAVV_Pointer.Mode7_TilePalette_Type1_Flames;
+                DefinedPointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? DefinedPointer.Mode7_TilePalette_Type0 : DefinedPointer.Mode7_TilePalette_Type1_Flames;
 
                 Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, CurrentMode7LevelInfo.LevelType == 0 ? 256 : 16, name: nameof(Mode7_TilePalette)));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && CurrentMode7LevelInfo.LevelType == 0)
             {
-                Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_Crash1_Type0_TilePalette_0F, 16, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
+                Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_Crash1_Type0_TilePalette_0F, 16, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
             }
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 0)
             {
-                Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
+                Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 1)
             {
-                Mode7_Crash2_Type1_FlamesTileMapsPointers = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type1_FlamesTileMaps], () => s.SerializePointerArray(Mode7_Crash2_Type1_FlamesTileMapsPointers, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileMapsPointers)));
+                Mode7_Crash2_Type1_FlamesTileMapsPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash2_Type1_FlamesTileMaps], () => s.SerializePointerArray(Mode7_Crash2_Type1_FlamesTileMapsPointers, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileMapsPointers)));
 
                 if (Mode7_Crash2_Type1_FlamesTileMaps == null)
                     Mode7_Crash2_Type1_FlamesTileMaps = new MapTile[20][];
@@ -110,9 +110,9 @@ namespace Ray1Map.GBAVV
                 for (int i = 0; i < Mode7_Crash2_Type1_FlamesTileMaps.Length; i++)
                     Mode7_Crash2_Type1_FlamesTileMaps[i] = s.DoAt(Mode7_Crash2_Type1_FlamesTileMapsPointers[i], () => s.SerializeObjectArray<MapTile>(Mode7_Crash2_Type1_FlamesTileMaps[i], 0x1E * 0x14, name: $"{nameof(Mode7_Crash2_Type1_FlamesTileMaps)}[{i}]"));
 
-                Mode7_Crash2_Type1_FlamesTileSetLengths = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths], () => s.SerializeArray<uint>(Mode7_Crash2_Type1_FlamesTileSetLengths, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileSetLengths)));
+                Mode7_Crash2_Type1_FlamesTileSetLengths = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash2_Type1_FlamesTileSetLengths], () => s.SerializeArray<uint>(Mode7_Crash2_Type1_FlamesTileSetLengths, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileSetLengths)));
 
-                Mode7_Crash2_Type1_FlamesTileSetsPointers = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type1_FlamesTileSets], () => s.SerializePointerArray(Mode7_Crash2_Type1_FlamesTileSetsPointers, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileSetsPointers)));
+                Mode7_Crash2_Type1_FlamesTileSetsPointers = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash2_Type1_FlamesTileSets], () => s.SerializePointerArray(Mode7_Crash2_Type1_FlamesTileSetsPointers, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileSetsPointers)));
 
                 if (Mode7_Crash2_Type1_FlamesTileSets == null)
                     Mode7_Crash2_Type1_FlamesTileSets = new byte[20][];
@@ -122,9 +122,9 @@ namespace Ray1Map.GBAVV
             }
         }
 
-        public abstract void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable);
-        public virtual void SerializeAdditionalData(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable) { }
-        public virtual void SerializeIsometric(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable) { }
+        public abstract void SerializeLevelInfo(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable);
+        public virtual void SerializeAdditionalData(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable) { }
+        public virtual void SerializeIsometric(SerializerObject s, Dictionary<DefinedPointer, Pointer> pointerTable) { }
 
         public enum GenericLevelType
         {

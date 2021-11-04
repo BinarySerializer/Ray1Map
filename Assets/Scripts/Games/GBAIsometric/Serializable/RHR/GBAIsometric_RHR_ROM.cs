@@ -42,12 +42,12 @@ namespace Ray1Map.GBAIsometric
             var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize localization
-            Localization = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_Localization>(Localization, name: nameof(Localization)));
+            Localization = s.DoAt(pointerTable[RHR_DefinedPointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_Localization>(Localization, name: nameof(Localization)));
 
             if (s.GetR1Settings().World == 0)
             {
                 // Serialize level infos
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Levels], () =>
+                s.DoAt(pointerTable[RHR_DefinedPointer.Levels], () =>
                 {
                     if (LevelInfos == null)
                         LevelInfos = new GBAIsometric_RHR_LevelInfo[20];
@@ -57,21 +57,21 @@ namespace Ray1Map.GBAIsometric
                 });
 
                 PaletteAnimations = new GBAIsometric_RHR_PaletteAnimationTable[3];
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations0], () => {
+                s.DoAt(pointerTable[RHR_DefinedPointer.PaletteAnimations0], () => {
                     PaletteAnimations[0] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[0], name: $"{nameof(PaletteAnimations)}[0]");
                 });
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations1], () => {
+                s.DoAt(pointerTable[RHR_DefinedPointer.PaletteAnimations1], () => {
                     PaletteAnimations[1] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[1], name: $"{nameof(PaletteAnimations)}[1]");
                 });
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations2], () => {
+                s.DoAt(pointerTable[RHR_DefinedPointer.PaletteAnimations2], () => {
                     PaletteAnimations[2] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[2], name: $"{nameof(PaletteAnimations)}[2]");
                 });
 
                 // Serialize object types
-                ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
+                ObjectTypes = s.DoAt(pointerTable[RHR_DefinedPointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
 
                 // Serialize the crab type and add to the array (the crab entry points to memory)
-                ObjectTypes[13].Data = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.CrabObjType], () => s.SerializeObject<GBAIsometric_ObjectTypeData>(ObjectTypes[13].Data, name: $"CrabObjectTypeData"));
+                ObjectTypes[13].Data = s.DoAt(pointerTable[RHR_DefinedPointer.CrabObjType], () => s.SerializeObject<GBAIsometric_ObjectTypeData>(ObjectTypes[13].Data, name: $"CrabObjectTypeData"));
 
                 // Serialize additional object types
                 var additionalObjTypePointers = ObjTypePointers[s.GetR1Settings().GameModeSelection];
@@ -106,7 +106,7 @@ namespace Ray1Map.GBAIsometric
                     Sprites[i] = s.DoAt(new Pointer(spritePointers[i], Offset.File), () => s.SerializeObject<GBAIsometric_RHR_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
 
                 // Serialize sprite icons
-                SpriteIconPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteIcons], () => s.SerializePointerArray(SpriteIconPointers, 84, name: nameof(SpriteIconPointers)));
+                SpriteIconPointers = s.DoAt(pointerTable[RHR_DefinedPointer.SpriteIcons], () => s.SerializePointerArray(SpriteIconPointers, 84, name: nameof(SpriteIconPointers)));
 
                 if (SpriteIcons == null)
                     SpriteIcons = new GBAIsometric_RHR_Sprite[SpriteIconPointers.Length];
@@ -115,16 +115,16 @@ namespace Ray1Map.GBAIsometric
                     SpriteIcons[i] = s.DoAt(SpriteIconPointers[i], () => s.SerializeObject<GBAIsometric_RHR_Sprite>(SpriteIcons[i], name: $"{nameof(SpriteIcons)}[{i}]"));
 
                 // Serialize flag sprites
-                FlagSpritesUS = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteFlagsUS], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesUS, 3, name: nameof(FlagSpritesUS)));
-                FlagSpritesEU = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteFlagsEU], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesEU, 6, name: nameof(FlagSpritesEU)));
+                FlagSpritesUS = s.DoAt(pointerTable[RHR_DefinedPointer.SpriteFlagsUS], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesUS, 3, name: nameof(FlagSpritesUS)));
+                FlagSpritesEU = s.DoAt(pointerTable[RHR_DefinedPointer.SpriteFlagsEU], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesEU, 6, name: nameof(FlagSpritesEU)));
 
                 // Serialize font
-                Font0 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font0], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font0, name: nameof(Font0)));
-                Font1 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font1], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font1, name: nameof(Font1)));
-                Font2 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font2], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font2, name: nameof(Font2)));
+                Font0 = s.DoAt(pointerTable[RHR_DefinedPointer.Font0], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font0, name: nameof(Font0)));
+                Font1 = s.DoAt(pointerTable[RHR_DefinedPointer.Font1], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font1, name: nameof(Font1)));
+                Font2 = s.DoAt(pointerTable[RHR_DefinedPointer.Font2], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font2, name: nameof(Font2)));
 
                 // Serialize portraits
-                PortraitPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => s.SerializePointerArray(PortraitPointers, 10, name: nameof(PortraitPointers)));
+                PortraitPointers = s.DoAt(pointerTable[RHR_DefinedPointer.Portraits], () => s.SerializePointerArray(PortraitPointers, 10, name: nameof(PortraitPointers)));
 
                 if (Portraits == null)
                     Portraits = new GBAIsometric_RHR_AnimSet[PortraitPointers.Length];

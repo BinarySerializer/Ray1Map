@@ -42,7 +42,7 @@ namespace Ray1Map.GBAVV
                         x.BaseFile = Offset.File;
                     }, name: nameof(HardCodedScripts)));
 
-                DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GetR1Settings().GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
+                DialogScripts = s.DoAt(pointerTable.TryGetItem(DefinedPointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GetR1Settings().GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
         }
 

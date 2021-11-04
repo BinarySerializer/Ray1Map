@@ -1,11 +1,11 @@
 ﻿using BinarySerializer.Ray1;
 
-namespace Ray1Map
+namespace Ray1Map.Rayman1
 {
     /// <summary>
     /// Extension methods for event types
     /// </summary>
-    public static class EventTypeExtensions
+    public static class ObjTypeExtensions
     {
         /// <summary>
         /// Indicates if the HitPoints value is the current frame

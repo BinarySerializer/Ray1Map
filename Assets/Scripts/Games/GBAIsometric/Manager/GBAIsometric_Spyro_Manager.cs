@@ -48,7 +48,7 @@ namespace Ray1Map.GBAIsometric
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                var palette = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+                var palette = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
                 for (ushort i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {

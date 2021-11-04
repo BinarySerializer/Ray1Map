@@ -151,7 +151,7 @@ namespace Ray1Map.GEN {
             }
         }
         public static async UniTask ExportGardenAsync(GameSettings settings, string input, string output) {
-            //var pal = Util.CreateDummyPalette(256, false);
+            //var pal = PaletteHelpers.CreateDummyPalette(256, false);
             var pal = File.ReadAllBytes(input + "/palette.dat");
             Color[] cols = new Color[pal.Length / 3];
             for (int i = 0; i < cols.Length; i++) {

@@ -19,7 +19,7 @@ namespace Ray1Map.GBAVV
             var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize level infos
-            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
+            s.DoAt(pointerTable.TryGetItem(DefinedPointer.LevelInfo), () =>
             {
                 if (Maps == null)
                     Maps = new GBAVV_Map[s.GetR1Settings().GetGameManagerOfType<GBAVV_MapArray_BaseManager>().LevelsCount];

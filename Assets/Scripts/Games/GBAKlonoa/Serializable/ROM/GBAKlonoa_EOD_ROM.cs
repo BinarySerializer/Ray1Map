@@ -277,7 +277,7 @@ namespace Ray1Map.GBAKlonoa
                 0, 1
             };
 
-            return fix.Concat(GetLevelObjPalIndices(levelIndex)).Select(x => x == -1 ? Util.CreateDummyPalette(16) : ObjectPalettes[x].Colors).SelectMany(x => x).ToArray();
+            return fix.Concat(GetLevelObjPalIndices(levelIndex)).Select(x => x == -1 ? PaletteHelpers.CreateDummyPalette(16) : ObjectPalettes[x].Colors).SelectMany(x => x).ToArray();
         }
     }
 }

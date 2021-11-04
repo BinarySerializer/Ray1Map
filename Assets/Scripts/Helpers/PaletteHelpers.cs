@@ -20,21 +20,19 @@ namespace Ray1Map
         public static void ExportPaletteToGimp(string outputPath, string name, BaseColor[] palette)
         {
             // Create the file
-            using (var fileStream = File.Create(outputPath))
-            {
-                // Use a writer
-                using (var writer = new StreamWriter(fileStream))
-                {
-                    // Write header
-                    writer.WriteLine("GIMP Palette");
-                    writer.WriteLine("Name: " + name);
-                    writer.WriteLine("#");
+            using var fileStream = File.Create(outputPath);
 
-                    // Write colors
-                    foreach (var color in palette)
-                        writer.WriteLine($"{color.Red,-3} {color.Green,-3} {color.Blue,-3}");
-                }
-            }
+            // Use a writer
+            using var writer = new StreamWriter(fileStream);
+
+            // Write header
+            writer.WriteLine("GIMP Palette");
+            writer.WriteLine("Name: " + name);
+            writer.WriteLine("#");
+
+            // Write colors
+            foreach (var color in palette)
+                writer.WriteLine($"{color.Red,-3} {color.Green,-3} {color.Blue,-3}");
         }
 
         /// <summary>
@@ -78,22 +76,22 @@ namespace Ray1Map
             Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
         }
 
-        /// <summary>
-        /// Exports the v-ram as an image
-        /// </summary>
-        /// <param name="outputPath">The path to export to</param>
-        /// <param name="vram">The v-ram</param>
-        public static void ExportVram(string outputPath, PS1_VRAM vram)
+        public static BaseColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null)
         {
-            Texture2D vramTex = TextureHelpers.CreateTexture2D(16 * 128, 2 * 256);
-            for (int x = 0; x < 16 * 128; x++) {
-                for (int y = 0; y < 2 * 256; y++) {
-                    byte val = vram.GetPixel8(0, y / 256, x, y % 256);
-                    vramTex.SetPixel(x, (2 * 256) - 1 - y, new Color(val / 255f, val / 255f, val / 255f));
-                }
+            BaseColor[] pal = new BaseColor[length];
+
+            wrap ??= length;
+
+            if (firstTransparent)
+                pal[0] = BaseColor.Clear;
+
+            for (int i = firstTransparent ? 1 : 0; i < length; i++)
+            {
+                float val = (float)(i % wrap.Value) / (wrap.Value - 1);
+                pal[i] = new CustomColor(val, val, val);
             }
-            vramTex.Apply();
-            Util.ByteArrayToFile(outputPath, vramTex.EncodeToPNG());
+
+            return pal;
         }
     }
 }

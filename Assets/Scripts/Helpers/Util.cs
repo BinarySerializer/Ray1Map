@@ -1,62 +1,61 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using Cysharp.Threading.Tasks;
 using ImageMagick;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BinarySerializer;
-using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace Ray1Map
 {
-    public static class Util {
-        public static bool ByteArrayToFile(string fileName, byte[] byteArray) {
-			if (byteArray == null) return false;
-            if (FileSystem.mode == FileSystem.Mode.Web) return false;
-            try {
-				Directory.CreateDirectory(new System.IO.FileInfo(fileName).Directory.FullName);
-                using (var fs = new FileStream(fileName, System.IO.FileMode.Create, FileAccess.Write)) {
-                    fs.Write(byteArray, 0, byteArray.Length);
-                    return true;
-                }
-            } catch (Exception ex) {
+    public static class Util 
+    {
+        public static bool ByteArrayToFile(string fileName, byte[] byteArray) 
+        {
+			if (byteArray == null) 
+                return false;
+
+            if (FileSystem.mode == FileSystem.Mode.Web) 
+                return false;
+
+            try
+            {
+				Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+
+                using var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                fs.Write(byteArray, 0, byteArray.Length);
+                return true;
+            } 
+            catch (Exception ex)
+            {
                 Console.WriteLine("Exception caught in process: {0}", ex);
                 return false;
             }
         }
 
-		private static readonly string[] SizeSuffixes =
-				  { "bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
-		public static string SizeSuffix(Int64 value, int decimalPlaces = 1) {
-			if (value < 0) { return "-" + SizeSuffix(-value); }
+		private static readonly string[] SizeSuffixes = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+		public static string SizeSuffix(long value, int decimalPlaces = 1) 
+        {
+			if (value < 0)
+                return "-" + SizeSuffix(-value);
 
 			int i = 0;
 			decimal dValue = value;
-			while (Math.Round(dValue, decimalPlaces) >= 1000) {
+			while (Math.Round(dValue, decimalPlaces) >= 1000) 
+            {
 				dValue /= 1024;
 				i++;
 			}
 
 			return string.Format("{0:n" + decimalPlaces + "} {1}", dValue, SizeSuffixes[i]);
 		}
-        public static BaseColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null) {
-            BaseColor[] pal = new BaseColor[length];
-            if(wrap == null) wrap = length;
-            if (firstTransparent) {
-                pal[0] = BaseColor.Clear;
-            }
-            for (int i = firstTransparent ? 1 : 0; i < length; i++) {
-                float val = (float)(i % wrap.Value) / (wrap.Value - 1);
-                float bv = val;
-                pal[i] = new CustomColor(bv,bv,bv);
-            }
-            return pal;
-        }
 
-        public static uint NextPowerOfTwo(uint v) {
+        public static uint NextPowerOfTwo(uint v) 
+        {
             v--;
             v |= v >> 1;
             v |= v >> 2;
@@ -67,9 +66,13 @@ namespace Ray1Map
             return v;
         }
 
-		public static string NormalizePath(string path, bool isFolder) {
+		public static string NormalizePath(string path, bool isFolder) 
+        {
 			string newPath = path.Replace("\\", "/");
-			if (isFolder && !newPath.EndsWith("/")) newPath += "/";
+
+			if (isFolder && !newPath.EndsWith("/")) 
+                newPath += "/";
+
 			return newPath;
 		}
 
@@ -182,7 +185,7 @@ namespace Ray1Map
                 }
                 else
                 {
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{index}_{chunk.ChunkHeader}"), chunk.Data);
+                    ByteArrayToFile(Path.Combine(outputDir, $"{index}_{chunk.ChunkHeader}"), chunk.Data);
                 }
 
                 index++;
@@ -428,7 +431,6 @@ namespace Ray1Map
             }
         }
 
-
         public static Texture2D ToTileSetTexture(BaseColor[] imgData, int tileWidth, bool flipY, int wrap = 32) {
             int tileSize = tileWidth * tileWidth;
             int tilesetLength = imgData.Length / tileSize;
@@ -554,7 +556,6 @@ namespace Ray1Map
             .Split(palette.Length / 4, 4)
             .Select(p => ConvertGBAPalette(p, transparentIndex: transparentIndex))
             .ToArray();
-
 
         public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());
 

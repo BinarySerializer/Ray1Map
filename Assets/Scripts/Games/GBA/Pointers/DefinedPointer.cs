@@ -1,9 +1,9 @@
-﻿namespace Ray1Map
+﻿namespace Ray1Map.GBA
 {
     /// <summary>
     /// The type of Rayman 3 GBA pointers
     /// </summary>
-    public enum GBA_Pointer
+    public enum DefinedPointer
     {
         UiOffsetTable,
         LevelInfo,

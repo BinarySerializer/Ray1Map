@@ -19,48 +19,48 @@ namespace Ray1Map.GBAIsometric
             new GameInfo_World(1, Enumerable.Range(0, 5).ToArray()),
         });
 
-        public GBAIsometric_RHR_Pointer[] GetMenuMaps(int level)
+        public RHR_DefinedPointer[] GetMenuMaps(int level)
         {
             switch (level)
             {
                 case 0:
-                    return new GBAIsometric_RHR_Pointer[]
+                    return new RHR_DefinedPointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_WorldMap
+                        RHR_DefinedPointer.Map_WorldMap
                     };
                 case 1:
-                    return new GBAIsometric_RHR_Pointer[]
+                    return new RHR_DefinedPointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_Menu0,
-                        GBAIsometric_RHR_Pointer.Map_Menu1,
-                        GBAIsometric_RHR_Pointer.Map_Menu2,
-                        GBAIsometric_RHR_Pointer.Map_Menu3,
+                        RHR_DefinedPointer.Map_Menu0,
+                        RHR_DefinedPointer.Map_Menu1,
+                        RHR_DefinedPointer.Map_Menu2,
+                        RHR_DefinedPointer.Map_Menu3,
                     };
                 case 2:
-                    return new GBAIsometric_RHR_Pointer[]
+                    return new RHR_DefinedPointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_PauseFrame1,
-                        GBAIsometric_RHR_Pointer.Map_PauseFrame2,
+                        RHR_DefinedPointer.Map_PauseFrame1,
+                        RHR_DefinedPointer.Map_PauseFrame2,
                     };
                 case 3:
-                    return new GBAIsometric_RHR_Pointer[]
+                    return new RHR_DefinedPointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_ScoreScreen
+                        RHR_DefinedPointer.Map_ScoreScreen
                     };
                 case 4:
-                    return new GBAIsometric_RHR_Pointer[]
+                    return new RHR_DefinedPointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_Blank,
-                        GBAIsometric_RHR_Pointer.Map_LicenseScreen1,
-                        GBAIsometric_RHR_Pointer.Map_UbisoftScreen,
-                        GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1,
-                        GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2,
-                        GBAIsometric_RHR_Pointer.Map_LicenseScreen2,
-                        GBAIsometric_RHR_Pointer.Map_GameLogo,
+                        RHR_DefinedPointer.Map_Blank,
+                        RHR_DefinedPointer.Map_LicenseScreen1,
+                        RHR_DefinedPointer.Map_UbisoftScreen,
+                        RHR_DefinedPointer.Map_DigitalEclipseLogo1,
+                        RHR_DefinedPointer.Map_DigitalEclipseLogo2,
+                        RHR_DefinedPointer.Map_LicenseScreen2,
+                        RHR_DefinedPointer.Map_GameLogo,
                     };
 
                 default:
-                    return new GBAIsometric_RHR_Pointer[0];
+                    return new RHR_DefinedPointer[0];
             }
         }
 
@@ -217,8 +217,8 @@ namespace Ray1Map.GBAIsometric
                 var s = context.Deserializer;
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
-                var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
-                var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
+                var pal_4 = PaletteHelpers.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
+                var pal_8 = PaletteHelpers.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
                 var spritePaletteOffsets = rom.SpritePalettes[settings.GameModeSelection];
 
@@ -334,7 +334,7 @@ namespace Ray1Map.GBAIsometric
                 Pointer ptr = context.FilePointer(GetROMFilePath);
                 var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GetR1Settings().GameModeSelection, ptr.File);
                 MusyX_File musyxFile = null;
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.MusyxFile], () => {
+                s.DoAt(pointerTable[RHR_DefinedPointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
                 });
                 string outPath = outputPath + "/Sounds/";
@@ -585,8 +585,8 @@ namespace Ray1Map.GBAIsometric
                 }
             }
 
-            var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
-            var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
+            var pal_4 = PaletteHelpers.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
+            var pal_8 = PaletteHelpers.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
             var spritePalettesUInt = rom.SpritePalettes[context.GetR1Settings().GameModeSelection];
 
@@ -730,7 +730,7 @@ namespace Ray1Map.GBAIsometric
             }
             else
             {
-                defaultPalette = Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray();
+                defaultPalette = PaletteHelpers.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray();
                 palettes = tileMap.Palettes?.Select(x => x.Select((c, i) =>
                 {
                     if (i != 0)
