@@ -1391,18 +1391,19 @@ namespace Ray1Map.PSKlonoa
                     {
                         // TODO: Support multiple animations
                         ModelBoneAnimation_ArchiveFile anim = boneAnimations.Files[10];
+                        var animComponent = gameObject.AddComponent<SkeletonAnimationComponent>();
+                        animComponent.bones = new SkeletonAnimationComponent.Bone[obj.Bones.Length];
 
-                        for (int boneIndex = 0; boneIndex < anim.Rotations.BonesCount; boneIndex++)
+                        if (animSpeed != null)
+                            animComponent.speed = animSpeed;
+
+                        animComponent.loopMode = animLoopMode;
+
+                        for (int boneIndex = 0; boneIndex < animComponent.bones.Length; boneIndex++)
                         {
                             short frameCount = anim.Rotations.FramesCount;
 
-                            var animComponent = gameObject.AddComponent<AnimatedTransformComponent>();
-                            animComponent.animatedTransform = bones[boneIndex + 1];
-
-                            if (animSpeed != null)
-                                animComponent.speed = animSpeed;
-
-                            animComponent.loopMode = animLoopMode;
+                            animComponent.bones[boneIndex].animatedTransform = bones[boneIndex + 1];
 
                             var rotX = anim.Rotations.GetValues(boneIndex * 3 + 0);
                             var rotY = anim.Rotations.GetValues(boneIndex * 3 + 1);
@@ -1415,11 +1416,11 @@ namespace Ray1Map.PSKlonoa
                                 Select(x => PSKlonoaHelpers.GetQuaternion(rotX[x], rotY[x], rotZ[x])).
                                 ToArray();
 
-                            animComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
+                            animComponent.bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
 
                             for (int i = 0; i < frameCount; i++)
                             {
-                                animComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                                animComponent.bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
                                 {
                                     Position = positions[i],
                                     Rotation = rotations[i],
