@@ -1554,19 +1554,19 @@ namespace Ray1Map.PSKlonoa
 
                     Material mat = null;
                     if (packet.Mode.ABE)
-                        mat = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                        mat = new Material(Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial);
                     else
-                        mat = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                        mat = new Material(Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial);
 
                     if (hasBones) {
                         SkinnedMeshRenderer smr = gao.AddComponent<SkinnedMeshRenderer>();
-                        smr.sharedMaterial = new Material(mat);
+                        smr.sharedMaterial = mat;
                         smr.sharedMesh = unityMesh;
                         smr.bones = bones;
                         smr.rootBone = bones[0];
                     } else {
                         MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                        mr.sharedMaterial = new Material(mat);
+                        mr.sharedMaterial = mat;
                     }
                     // Add texture
                     if (packet.Mode.TME)
