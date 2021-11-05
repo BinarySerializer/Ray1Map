@@ -417,14 +417,14 @@ namespace Ray1Map.PSKlonoa
                     for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundGameObjectsFiles.Files.Length; sectorIndex++)
                     {
                         var objects = bgPack.BackgroundGameObjectsFiles.Files[sectorIndex].Objects.Where(x => !exportedLayers.Contains(x)).ToArray();
-                        var objectsLoader = new PSKlonoa_DTP_GameObjectsLoader(this, loader, 0, null, new GameObject3D[0], objects);
+                        var objectsLoader = new KlonoaObjectsLoader(this, loader, 0, null);
 
                         // Load to get the backgrounds with their animations
-                        await objectsLoader.LoadAsync();
+                        await objectsLoader.LoadAsync(new GameObject3D[0], objects);
                         await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
 
                         // Export every layer
-                        foreach (PSKlonoa_DTP_GameObjectsLoader.BackgroundLayer layer in objectsLoader.BG_Layers)
+                        foreach (KlonoaBackgroundLayer layer in objectsLoader.BackgroundLayers)
                         {
                             exportedLayers.Add(layer.Object);
                             export(layer.Frames, layer.Speed, layer.Object.BGDIndex);
@@ -850,15 +850,18 @@ namespace Ray1Map.PSKlonoa
             gao_3dObjParent.transform.localScale = Vector3.one;
 
             // Load the objects first so we get the VRAM animations
-            var objectsLoader = new PSKlonoa_DTP_GameObjectsLoader(this, loader, scale, gao_3dObjParent, loader.LevelData3D.SectorGameObjects3D[sector].Objects, loader.BackgroundPack.BackgroundGameObjectsFiles.Files.ElementAtOrDefault(sector)?.Objects);
-            await objectsLoader.LoadAsync();
+            var objectsLoader = new KlonoaObjectsLoader(this, loader, scale, gao_3dObjParent);
+
+            var objects3D = loader.LevelData3D.SectorGameObjects3D[sector].Objects;
+
+            await objectsLoader.LoadAsync(objects3D, loader.BackgroundPack.BackgroundGameObjectsFiles.Files.ElementAtOrDefault(sector)?.Objects);
 
             if (IncludeDebugInfo)
             {
                 Debug.Log($"TEXTURE ANIMATIONS:{Environment.NewLine}" +
-                          $"{String.Join(Environment.NewLine, objectsLoader.Anim_TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                          $"{String.Join(Environment.NewLine, objectsLoader.TextureAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
                 Debug.Log($"PALETTE ANIMATIONS:{Environment.NewLine}" +
-                          $"{String.Join(Environment.NewLine, objectsLoader.Anim_PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
+                          $"{String.Join(Environment.NewLine, objectsLoader.PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
             }
 
             // Load tracks
@@ -867,7 +870,7 @@ namespace Ray1Map.PSKlonoa
             await Controller.WaitIfNecessary();
 
             // TODO: Add cutscene tracks too
-            level.TrackManagers = objectsLoader.GameObj_CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
+            level.TrackManagers = objectsLoader.CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
@@ -888,7 +891,7 @@ namespace Ray1Map.PSKlonoa
             layers.Add(levelObj);
 
             // Add layer for 3D objects last
-            layers.Add(new Unity_Layer_GameObject(true, isAnimated: objectsLoader.GameObj_IsAnimated)
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: objectsLoader.GetIsAnimated)
             {
                 Name = "3D Objects",
                 ShortName = $"3DO",
@@ -901,9 +904,9 @@ namespace Ray1Map.PSKlonoa
             {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
                           $"{objectsLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
-                          $"{objectsLoader.Anim_ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
+                          $"{objectsLoader.ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
                           $"Objects:{Environment.NewLine}\t" +
-                          $"{String.Join($"{Environment.NewLine}\t", objectsLoader.GameObjects3D.Take(objectsLoader.GameObjects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalGameObjectType})"))}");
+                          $"{String.Join($"{Environment.NewLine}\t", objects3D.Take(objects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalGameObjectType})"))}");
             }
 
             await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
@@ -992,10 +995,10 @@ namespace Ray1Map.PSKlonoa
             return gaoLayers;
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, PSKlonoa_DTP_GameObjectsLoader objectsLoader, float scale)
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, KlonoaObjectsLoader objectsLoader, float scale)
         {
             // Get the background textures
-            var bgLayers = objectsLoader.BG_Layers;
+            var bgLayers = objectsLoader.BackgroundLayers;
             int pixelsPerUnit = 16;
             // Add the backgrounds
             return bgLayers.Select((t, i) => new Unity_Layer_Texture
@@ -1008,11 +1011,11 @@ namespace Ray1Map.PSKlonoa
             }).Reverse();
         }
 
-        public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, PSKlonoa_DTP_GameObjectsLoader objectsLoader, int sector, float scale)
+        public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, KlonoaObjectsLoader objectsLoader, int sector, float scale)
         {
             var tmdGameObj = new KlonoaTMDGameObject(
                     tmd: loader.LevelPack.Sectors[sector].LevelModel,
-                    loader: loader,
+                    vram: loader.VRAM,
                     scale: scale,
                     objectsLoader: objectsLoader,
                     isPrimaryObj: true);
@@ -1334,7 +1337,7 @@ namespace Ray1Map.PSKlonoa
             return (tex, new RectInt(minX, minY, width, height));
         }
 
-        public (Texture2D[], int) GetBackgroundFrames(Loader loader, PSKlonoa_DTP_GameObjectsLoader objectsLoader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer)
+        public (Texture2D[], int) GetBackgroundFrames(Loader loader, KlonoaObjectsLoader objectsLoader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer)
         {
             var celIndex = layer.CELIndex;
             var bgIndex = layer.BGDIndex;
@@ -1348,7 +1351,7 @@ namespace Ray1Map.PSKlonoa
 
             var anims = new HashSet<PS1VRAMAnimation>();
 
-            if (objectsLoader.Anim_BGPaletteAnimations.Any())
+            if (objectsLoader.BGPaletteAnimations.Any())
             {
                 foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
                 {
@@ -1357,7 +1360,7 @@ namespace Ray1Map.PSKlonoa
                     foreach (var anim in objectsLoader.Anim_GetBGAnimationsFromRegion(region))
                         anims.Add(anim);
 
-                    if (anims.Count == objectsLoader.Anim_BGPaletteAnimations.Count)
+                    if (anims.Count == objectsLoader.BGPaletteAnimations.Count)
                         break;
                 }
             }

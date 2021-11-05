@@ -10,14 +10,14 @@ namespace Ray1Map.PSKlonoa
     {
         public KlonoaTMDGameObject(
             PS1_TMD tmd, 
-            Loader loader,
+            PS1_VRAM vram,
             float scale,
-            PSKlonoa_DTP_GameObjectsLoader objectsLoader,
+            KlonoaObjectsLoader objectsLoader,
             bool isPrimaryObj,
             ModelAnimation_ArchiveFile[] animations = null,
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null) : base(tmd, loader.VRAM, scale)
+            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -27,7 +27,7 @@ namespace Ray1Map.PSKlonoa
             BoneAnimations = boneAnimations;
         }
 
-        public PSKlonoa_DTP_GameObjectsLoader ObjectsLoader { get; }
+        public KlonoaObjectsLoader ObjectsLoader { get; }
         public bool IsPrimaryObj { get; }
         public ModelAnimation_ArchiveFile[] Animations { get; }
         public AnimSpeed AnimSpeed { get; }
@@ -37,7 +37,7 @@ namespace Ray1Map.PSKlonoa
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
             // Expand with UV scroll
-            if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))
+            if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))
             {
                 tex.Bounds = new RectInt(
                     tex.Bounds.x,
@@ -129,7 +129,7 @@ namespace Ray1Map.PSKlonoa
         protected override void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex)
         {
             // Check for UV scroll animations
-            if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.Anim_ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))
+            if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))
             {
                 HasAnimations = true;
                 var animTex = packetGameObject.AddComponent<AnimatedTextureComponent>();
