@@ -53,7 +53,7 @@ namespace Ray1Map.PSKlonoa
         {
             var objects = new List<KlonoaObject>();
 
-            objects.AddRange(gameObjects3D.Select(x => new KlonoaGameObject3D(this, x)));
+            objects.AddRange(gameObjects3D.Where(x => !x.IsInvalid).Select(x => new KlonoaGameObject3D(this, x)));
             objects.AddRange(backgroundObjects.Select(x => new KlonoaBackgroundObject(this, x)));
 
             // Load animations
