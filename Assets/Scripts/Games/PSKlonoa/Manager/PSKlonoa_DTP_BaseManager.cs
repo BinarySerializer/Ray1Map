@@ -417,7 +417,7 @@ namespace Ray1Map.PSKlonoa
                     for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundGameObjectsFiles.Files.Length; sectorIndex++)
                     {
                         var objects = bgPack.BackgroundGameObjectsFiles.Files[sectorIndex].Objects.Where(x => !exportedLayers.Contains(x)).ToArray();
-                        var objectsLoader = new KlonoaObjectsLoader(this, loader, 0, null);
+                        var objectsLoader = new KlonoaObjectsLoader(loader, 0, null);
 
                         // Load to get the backgrounds with their animations
                         await objectsLoader.LoadAsync(new GameObject3D[0], objects);
@@ -437,12 +437,11 @@ namespace Ray1Map.PSKlonoa
                         if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
                             continue;
 
-                        var tex = GetTexture(loader.VRAM, bgPack, new BackgroundGameObject()
-                        {
-                            Type = BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_19,
-                            BGDIndex = bgdIndex,
-                            CELIndex = 0,
-                        });
+                        PS1_TIM tim = bgPack.TIMFiles.Files[0];
+                        PS1_CEL cel = bgPack.CELFiles.Files[0];
+                        PS1_BGD map = bgPack.BGDFiles.Files[bgdIndex];
+
+                        Texture2D tex = loader.VRAM.FillMapTexture(tim, cel, map);
 
                         export(new Texture2D[]
                         {
@@ -850,7 +849,7 @@ namespace Ray1Map.PSKlonoa
             gao_3dObjParent.transform.localScale = Vector3.one;
 
             // Load the objects first so we get the VRAM animations
-            var objectsLoader = new KlonoaObjectsLoader(this, loader, scale, gao_3dObjParent);
+            var objectsLoader = new KlonoaObjectsLoader(loader, scale, gao_3dObjParent);
 
             var objects3D = loader.LevelData3D.SectorGameObjects3D[sector].Objects;
 
@@ -1335,65 +1334,6 @@ namespace Ray1Map.PSKlonoa
             tex.Apply();
 
             return (tex, new RectInt(minX, minY, width, height));
-        }
-
-        public (Texture2D[], int) GetBackgroundFrames(Loader loader, KlonoaObjectsLoader objectsLoader, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer)
-        {
-            var celIndex = layer.CELIndex;
-            var bgIndex = layer.BGDIndex;
-
-            var tim = bg.TIMFiles.Files[celIndex];
-            var cel = bg.CELFiles.Files[celIndex];
-            var map = bg.BGDFiles.Files[bgIndex];
-
-            bool is8bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_8;
-            int palLength = (is8bit ? 256 : 16) * 2;
-
-            var anims = new HashSet<PS1VRAMAnimation>();
-
-            if (objectsLoader.BGPaletteAnimations.Any())
-            {
-                foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
-                {
-                    var region = new RectInt((clut & 0x3F) * 16 * 2, clut >> 6, palLength, 1);
-
-                    foreach (var anim in objectsLoader.Anim_GetBGAnimationsFromRegion(region))
-                        anims.Add(anim);
-
-                    if (anims.Count == objectsLoader.BGPaletteAnimations.Count)
-                        break;
-                }
-            }
-
-            if (!anims.Any())
-                return (new Texture2D[]
-                {
-                    GetTexture(loader.VRAM, bg, layer)
-                }, 0);
-
-            var width = map.MapWidth * map.CellWidth;
-            var height = map.MapHeight * map.CellHeight;
-
-            var animatedTex = new PS1VRAMAnimatedTexture(width, height, true, tex =>
-            {
-                GetTexture(loader.VRAM, bg, layer, tex);
-            }, anims.ToArray());
-
-            objectsLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
-
-            return (animatedTex.Textures, animatedTex.Speed);
-        }
-
-        public Texture2D GetTexture(PS1_VRAM vram, BackgroundPack_ArchiveFile bg, BackgroundGameObject layer, Texture2D tex = null)
-        {
-            var celIndex = layer.CELIndex;
-            var bgIndex = layer.BGDIndex;
-
-            PS1_TIM tim = bg.TIMFiles.Files[celIndex];
-            PS1_CEL cel = bg.CELFiles.Files[celIndex];
-            PS1_BGD map = bg.BGDFiles.Files[bgIndex];
-
-            return vram.FillMapTexture(tim, cel, map, tex);
         }
 
         public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)

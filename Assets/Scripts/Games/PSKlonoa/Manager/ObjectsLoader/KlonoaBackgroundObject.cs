@@ -1,4 +1,7 @@
-﻿using BinarySerializer.Klonoa.DTP;
+﻿using System.Collections.Generic;
+using System.Linq;
+using BinarySerializer.Klonoa.DTP;
+using BinarySerializer.PS1;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa
@@ -69,9 +72,55 @@ namespace Ray1Map.PSKlonoa
             {
                 case BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_19:
                 case BackgroundGameObject.BackgroundGameObjectType.BackgroundLayer_22:
-                    (Texture2D[] frames, var speed) = ObjLoader.Manager.GetBackgroundFrames(ObjLoader.Loader, ObjLoader, ObjLoader.Loader.BackgroundPack, Obj);
+                    BackgroundPack_ArchiveFile bg = ObjLoader.Loader.BackgroundPack;
 
-                    ObjLoader.BackgroundLayers.Add(new KlonoaBackgroundLayer(Obj, frames, speed));
+                    int celIndex = Obj.CELIndex;
+                    int bgIndex = Obj.BGDIndex;
+
+                    PS1_TIM tim = bg.TIMFiles.Files[celIndex];
+                    PS1_CEL cel = bg.CELFiles.Files[celIndex];
+                    PS1_BGD map = bg.BGDFiles.Files[bgIndex];
+
+                    bool is8bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_8;
+                    int palLength = (is8bit ? 256 : 16) * 2;
+
+                    var anims = new HashSet<PS1VRAMAnimation>();
+
+                    if (ObjLoader.BGPaletteAnimations.Any())
+                    {
+                        foreach (var clut in map.Map.Select(x => cel.Cells[x]).Select(x => x.ClutX | x.ClutY << 6).Distinct())
+                        {
+                            var region = new RectInt((clut & 0x3F) * 16 * 2, clut >> 6, palLength, 1);
+
+                            foreach (var anim in ObjLoader.Anim_GetBGAnimationsFromRegion(region))
+                                anims.Add(anim);
+
+                            if (anims.Count == ObjLoader.BGPaletteAnimations.Count)
+                                break;
+                        }
+                    }
+
+                    if (!anims.Any())
+                    {
+                        ObjLoader.BackgroundLayers.Add(new KlonoaBackgroundLayer(Obj, new Texture2D[]
+                        {
+                            GetLayerTexture()
+                        }, 0));
+                    }
+                    else
+                    {
+                        int width = map.MapWidth * map.CellWidth;
+                        int height = map.MapHeight * map.CellHeight;
+
+                        var animatedTex = new PS1VRAMAnimatedTexture(width, height, true, tex =>
+                        {
+                            GetLayerTexture(tex);
+                        }, anims.ToArray());
+
+                        ObjLoader.Anim_Manager.AddAnimatedTexture(animatedTex);
+
+                        ObjLoader.BackgroundLayers.Add(new KlonoaBackgroundLayer(Obj, animatedTex.Textures, animatedTex.Speed));
+                    }
                     break;
 
                 case BackgroundGameObject.BackgroundGameObjectType.Clear_Gradient:
@@ -79,6 +128,20 @@ namespace Ray1Map.PSKlonoa
                     ObjLoader.BackgroundClears.Add(Obj.Data_Clear);
                     break;
             }
+        }
+
+        public Texture2D GetLayerTexture(Texture2D tex = null)
+        {
+            BackgroundPack_ArchiveFile bg = ObjLoader.Loader.BackgroundPack;
+
+            int celIndex = Obj.CELIndex;
+            int bgIndex = Obj.BGDIndex;
+
+            PS1_TIM tim = bg.TIMFiles.Files[celIndex];
+            PS1_CEL cel = bg.CELFiles.Files[celIndex];
+            PS1_BGD map = bg.BGDFiles.Files[bgIndex];
+
+            return VRAM.FillMapTexture(tim, cel, map, tex);
         }
     }
 }

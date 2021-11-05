@@ -8,9 +8,8 @@ namespace Ray1Map.PSKlonoa
 {
     public class KlonoaObjectsLoader
     {
-        public KlonoaObjectsLoader(PSKlonoa_DTP_BaseManager manager, Loader loader, float scale, GameObject parentObject)
+        public KlonoaObjectsLoader(Loader loader, float scale, GameObject parentObject)
         {
-            Manager = manager;
             Loader = loader;
             Scale = scale;
             ParentObject = parentObject;
@@ -26,7 +25,6 @@ namespace Ray1Map.PSKlonoa
         }
 
         // Properties
-        public PSKlonoa_DTP_BaseManager Manager { get; }
         public Loader Loader { get; }
         public float Scale { get; }
         public GameObject ParentObject { get; }
