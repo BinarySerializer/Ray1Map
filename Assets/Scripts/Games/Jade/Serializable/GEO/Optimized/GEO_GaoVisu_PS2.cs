@@ -40,9 +40,9 @@ namespace Ray1Map.Jade {
 									c.Transfer(w, chainData);
 								}
 							}
-							// TODO: Find a way to log from this temporary context
+
 							PS2_GeometryCommand[] VIFProgram = null;
-							using (Context c = new Context("", serializerLog: new ParentContextLog() { ParentLog = Context.Log })) {
+							using (Context c = new Context("", serializerLog: new ParentContextLog(Context.Log))) {
 								ms.Position = 0;
 								var file = c.AddStreamFile($"ChainProgram__{Offset}__{elementIndex}-{subElementIndex}", ms);
 								var s = c.Deserializer;

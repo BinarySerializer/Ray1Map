@@ -13,5 +13,9 @@ namespace Ray1Map
 		public void Log(object obj) => ParentLog.Log(obj);
 
 		public void Dispose() { }
+
+		public ParentContextLog(ISerializerLog parent) {
+			ParentLog = parent;
+		}
 	}
 }
