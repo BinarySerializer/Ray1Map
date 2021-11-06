@@ -1,5 +1,8 @@
 ﻿using BinarySerializer;
 using BinarySerializer.PS2;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Ray1Map.Jade {
     public class PS2_DMACommand : BinarySerializable {
@@ -21,5 +24,25 @@ namespace Ray1Map.Jade {
 
             }
 		}
+
+        public void Transfer(Writer w, List<PS2_DMAChainData> chainData) {
+            w.Write(DataToTransfer);
+            w.Write(ExtraDataToTransfer);
+            switch (DMATag.ID) {
+                case Chain_DMAtag.TagID.REF:
+                    uint addr = DMATag.ADDR;
+                    int id = BitHelpers.ExtractBits((int)addr, 8, 24);
+                    int offset = BitHelpers.ExtractBits((int)addr, 24, 0);
+                    var data = chainData.FirstOrDefault(d => d.ID == id);
+                    if(data == null)
+                        throw new BinarySerializableException(this, $"No suitable data block found for REF DMATag with ID {id}");
+                    w.Write(data.Bytes, offset, DMATag.QWC * 16);
+                    break;
+                case Chain_DMAtag.TagID.RET:
+                    break;
+                default:
+                    throw new BinarySerializableException(this, $"Untreated DMAtag {DMATag.ID}");
+            }
+        }
     }
 }

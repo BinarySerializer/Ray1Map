@@ -73,7 +73,7 @@ namespace Ray1Map.Jade {
 				public uint BonesCount { get; set; }
 				public byte[] Bones { get; set; }
 				public uint VIFProgramsCount { get; set; }
-				public VIFProgram[] VIFPrograms { get; set; }
+				public PS2_DMAChainData[] VIFPrograms { get; set; }
 				public uint DMAChainProgramsCount { get; set; }
 				public PS2_DMAChainProgram[] DMAChainPrograms { get; set; }
 
@@ -86,26 +86,10 @@ namespace Ray1Map.Jade {
 					BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 					Bones = s.SerializeArray<byte>(Bones, BonesCount, name: nameof(Bones));
 					VIFProgramsCount = s.Serialize<uint>(VIFProgramsCount, name: nameof(VIFProgramsCount));
-					VIFPrograms = s.SerializeObjectArray<VIFProgram>(VIFPrograms, VIFProgramsCount, name: nameof(VIFPrograms));
+					VIFPrograms = s.SerializeObjectArray<PS2_DMAChainData>(VIFPrograms, VIFProgramsCount, onPreSerialize: p => p.Pre_IsInstance = false, name: nameof(VIFPrograms));
 					if (s.GetR1Settings().Platform == Platform.PS2) {
 						DMAChainProgramsCount = s.Serialize<uint>(DMAChainProgramsCount, name: nameof(DMAChainProgramsCount));
 						DMAChainPrograms = s.SerializeObjectArray<PS2_DMAChainProgram>(DMAChainPrograms, DMAChainProgramsCount, name: nameof(DMAChainPrograms));
-					}
-				}
-
-				public class VIFProgram : BinarySerializable {
-					public int ID { get; set; } // Used as address (ADDR = ID << 24)
-					public uint DataSize { get; set; }
-					public byte[] Bytes { get; set; } // GeometryCommands
-
-					public override void SerializeImpl(SerializerObject s) {
-						if (s.GetR1Settings().Platform == Platform.PSP) {
-							ID = s.Serialize<ushort>((ushort)ID, name: nameof(ID));
-						} else {
-							ID = s.Serialize<int>(ID, name: nameof(ID));
-						}
-						DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
-						Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
 					}
 				}
 			}
