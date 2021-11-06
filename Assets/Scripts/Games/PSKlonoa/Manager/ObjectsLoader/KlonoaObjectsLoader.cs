@@ -53,8 +53,27 @@ namespace Ray1Map.PSKlonoa
         {
             var objects = new List<KlonoaObject>();
 
+            // Add 3D and background objects
             objects.AddRange(gameObjects3D.Where(x => !x.IsInvalid).Select(x => new KlonoaGameObject3D(this, x)));
             objects.AddRange(backgroundObjects.Select(x => new KlonoaBackgroundObject(this, x)));
+
+            BaseHardCodedObjectsLoader hardCodedObjectsLoader = Loader.Settings.GetHardCodedObjectsLoader(Loader.LevelPack, Loader.BINBlock);
+
+            // Load cutscene objects
+            Dictionary<int, int[]> cutsceneSectors = Loader.Settings.CutsceneSectors;
+
+            if (cutsceneSectors.ContainsKey(Loader.BINBlock))
+            {
+                for (int cutsceneIndex = 0; cutsceneIndex < cutsceneSectors[Loader.BINBlock].Length; cutsceneIndex++)
+                {
+                    if (cutsceneSectors[Loader.BINBlock][cutsceneIndex] != Loader.LevelSector)
+                        continue;
+
+                    hardCodedObjectsLoader.LoadCutscene(cutsceneIndex);
+                }
+
+                objects.AddRange(hardCodedObjectsLoader.CutsceneGameObjects3D.Select(x => new KlonoaGameObject3D(this, x)));
+            }
 
             // Load animations
             for (var objIndex = 0; objIndex < objects.Count; objIndex++)

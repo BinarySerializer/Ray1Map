@@ -17,7 +17,8 @@ namespace Ray1Map.PSKlonoa
             ModelAnimation_ArchiveFile[] animations = null,
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null) : base(tmd, vram, scale)
+            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null,
+            GameObject3D.ModelVertexAnimation vertexAnimation = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -25,6 +26,7 @@ namespace Ray1Map.PSKlonoa
             AnimSpeed = animSpeed;
             AnimLoopMode = animLoopMode;
             BoneAnimations = boneAnimations;
+            VertexAnimation = vertexAnimation;
         }
 
         public KlonoaObjectsLoader ObjectsLoader { get; }
@@ -33,6 +35,7 @@ namespace Ray1Map.PSKlonoa
         public AnimSpeed AnimSpeed { get; }
         public AnimLoopMode AnimLoopMode { get; }
         public ArchiveFile<ModelBoneAnimation_ArchiveFile> BoneAnimations { get; }
+        public GameObject3D.ModelVertexAnimation VertexAnimation { get; }
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -76,7 +79,7 @@ namespace Ray1Map.PSKlonoa
             animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Files.Length];
 
             if (AnimSpeed != null)
-                animComponent.speed = AnimSpeed;
+                animComponent.speed = AnimSpeed.CloneAnimSpeed();
 
             animComponent.loopMode = AnimLoopMode;
 
@@ -124,6 +127,32 @@ namespace Ray1Map.PSKlonoa
 
             if (isTransformAnimated)
                 HasAnimations = true;
+        }
+
+        protected override void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes)
+        {
+            if (VertexAnimation == null) 
+                return;
+            
+            var c = gameObject.AddComponent<KlonoaDTPVertexAnimationComponent>();
+
+            c.meshes = primitiveMeshes.Select((m, i) => new KlonoaDTPVertexAnimationComponent.MeshData()
+            {
+                mesh = m,
+                vertexIndices = obj.Primitives[i].Vertices,
+                normalIndices = obj.Primitives[i].Normals,
+            }).ToArray();
+            c.frames = new KlonoaDTPVertexAnimationComponent.Frame[VertexAnimation.FrameIndices.Length];
+
+            for (int i = 0; i < VertexAnimation.FrameIndices.Length; i++)
+            {
+                c.frames[i].vertices = VertexAnimation.VertexFrames[VertexAnimation.FrameIndices[i]].Vertices.Select(ToVertex).ToArray();
+                c.frames[i].normals = VertexAnimation.NormalFrames[VertexAnimation.FrameIndices[i]].Normals.Select(ToNormal).ToArray();
+            }
+
+            c.speed = new AnimSpeed_FrameDelayMulti(VertexAnimation.FrameSpeeds.Select(x => (float)x).ToArray());
+
+            HasAnimations = true;
         }
 
         protected override void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex)

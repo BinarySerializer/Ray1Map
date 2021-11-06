@@ -20,16 +20,17 @@ namespace Ray1Map
 
         public bool HasAnimations { get; protected set; }
 
-        private Vector3 ToVertex(PS1_TMD_Vertex v) => new Vector3(v.X / Scale, -v.Y / Scale, v.Z / Scale);
-        private Vector3 ToNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
+        protected Vector3 ToVertex(PS1_TMD_Vertex v) => new Vector3(v.X / Scale, -v.Y / Scale, v.Z / Scale);
+        protected Vector3 ToNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
 
         protected virtual void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex) { }
         protected virtual void OnCreateTexture(PS1VRAMTexture tex) { }
         protected virtual void OnCreatedBones(GameObject gameObject, PS1_TMD_Object obj, Transform[] bones) { }
         protected virtual void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex) { }
+        protected virtual void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes) { }
         protected virtual void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
 
-        protected virtual void AddPrimitive(GameObject gameObject, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
+        protected virtual Mesh AddPrimitive(GameObject gameObject, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
         {
             // Helper method
             int getBoneForVertex(int vertexIndex)
@@ -50,7 +51,7 @@ namespace Ray1Map
                 if (packet.Mode.Code != 0)
                     Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
 
-                return;
+                return null;
             }
 
             Mesh unityMesh = new Mesh();
@@ -131,6 +132,8 @@ namespace Ray1Map
             // Apply texture
             if (packet.Mode.TME)
                 ApplyTexture(vramTexturesLookup[packet], mat, unityMesh, obj, packet, gao, objIndex, packetIndex, includeDebugInfo);
+
+            return unityMesh;
         }
 
         protected virtual int[] GetTriangles(PS1_TMD_Packet packet)
@@ -299,9 +302,13 @@ namespace Ray1Map
 
                 OnCreateObject(gameObject, obj, objIndex);
 
+                Mesh[] meshes = new Mesh[obj.Primitives.Length];
+
                 // Add each primitive
                 for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
-                    AddPrimitive(gameObject, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo);
+                    meshes[packetIndex] = AddPrimitive(gameObject, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo);
+
+                OnCreatedPrimitives(gameObject, obj, objIndex, meshes);
             }
 
             return gaoParent;

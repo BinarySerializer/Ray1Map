@@ -553,7 +553,7 @@ namespace Ray1Map.PSKlonoa
                     {
                         var anim = cutscenePack.SpriteAnimations.Animations[i];
 
-                        var isPlayerAnim = (cutscenePack.Cutscenes.SelectMany(x => x.Cutscene_Normal.Instructions).FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObjAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == i)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+                        var isPlayerAnim = (cutscenePack.Cutscenes.SelectMany(x => x.Cutscene_Normal.Instructions).FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == i)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
 
                         var animFrames = GetAnimationFrames(
                             loader: loader, 

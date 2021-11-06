@@ -29,9 +29,10 @@ namespace Ray1Map.PSKlonoa
 
         public override void LoadAnimations()
         {
-            // Ignore if it's invalid
-            if (Obj.IsInvalid)
-                return;
+            if (Obj.Data_RawTextureAnimation != null)
+            {
+                ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(Obj.Data_RawTextureAnimation.Region, Obj.Data_RawTextureAnimation.Frames, Obj.TextureAnimationInfo.AnimSpeed, Obj.TextureAnimationInfo.PingPong));
+            }
 
             switch (Obj.GlobalGameObjectType)
             {
@@ -135,11 +136,10 @@ namespace Ray1Map.PSKlonoa
 
         public override void LoadObject()
         {
-            // Ignore if it's invalid
-            if (Obj.IsInvalid)
-                return;
+            if (Obj.Data_CameraAnimations != null)
+                ObjLoader.CameraAnimations.Add(Obj.Data_CameraAnimations);
 
-            // Ignore if the object has no model
+            // Return if the object has no model
             if (Obj.Data_TMD == null)
                 return;
 
@@ -191,7 +191,8 @@ namespace Ray1Map.PSKlonoa
                 localTransforms: Obj.Data_LocalTransform?.YieldToArray() ?? Obj.Data_LocalTransforms?.Files,
                 absoluteTransforms: Obj.Data_AbsoluteTransform?.YieldToArray() ?? Obj.Data_AbsoluteTransforms?.Files,
                 multiple: isMultiple,
-                modelAnims: Obj.ModelAnimations);
+                modelAnims: Obj.Data_ModelAnimations,
+                vertexAnimation: Obj.Data_VertexAnimation);
 
             // Apply a position if available
             if (Obj.Data_Position != null)
@@ -231,8 +232,6 @@ namespace Ray1Map.PSKlonoa
                 if (Obj.Data_Position != null)
                     GameObj_ApplyPosition(secondaryObj, Obj.Data_Position, Scale);
             }
-
-            ObjLoader.CameraAnimations.Add(Obj.Data_CameraAnimations);
         }
 
         public GameObject GameObj_LoadTMD(
@@ -245,7 +244,8 @@ namespace Ray1Map.PSKlonoa
             ModelAnimation_ArchiveFile[] absoluteTransforms = null,
             int index = 0,
             bool multiple = false,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> modelAnims = null)
+            ArchiveFile<ModelBoneAnimation_ArchiveFile> modelAnims = null,
+            GameObject3D.ModelVertexAnimation vertexAnimation = null)
         {
             if (tmd == null)
                 throw new ArgumentNullException(nameof(tmd));
@@ -259,7 +259,8 @@ namespace Ray1Map.PSKlonoa
                 animations: localTransforms,
                 animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
                 animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
-                boneAnimations: modelAnims);
+                boneAnimations: modelAnims,
+                vertexAnimation: vertexAnimation);
 
             GameObject gameObj = tmdGameObj.CreateGameObject($"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
             bool isAnimated = tmdGameObj.HasAnimations;
