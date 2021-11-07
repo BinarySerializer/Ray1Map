@@ -157,7 +157,7 @@ namespace Ray1Map.PSKlonoa
 
                 return;
             }
-            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Cutscene_7_1_CageFence)
+            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Cutscene_CageFence)
             {
                 VectorAnimation_File positions = Obj.Data_Positions;
                 VectorAnimation_File rotations = Obj.Data_Rotations;
