@@ -103,7 +103,7 @@ namespace Ray1Map.PSKlonoa
                     {
                         animComponent.animations[animIndex].bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
                         {
-                            Position = positions[i],
+                            Position = i >= positions.Length ? positions.First() : positions[i],
                             Rotation = rotations[i],
                             Scale = Vector3.one,
                         };

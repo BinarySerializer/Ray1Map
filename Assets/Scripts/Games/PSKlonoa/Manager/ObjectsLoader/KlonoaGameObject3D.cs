@@ -30,9 +30,14 @@ namespace Ray1Map.PSKlonoa
         public override void LoadAnimations()
         {
             if (Obj.Data_RawTextureAnimation != null)
-            {
-                ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(Obj.Data_RawTextureAnimation.Region, Obj.Data_RawTextureAnimation.Frames, Obj.TextureAnimationInfo.AnimSpeed, Obj.TextureAnimationInfo.PingPong));
-            }
+                ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(
+                    region: Obj.Data_RawTextureAnimation.Region, 
+                    frames: Obj.Data_RawTextureAnimation.Frames, 
+                    speed: Obj.TextureAnimationInfo.AnimSpeed, 
+                    pingPong: Obj.TextureAnimationInfo.PingPong));
+
+            if (Obj.Data_CameraAnimations != null)
+                ObjLoader.CameraAnimations.Add(Obj.Data_CameraAnimations);
 
             switch (Obj.GlobalGameObjectType)
             {
@@ -136,9 +141,6 @@ namespace Ray1Map.PSKlonoa
 
         public override void LoadObject()
         {
-            if (Obj.Data_CameraAnimations != null)
-                ObjLoader.CameraAnimations.Add(Obj.Data_CameraAnimations);
-
             // Return if the object has no model
             if (Obj.Data_TMD == null)
                 return;
@@ -151,6 +153,20 @@ namespace Ray1Map.PSKlonoa
                 {
                     var geyserObj = GameObj_LoadTMD(Obj, Obj.Data_TMD, ObjLoader, VRAM, Scale, index: i);
                     GameObj_ApplyPosition(geyserObj, positions[i].Position, Scale);
+                }
+
+                return;
+            }
+            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Cutscene_7_1_CageFence)
+            {
+                VectorAnimation_File positions = Obj.Data_Positions;
+                VectorAnimation_File rotations = Obj.Data_Rotations;
+
+                for (int i = 0; i < positions.ObjectsCount; i++)
+                {
+                    var fenceObj = GameObj_LoadTMD(Obj, Obj.Data_TMD, ObjLoader, VRAM, Scale, index: i);
+                    GameObj_ApplyPosition(fenceObj, positions.Vectors[0][i], Scale);
+                    GameObj_ApplyRotation(fenceObj, rotations.Vectors[0][i]);
                 }
 
                 return;
@@ -295,6 +311,10 @@ namespace Ray1Map.PSKlonoa
         public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, float scale, Vector3? posOffset = null)
         {
             obj.transform.position = pos.GetPositionVector(posOffset, scale);
+        }
+        public void GameObj_ApplyRotation(GameObject obj, KlonoaVector16 rot)
+        {
+            obj.transform.rotation = rot.GetQuaternion();
         }
     }
 }
