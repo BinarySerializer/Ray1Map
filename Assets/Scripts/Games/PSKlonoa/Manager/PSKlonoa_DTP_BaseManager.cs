@@ -353,25 +353,25 @@ namespace Ray1Map.PSKlonoa
                 // GAME OBJECT TEXTURES
                 if (loader.LevelData3D != null)
                 {
-                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorGameObjects3D.Length; sectorIndex++)
+                    for (int sectorIndex = 0; sectorIndex < loader.LevelData3D.SectorGameObjectDefinition.Length; sectorIndex++)
                     {
-                        var sectorGameObjects = loader.LevelData3D.SectorGameObjects3D[sectorIndex].Objects;
+                        var sectorGameObjects = loader.LevelData3D.SectorGameObjectDefinition[sectorIndex].ObjectsDefinitions;
 
                         for (int objIndex = 0; objIndex < sectorGameObjects.Length; objIndex++)
                         {
                             var obj = sectorGameObjects[objIndex];
 
-                            if (obj.Data_TIM != null)
+                            if (obj.Data?.TIM != null)
                             {
                                 exportTex(
-                                    getTex: () => obj.Data_TIM.GetTexture(),
+                                    getTex: () => obj.Data?.TIM.GetTexture(),
                                     blockName: $"{blockIndex} - GameObjectTextures",
                                     name: $"{sectorIndex} - {objIndex} - Texture");
                             }
                             
-                            if (obj.Data_TIMArchive != null)
+                            if (obj.Data?.TIMArchive != null)
                             {
-                                var textures = obj.Data_TIMArchive;
+                                var textures = obj.Data?.TIMArchive;
 
                                 for (int texIndex = 0; texIndex < textures.Files.Length; texIndex++)
                                 {
@@ -382,9 +382,9 @@ namespace Ray1Map.PSKlonoa
                                 }
                             }
 
-                            if (obj.Data_TextureAnimation != null)
+                            if (obj.Data?.TextureAnimation != null)
                             {
-                                var texAnim = obj.Data_TextureAnimation;
+                                var texAnim = obj.Data.TextureAnimation;
 
                                 for (int texIndex = 0; texIndex < texAnim.Files.Length; texIndex++)
                                 {
@@ -420,7 +420,7 @@ namespace Ray1Map.PSKlonoa
                         var objectsLoader = new KlonoaObjectsLoader(loader, 0, null);
 
                         // Load to get the backgrounds with their animations
-                        await objectsLoader.LoadAsync(new GameObject3D[0], objects);
+                        await objectsLoader.LoadAsync(new GameObjectDefinition[0], objects);
                         await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
 
                         // Export every layer
@@ -851,7 +851,7 @@ namespace Ray1Map.PSKlonoa
             // Load the objects first so we get the VRAM animations
             var objectsLoader = new KlonoaObjectsLoader(loader, scale, gao_3dObjParent);
 
-            var objects3D = loader.LevelData3D.SectorGameObjects3D[sector].Objects;
+            var objects3D = loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions;
 
             await objectsLoader.LoadAsync(objects3D, loader.BackgroundPack.BackgroundGameObjectsFiles.Files.ElementAtOrDefault(sector)?.Objects);
 
@@ -905,7 +905,7 @@ namespace Ray1Map.PSKlonoa
                           $"{objectsLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
                           $"{objectsLoader.ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
                           $"Objects:{Environment.NewLine}\t" +
-                          $"{String.Join($"{Environment.NewLine}\t", objects3D.Take(objects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.GlobalGameObjectType})"))}");
+                          $"{String.Join($"{Environment.NewLine}\t", objects3D.Take(objects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.Data?.GlobalGameObjectType})"))}");
             }
 
             await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
@@ -1147,9 +1147,9 @@ namespace Ray1Map.PSKlonoa
             }));
 
             // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorGameObjects3D[sector].Objects.
-                Where(x => x.Data_ScenerySprites != null || x.Data_LightPositions != null).
-                SelectMany(x => (x.Data_LightPositions ?? x.Data_ScenerySprites).Vectors[0]).
+            objects.AddRange(loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions.
+                Where(x => x.Data?.ScenerySprites != null || x.Data?.LightPositions != null).
+                SelectMany(x => (x.Data.LightPositions ?? x.Data.ScenerySprites).Vectors[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
             {
                 Position = KlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),

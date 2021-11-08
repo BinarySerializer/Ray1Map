@@ -1,48 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Klonoa;
+﻿using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Ray1Map.PSKlonoa
 {
     public class KlonoaGameObject3D : KlonoaObject
     {
-        public KlonoaGameObject3D(KlonoaObjectsLoader objLoader, GameObject3D obj) : base(objLoader)
+        public KlonoaGameObject3D(KlonoaObjectsLoader objLoader, GameObjectData obj) : base(objLoader)
         {
             Obj = obj;
 
             // Log unknown objects
             if (Obj.GlobalGameObjectType == GlobalGameObjectType.Unknown)
-                Debug.LogWarning($"Unknown object type at {Obj.Offset} of type " +
+                Debug.LogWarning($"Unknown object type of type " +
                                  $"{(int)Obj.PrimaryType}-{Obj.SecondaryType} with data:{Environment.NewLine}" +
-                                 $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", Obj.Data_Unknown?.Select(dataFile => $"Length: {dataFile.Data.Length} bytes{Environment.NewLine}{dataFile.Data.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
+                                 $"{String.Join($"{Environment.NewLine}{Environment.NewLine}", Obj.UnknownData?.Select(dataFile => $"Length: {dataFile.Data.Length} bytes{Environment.NewLine}{dataFile.Data.ToHexString(align: 16, maxLines: 16)}") ?? new string[0])}");
         }
 
         private static HashSet<ModelAnimation_ArchiveFile> _correctedTransforms; // TODO: Find better solution
 
-        public GameObject3D Obj { get; }
+        public GameObjectData Obj { get; }
 
         public override void LoadAnimations()
         {
-            if (Obj.Data_RawTextureAnimation != null)
+            if (Obj.RawTextureAnimation != null)
                 ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(
-                    region: Obj.Data_RawTextureAnimation.Region, 
-                    frames: Obj.Data_RawTextureAnimation.Frames, 
+                    region: Obj.RawTextureAnimation.Region, 
+                    frames: Obj.RawTextureAnimation.Frames, 
                     speed: Obj.TextureAnimationInfo.AnimSpeed, 
                     pingPong: Obj.TextureAnimationInfo.PingPong));
 
-            if (Obj.Data_CameraAnimations != null)
-                ObjLoader.CameraAnimations.Add(Obj.Data_CameraAnimations);
+            if (Obj.CameraAnimations != null)
+                ObjLoader.CameraAnimations.Add(Obj.CameraAnimations);
 
             switch (Obj.GlobalGameObjectType)
             {
                 case GlobalGameObjectType.ScrollAnimation:
-                    ObjLoader.ScrollAnimations.Add(Obj.Data_UVScrollAnimation);
+                    ObjLoader.ScrollAnimations.Add(Obj.UVScrollAnimation);
                     break;
 
                 case GlobalGameObjectType.VRAMScrollAnimation:
@@ -106,7 +104,7 @@ namespace Ray1Map.PSKlonoa
                     break;
 
                 case GlobalGameObjectType.TextureAnimation:
-                    ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(Obj.Data_TextureAnimation.Files.Select(x => x.Obj).ToArray(), Obj.TextureAnimationInfo.AnimSpeed, Obj.TextureAnimationInfo.PingPong));
+                    ObjLoader.TextureAnimations.Add(new PS1VRAMAnimation(Obj.TextureAnimation.Files.Select(x => x.Obj).ToArray(), Obj.TextureAnimationInfo.AnimSpeed, Obj.TextureAnimationInfo.PingPong));
                     break;
 
                 case GlobalGameObjectType.PaletteAnimation:
@@ -116,8 +114,8 @@ namespace Ray1Map.PSKlonoa
                     var anim = Obj.GlobalGameObjectType == GlobalGameObjectType.PaletteAnimation ||
                                Obj.GlobalGameObjectType == GlobalGameObjectType.ObjectWithPaletteAnimation ||
                                Obj.GlobalGameObjectType == GlobalGameObjectType.NahatombPaletteAnimation
-                        ? Obj.Data_PaletteAnimation.YieldToArray()
-                        : Obj.Data_PaletteAnimations.Files;
+                        ? Obj.PaletteAnimation.YieldToArray()
+                        : Obj.PaletteAnimations.Files;
 
                     // Correct the alpha in the colors. Sometimes it's incorrect. Seems the game for model graphics only uses
                     // transparency if the color index is 0?
@@ -141,180 +139,145 @@ namespace Ray1Map.PSKlonoa
 
         public override void LoadObject()
         {
-            // Return if the object has no model
-            if (Obj.Data_TMD == null)
+            // Return if the object has no models
+            if (Obj.Models?.Any(x => x.TMD != null) != true)
                 return;
 
-            if (Obj.GlobalGameObjectType == GlobalGameObjectType.GeyserPlatform)
+            if (Obj.GlobalGameObjectType == GlobalGameObjectType.MultiWheel)
             {
-                var positions = Obj.GeyserPlatformPositions;
+                PS1_TMD tmd = Obj.Models[0].TMD;
+                ModelAnimation_ArchiveFile transform = Obj.AbsoluteTransform;
 
-                for (int i = 0; i < positions.Length; i++)
+                Obj.Models = new GameObjectData_Model[transform.Positions.ObjectsCount];
+                Obj.AbsoluteTransform = null;
+
+                for (int i = 0; i < Obj.Models.Length; i++)
                 {
-                    var geyserObj = GameObj_LoadTMD(Obj, Obj.Data_TMD, ObjLoader, VRAM, Scale, index: i);
-                    GameObj_ApplyPosition(geyserObj, positions[i].Position, Scale);
+                    Obj.Models[i] = new GameObjectData_Model()
+                    {
+                        TMD = tmd,
+                        LocalTransform = new ModelAnimation_ArchiveFile
+                        {
+                            Rotations = new VectorAnimation_File
+                            {
+                                ObjectsCount = 1,
+                                FramesCount = transform.Rotations.FramesCount,
+                                Vectors = transform.Rotations.Vectors.Select(x => new KlonoaVector16[]
+                                {
+                                    x[i]
+                                }).ToArray()
+                            },
+                            Positions = new VectorAnimation_File
+                            {
+                                ObjectsCount = 1,
+                                FramesCount = transform.Positions.FramesCount,
+                                Vectors = transform.Positions.Vectors.Select(x => new KlonoaVector16[]
+                                {
+                                    x[i]
+                                }).ToArray()
+                            }
+                        }
+                    };
                 }
-
-                return;
             }
-            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Cutscene_CageFence)
+            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.FallingTargetPlatform)
             {
-                VectorAnimation_File positions = Obj.Data_Positions;
-                VectorAnimation_File rotations = Obj.Data_Rotations;
+                _correctedTransforms ??= new HashSet<ModelAnimation_ArchiveFile>();
 
-                for (int i = 0; i < positions.ObjectsCount; i++)
-                {
-                    var fenceObj = GameObj_LoadTMD(Obj, Obj.Data_TMD, ObjLoader, VRAM, Scale, index: i);
-                    GameObj_ApplyPosition(fenceObj, positions.Vectors[0][i], Scale);
-                    GameObj_ApplyRotation(fenceObj, rotations.Vectors[0][i]);
-                }
+                foreach (var rot in Obj.Models[0].LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x))
+                    .SelectMany(x => x.Rotations.Vectors).SelectMany(x => x))
+                    rot.X += 0x400;
 
-                return;
+                foreach (var f in Obj.Models[0].LocalTransforms.Files)
+                    _correctedTransforms.Add(f);
             }
 
-            bool isMultiple = false;
-            Vector3Int objPosOffset = Vector3Int.zero;
+            string name = Obj.DefinitionOffset != null
+                ? $"Object3D Offset:{Obj.DefinitionOffset} Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})"
+                : $"Object3D Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})";
 
-            // TODO: Hard-code this in the object
-            switch (Obj.GlobalGameObjectType)
+            // Create the game object
+            GameObject = new GameObject(name);
+
+            // Create a child object for each model the object contains
+            for (var modelIndex = 0; modelIndex < Obj.Models.Length; modelIndex++)
             {
-                case GlobalGameObjectType.WindSwirl:
-                    objPosOffset = new Vector3Int(0, 182, 0);
-                    break;
-
-                case GlobalGameObjectType.MultiWheel:
-                    isMultiple = true;
-                    break;
-
-                case GlobalGameObjectType.FallingTargetPlatform:
-                    _correctedTransforms ??= new HashSet<ModelAnimation_ArchiveFile>();
-
-                    foreach (var rot in Obj.Data_LocalTransforms.Files.Where(x => !_correctedTransforms.Contains(x)).SelectMany(x => x.Rotations.Vectors).SelectMany(x => x))
-                        rot.X += 0x400;
-
-                    foreach (var f in Obj.Data_LocalTransforms.Files)
-                        _correctedTransforms.Add(f);
-                    break;
-            }
-
-            // Load the object model from the TMD data
-            var obj = GameObj_LoadTMD(
-                obj3D: Obj,
-                tmd: Obj.Data_TMD,
-                objLoader: ObjLoader,
-                vram: VRAM,
-                scale: Scale,
-                localTransforms: Obj.Data_LocalTransform?.YieldToArray() ?? Obj.Data_LocalTransforms?.Files,
-                absoluteTransforms: Obj.Data_AbsoluteTransform?.YieldToArray() ?? Obj.Data_AbsoluteTransforms?.Files,
-                multiple: isMultiple,
-                modelAnims: Obj.Data_ModelAnimations,
-                vertexAnimation: Obj.Data_VertexAnimation);
-
-            // Apply a position if available
-            if (Obj.Data_Position != null)
-                GameObj_ApplyPosition(obj, Obj.Data_Position, Scale, objPosOffset);
-
-            // Apply a constant rotation if available
-            addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.X, Obj.ConstantRotationX);
-            addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Y, Obj.ConstantRotationY);
-            addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis.Z, Obj.ConstantRotationZ);
-
-            void addConstantRot(KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed)
-            {
-                if (speed == null)
-                    return;
-
-                var rotComponent = obj.AddComponent<KlonoaDTPConstantRotationComponent>();
-                rotComponent.animatedTransform = obj.transform;
-                rotComponent.initialRotation = obj.transform.localRotation;
-                rotComponent.axis = axis;
-                rotComponent.rotationSpeed = speed.Value;
-                rotComponent.minValue = Obj.ConstantRotationMin;
-                rotComponent.length = Obj.ConstantRotationLength;
-            }
-
-            // Load secondary object if available
-            if (Obj.Data_TMD_Secondary != null)
-            {
-                var secondaryObj = GameObj_LoadTMD(
-                    obj3D: Obj,
-                    tmd: Obj.Data_TMD_Secondary,
-                    objLoader: ObjLoader,
+                // Get the model
+                GameObjectData_Model model = Obj.Models[modelIndex];
+                
+                var tmdGameObj = new KlonoaTMDGameObject(
+                    tmd: model.TMD,
                     vram: VRAM,
                     scale: Scale,
-                    index: 1);
+                    objectsLoader: ObjLoader,
+                    isPrimaryObj: false,
+                    animations: model.LocalTransform?.YieldToArray() ?? model.LocalTransforms?.Files,
+                    animSpeed: new AnimSpeed_FrameIncrease(model.AnimatedLocalTransformSpeed),
+                    animLoopMode: model.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
+                    boneAnimations: model.ModelAnimations,
+                    vertexAnimation: model.VertexAnimation);
 
-                // Apply a position if available (without the offset)
-                if (Obj.Data_Position != null)
-                    GameObj_ApplyPosition(secondaryObj, Obj.Data_Position, Scale);
-            }
-        }
+                // Get the game object
+                GameObject modelGameObj = tmdGameObj.CreateGameObject($"Model {modelIndex}", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
 
-        public GameObject GameObj_LoadTMD(
-            GameObject3D obj3D,
-            PS1_TMD tmd,
-            KlonoaObjectsLoader objLoader,
-            PS1_VRAM vram,
-            float scale,
-            ModelAnimation_ArchiveFile[] localTransforms = null,
-            ModelAnimation_ArchiveFile[] absoluteTransforms = null,
-            int index = 0,
-            bool multiple = false,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> modelAnims = null,
-            GameObject3D.ModelVertexAnimation vertexAnimation = null)
-        {
-            if (tmd == null)
-                throw new ArgumentNullException(nameof(tmd));
+                // Apply a position if available
+                if (model.Position != null)
+                    modelGameObj.transform.localPosition = model.Position.GetPositionVector(Scale);
 
-            var tmdGameObj = new KlonoaTMDGameObject(
-                tmd: tmd,
-                vram: vram,
-                scale: scale,
-                objectsLoader: objLoader,
-                isPrimaryObj: false,
-                animations: localTransforms,
-                animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedLocalTransformSpeed),
-                animLoopMode: obj3D.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
-                boneAnimations: modelAnims,
-                vertexAnimation: vertexAnimation);
+                // Apply a rotation if available
+                if (model.Rotation != null)
+                    modelGameObj.transform.localRotation = model.Rotation.GetQuaternion();
 
-            GameObject gameObj = tmdGameObj.CreateGameObject($"Object3D Offset:{obj3D.Offset} Index:{index} Type:{obj3D.PrimaryType}-{obj3D.SecondaryType} ({obj3D.GlobalGameObjectType})", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
-            bool isAnimated = tmdGameObj.HasAnimations;
+                GameObjectData_ConstantRotation rot = model.ConstantRotation;
 
-            if (isAnimated)
-                IsAnimated = true;
+                // Apply a constant rotation if available
+                if (rot != null)
+                {
+                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.X, rot.RotX, rot.Min, rot.Length);
+                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Y, rot.RotY, rot.Min, rot.Length);
+                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Z, rot.RotZ, rot.Min, rot.Length);
+                }
 
-            int count = multiple ? absoluteTransforms[0].Positions.ObjectsCount : 1;
-
-            for (int i = 0; i < count; i++)
-            {
-                var obj = i == 0 ? gameObj : Object.Instantiate(gameObj);
-
-                // Apply the absolute transform
-                isAnimated = KlonoaHelpers.ApplyTransform(
-                    gameObj: gameObj,
-                    transforms: absoluteTransforms,
-                    scale: scale,
-                    objIndex: i,
-                    animSpeed: new AnimSpeed_FrameIncrease(obj3D.AnimatedAbsoluteTransformSpeed),
-                    animLoopMode: obj3D.DoesAnimatedAbsoluteTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+                bool isAnimated = tmdGameObj.HasAnimations;
 
                 if (isAnimated)
                     IsAnimated = true;
 
-                GameObjects.Add(obj);
+                modelGameObj.transform.SetParent(GameObject.transform);
             }
 
-            return gameObj;
+            // Get the absolute transforms
+            ModelAnimation_ArchiveFile[] absoluteTransforms = Obj.AbsoluteTransform?.YieldToArray() ?? Obj.AbsoluteTransforms?.Files;
+
+            // Apply the absolute transform
+            bool isObjAnimated = KlonoaHelpers.ApplyTransform(
+                gameObj: GameObject,
+                transforms: absoluteTransforms,
+                scale: Scale,
+                objIndex: 0,
+                animSpeed: new AnimSpeed_FrameIncrease(Obj.AnimatedAbsoluteTransformSpeed),
+                animLoopMode: Obj.DoesAnimatedAbsoluteTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat);
+
+            if (isObjAnimated)
+                IsAnimated = true;
+
+            // Apply an absolute position if available
+            if (Obj.Position != null)
+                GameObject.transform.position = Obj.Position.GetPositionVector(Scale);
         }
 
-        public void GameObj_ApplyPosition(GameObject obj, KlonoaVector16 pos, float scale, Vector3? posOffset = null)
+        public void AddConstantRot(GameObject obj, KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed, float min, float length)
         {
-            obj.transform.position = pos.GetPositionVector(posOffset, scale);
-        }
-        public void GameObj_ApplyRotation(GameObject obj, KlonoaVector16 rot)
-        {
-            obj.transform.rotation = rot.GetQuaternion();
+            if (speed == null)
+                return;
+
+            var rotComponent = obj.AddComponent<KlonoaDTPConstantRotationComponent>();
+            rotComponent.animatedTransform = obj.transform;
+            rotComponent.initialRotation = obj.transform.localRotation;
+            rotComponent.axis = axis;
+            rotComponent.rotationSpeed = speed.Value;
+            rotComponent.minValue = min;
+            rotComponent.length = length;
         }
     }
 }

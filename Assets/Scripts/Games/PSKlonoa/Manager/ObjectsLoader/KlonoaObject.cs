@@ -9,7 +9,6 @@ namespace Ray1Map.PSKlonoa
         protected KlonoaObject(KlonoaObjectsLoader objLoader)
         {
             ObjLoader = objLoader;
-            GameObjects = new List<GameObject>();
         }
 
         // Global
@@ -18,7 +17,7 @@ namespace Ray1Map.PSKlonoa
         public float Scale => ObjLoader.Scale;
 
         // Object
-        public List<GameObject> GameObjects { get; }
+        public GameObject GameObject { get; protected set; }
         public bool IsAnimated { get; protected set; }
 
         public abstract void LoadAnimations();

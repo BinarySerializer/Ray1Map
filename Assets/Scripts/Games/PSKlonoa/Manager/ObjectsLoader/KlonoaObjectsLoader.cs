@@ -49,12 +49,12 @@ namespace Ray1Map.PSKlonoa
         public IEnumerable<PS1VRAMAnimation> Anim_GetBGAnimationsFromRegion(RectInt palRegion) => 
             BGPaletteAnimations.Where(x => x.Overlaps(palRegion));
 
-        public async UniTask LoadAsync(GameObject3D[] gameObjects3D, BackgroundGameObject[] backgroundObjects)
+        public async UniTask LoadAsync(GameObjectDefinition[] gameObjects3D, BackgroundGameObject[] backgroundObjects)
         {
             var objects = new List<KlonoaObject>();
 
             // Add 3D and background objects
-            objects.AddRange(gameObjects3D.Where(x => !x.IsInvalid).Select(x => new KlonoaGameObject3D(this, x)));
+            objects.AddRange(gameObjects3D.Where(x => x.Data != null).Select(x => new KlonoaGameObject3D(this, x.Data)));
             objects.AddRange(backgroundObjects.Select(x => new KlonoaBackgroundObject(this, x)));
 
             // Load hard-coded objects (cutscenes and boss objects)
@@ -84,8 +84,8 @@ namespace Ray1Map.PSKlonoa
                 obj.LoadObject();
 
                 // Set the parent object
-                foreach (GameObject gao in obj.GameObjects)
-                    gao.transform.SetParent(ParentObject.transform);
+                if (obj.GameObject != null)
+                    obj.GameObject.transform.SetParent(ParentObject.transform);
             }
 
             LoadedObjects = objects.ToArray();

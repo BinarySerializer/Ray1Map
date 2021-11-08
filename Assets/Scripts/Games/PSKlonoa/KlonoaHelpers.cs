@@ -67,12 +67,9 @@ namespace Ray1Map.PSKlonoa
             return GetPosition(xPos, yPos, zPos, scale);
         }
 
-        public static Vector3 GetPositionVector(this KlonoaVector16 pos, Vector3? posOffset, float scale)
+        public static Vector3 GetPositionVector(this KlonoaVector16 pos, float scale)
         {
-            if (posOffset == null)
-                return new Vector3(pos.X / scale, -pos.Y / scale, pos.Z / scale);
-            else
-                return new Vector3((pos.X + posOffset.Value.x) / scale, -(pos.Y + posOffset.Value.y) / scale, (pos.Z + posOffset.Value.z) / scale);
+            return new Vector3(pos.X / scale, -pos.Y / scale, pos.Z / scale);
         }
 
         public static Bounds GetDimensions(this PS1_TMD tmd, float scale)
@@ -109,7 +106,7 @@ namespace Ray1Map.PSKlonoa
         public static Vector3[] GetPositions(this ModelBoneAnimation_ArchiveFile anim, int boneIndex, float scale)
         {
             return anim.Positions.Vectors.
-                Select(x => x[boneIndex].GetPositionVector(Vector3.zero, scale)).
+                Select(x => x[boneIndex].GetPositionVector(scale)).
                 ToArray();
         }
 
@@ -131,7 +128,7 @@ namespace Ray1Map.PSKlonoa
 
             if (transforms != null && transforms.Any() && transforms[0].Positions.ObjectsCount > objIndex)
             {
-                gameObj.transform.localPosition = transforms[0].Positions.Vectors[0][objIndex].GetPositionVector(null, scale);
+                gameObj.transform.localPosition = transforms[0].Positions.Vectors[0][objIndex].GetPositionVector(scale);
                 gameObj.transform.localRotation = transforms[0].Rotations.Vectors[0][objIndex].GetQuaternion();
             }
             else
@@ -152,7 +149,7 @@ namespace Ray1Map.PSKlonoa
             mtComponent.loopMode = animLoopMode;
 
             var positions = transforms.SelectMany(x => x.Positions.Vectors).Select(x =>
-                x.Length > objIndex ? x[objIndex].GetPositionVector(null, scale) : (Vector3?)null).ToArray();
+                x.Length > objIndex ? x[objIndex].GetPositionVector(scale) : (Vector3?)null).ToArray();
             var rotations = transforms.SelectMany(x => x.Rotations.Vectors)
                 .Select(x => x.Length > objIndex ? x[objIndex].GetQuaternion() : (Quaternion?)null).ToArray();
 

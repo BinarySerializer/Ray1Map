@@ -18,7 +18,7 @@ namespace Ray1Map.PSKlonoa
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
             ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null,
-            GameObject3D.ModelVertexAnimation vertexAnimation = null) : base(tmd, vram, scale)
+            GameObjectData_ModelVertexAnimation vertexAnimation = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -35,7 +35,7 @@ namespace Ray1Map.PSKlonoa
         public AnimSpeed AnimSpeed { get; }
         public AnimLoopMode AnimLoopMode { get; }
         public ArchiveFile<ModelBoneAnimation_ArchiveFile> BoneAnimations { get; }
-        public GameObject3D.ModelVertexAnimation VertexAnimation { get; }
+        public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -86,13 +86,16 @@ namespace Ray1Map.PSKlonoa
             for (int animIndex = 0; animIndex < BoneAnimations.Files.Length; animIndex++)
             {
                 ModelBoneAnimation_ArchiveFile anim = BoneAnimations.Files[animIndex];
-                animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[obj.Bones.Length];
+
+                bool isRootIncluded = anim.Rotations.BonesCount == obj.Bones.Length + 1;
+
+                animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[anim.Rotations.BonesCount];
 
                 short frameCount = anim.Rotations.FramesCount;
 
                 for (int boneIndex = 0; boneIndex < animComponent.animations[animIndex].bones.Length; boneIndex++)
                 {
-                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + 1];
+                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + (isRootIncluded ? 0 : 1)];
 
                     Vector3[] positions = anim.GetPositions(boneIndex, Scale);
                     Quaternion[] rotations = anim.GetRotations(boneIndex);
