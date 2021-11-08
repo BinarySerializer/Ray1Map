@@ -17,7 +17,7 @@ namespace Ray1Map.PSKlonoa
             ModelAnimation_ArchiveFile[] animations = null,
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
-            ArchiveFile<ModelBoneAnimation_ArchiveFile> boneAnimations = null,
+            GameObjectData_ModelBoneAnimation[] boneAnimations = null,
             GameObjectData_ModelVertexAnimation vertexAnimation = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
@@ -34,7 +34,7 @@ namespace Ray1Map.PSKlonoa
         public ModelAnimation_ArchiveFile[] Animations { get; }
         public AnimSpeed AnimSpeed { get; }
         public AnimLoopMode AnimLoopMode { get; }
-        public ArchiveFile<ModelBoneAnimation_ArchiveFile> BoneAnimations { get; }
+        public GameObjectData_ModelBoneAnimation[] BoneAnimations { get; }
         public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
@@ -65,57 +65,6 @@ namespace Ray1Map.PSKlonoa
 
             ObjectsLoader.Anim_Manager.AddAnimatedTexture(animatedTexture);
             tex.SetAnimatedTexture(animatedTexture);
-        }
-
-        protected override void OnCreatedBones(GameObject gameObject, PS1_TMD_Object obj, Transform[] bones)
-        {
-            if (BoneAnimations == null)
-            {
-                Debug.LogWarning($"Object has bones but no animation");
-                return;
-            }
-
-            var animComponent = gameObject.AddComponent<SkeletonAnimationComponent>();
-            animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Files.Length];
-
-            if (AnimSpeed != null)
-                animComponent.speed = AnimSpeed.CloneAnimSpeed();
-
-            animComponent.loopMode = AnimLoopMode;
-
-            for (int animIndex = 0; animIndex < BoneAnimations.Files.Length; animIndex++)
-            {
-                ModelBoneAnimation_ArchiveFile anim = BoneAnimations.Files[animIndex];
-
-                bool isRootIncluded = anim.Rotations.BonesCount == obj.Bones.Length + 1;
-
-                animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[anim.Rotations.BonesCount];
-
-                short frameCount = anim.Rotations.FramesCount;
-
-                for (int boneIndex = 0; boneIndex < animComponent.animations[animIndex].bones.Length; boneIndex++)
-                {
-                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + (isRootIncluded ? 0 : 1)];
-
-                    Vector3[] positions = anim.GetPositions(boneIndex, Scale);
-                    Quaternion[] rotations = anim.GetRotations(boneIndex);
-
-                    animComponent.animations[animIndex].bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
-
-                    for (int i = 0; i < frameCount; i++)
-                    {
-                        animComponent.animations[animIndex].bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
-                        {
-                            Position = i >= positions.Length ? positions.First() : positions[i],
-                            Rotation = rotations[i],
-                            Scale = Vector3.one,
-                        };
-                    }
-                }
-            }
-
-            // TODO: Support selecting multiple animations
-            animComponent.CombineAnimations(obj.BonesCount);
         }
 
         protected override void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex)
@@ -168,6 +117,59 @@ namespace Ray1Map.PSKlonoa
                 animTex.material = mat;
                 animTex.scrollV = -2f * 60f / (tex?.Bounds.height ?? 256);
             }
+        }
+
+        protected override void OnCreatedObjects(GameObject parentGameObject, Transform[][] allBones)
+        {
+            if (BoneAnimations == null)
+            {
+                Debug.LogWarning($"Object has bones but no animation");
+                return;
+            }
+
+            var animComponent = parentGameObject.AddComponent<SkeletonAnimationComponent>();
+            animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Length];
+
+            if (AnimSpeed != null)
+                animComponent.speed = AnimSpeed.CloneAnimSpeed();
+
+            animComponent.loopMode = AnimLoopMode;
+
+            Transform[] bones = allBones.SelectMany(x => x).ToArray();
+
+            for (int animIndex = 0; animIndex < BoneAnimations.Length; animIndex++)
+            {
+                GameObjectData_ModelBoneAnimation anim = BoneAnimations[animIndex];
+
+                bool isRootIncluded = anim.BoneRotations.BonesCount != bones.Length - 1;
+
+                animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[anim.BoneRotations.BonesCount];
+
+                short frameCount = anim.BoneRotations.FramesCount;
+
+                for (int boneIndex = 0; boneIndex < animComponent.animations[animIndex].bones.Length; boneIndex++)
+                {
+                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + (isRootIncluded ? 0 : 1)];
+
+                    Vector3[] positions = anim.GetPositions(boneIndex, Scale);
+                    Quaternion[] rotations = anim.GetRotations(boneIndex);
+
+                    animComponent.animations[animIndex].bones[boneIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
+
+                    for (int i = 0; i < frameCount; i++)
+                    {
+                        animComponent.animations[animIndex].bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
+                        {
+                            Position = i >= positions.Length ? positions.First() : positions[i],
+                            Rotation = rotations[i],
+                            Scale = Vector3.one,
+                        };
+                    }
+                }
+            }
+
+            // TODO: Support selecting multiple animations
+            animComponent.CombineAnimations();
         }
     }
 }

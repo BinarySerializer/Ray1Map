@@ -191,6 +191,24 @@ namespace Ray1Map.PSKlonoa
                 foreach (var f in Obj.Models[0].LocalTransforms.Files)
                     _correctedTransforms.Add(f);
             }
+            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_GelgBolm)
+            {
+                // Combine the models into one so we can more easily animate it
+                var combinedTmd = new PS1_TMD
+                {
+                    ObjectsCount = (uint)Obj.Models.Length,
+                    Objects = new PS1_TMD_Object[]
+                    {
+                        Obj.Models[0].TMD.Objects[0],
+                        Obj.Models[1].TMD.Objects[0],
+                        Obj.Models[2].TMD.Objects[0],
+                        Obj.Models[3].TMD.Objects[0],
+                    }
+                };
+
+                Obj.Models = Obj.Models.Take(1).ToArray();
+                Obj.Models[0].TMD = combinedTmd;
+            }
 
             string name = Obj.DefinitionOffset != null
                 ? $"Object3D Offset:{Obj.DefinitionOffset} Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})"
@@ -214,7 +232,7 @@ namespace Ray1Map.PSKlonoa
                     animations: model.LocalTransform?.YieldToArray() ?? model.LocalTransforms?.Files,
                     animSpeed: new AnimSpeed_FrameIncrease(model.AnimatedLocalTransformSpeed),
                     animLoopMode: model.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
-                    boneAnimations: model.ModelAnimations,
+                    boneAnimations: model.ModelBoneAnimations,
                     vertexAnimation: model.VertexAnimation);
 
                 // Get the game object

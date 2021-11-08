@@ -103,20 +103,20 @@ namespace Ray1Map.PSKlonoa
                 Quaternion.Euler(0, 0, -GetRotationInDegrees(rotZ));
         }
 
-        public static Vector3[] GetPositions(this ModelBoneAnimation_ArchiveFile anim, int boneIndex, float scale)
+        public static Vector3[] GetPositions(this GameObjectData_ModelBoneAnimation anim, int boneIndex, float scale)
         {
-            return anim.Positions.Vectors.
+            return anim.BonePositions.Vectors.
                 Select(x => x[boneIndex].GetPositionVector(scale)).
                 ToArray();
         }
 
-        public static Quaternion[] GetRotations(this ModelBoneAnimation_ArchiveFile anim, int boneIndex)
+        public static Quaternion[] GetRotations(this GameObjectData_ModelBoneAnimation anim, int boneIndex)
         {
-            int[] rotX = anim.Rotations.GetValues(boneIndex * 3 + 0);
-            int[] rotY = anim.Rotations.GetValues(boneIndex * 3 + 1);
-            int[] rotZ = anim.Rotations.GetValues(boneIndex * 3 + 2);
+            int[] rotX = anim.BoneRotations.GetValues(boneIndex * 3 + 0);
+            int[] rotY = anim.BoneRotations.GetValues(boneIndex * 3 + 1);
+            int[] rotZ = anim.BoneRotations.GetValues(boneIndex * 3 + 2);
 
-            return Enumerable.Range(0, anim.Rotations.FramesCount).
+            return Enumerable.Range(0, anim.BoneRotations.FramesCount).
                 Select(x => KlonoaHelpers.GetQuaternion(rotX[x], rotY[x], rotZ[x])).
                 ToArray();
         }

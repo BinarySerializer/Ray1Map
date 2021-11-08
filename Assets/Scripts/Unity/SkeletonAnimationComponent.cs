@@ -89,8 +89,9 @@ public class SkeletonAnimationComponent : MonoBehaviour
         }
     }
 
-    public void CombineAnimations(int bonesCount)
+    public void CombineAnimations()
     {
+        var bonesCount = animations[0].bones.Length;
         var bones = new Bone[bonesCount];
 
         for (int boneIndex = 0; boneIndex < bonesCount; boneIndex++)

@@ -29,6 +29,7 @@ namespace Ray1Map
         protected virtual void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex) { }
         protected virtual void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes) { }
         protected virtual void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
+        protected virtual void OnCreatedObjects(GameObject parentGameObject, Transform[][] allBones) { }
 
         protected virtual Mesh AddPrimitive(GameObject gameObject, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
         {
@@ -249,6 +250,8 @@ namespace Ray1Map
                 OnCreateTexture(vramTex);
             }
 
+            var allBones = new Transform[TMD.Objects.Length][];
+
             // Create each object
             for (var objIndex = 0; objIndex < TMD.Objects.Length; objIndex++)
             {
@@ -300,6 +303,8 @@ namespace Ray1Map
                     OnCreatedBones(gameObject, obj, bones);
                 }
 
+                allBones[objIndex] = bones ?? new Transform[] { gameObject.transform };
+
                 OnCreateObject(gameObject, obj, objIndex);
 
                 Mesh[] meshes = new Mesh[obj.Primitives.Length];
@@ -310,6 +315,8 @@ namespace Ray1Map
 
                 OnCreatedPrimitives(gameObject, obj, objIndex, meshes);
             }
+
+            OnCreatedObjects(gaoParent, allBones);
 
             return gaoParent;
         }
