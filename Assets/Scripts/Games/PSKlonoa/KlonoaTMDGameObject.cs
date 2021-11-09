@@ -119,11 +119,13 @@ namespace Ray1Map.PSKlonoa
             }
         }
 
-        protected override void OnCreatedObjects(GameObject parentGameObject, Transform[][] allBones)
+        protected override void OnCreatedObjects(GameObject parentGameObject, GameObject[] objects, Transform[][] allBones)
         {
             if (BoneAnimations == null)
             {
-                Debug.LogWarning($"Object has bones but no animation");
+                if (TMD.Objects.Any(x => x.BonesCount > 0))
+                    Debug.LogWarning($"Object has bones but no animation");
+                
                 return;
             }
 
@@ -136,12 +138,13 @@ namespace Ray1Map.PSKlonoa
             animComponent.loopMode = AnimLoopMode;
 
             Transform[] bones = allBones.SelectMany(x => x).ToArray();
+            Transform[] models = objects.Select(x => x.transform).ToArray();
 
             for (int animIndex = 0; animIndex < BoneAnimations.Length; animIndex++)
             {
                 GameObjectData_ModelBoneAnimation anim = BoneAnimations[animIndex];
 
-                bool isRootIncluded = anim.BoneRotations.BonesCount != bones.Length - 1;
+                bool isRootIncluded = anim.BoneRotations.BonesCount != allBones[0].Length - 1;
 
                 animComponent.animations[animIndex].bones = new SkeletonAnimationComponent.Bone[anim.BoneRotations.BonesCount];
 
@@ -149,7 +152,8 @@ namespace Ray1Map.PSKlonoa
 
                 for (int boneIndex = 0; boneIndex < animComponent.animations[animIndex].bones.Length; boneIndex++)
                 {
-                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = bones[boneIndex + (isRootIncluded ? 0 : 1)];
+                    Transform animatedTransform = bones[boneIndex + (isRootIncluded ? 0 : 1)];
+                    animComponent.animations[animIndex].bones[boneIndex].animatedTransform = animatedTransform;
 
                     Vector3[] positions = anim.GetPositions(boneIndex, Scale);
                     Quaternion[] rotations = anim.GetRotations(boneIndex);
@@ -165,6 +169,36 @@ namespace Ray1Map.PSKlonoa
                             Scale = Vector3.one,
                         };
                     }
+                }
+
+                // Add model positions
+                if (anim.ModelPositions != null)
+                {
+                    // Create a "bone" for each model
+                    int modelsCount = objects.Length;
+                    var modelBones = new SkeletonAnimationComponent.Bone[modelsCount];
+
+                    for (int modelIndex = 0; modelIndex < modelsCount; modelIndex++)
+                    {
+                        modelBones[modelIndex].animatedTransform = models[modelIndex];
+
+                        Vector3[] positions = anim.ModelPositions.Vectors.Select(x => x[modelIndex].GetPositionVector(Scale)).ToArray();
+
+                        modelBones[modelIndex].frames = new SkeletonAnimationComponent.Frame[frameCount];
+
+                        for (int i = 0; i < frameCount; i++)
+                        {
+                            modelBones[modelIndex].frames[i] = new SkeletonAnimationComponent.Frame()
+                            {
+                                Position = i >= positions.Length ? positions.First() : positions[i],
+                                Rotation = Quaternion.identity,
+                                Scale = Vector3.one,
+                            };
+                        }
+                    }
+
+                    // Append the model "bones"
+                    animComponent.animations[animIndex].bones = animComponent.animations[animIndex].bones.Concat(modelBones).ToArray();
                 }
             }
 
