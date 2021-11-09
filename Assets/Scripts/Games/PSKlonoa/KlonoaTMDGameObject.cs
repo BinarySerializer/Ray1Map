@@ -18,7 +18,8 @@ namespace Ray1Map.PSKlonoa
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
             GameObjectData_ModelBoneAnimation[] boneAnimations = null,
-            GameObjectData_ModelVertexAnimation vertexAnimation = null) : base(tmd, vram, scale)
+            GameObjectData_ModelVertexAnimation vertexAnimation = null,
+            bool isJoka = false) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -27,6 +28,7 @@ namespace Ray1Map.PSKlonoa
             AnimLoopMode = animLoopMode;
             BoneAnimations = boneAnimations;
             VertexAnimation = vertexAnimation;
+            IsJoka = isJoka;
         }
 
         public KlonoaObjectsLoader ObjectsLoader { get; }
@@ -36,6 +38,8 @@ namespace Ray1Map.PSKlonoa
         public AnimLoopMode AnimLoopMode { get; }
         public GameObjectData_ModelBoneAnimation[] BoneAnimations { get; }
         public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
+
+        public bool IsJoka { get; } // This object has stuff in a weird order, so we need to hard-code it
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -137,7 +141,25 @@ namespace Ray1Map.PSKlonoa
 
             animComponent.loopMode = AnimLoopMode;
 
-            Transform[] bones = allBones.SelectMany(x => x).ToArray();
+            Transform[] bones;
+
+            if (IsJoka)
+            {
+                allBones = new Transform[][]
+                {
+                    allBones[1], // Hand
+                    allBones[0], // Body
+                    allBones[2], // Hand
+                };
+
+                // Hand, body bones, body, hand
+                bones = allBones.SelectMany(x => x.Skip(1).Append(x.First())).ToArray();
+            }
+            else
+            {
+                bones = allBones.SelectMany(x => x).ToArray();
+            }
+
             Transform[] models = objects.Select(x => x.transform).ToArray();
 
             for (int animIndex = 0; animIndex < BoneAnimations.Length; animIndex++)

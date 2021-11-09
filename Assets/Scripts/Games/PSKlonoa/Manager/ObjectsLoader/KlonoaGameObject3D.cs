@@ -191,19 +191,14 @@ namespace Ray1Map.PSKlonoa
                 foreach (var f in Obj.Models[0].LocalTransforms.Files)
                     _correctedTransforms.Add(f);
             }
-            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_GelgBolm)
+            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_GelgBolm || 
+                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka)
             {
                 // Combine the models into one so we can more easily animate it
                 var combinedTmd = new PS1_TMD
                 {
                     ObjectsCount = (uint)Obj.Models.Length,
-                    Objects = new PS1_TMD_Object[]
-                    {
-                        Obj.Models[0].TMD.Objects[0],
-                        Obj.Models[1].TMD.Objects[0],
-                        Obj.Models[2].TMD.Objects[0],
-                        Obj.Models[3].TMD.Objects[0],
-                    }
+                    Objects = Obj.Models.Select(x => x.TMD.Objects[0]).ToArray(),
                 };
 
                 Obj.Models = Obj.Models.Take(1).ToArray();
@@ -233,7 +228,8 @@ namespace Ray1Map.PSKlonoa
                     animSpeed: new AnimSpeed_FrameIncrease(model.AnimatedLocalTransformSpeed),
                     animLoopMode: model.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
                     boneAnimations: model.ModelBoneAnimations,
-                    vertexAnimation: model.VertexAnimation);
+                    vertexAnimation: model.VertexAnimation,
+                    isJoka: Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka);
 
                 // Get the game object
                 GameObject modelGameObj = tmdGameObj.CreateGameObject($"Model {modelIndex}", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
