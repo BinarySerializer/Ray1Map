@@ -17,7 +17,7 @@ namespace Ray1Map.PSKlonoa
             ModelAnimation_ArchiveFile[] animations = null,
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
-            GameObjectData_ModelBoneAnimation[] boneAnimations = null,
+            GameObjectData_ModelBoneAnimations boneAnimations = null,
             GameObjectData_ModelVertexAnimation vertexAnimation = null,
             bool isJoka = false) : base(tmd, vram, scale)
         {
@@ -36,10 +36,10 @@ namespace Ray1Map.PSKlonoa
         public ModelAnimation_ArchiveFile[] Animations { get; }
         public AnimSpeed AnimSpeed { get; }
         public AnimLoopMode AnimLoopMode { get; }
-        public GameObjectData_ModelBoneAnimation[] BoneAnimations { get; }
+        public GameObjectData_ModelBoneAnimations BoneAnimations { get; }
         public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
 
-        public bool IsJoka { get; } // This object has stuff in a weird order, so we need to hard-code it
+        public bool IsJoka { get; } // This object has bones in a weird order, so we need to hard-code it
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -134,7 +134,7 @@ namespace Ray1Map.PSKlonoa
             }
 
             var animComponent = parentGameObject.AddComponent<SkeletonAnimationComponent>();
-            animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Length];
+            animComponent.animations = new SkeletonAnimationComponent.Animation[BoneAnimations.Animations.Length];
 
             if (AnimSpeed != null)
                 animComponent.speed = AnimSpeed.CloneAnimSpeed();
@@ -144,27 +144,24 @@ namespace Ray1Map.PSKlonoa
             Transform[] bones;
 
             if (IsJoka)
-            {
-                allBones = new Transform[][]
-                {
-                    allBones[1], // Hand
-                    allBones[0], // Body
-                    allBones[2], // Hand
-                };
-
-                // Hand, body bones, body, hand
-                bones = allBones.SelectMany(x => x.Skip(1).Append(x.First())).ToArray();
-            }
+                bones = allBones[0].Take(14).Concat(allBones[1]).Concat(allBones[2]).Append(allBones[0][14]).ToArray();
             else
-            {
                 bones = allBones.SelectMany(x => x).ToArray();
+
+            // Set default bone positions
+            if (BoneAnimations.InitialBonePositions != null)
+            {
+                KlonoaVector16[] positions = BoneAnimations.InitialBonePositions.Vectors[0];
+
+                for (int i = 0; i < positions.Length; i++)
+                    bones[i].transform.position = positions[i].GetPositionVector(Scale);
             }
 
             Transform[] models = objects.Select(x => x.transform).ToArray();
 
-            for (int animIndex = 0; animIndex < BoneAnimations.Length; animIndex++)
+            for (int animIndex = 0; animIndex < BoneAnimations.Animations.Length; animIndex++)
             {
-                GameObjectData_ModelBoneAnimation anim = BoneAnimations[animIndex];
+                GameObjectData_ModelBoneAnimation anim = BoneAnimations.Animations[animIndex];
 
                 bool isRootIncluded = anim.BoneRotations.BonesCount != allBones[0].Length - 1;
 
@@ -184,9 +181,18 @@ namespace Ray1Map.PSKlonoa
 
                     for (int i = 0; i < frameCount; i++)
                     {
+                        Vector3? pos;
+
+                        if (positions == null)
+                            pos = null;
+                        else if (i >= positions.Length)
+                            pos = positions.First();
+                        else
+                            pos = positions[i];
+
                         animComponent.animations[animIndex].bones[boneIndex].frames[i] = new SkeletonAnimationComponent.Frame()
                         {
-                            Position = i >= positions.Length ? positions.First() : positions[i],
+                            Position = pos,
                             Rotation = rotations[i],
                             Scale = Vector3.one,
                         };
@@ -212,8 +218,8 @@ namespace Ray1Map.PSKlonoa
                         {
                             modelBones[modelIndex].frames[i] = new SkeletonAnimationComponent.Frame()
                             {
-                                Position = i >= positions.Length ? positions.First() : positions[i],
-                                Rotation = Quaternion.identity,
+                                Position = positions[i],
+                                Rotation = null,
                                 Scale = Vector3.one,
                             };
                         }

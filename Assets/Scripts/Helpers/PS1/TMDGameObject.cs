@@ -259,12 +259,8 @@ namespace Ray1Map
                 var obj = TMD.Objects[objIndex];
 
                 // Create two objects so that if there are no bones then the transform we use is not the same as the main object
-                GameObject gameObjectParent = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
-                gameObjectParent.transform.SetParent(gaoParent.transform, false);
-                gameObjectParent.transform.localScale = Vector3.one;
-
-                GameObject gameObject = new GameObject($"Object");
-                gameObject.transform.SetParent(gameObjectParent.transform);
+                GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
+                gameObject.transform.SetParent(gaoParent.transform, false);
                 gameObject.transform.localScale = Vector3.one;
 
                 objects[objIndex] = gameObject;
@@ -310,7 +306,7 @@ namespace Ray1Map
                     OnCreatedBones(gameObject, obj, bones);
                 }
 
-                allBones[objIndex] = bones ?? new Transform[] { gameObjectParent.transform };
+                allBones[objIndex] = bones ?? new Transform[] { gameObject.transform };
 
                 OnCreateObject(gameObject, obj, objIndex);
 
