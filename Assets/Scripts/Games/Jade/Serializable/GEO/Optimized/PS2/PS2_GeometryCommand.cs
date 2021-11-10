@@ -48,7 +48,6 @@ namespace Ray1Map.Jade {
                     Type = CommandType.UVs;
                 } else if (unpack.VN == VIFcode_Unpack.UnpackVN.V2 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_16) {
                     UVs = s.SerializeObjectArray<PS2_UV16>(UVs, unpack.SIZE, name: nameof(UVs));
-                    Type = CommandType.UVs;
                 } else if (unpack.VN == VIFcode_Unpack.UnpackVN.V3 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_8) {
                     VertexColorsRGB = s.SerializeObjectArray<RGB888Color>(VertexColorsRGB, unpack.SIZE, name: nameof(VertexColorsRGB));
                     s.Align(4, baseOffset: Offset);

@@ -58,30 +58,43 @@ namespace Ray1Map.Jade {
 							// TODO: Execute VIF program
 							if (VIFProgram != null) {
 								PS2_GeometryCommand vertices = null;
+								PS2_GeometryCommand uvs = null;
 								foreach (var cmd in VIFProgram) {
 									if (cmd.Type == PS2_GeometryCommand.CommandType.Vertices) vertices = cmd;
+									if (cmd.Type == PS2_GeometryCommand.CommandType.UVs) uvs = cmd;
 									if (cmd.Type == PS2_GeometryCommand.CommandType.TransferData) {
 										if (vertices != null) {
 											var verts = vertices.V3_VL32;
-											Vector3[] unityVerts = new Vector3[(verts.Length - 2) * 3];
+											var uv = uvs.UV3;
+											List<Vector3> unityVerts = new List<Vector3>();
+
 											Vector3 getVector3(PS2_Vector3_32 v) {
 												return new Vector3(v.X, v.Z, v.Y);
 											}
-											for (int i = 2; i < verts.Length; i++) {
-												if (i % 2 == 1) {
-													unityVerts[(i - 2) * 3 + 0] = getVector3(verts[i - 2]);
-													unityVerts[(i - 2) * 3 + 1] = getVector3(verts[i - 1]);
-													unityVerts[(i - 2) * 3 + 2] = getVector3(verts[i - 0]);
+											int numTriangle = 0;
+											for(int i = 0; i < verts.Length; i++) {
+												if(uv[i].Z == 1) continue;
+												if (numTriangle % 2 == 1) {
+													unityVerts.Add(getVector3(verts[i - 2]));
+													unityVerts.Add(getVector3(verts[i - 1]));
+													unityVerts.Add(getVector3(verts[i - 0]));
+													unityVerts.Add(getVector3(verts[i - 1]));
+													unityVerts.Add(getVector3(verts[i - 2]));
+													unityVerts.Add(getVector3(verts[i - 0]));
 												} else {
-													unityVerts[(i - 2) * 3 + 0] = getVector3(verts[i - 1]);
-													unityVerts[(i - 2) * 3 + 1] = getVector3(verts[i - 2]);
-													unityVerts[(i - 2) * 3 + 2] = getVector3(verts[i - 0]);
+													unityVerts.Add(getVector3(verts[i - 1]));
+													unityVerts.Add(getVector3(verts[i - 2]));
+													unityVerts.Add(getVector3(verts[i - 0]));
+													unityVerts.Add(getVector3(verts[i - 2]));
+													unityVerts.Add(getVector3(verts[i - 1]));
+													unityVerts.Add(getVector3(verts[i - 0]));
 												}
+												numTriangle++;
 											}
-											int[] tris = Enumerable.Range(0, unityVerts.Length).ToArray();
+											int[] tris = Enumerable.Range(0, numTriangle * 6).ToArray();
 
 											Mesh m = new Mesh();
-											m.vertices = unityVerts;
+											m.vertices = unityVerts.ToArray();
 											m.triangles = tris;
 											m.RecalculateNormals();
 
