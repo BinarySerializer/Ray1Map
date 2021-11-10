@@ -192,7 +192,9 @@ namespace Ray1Map.PSKlonoa
                     _correctedTransforms.Add(f);
             }
             else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_GelgBolm || 
-                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka)
+                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka ||
+                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_JokaCreature ||
+                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Ghadius)
             {
                 // Combine the models into one so we can more easily animate it
                 var combinedTmd = new PS1_TMD
@@ -278,6 +280,10 @@ namespace Ray1Map.PSKlonoa
             // Apply an absolute position if available
             if (Obj.Position != null)
                 GameObject.transform.position = Obj.Position.GetPositionVector(Scale);
+
+            // Apply an absolute rotation if available
+            if (Obj.Rotation != null)
+                GameObject.transform.rotation = Obj.Rotation.GetQuaternion();
         }
 
         public void AddConstantRot(GameObject obj, KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed, float min, float length)
