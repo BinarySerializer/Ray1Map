@@ -105,7 +105,7 @@ namespace Ray1Map.PSKlonoa
 
         public static Vector3[] GetPositions(this GameObjectData_ModelBoneAnimation anim, int boneIndex, float scale)
         {
-            return anim.BonePositions.Vectors.
+            return anim.BonePositions?.Vectors.
                 Select(x => x[boneIndex].GetPositionVector(scale)).
                 ToArray();
         }

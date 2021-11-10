@@ -25,8 +25,8 @@ public class SkeletonAnimationComponent : MonoBehaviour
 
     public struct Frame 
     {
-        public Vector3 Position;
-        public Quaternion Rotation;
+        public Vector3? Position;
+        public Quaternion? Rotation;
         public Vector3 Scale;
         public bool IsHidden;
     }
@@ -79,8 +79,11 @@ public class SkeletonAnimationComponent : MonoBehaviour
             Frame currentFrame = bone.frames[frameInt];
             Frame nextFrame = bone.frames[nextFrameIndex];
 
-            bone.animatedTransform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
-            bone.animatedTransform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);
+            if (currentFrame.Position != null && nextFrame.Position != null)
+                bone.animatedTransform.localPosition = Vector3.Lerp(currentFrame.Position.Value, nextFrame.Position.Value, lerpFactor);
+
+            if (currentFrame.Rotation != null && nextFrame.Rotation != null)
+                bone.animatedTransform.localRotation = Quaternion.Lerp(currentFrame.Rotation.Value, nextFrame.Rotation.Value, lerpFactor);
 
             if (currentFrame.IsHidden)
                 bone.animatedTransform.localScale = Vector3.zero;
