@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using UnityEngine;
 
 namespace Ray1Map.Jade {
 	public class GEO_GaoVisu_PS2 : BinarySerializable {
@@ -14,11 +15,13 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
-		public void ExecuteChainPrograms(GEO_GeoObject_PS2 obj, int elementIndex, int subElementIndex) {
+		public GameObject ExecuteChainPrograms(GEO_GeoObject_PS2 obj, int elementIndex, int subElementIndex) {
 			Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
 			GEO_GeoObject_PS2.ElementDataBuffer.ElementData objElement = (obj.ElementData.ElementDatas.Length > elementIndex ) ? obj.ElementData.ElementDatas[elementIndex] : null;
 			MeshElementRef visuSubElement = ((visuElement?.Refs?.Length ?? 0) > subElementIndex) ? visuElement.Refs[subElementIndex] : null;
 			GEO_GeoObject_PS2.ElementDataBuffer.MeshElement objSubElement = ((objElement?.MeshElements?.Length ?? 0) > subElementIndex) ? objElement.MeshElements[subElementIndex] : null;
+
+			GameObject gao = new GameObject($"{Offset}");
 
 			List<PS2_DMAChainData> chainData = new List<PS2_DMAChainData>();
 			List<PS2_DMAChainProgram> chainPrograms = new List<PS2_DMAChainProgram>();
@@ -30,6 +33,7 @@ namespace Ray1Map.Jade {
 				chainData.AddRange(objSubElement.VIFPrograms);
 				chainPrograms.AddRange(objSubElement.DMAChainPrograms);
 			}
+			// TODO: Write each ChainData element with Negative ID as a VIF program
 			if (chainPrograms.Any() ) {
 				chainPrograms.Sort((x,y) => x.ID.CompareTo(y.ID));
 				foreach (var prog in chainPrograms) {
@@ -52,14 +56,57 @@ namespace Ray1Map.Jade {
 								});
 							}
 							// TODO: Execute VIF program
+							if (VIFProgram != null) {
+								PS2_GeometryCommand vertices = null;
+								foreach (var cmd in VIFProgram) {
+									if (cmd.Type == PS2_GeometryCommand.CommandType.Vertices) vertices = cmd;
+									if (cmd.Type == PS2_GeometryCommand.CommandType.TransferData) {
+										if (vertices != null) {
+											var verts = vertices.V3_VL32;
+											Vector3[] unityVerts = new Vector3[(verts.Length - 2) * 3];
+											Vector3 getVector3(PS2_Vector3_32 v) {
+												return new Vector3(v.X, v.Z, v.Y);
+											}
+											for (int i = 2; i < verts.Length; i++) {
+												if (i % 2 == 1) {
+													unityVerts[(i - 2) * 3 + 0] = getVector3(verts[i - 2]);
+													unityVerts[(i - 2) * 3 + 1] = getVector3(verts[i - 1]);
+													unityVerts[(i - 2) * 3 + 2] = getVector3(verts[i - 0]);
+												} else {
+													unityVerts[(i - 2) * 3 + 0] = getVector3(verts[i - 1]);
+													unityVerts[(i - 2) * 3 + 1] = getVector3(verts[i - 2]);
+													unityVerts[(i - 2) * 3 + 2] = getVector3(verts[i - 0]);
+												}
+											}
+											int[] tris = Enumerable.Range(0, unityVerts.Length).ToArray();
+
+											Mesh m = new Mesh();
+											m.vertices = unityVerts;
+											m.triangles = tris;
+											m.RecalculateNormals();
+
+											GameObject g_geo_e = new GameObject($"Element");
+											g_geo_e.transform.SetParent(gao.transform, false);
+											g_geo_e.layer = LayerMask.NameToLayer("3D Collision");
+											MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
+											mf.mesh = m;
+											MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
+											mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+											vertices = null;
+										}
+									}
+								}
+							}
 						}
 					}
 				}
 			} else {
-				if (chainData.Any()) {
+				/*if (chainData.Any()) {
 					throw new Exception($"GAO Visu {Offset} with object {obj} for element indices {elementIndex}-{subElementIndex} doesn't have any chain programs!");
-				}
+				}*/
 			}
+			return gao;
 		}
 
 		public class Element : BinarySerializable {

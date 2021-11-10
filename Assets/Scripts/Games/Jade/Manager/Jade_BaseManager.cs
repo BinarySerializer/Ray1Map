@@ -1921,7 +1921,8 @@ namespace Ray1Map {
 								var ps2 = geo.OptimizedGeoObject_PS2;
 								for(int i = 0; i < (ps2.ElementData?.ElementDatas?.Length ?? 0); i++) {
 									for (int j = 0; j < ps2.ElementData.ElementDatas[i].MeshElements.Length; j++) {
-										gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(ps2, i, j);
+										GameObject g = gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(ps2, i, j);
+										if(g != null) g.transform.SetParent(g_geo.transform, false);
 									}
 								}
 							}

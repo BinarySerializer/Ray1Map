@@ -120,7 +120,7 @@ namespace Ray1Map.Jade
                 if ((s.GetR1Settings().Platform == Platform.PS2 || s.GetR1Settings().Platform == Platform.PSP) && Version >= 2) {
                     PS2_UInt0 = s.Serialize<uint>(PS2_UInt0, name: nameof(PS2_UInt0));
                     if (PS2_UInt0 == 0) return;
-                    PS2_UInt1 = s.Serialize<uint>(PS2_UInt1, name: nameof(PS2_UInt1));
+                    PS2_UInt1 = s.Serialize<uint>(PS2_UInt1, name: nameof(PS2_UInt1)); // DMA function starts here
                     PS2_UInt2 = s.Serialize<uint>(PS2_UInt2, name: nameof(PS2_UInt2));
                     PS2_IsSwizzled = s.Serialize<uint>(PS2_IsSwizzled, name: nameof(PS2_IsSwizzled));
                     PS2_Size = s.Serialize<uint>(PS2_Size, name: nameof(PS2_Size));

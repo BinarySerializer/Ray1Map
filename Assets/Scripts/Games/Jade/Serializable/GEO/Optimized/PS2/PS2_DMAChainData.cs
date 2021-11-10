@@ -5,6 +5,7 @@ namespace Ray1Map.Jade {
 		public int ID { get; set; } // Used as address (ADDR = ID << 24)
 		public uint DataSize { get; set; }
 		public byte[] Bytes { get; set; }
+		// TODO: PSP's data is in GE commands format http://hitmen.c02.at/files/yapspd/psp_doc/chap11.html#sec11.1
 
 		public bool Pre_IsInstance { get; set; }
 
