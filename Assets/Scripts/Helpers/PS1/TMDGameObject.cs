@@ -79,7 +79,9 @@ namespace Ray1Map
 
             unityMesh.SetTriangles(triangles, 0);
 
-            var colors = packet.RGB.Select(x => x.Color.GetColor()).ToArray();
+            Color[] colors = TMD.Pre_HasColorTable 
+                ? packet.RGBIndices.Select(x => obj.Colors[x].Color.GetColor()).ToArray() 
+                : packet.RGB.Select(x => x.Color.GetColor()).ToArray();
 
             if (colors.Length == 1)
                 colors = Enumerable.Repeat(colors[0], vertices.Length).ToArray();
@@ -302,6 +304,12 @@ namespace Ray1Map
 
                     for (int i = 0; i < bindPoses.Length; i++)
                         bindPoses[i] = bones[i].worldToLocalMatrix * gameObject.transform.localToWorldMatrix;
+
+                    for (int i = 0; i < obj.Bones.Length; i++)
+                    {
+                        var b = bones[i + 1];
+                        b.transform.localPosition = new Vector3(obj.Bones[i].XPos / Scale, -obj.Bones[i].YPos / Scale, obj.Bones[i].ZPos / Scale);
+                    }
 
                     OnCreatedBones(gameObject, obj, bones);
                 }

@@ -144,7 +144,12 @@ namespace Ray1Map.PSKlonoa
             Transform[] bones;
 
             if (IsJoka)
-                bones = allBones[0].Take(14).Concat(allBones[1]).Concat(allBones[2]).Append(allBones[0][14]).ToArray();
+                bones = allBones[0].
+                    Take(allBones[0].Length - 1).
+                    Concat(allBones[1]).
+                    Concat(allBones[2]).
+                    Append(allBones[0].Last()).
+                    ToArray();
             else
                 bones = allBones.SelectMany(x => x).ToArray();
 
