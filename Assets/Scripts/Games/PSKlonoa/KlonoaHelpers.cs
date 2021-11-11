@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using UnityEngine;
@@ -173,6 +174,94 @@ namespace Ray1Map.PSKlonoa
             }
 
             return true;
+        }
+
+        public static Unity_CollisionLine[] GetMovementPaths(this IEnumerable<MovementPathBlock> paths, float scale)
+        {
+            var lines = new List<Unity_CollisionLine>();
+            const float verticalAdjust = 0.2f;
+            var up = new Vector3(0, 0, verticalAdjust);
+
+            foreach (var pathBlock in paths)
+            {
+                var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
+                             + up;
+
+                var end = GetPosition(
+                              x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength,
+                              y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength,
+                              z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength,
+                              scale: scale)
+                          + up;
+
+                lines.Add(new Unity_CollisionLine(origin, end)
+                {
+                    Is3D = true, 
+                    UnityWidth = 0.5f,
+                });
+            }
+
+            return lines.ToArray();
+        }
+
+        public static GameObject GetCollisionGameObject(this CollisionTriangle[] collisionTriangles, float scale)
+        {
+            Vector3 toVertex(int x, int y, int z) => new Vector3(x / scale, -y / scale, z / scale);
+
+            var obj = new GameObject("Collision");
+            obj.transform.position = Vector3.zero;
+            var collidersParent = new GameObject("Collision - Colliders");
+            collidersParent.transform.position = Vector3.zero;
+
+            foreach (CollisionTriangle c in collisionTriangles)
+            {
+                Mesh unityMesh = new Mesh();
+
+                var vertices = new Vector3[]
+                {
+                    toVertex(c.X1, c.Y1, c.Z1),
+                    toVertex(c.X2, c.Y2, c.Z2),
+                    toVertex(c.X3, c.Y3, c.Z3),
+
+                    toVertex(c.X1, c.Y1, c.Z1),
+                    toVertex(c.X3, c.Y3, c.Z3),
+                    toVertex(c.X2, c.Y2, c.Z2),
+                };
+
+                unityMesh.SetVertices(vertices);
+
+                var color = new Color(BitHelpers.ExtractBits((int)c.Type, 8, 0) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 8) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 16) / 255f);
+                unityMesh.SetColors(Enumerable.Repeat(color, vertices.Length).ToArray());
+
+                unityMesh.SetTriangles(Enumerable.Range(0, vertices.Length).ToArray(), 0);
+
+                unityMesh.RecalculateNormals();
+
+                GameObject gao = new GameObject($"Collision Triangle {c.Offset}");
+
+                MeshFilter mf = gao.AddComponent<MeshFilter>();
+                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                gao.layer = LayerMask.NameToLayer("3D Collision");
+                gao.transform.SetParent(obj.transform, false);
+                gao.transform.localScale = Vector3.one;
+                gao.transform.localPosition = Vector3.zero;
+                mf.mesh = unityMesh;
+
+                mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+                // Add Collider GameObject
+                GameObject gaoc = new GameObject($"Collision Triangle {c.Offset} - Collider");
+                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
+                mc.sharedMesh = unityMesh;
+                gaoc.layer = LayerMask.NameToLayer("3D Collision");
+                gaoc.transform.SetParent(collidersParent.transform);
+                gaoc.transform.localScale = Vector3.one;
+                gaoc.transform.localPosition = Vector3.zero;
+                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
+                col3D.Type = $"{c.Type:X8}";
+            }
+
+            return obj;
         }
 
         public static void GenerateCutsceneTextTranslation(Loader loader, Dictionary<string, char> d, int cutscene, int instruction, string text)

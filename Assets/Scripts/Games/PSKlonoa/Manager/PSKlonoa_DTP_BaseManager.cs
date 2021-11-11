@@ -417,7 +417,7 @@ namespace Ray1Map.PSKlonoa
                     for (int sectorIndex = 0; sectorIndex < bgPack.BackgroundGameObjectsFiles.Files.Length; sectorIndex++)
                     {
                         var objects = bgPack.BackgroundGameObjectsFiles.Files[sectorIndex].Objects.Where(x => !exportedLayers.Contains(x)).ToArray();
-                        var objectsLoader = new KlonoaObjectsLoader(loader, 0, null);
+                        var objectsLoader = new KlonoaObjectsLoader(loader, 0, null, null);
 
                         // Load to get the backgrounds with their animations
                         await objectsLoader.LoadAsync(new GameObjectDefinition[0], objects);
@@ -792,7 +792,7 @@ namespace Ray1Map.PSKlonoa
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
-            Load_MovementPaths(level, loader, sector, scale);
+            level.CollisionLines = loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).GetMovementPaths(scale);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
@@ -849,7 +849,7 @@ namespace Ray1Map.PSKlonoa
             gao_3dObjParent.transform.localScale = Vector3.one;
 
             // Load the objects first so we get the VRAM animations
-            var objectsLoader = new KlonoaObjectsLoader(loader, scale, gao_3dObjParent);
+            var objectsLoader = new KlonoaObjectsLoader(loader, scale, level.IsometricData, gao_3dObjParent);
 
             var objects3D = loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions;
 
@@ -1035,7 +1035,7 @@ namespace Ray1Map.PSKlonoa
             
             obj.transform.SetParent(parent.transform, false);
 
-            var collisionObj = CreateCollisionGameObject(loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles, scale);
+            var collisionObj = loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles.GetCollisionGameObject(scale);
             collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
             return new Unity_Layer_GameObject(true, isAnimated: tmdGameObj.HasAnimations)
@@ -1180,96 +1180,6 @@ namespace Ray1Map.PSKlonoa
             })));*/
 
             return objects;
-        }
-
-        public void Load_MovementPaths(Unity_Level level, Loader loader, int sector, float scale)
-        {
-            var lines = new List<Unity_CollisionLine>();
-            const float verticalAdjust = 0.2f;
-            var up = new Vector3(0, 0, verticalAdjust);
-
-            foreach (var path in loader.LevelPack.Sectors[sector].MovementPaths.Files)
-            {
-                foreach (var pathBlock in path.Blocks)
-                {
-                    var origin = KlonoaHelpers.GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
-                                 + up;
-                    var end = KlonoaHelpers.GetPosition(
-                                  x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength, 
-                                  y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength, 
-                                  z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength, 
-                                  scale: scale)
-                              + up;
-
-                    lines.Add(new Unity_CollisionLine(origin, end) { is3D = true, UnityWidth = 0.5f });
-                }
-            }
-
-            level.CollisionLines = lines.ToArray();
-        }
-
-        public GameObject CreateCollisionGameObject(CollisionTriangle[] collisionTriangles, float scale)
-        {
-            Vector3 toVertex(int x, int y, int z) => new Vector3(x / scale, -y / scale, z / scale);
-
-            var obj = new GameObject("Collision");
-            obj.transform.position = Vector3.zero;
-            var collidersParent = new GameObject("Collision - Colliders");
-            collidersParent.transform.position = Vector3.zero;
-
-            var defaultColor = new Color(88 / 255f, 98 / 255f, 115 / 255f);
-
-            foreach (CollisionTriangle c in collisionTriangles)
-            {
-                Mesh unityMesh = new Mesh();
-
-                var vertices = new Vector3[]
-                {
-                    toVertex(c.X1, c.Y1, c.Z1),
-                    toVertex(c.X2, c.Y2, c.Z2),
-                    toVertex(c.X3, c.Y3, c.Z3),
-
-                    toVertex(c.X1, c.Y1, c.Z1),
-                    toVertex(c.X3, c.Y3, c.Z3),
-                    toVertex(c.X2, c.Y2, c.Z2),
-                };
-
-                unityMesh.SetVertices(vertices);
-
-                var color = new Color(BitHelpers.ExtractBits((int)c.Type, 8, 0) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 8) / 255f, BitHelpers.ExtractBits((int)c.Type, 8, 16) / 255f);
-                unityMesh.SetColors(Enumerable.Repeat(color, vertices.Length).ToArray());
-
-                unityMesh.SetTriangles(Enumerable.Range(0, vertices.Length).ToArray(), 0);
-
-                unityMesh.RecalculateNormals();
-
-                GameObject gao = new GameObject($"Collision Triangle {c.Offset}");
-
-                MeshFilter mf = gao.AddComponent<MeshFilter>();
-                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                gao.layer = LayerMask.NameToLayer("3D Collision");
-                gao.transform.SetParent(obj.transform, false);
-                gao.transform.localScale = Vector3.one;
-                gao.transform.localPosition = Vector3.zero;
-                mf.mesh = unityMesh;
-
-                mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
-
-
-                // Add Collider GameObject
-                GameObject gaoc = new GameObject($"Collision Triangle {c.Offset} - Collider");
-                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
-                mc.sharedMesh = unityMesh;
-                gaoc.layer = LayerMask.NameToLayer("3D Collision");
-                gaoc.transform.SetParent(collidersParent.transform);
-                gaoc.transform.localScale = Vector3.one;
-                gaoc.transform.localPosition = Vector3.zero;
-                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
-                col3D.Type = $"{c.Type:X8}";
-
-            }
-
-            return obj;
         }
 
         public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)

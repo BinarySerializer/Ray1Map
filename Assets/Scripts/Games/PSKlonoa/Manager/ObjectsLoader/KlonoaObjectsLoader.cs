@@ -8,10 +8,11 @@ namespace Ray1Map.PSKlonoa
 {
     public class KlonoaObjectsLoader
     {
-        public KlonoaObjectsLoader(Loader loader, float scale, GameObject parentObject)
+        public KlonoaObjectsLoader(Loader loader, float scale, Unity_IsometricData isometricData, GameObject parentObject)
         {
             Loader = loader;
             Scale = scale;
+            IsometricData = isometricData;
             ParentObject = parentObject;
             Anim_Manager = new PS1VRAMAnimationManager();
 
@@ -28,6 +29,7 @@ namespace Ray1Map.PSKlonoa
         public Loader Loader { get; }
         public float Scale { get; }
         public GameObject ParentObject { get; }
+        public Unity_IsometricData IsometricData { get; }
         public PS1VRAMAnimationManager Anim_Manager { get; }
 
         // Loaded objects

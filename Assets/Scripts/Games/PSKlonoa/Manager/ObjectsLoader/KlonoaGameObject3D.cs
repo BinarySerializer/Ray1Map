@@ -213,6 +213,8 @@ namespace Ray1Map.PSKlonoa
             // Create the game object
             GameObject = new GameObject(name);
 
+            var collisionComponent = GameObject.AddComponent<ObjectCollisionComponent>();
+
             // Create a child object for each model the object contains
             for (var modelIndex = 0; modelIndex < Obj.Models.Length; modelIndex++)
             {
@@ -259,6 +261,7 @@ namespace Ray1Map.PSKlonoa
                     IsAnimated = true;
 
                 modelGameObj.transform.SetParent(GameObject.transform);
+                collisionComponent.normalObjects.Add(modelGameObj);
             }
 
             // Get the absolute transforms
@@ -283,6 +286,41 @@ namespace Ray1Map.PSKlonoa
             // Apply an absolute rotation if available
             if (Obj.Rotation != null)
                 GameObject.transform.rotation = Obj.Rotation.GetQuaternion();
+
+            // Add collision if available
+            if (Obj.Collision != null)
+            {
+                var colObj = Obj.Collision.CollisionTriangles.GetCollisionGameObject(Scale);
+                colObj.transform.SetParent(GameObject.transform, false);
+                collisionComponent.collisionObjects.Add(colObj);
+            }
+
+            // Add movements paths if available
+            if (Obj.MovementPaths != null)
+            {
+                Unity_CollisionLine[] lines = Obj.MovementPaths.Blocks.GetMovementPaths(Scale);
+
+                foreach (Unity_CollisionLine line in lines)
+                {
+                    LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
+                    lr.sortingLayerName = "Types";
+                    lr.gameObject.layer = LayerMask.NameToLayer("3D Collision Lines");
+                    lr.material = Controller.obj.levelEventController.linkLineMaterial;
+                    lr.material.color = line.LineColor;
+                    lr.positionCount = 2;
+                    lr.widthMultiplier = line.UnityWidth;
+                    lr.useWorldSpace = false;
+                    
+                    lr.gameObject.transform.SetParent(GameObject.transform, false);
+                    collisionComponent.collisionObjects.Add(lr.gameObject);
+
+                    lr.SetPositions(new Vector3[]
+                    {
+                        line.GetUnityPosition(0, ObjLoader.IsometricData),
+                        line.GetUnityPosition(1, ObjLoader.IsometricData),
+                    });
+                }
+            }
         }
 
         public void AddConstantRot(GameObject obj, KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed, float min, float length)
