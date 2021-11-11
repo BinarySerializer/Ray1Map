@@ -51,6 +51,9 @@ namespace Ray1Map
 
         // Additional data
         public Unity_IsometricData IsometricData { get; set; }
+        public bool StartIn3D { get; set; }
+        public Vector3 StartPosition { get; set; }
+        public Quaternion StartRotation { get; set; }
         public IList<KeyValuePair<string, string[]>> Localization { get; set; }
         public Unity_CameraClear CameraClear { get; set; }
         public Unity_Sector[] Sectors { get; set; }

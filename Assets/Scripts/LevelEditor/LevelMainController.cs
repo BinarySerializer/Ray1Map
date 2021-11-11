@@ -62,6 +62,10 @@ namespace Ray1Map
                 Controller.LoadState = Controller.State.Loading;
                 LevelEditorData.Level = await manager.LoadAsync(serializeContext);
                 LevelEditorData.Level.Init();
+
+                if (LevelEditorData.Level.StartIn3D)
+                    controllerEvents.editor.cam.ToggleFreeCameraMode(true);
+
                 LevelEditorData.ShowEventsForMaps = LevelEditorData.Level.Maps?.Select(x => true).ToArray() ?? new bool[] { true };
 
                 await Controller.WaitIfNecessary();

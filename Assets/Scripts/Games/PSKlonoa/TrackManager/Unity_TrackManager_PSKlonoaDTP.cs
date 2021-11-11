@@ -46,10 +46,9 @@ namespace Ray1Map.PSKlonoa
             int prevRotX = 0;
             int prevRotY = 0;
 
-            Quaternion GetQuaternion(float rotX, float rotY) {
-                return Quaternion.Euler(
-                    KlonoaHelpers.GetRotationInDegrees(rotX),
-                    -KlonoaHelpers.GetRotationInDegrees(rotY), 0f);
+            Quaternion GetQuaternion(float rotX, float rotY) 
+            {
+                return KlonoaHelpers.GetQuaternion(rotX, rotY, 0, isCam: true);
             }
 
             foreach (CameraAnimationFrame frame in Animation.Frames)

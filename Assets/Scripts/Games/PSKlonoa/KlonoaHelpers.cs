@@ -91,17 +91,27 @@ namespace Ray1Map.PSKlonoa
             return value * (360f / 0x1000);
         }
 
-        public static Quaternion GetQuaternion(this KlonoaVector16 rot)
+        public static Quaternion GetQuaternion(this KlonoaVector16 rot, bool isCam = false)
         {
-            return GetQuaternion(rot.X, rot.Y, rot.Z);
+            return GetQuaternion(rot.X, rot.Y, rot.Z, isCam);
         }
 
-        public static Quaternion GetQuaternion(float rotX, float rotY, float rotZ)
+        public static Quaternion GetQuaternion(float rotX, float rotY, float rotZ, bool isCam = false)
         {
-            return
-                Quaternion.Euler(-GetRotationInDegrees(rotX), 0, 0) *
-                Quaternion.Euler(0, GetRotationInDegrees(rotY), 0) *
-                Quaternion.Euler(0, 0, -GetRotationInDegrees(rotZ));
+            if (isCam)
+            {
+                return Quaternion.Euler(
+                    GetRotationInDegrees(rotX),
+                    -GetRotationInDegrees(rotY),
+                    GetRotationInDegrees(rotZ)); // TODO: Double check this
+            }
+            else
+            {
+                return
+                    Quaternion.Euler(-GetRotationInDegrees(rotX), 0, 0) *
+                    Quaternion.Euler(0, GetRotationInDegrees(rotY), 0) *
+                    Quaternion.Euler(0, 0, -GetRotationInDegrees(rotZ));
+            }
         }
 
         public static Vector3[] GetPositions(this GameObjectData_ModelBoneAnimation anim, int boneIndex, float scale)

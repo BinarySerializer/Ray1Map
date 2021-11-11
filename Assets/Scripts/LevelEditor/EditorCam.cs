@@ -110,6 +110,12 @@ namespace Ray1Map {
                         cullingMask = Camera.main.cullingMask;
                         cullingMask2DOverlay = camera2DOverlay.cullingMask;
                         UpdateCullingMask(_freeCameraMode);
+
+                        if (LevelEditorData.Level.StartIn3D)
+                        {
+                            camera3D.transform.position = LevelEditorData.Level.StartPosition;
+                            camera3D.transform.rotation = LevelEditorData.Level.StartRotation;
+                        }
                     }
                 }
             }
