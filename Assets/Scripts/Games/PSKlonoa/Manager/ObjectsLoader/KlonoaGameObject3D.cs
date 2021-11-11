@@ -232,7 +232,8 @@ namespace Ray1Map.PSKlonoa
                     animLoopMode: model.DoesAnimatedLocalTransformPingPong ? AnimLoopMode.PingPong : AnimLoopMode.Repeat,
                     boneAnimations: model.ModelBoneAnimations,
                     vertexAnimation: model.VertexAnimation,
-                    isJoka: Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka);
+                    isJoka: Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka,
+                    objectPositionOffsets: model.TMDObjectPositionOffsets);
 
                 // Get the game object
                 GameObject modelGameObj = tmdGameObj.CreateGameObject($"Model {modelIndex}", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);

@@ -13,13 +13,14 @@ namespace Ray1Map.PSKlonoa
             PS1_VRAM vram,
             float scale,
             KlonoaObjectsLoader objectsLoader,
-            bool isPrimaryObj,
+            bool isPrimaryObj, 
             ModelAnimation_ArchiveFile[] animations = null,
             AnimSpeed animSpeed = null,
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
             GameObjectData_ModelBoneAnimations boneAnimations = null,
             GameObjectData_ModelVertexAnimation vertexAnimation = null,
-            bool isJoka = false) : base(tmd, vram, scale)
+            bool isJoka = false, 
+            KlonoaVector16[] objectPositionOffsets = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -29,6 +30,7 @@ namespace Ray1Map.PSKlonoa
             BoneAnimations = boneAnimations;
             VertexAnimation = vertexAnimation;
             IsJoka = isJoka;
+            ObjectPositionOffsets = objectPositionOffsets;
         }
 
         public KlonoaObjectsLoader ObjectsLoader { get; }
@@ -40,6 +42,8 @@ namespace Ray1Map.PSKlonoa
         public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
 
         public bool IsJoka { get; } // This object has bones in a weird order, so we need to hard-code it
+
+        public KlonoaVector16[] ObjectPositionOffsets { get; }
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -73,6 +77,12 @@ namespace Ray1Map.PSKlonoa
 
         protected override void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex)
         {
+            if (ObjectPositionOffsets?[objIndex] != null)
+            {
+                gameObject.transform.localPosition = ObjectPositionOffsets[objIndex].GetPositionVector(Scale);
+                return;
+            }
+
             var isTransformAnimated = KlonoaHelpers.ApplyTransform(
                 gameObj: gameObject,
                 transforms: Animations,
