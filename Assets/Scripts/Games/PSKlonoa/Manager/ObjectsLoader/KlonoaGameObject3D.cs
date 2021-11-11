@@ -191,12 +191,11 @@ namespace Ray1Map.PSKlonoa
                 foreach (var f in Obj.Models[0].LocalTransforms.Files)
                     _correctedTransforms.Add(f);
             }
-            else if (Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_GelgBolm || 
-                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka ||
-                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_JokaCreature ||
-                     Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Ghadius)
+
+            // If an object has multiple models and bone animations then we combine the models into one
+            // since the animation data defines data for all models
+            if (Obj.Models.Length > 1 && Obj.Models[0].ModelBoneAnimations != null && Obj.Models.Skip(1).All(x => x.ModelBoneAnimations == null))
             {
-                // Combine the models into one so we can more easily animate it
                 var combinedTmd = new PS1_TMD
                 {
                     ObjectsCount = (uint)Obj.Models.Length,

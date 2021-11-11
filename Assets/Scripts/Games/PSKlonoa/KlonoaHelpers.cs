@@ -112,11 +112,16 @@ namespace Ray1Map.PSKlonoa
 
         public static Quaternion[] GetRotations(this GameObjectData_ModelBoneAnimation anim, int boneIndex)
         {
-            int[] rotX = anim.BoneRotations.GetValues(boneIndex * 3 + 0);
-            int[] rotY = anim.BoneRotations.GetValues(boneIndex * 3 + 1);
-            int[] rotZ = anim.BoneRotations.GetValues(boneIndex * 3 + 2);
+            return anim.BoneRotations.GetRotations(boneIndex);
+        }
 
-            return Enumerable.Range(0, anim.BoneRotations.FramesCount).
+        public static Quaternion[] GetRotations(this VectorAnimationKeyFrames_File rot, int boneIndex)
+        {
+            int[] rotX = rot.GetValues(boneIndex * 3 + 0);
+            int[] rotY = rot.GetValues(boneIndex * 3 + 1);
+            int[] rotZ = rot.GetValues(boneIndex * 3 + 2);
+
+            return Enumerable.Range(0, rot.FramesCount).
                 Select(x => KlonoaHelpers.GetQuaternion(rotX[x], rotY[x], rotZ[x])).
                 ToArray();
         }

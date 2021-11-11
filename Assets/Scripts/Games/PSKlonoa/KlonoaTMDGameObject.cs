@@ -162,6 +162,17 @@ namespace Ray1Map.PSKlonoa
                     bones[i].transform.position = positions[i].GetPositionVector(Scale);
             }
 
+            // Set default bone rotations
+            if (BoneAnimations.InitialBoneRotations != null)
+            {
+                var rot = BoneAnimations.InitialBoneRotations;
+                var count = rot.BonesCount;
+                var rotations = Enumerable.Range(0, count).Select(x => rot.GetRotations(x).First()).ToArray();
+
+                for (int i = 0; i < rotations.Length; i++)
+                    bones[i].transform.rotation = rotations[i];
+            }
+
             Transform[] models = objects.Select(x => x.transform).ToArray();
 
             for (int animIndex = 0; animIndex < BoneAnimations.Animations.Length; animIndex++)
