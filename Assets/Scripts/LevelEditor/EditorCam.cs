@@ -77,34 +77,37 @@ namespace Ray1Map {
             if (LevelEditorData.Level != null) {
 
                 if (LevelEditorData.Level?.IsometricData != null) {
-                    // Update 3D camera
-                    float scl = 1f;
-                    Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
-                    camera3D.transform.rotation = rot3D;
-                    Vector3 v = rot3D * Vector3.back;
-                    float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
-                    float h = (LevelEditorData.Level.IsometricData.TilesHeight) * levelTilemapController.CellSizeInUnits;
-                    float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
-                    float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
-                    /*if (!camera3D.gameObject.activeSelf) {
-                        Debug.Log(LevelEditorData.Level.IsometricData.TilesWidth
-                            + "x" + LevelEditorData.Level.IsometricData.TilesHeight
-                            + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
-                            + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
-                    }*/
-                    camera3D.orthographic = true;
-                    camera3D.transform.position = v * 300 + rot3D * ((pos -
-                        new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
-                    camera3D.orthographicSize = Camera.main.orthographicSize / scl;
-
+                    if (!_freeCameraMode) {
+                        // Update 3D camera
+                        float scl = 1f;
+                        Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
+                        camera3D.transform.rotation = rot3D;
+                        Vector3 v = rot3D * Vector3.back;
+                        float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
+                        float h = (LevelEditorData.Level.IsometricData.TilesHeight) * levelTilemapController.CellSizeInUnits;
+                        float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
+                        float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
+                        /*if (!camera3D.gameObject.activeSelf) {
+                            Debug.Log(LevelEditorData.Level.IsometricData.TilesWidth
+                                + "x" + LevelEditorData.Level.IsometricData.TilesHeight
+                                + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
+                                + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
+                        }*/
+                        camera3D.orthographic = true;
+                        camera3D.transform.position = v * 300 + rot3D * ((pos -
+                            new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
+                        camera3D.orthographicSize = Camera.main.orthographicSize / scl;
+                    }
                     // Activate
                     if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
-                    camera3DOverlay.orthographicSize = camera3D.orthographicSize;
-                    camera3DOverlay.orthographic = true;
+                    if (!_freeCameraMode) {
+                        camera3DOverlay.orthographicSize = camera3D.orthographicSize;
+                        camera3DOverlay.orthographic = true;
+                    }
                     camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
 
 
-                    if (FreeCameraMode) {
+                    if (!_freeCameraMode && FreeCameraMode) {
                         StopLerp();
                         _freeCameraMode = true;
                         cullingMask = Camera.main.cullingMask;
