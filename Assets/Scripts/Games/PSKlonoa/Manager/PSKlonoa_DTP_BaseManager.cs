@@ -809,7 +809,7 @@ namespace Ray1Map.PSKlonoa
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
             level.StartIn3D = true;
-            MovementPathCamera cam = loader.LevelData3D.MovementPathCameras.PathCameras[sector].FirstOrDefault();
+            MovementPathCamera cam = loader.LevelData3D.MovementPathCameras.PathCameras[sector].FirstOrDefault(x => x.Type == MovementPathCamera.CameraType.Absolute);
 
             if (cam?.AbsolutePosition != null)
                 level.StartPosition = cam.AbsolutePosition.GetPositionVector(scale);
