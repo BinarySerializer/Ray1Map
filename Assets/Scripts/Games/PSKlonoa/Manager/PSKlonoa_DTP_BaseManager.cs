@@ -813,6 +813,8 @@ namespace Ray1Map.PSKlonoa
 
             if (cam?.AbsolutePosition != null)
                 level.StartPosition = cam.AbsolutePosition.GetPositionVector(scale);
+            else
+                Debug.LogWarning($"No default camera position defined");
 
             if (cam?.AbsoluteRotation != null)
                 level.StartRotation = cam.AbsoluteRotation.GetQuaternion(true);
@@ -879,8 +881,10 @@ namespace Ray1Map.PSKlonoa
             Controller.DetailedState = "Loading camera tracks";
             await Controller.WaitIfNecessary();
 
-            // TODO: Add cutscene tracks too
             level.TrackManagers = objectsLoader.CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
+
+            if (level.TrackManagers.Length > 1)
+                Debug.LogWarning($"More than 1 track manager!");
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
