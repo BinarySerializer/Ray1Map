@@ -139,10 +139,30 @@ namespace Ray1Map.PSKlonoa
 
         public override void LoadObject()
         {
-            // Return if the object has no models
-            if (Obj.Models?.Any(x => x.TMD != null) != true)
-                return;
+            string name = Obj.DefinitionOffset != null
+                ? $"Object3D Offset:{Obj.DefinitionOffset} Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})"
+                : $"Object3D Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})";
 
+            // Create the game object
+            GameObject = new GameObject(name);
+
+            ObjectCollisionComponent collisionComponent = GameObject.AddComponent<ObjectCollisionComponent>();
+
+            // Add models
+            if (Obj.Models?.Any(x => x.TMD != null) == true)
+                LoadObject_Models(collisionComponent);
+
+            // Add collision
+            if (Obj.Collision != null)
+                LoadObject_Collision(collisionComponent);
+
+            // Add movements paths
+            if (Obj.MovementPaths != null)
+                LoadObject_MovementPaths(collisionComponent);
+        }
+
+        public void LoadObject_Models(ObjectCollisionComponent collisionComponent)
+        {
             if (Obj.GlobalGameObjectType == GlobalGameObjectType.MultiWheel)
             {
                 PS1_TMD tmd = Obj.Models[0].TMD;
@@ -206,21 +226,12 @@ namespace Ray1Map.PSKlonoa
                 Obj.Models[0].TMD = combinedTmd;
             }
 
-            string name = Obj.DefinitionOffset != null
-                ? $"Object3D Offset:{Obj.DefinitionOffset} Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})"
-                : $"Object3D Type:{Obj.PrimaryType}-{Obj.SecondaryType} ({Obj.GlobalGameObjectType})";
-
-            // Create the game object
-            GameObject = new GameObject(name);
-
-            var collisionComponent = GameObject.AddComponent<ObjectCollisionComponent>();
-
             // Create a child object for each model the object contains
             for (var modelIndex = 0; modelIndex < Obj.Models.Length; modelIndex++)
             {
                 // Get the model
                 GameObjectData_Model model = Obj.Models[modelIndex];
-                
+
                 var tmdGameObj = new KlonoaTMDGameObject(
                     tmd: model.TMD,
                     vram: VRAM,
@@ -287,40 +298,40 @@ namespace Ray1Map.PSKlonoa
             // Apply an absolute rotation if available
             if (Obj.Rotation != null)
                 GameObject.transform.rotation = Obj.Rotation.GetQuaternion();
+        }
 
-            // Add collision if available
-            if (Obj.Collision != null)
+        public void LoadObject_Collision(ObjectCollisionComponent collisionComponent)
+        {
+            var colObj = Obj.Collision.CollisionTriangles.GetCollisionGameObject(Scale);
+            colObj.transform.SetParent(GameObject.transform, false);
+            collisionComponent.collisionObjects.Add(colObj);
+        }
+
+        public void LoadObject_MovementPaths(ObjectCollisionComponent collisionComponent)
+        {
+            Unity_CollisionLine[] lines =
+                Obj.MovementPaths.Blocks.GetMovementPaths(Scale,
+                    color: new Color(255 / 255f, 193 / 255f, 7 / 255f));
+
+            foreach (Unity_CollisionLine line in lines)
             {
-                var colObj = Obj.Collision.CollisionTriangles.GetCollisionGameObject(Scale);
-                colObj.transform.SetParent(GameObject.transform, false);
-                collisionComponent.collisionObjects.Add(colObj);
-            }
+                LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
+                lr.sortingLayerName = "Types";
+                lr.gameObject.layer = LayerMask.NameToLayer("3D Collision Lines");
+                lr.material = Controller.obj.levelEventController.linkLineMaterial;
+                lr.material.color = line.LineColor;
+                lr.positionCount = 2;
+                lr.widthMultiplier = line.UnityWidth;
+                lr.useWorldSpace = false;
 
-            // Add movements paths if available
-            if (Obj.MovementPaths != null)
-            {
-                Unity_CollisionLine[] lines = Obj.MovementPaths.Blocks.GetMovementPaths(Scale, color: new Color(255 / 255f, 193 / 255f, 7 / 255f));
+                lr.gameObject.transform.SetParent(GameObject.transform, false);
+                collisionComponent.collisionObjects.Add(lr.gameObject);
 
-                foreach (Unity_CollisionLine line in lines)
+                lr.SetPositions(new Vector3[]
                 {
-                    LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
-                    lr.sortingLayerName = "Types";
-                    lr.gameObject.layer = LayerMask.NameToLayer("3D Collision Lines");
-                    lr.material = Controller.obj.levelEventController.linkLineMaterial;
-                    lr.material.color = line.LineColor;
-                    lr.positionCount = 2;
-                    lr.widthMultiplier = line.UnityWidth;
-                    lr.useWorldSpace = false;
-                    
-                    lr.gameObject.transform.SetParent(GameObject.transform, false);
-                    collisionComponent.collisionObjects.Add(lr.gameObject);
-
-                    lr.SetPositions(new Vector3[]
-                    {
-                        line.GetUnityPosition(0, ObjLoader.IsometricData),
-                        line.GetUnityPosition(1, ObjLoader.IsometricData),
-                    });
-                }
+                    line.GetUnityPosition(0, ObjLoader.IsometricData),
+                    line.GetUnityPosition(1, ObjLoader.IsometricData),
+                });
             }
         }
 
