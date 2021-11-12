@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BinarySerializer;
 using Ray1Map.GBAVV;
 using Ray1Map.Rayman1;
 using UnityEditor;
@@ -17,15 +16,15 @@ public class SettingsWindow : UnityWindow
 {
     [MenuItem("Ray1Map/Settings")]
     public static void ShowWindow()
-	{
-		GetWindow<SettingsWindow>(false, "Settings", true);
-	}
+    {
+        GetWindow<SettingsWindow>(false, "Settings", true);
+    }
 
-	private void OnEnable()
-	{
-		titleContent = EditorGUIUtility.IconContent("Settings");
-		titleContent.text = "Settings";
-	}
+    private void OnEnable()
+    {
+        titleContent = EditorGUIUtility.IconContent("Settings");
+        titleContent.text = "Settings";
+    }
 
     protected override void UpdateEditorFields() {
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
@@ -286,9 +285,9 @@ public class SettingsWindow : UnityWindow
 
         Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);
 
-        Settings.AnimateSprites = EditorField("Animate sprites (P)", Settings.AnimateSprites);
+        Settings.AnimateSprites = EditorField("Animate objects (P)", Settings.AnimateSprites);
 
-        Settings.AnimateTiles = EditorField("Animate tiles (Y)", Settings.AnimateTiles);
+        Settings.AnimateTiles = EditorField("Animate map (Y)", Settings.AnimateTiles);
 
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
