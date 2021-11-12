@@ -299,7 +299,7 @@ namespace Ray1Map.PSKlonoa
             // Add movements paths if available
             if (Obj.MovementPaths != null)
             {
-                Unity_CollisionLine[] lines = Obj.MovementPaths.Blocks.GetMovementPaths(Scale);
+                Unity_CollisionLine[] lines = Obj.MovementPaths.Blocks.GetMovementPaths(Scale, color: new Color(255 / 255f, 193 / 255f, 7 / 255f));
 
                 foreach (Unity_CollisionLine line in lines)
                 {

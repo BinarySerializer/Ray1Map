@@ -186,7 +186,7 @@ namespace Ray1Map.PSKlonoa
             return true;
         }
 
-        public static Unity_CollisionLine[] GetMovementPaths(this IEnumerable<MovementPathBlock> paths, float scale)
+        public static Unity_CollisionLine[] GetMovementPaths(this IEnumerable<MovementPathBlock> paths, float scale, Color? color = null)
         {
             var lines = new List<Unity_CollisionLine>();
             const float verticalAdjust = 0.2f;
@@ -204,7 +204,7 @@ namespace Ray1Map.PSKlonoa
                               scale: scale)
                           + up;
 
-                lines.Add(new Unity_CollisionLine(origin, end)
+                lines.Add(new Unity_CollisionLine(origin, end, lineColor: color)
                 {
                     Is3D = true, 
                     UnityWidth = 0.5f,
