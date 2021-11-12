@@ -108,16 +108,16 @@
         { "world": 20, "level": 0, "nameInternal": "178 (20_0)", "name": "Ghadius Part 1" },
         { "world": 20, "level": 1, "nameInternal": "179 (20_1)", "name": "Ghadius Part 2" },
 
-        { "world": 21, "level": 0, "nameInternal": "188 (21_0)", "name": "Final Vision Part 1" },
-        { "world": 21, "level": 1, "nameInternal": "189 (21_1)", "name": "Final Vision Part 2" },
+        { "world": 21, "level": 0, "nameInternal": "188 (21_0)", "name": "Final Vision 1 Part 1" },
+        { "world": 21, "level": 1, "nameInternal": "189 (21_1)", "name": "Final Vision 1 Part 2" },
 
-        { "world": 22, "level": 0, "nameInternal": "198 (22_0)", "name": "Final Vision Part 3" },
-        { "world": 22, "level": 1, "nameInternal": "199 (22_1)", "name": "Final Vision Part 4" },
-        { "world": 22, "level": 2, "nameInternal": "200 (22_2)", "name": "Final Vision Part 5" },
+        { "world": 22, "level": 0, "nameInternal": "198 (22_0)", "name": "Final Vision 2 Part 1" },
+        { "world": 22, "level": 1, "nameInternal": "199 (22_1)", "name": "Final Vision 2 Part 2" },
+        { "world": 22, "level": 2, "nameInternal": "200 (22_2)", "name": "Final Vision 2 Part 3" },
 
-        { "world": 23, "level": 0, "nameInternal": "208 (23_0)", "name": "Final Vision Part 6" },
-        { "world": 23, "level": 1, "nameInternal": "209 (23_1)", "name": "Final Vision Part 7" },
-        { "world": 23, "level": 2, "nameInternal": "210 (23_2)", "name": "Final Vision Part 8" },
+        { "world": 23, "level": 0, "nameInternal": "208 (23_0)", "name": "Nahatomb Part 1" },
+        { "world": 23, "level": 1, "nameInternal": "209 (23_1)", "name": "Nahatomb Part 2" },
+        { "world": 23, "level": 2, "nameInternal": "210 (23_2)", "name": "Nahatomb Part 3" },
 
         { "world": 24, "level": 0, "nameInternal": "218 (24_0)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 1" },
         { "world": 24, "level": 1, "nameInternal": "219 (24_1)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 2" },

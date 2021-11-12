@@ -52,9 +52,9 @@ namespace Ray1Map.PSKlonoa
             ("Ghadius", 2),
 
             // Order is different here than in-game
-            ("Final Vision & Nahatomb 1", 2), // TODO: 1 in proto
-            ("Final Vision & Nahatomb 2", 3),
-            ("Final Vision & Nahatomb 3", 3),
+            ("Final Vision 1", 2), // TODO: 1 in proto
+            ("Final Vision 2", 3),
+            ("Nahatomb", 3),
 
             ("Extra Vision", 9),
         };
