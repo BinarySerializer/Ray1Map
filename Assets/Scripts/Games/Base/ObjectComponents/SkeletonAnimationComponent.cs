@@ -2,11 +2,9 @@
 using Ray1Map;
 using UnityEngine;
 
-public class SkeletonAnimationComponent : MonoBehaviour
+public class SkeletonAnimationComponent : ObjectAnimationComponent
 {
     public Animation[] animations;
-    public AnimSpeed speed = new AnimSpeed_FrameDelay(1);
-    public AnimLoopMode loopMode = AnimLoopMode.Repeat;
     public int animIndex;
 
     public Animation CurrentAnimation => animations[animIndex];
@@ -31,12 +29,8 @@ public class SkeletonAnimationComponent : MonoBehaviour
         public bool IsHidden;
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void UpdateAnimation()
     {
-        if (Controller.LoadState != Controller.State.Finished || !Settings.AnimateTiles) 
-            return;
-
         if (animations == null || speed == null)
             return;
 
