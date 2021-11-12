@@ -812,9 +812,14 @@ namespace Ray1Map.PSKlonoa
             MovementPathCamera cam = loader.LevelData3D.MovementPathCameras.PathCameras[sector].FirstOrDefault(x => x.Type == MovementPathCamera.CameraType.Absolute);
 
             if (cam?.AbsolutePosition != null)
+            {
                 level.StartPosition = cam.AbsolutePosition.GetPositionVector(scale);
+            }
             else
-                Debug.LogWarning($"No default camera position defined");
+            {
+                Debug.Log($"No default camera position defined");
+                level.StartPosition = new Vector3(0, 10, -60);
+            }
 
             if (cam?.AbsoluteRotation != null)
                 level.StartRotation = cam.AbsoluteRotation.GetQuaternion(true);
