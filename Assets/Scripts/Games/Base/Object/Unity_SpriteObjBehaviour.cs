@@ -81,8 +81,7 @@ namespace Ray1Map
         public AudioClip currentSoundEffect;
         public Unity_ObjectType PrevObjType;
 
-        private GameObject detectionSphere_outside;
-        private GameObject detectionSphere_inside;
+        private GameObject detectionSphere;
         public Material detectionSphereMaterial;
 
         public void Init() {
@@ -149,10 +148,9 @@ namespace Ray1Map
             if (ObjData.DetectionRadius == null)
                 return;
 
-            updateSphere(ref detectionSphere_outside, false, "Detection Sphere - Outside");
-            updateSphere(ref detectionSphere_inside, true, "Detection Sphere - Inside");
+            updateSphere(ref detectionSphere, "Detection Sphere");
 
-            void updateSphere(ref GameObject obj, bool invert, string objName)
+            void updateSphere(ref GameObject obj, string objName)
             {
                 if (obj == null)
                 {
@@ -167,27 +165,36 @@ namespace Ray1Map
 
                     obj.transform.SetParent(transform, false);
 
-                    if (invert)
-                    {
-                        Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
+                    Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
 
-                        Vector3[] normals = mesh.normals;
+                    Vector3[] vertices = mesh.vertices;
+                    Vector3[] normals = mesh.normals;
+                    int len = vertices.Length;
+                    Array.Resize(ref vertices, len * 2);
+                    Array.Resize(ref normals, len * 2);
 
-                        for (int i = 0; i < normals.Length; i++)
-                            normals[i] = -1 * normals[i];
-
-                        mesh.normals = normals;
-
-                        int[] triangles = mesh.triangles;
-
-                        for (int i = 0; i < triangles.Length; i += 3)
-                            (triangles[i + 1], triangles[i + 2]) = (triangles[i + 2], triangles[i + 1]);
-
-                        mesh.triangles = triangles;
+                    for (int i = 0; i < len; i++) {
+                        vertices[i + len] = vertices[i];
+                        normals[i + len] = -normals[i];
                     }
-                }
 
-                obj.SetActive(ShowCollision);
+                    mesh.vertices = vertices;
+                    mesh.normals = normals;
+
+                    int[] triangles = mesh.triangles;
+                    int trianglesLen = triangles.Length;
+                    Array.Resize(ref triangles, trianglesLen * 2);
+
+                    for (int i = 0; i < trianglesLen; i += 3) {
+                        triangles[i + 0 + trianglesLen] = triangles[i + 0];
+                        triangles[i + 1 + trianglesLen] = triangles[i + 2];
+                        triangles[i + 2 + trianglesLen] = triangles[i + 1];
+                    }
+
+                    mesh.triangles = triangles;
+                }
+                var shouldBeActive = ShowCollision;
+                if(obj.activeSelf != shouldBeActive) obj.SetActive(shouldBeActive);
             }
         }
 
