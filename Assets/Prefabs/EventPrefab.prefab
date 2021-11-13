@@ -476,6 +476,8 @@ MonoBehaviour:
   followSpriteLine: {fileID: 1461871569743029422}
   midpoint: {x: 0, y: 0, z: 0}
   currentSoundEffect: {fileID: 0}
+  detectionSphereMaterial: {fileID: 2100000, guid: aa4c280a1831dd342b58c982ca42d37c,
+    type: 2}
 --- !u!61 &8388059050577267216
 BoxCollider2D:
   m_ObjectHideFlags: 0

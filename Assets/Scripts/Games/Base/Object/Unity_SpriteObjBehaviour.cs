@@ -81,6 +81,9 @@ namespace Ray1Map
         public AudioClip currentSoundEffect;
         public Unity_ObjectType PrevObjType;
 
+        private GameObject detectionSphere;
+        public Material detectionSphereMaterial;
+
         public void Init() {
             UpdatePosition();
             InitGizmo();
@@ -138,6 +141,28 @@ namespace Ray1Map
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void UpdateDetectionSphere()
+        {
+            if (ObjData.DetectionRadius == null)
+                return;
+
+            if (detectionSphere == null)
+            {
+                detectionSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                detectionSphere.layer = LayerMask.NameToLayer("3D Collision");
+                Destroy(detectionSphere.GetComponent<Collider>());
+                detectionSphere.GetComponent<Renderer>().material = detectionSphereMaterial;
+
+                float diam = 2 * ObjData.DetectionRadius.Value;
+                detectionSphere.transform.localScale = new Vector3(diam, diam, diam);
+
+                detectionSphere.transform.SetParent(transform);
+            }
+
+            detectionSphere.transform.position = transform.position;
+            detectionSphere.SetActive(ShowCollision);
         }
 
         private void UpdatePosition()
@@ -726,6 +751,8 @@ namespace Ray1Map
             if (oneWayLinkLines != null)
                 for (var i = 0; i < oneWayLinkLines.Length; i++)
                     oneWayLinkLines[i].enabled = (enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked && connectedOneWayLinkLines[i]) || ForceShowOneWayLinks;
+
+            UpdateDetectionSphere();
 
             HasInitialized = true;
         }

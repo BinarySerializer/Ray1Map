@@ -15,6 +15,7 @@ namespace Ray1Map.PSKlonoa
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;
             WaypointLinks = new List<int>();
+            DetectionRadius = Object.Data?.DespawnDistance / scale;
 
             if (SpriteSetIndex == -1)
                 Debug.LogWarning($"Enemy sprite {spriteInfo.SpriteSet} is not loaded in current level");
@@ -32,5 +33,7 @@ namespace Ray1Map.PSKlonoa
         public override IEnumerable<int> Links => WaypointLinks;
 
         public List<int> WaypointLinks { get; }
+
+        public override float? DetectionRadius { get; }
     }
 }
