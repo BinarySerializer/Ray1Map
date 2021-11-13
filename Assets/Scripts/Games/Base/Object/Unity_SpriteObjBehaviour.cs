@@ -81,7 +81,8 @@ namespace Ray1Map
         public AudioClip currentSoundEffect;
         public Unity_ObjectType PrevObjType;
 
-        private GameObject detectionSphere;
+        private GameObject detectionSphere_outside;
+        private GameObject detectionSphere_inside;
         public Material detectionSphereMaterial;
 
         public void Init() {
@@ -148,21 +149,46 @@ namespace Ray1Map
             if (ObjData.DetectionRadius == null)
                 return;
 
-            if (detectionSphere == null)
+            updateSphere(ref detectionSphere_outside, false, "Detection Sphere - Outside");
+            updateSphere(ref detectionSphere_inside, true, "Detection Sphere - Inside");
+
+            void updateSphere(ref GameObject obj, bool invert, string objName)
             {
-                detectionSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                detectionSphere.layer = LayerMask.NameToLayer("3D Collision");
-                Destroy(detectionSphere.GetComponent<Collider>());
-                detectionSphere.GetComponent<Renderer>().material = detectionSphereMaterial;
+                if (obj == null)
+                {
+                    obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    obj.name = objName;
+                    obj.layer = LayerMask.NameToLayer("3D Collision");
+                    Destroy(obj.GetComponent<Collider>());
+                    obj.GetComponent<Renderer>().material = detectionSphereMaterial;
 
-                float diam = 2 * ObjData.DetectionRadius.Value;
-                detectionSphere.transform.localScale = new Vector3(diam, diam, diam);
+                    float diam = 2 * ObjData.DetectionRadius.Value;
+                    obj.transform.localScale = new Vector3(diam, diam, diam);
 
-                detectionSphere.transform.SetParent(transform);
+                    obj.transform.SetParent(transform, false);
+
+                    if (invert)
+                    {
+                        Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
+
+                        Vector3[] normals = mesh.normals;
+
+                        for (int i = 0; i < normals.Length; i++)
+                            normals[i] = -1 * normals[i];
+
+                        mesh.normals = normals;
+
+                        int[] triangles = mesh.triangles;
+
+                        for (int i = 0; i < triangles.Length; i += 3)
+                            (triangles[i + 1], triangles[i + 2]) = (triangles[i + 2], triangles[i + 1]);
+
+                        mesh.triangles = triangles;
+                    }
+                }
+
+                obj.SetActive(ShowCollision);
             }
-
-            detectionSphere.transform.position = transform.position;
-            detectionSphere.SetActive(ShowCollision);
         }
 
         private void UpdatePosition()
