@@ -1,15 +1,16 @@
-﻿using BinarySerializer;
-using BinarySerializer.Klonoa;
-using BinarySerializer.Klonoa.DTP;
-using BinarySerializer.PS1;
-using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
+using BinarySerializer.Klonoa;
+using BinarySerializer.Klonoa.DTP;
+using BinarySerializer.PS1;
+using Cysharp.Threading.Tasks;
+using ImageMagick;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -17,6 +18,8 @@ namespace Ray1Map.PSKlonoa
 {
     public abstract class PSKlonoa_DTP_BaseManager : BaseGameManager
     {
+        #region Manager
+
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
         public static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
@@ -59,15 +62,28 @@ namespace Ray1Map.PSKlonoa
             ("Extra Vision", 9),
         };
 
+        public abstract KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings);
+
+        public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
+
+        public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
+        {
+            return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
+        }
+
+        #endregion
+
+        #region Game Actions
+
         public override GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
-                new GameAction("Extract BIN", false, true, (input, output) => Extract_BINAsync(settings, output, false)),
-                new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
-                new GameAction("Extract Code", false, true, (input, output) => Extract_CodeAsync(settings, output)),
-                new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
-                new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
+                new GameAction("Extract BIN", false, true, (_, output) => Extract_BINAsync(settings, output, false)),
+                new GameAction("Extract BIN (unpack archives)", false, true, (_, output) => Extract_BINAsync(settings, output, true)),
+                new GameAction("Extract Code", false, true, (_, output) => Extract_CodeAsync(settings, output)),
+                new GameAction("Extract Graphics", false, true, (_, output) => Extract_GraphicsAsync(settings, output)),
+                new GameAction("Extract Cutscenes", false, true, (_, output) => Extract_Cutscenes(settings, output)),
             };
         }
 
@@ -122,14 +138,16 @@ namespace Ray1Map.PSKlonoa
             };
 
             // Enumerate every entry
-            for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var binBlockIndex = 0; binBlockIndex < idxData.Entries.Length; binBlockIndex++)
             {
-                loader.SwitchBlocks(blockIndex);
+                loader.SwitchBlocks(binBlockIndex);
+
+                int blockIndex = binBlockIndex;
 
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
                 {
-                    var type = cmd.FILE_Type;
+                    IDXLoadCommand.FileType type = cmd.FILE_Type;
 
                     if (unpack)
                     {
@@ -195,9 +213,11 @@ namespace Ray1Map.PSKlonoa
             var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
-            for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var binBlockIndex = 0; binBlockIndex < idxData.Entries.Length; binBlockIndex++)
             {
-                loader.SwitchBlocks(blockIndex);
+                loader.SwitchBlocks(binBlockIndex);
+
+                int blockIndex = binBlockIndex;
 
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
@@ -582,7 +602,7 @@ namespace Ray1Map.PSKlonoa
                             filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"),
                             frameOffsets: animFrames.Offsets,
                             uniformSize: true,
-                            uniformGravity: ImageMagick.Gravity.Southwest);
+                            uniformGravity: Gravity.Southwest);
                     }
                 }
 
@@ -633,9 +653,11 @@ namespace Ray1Map.PSKlonoa
             var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
-            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var binBlockIndex = 3; binBlockIndex < idxData.Entries.Length; binBlockIndex++)
             {
-                loader.SwitchBlocks(blockIndex);
+                loader.SwitchBlocks(binBlockIndex);
+
+                int blockIndex = binBlockIndex;
 
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
@@ -678,14 +700,14 @@ namespace Ray1Map.PSKlonoa
             }
         }
 
-        public abstract KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings);
+        #endregion
 
-        public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
+        #region Load
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
-            var stopWatch = IncludeDebugInfo ? Stopwatch.StartNew() : null;
-            var startupLog = IncludeDebugInfo ? new StringBuilder() : null;
+            Stopwatch stopWatch = IncludeDebugInfo ? Stopwatch.StartNew() : null;
+            StringBuilder startupLog = stopWatch != null ? new StringBuilder() : null;
 
             // Get settings
             GameSettings settings = context.GetR1Settings();
@@ -785,7 +807,7 @@ namespace Ray1Map.PSKlonoa
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            level.EventData = Load_Objects(loader, sector, scale, objManager);
+            level.EventData = Load_SpriteObjects(loader, sector, scale, objManager);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
@@ -826,7 +848,7 @@ namespace Ray1Map.PSKlonoa
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded default camera position");
 
-            if (IncludeDebugInfo)
+            if (IncludeDebugInfo && stopWatch != null)
             {
                 var str = new StringBuilder();
 
@@ -881,12 +903,13 @@ namespace Ray1Map.PSKlonoa
                           $"{String.Join(Environment.NewLine, objectsLoader.PaletteAnimations.Select(a => $"{(a.UsesSingleRegion ? a.Region.ToString() : String.Join(", ", a.Regions))}"))}");
             }
 
-            // Load tracks
-
             Controller.DetailedState = "Loading camera tracks";
             await Controller.WaitIfNecessary();
 
-            level.TrackManagers = objectsLoader.CameraAnimations.Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).ToArray();
+            // Load camera tracks
+            level.TrackManagers = objectsLoader.CameraAnimations.
+                Select(x => new Unity_TrackManager_PSKlonoaDTP(x, scale)).
+                ToArray<Unity_TrackManager>();
 
             if (level.TrackManagers.Length > 1)
                 Debug.LogWarning($"More than 1 track manager!");
@@ -895,19 +918,16 @@ namespace Ray1Map.PSKlonoa
             await Controller.WaitIfNecessary();
 
             // Load gradients
-            var backgroundsClear = Load_Layers_Gradients(loader, sector, scale);
-            layers.AddRange(backgroundsClear);
+            layers.AddRange(Load_Layers_Gradients(loader, sector, scale));
 
             // Load backgrounds
-            var backgrounds = Load_Layers_Backgrounds(loader, objectsLoader, scale);
-            layers.AddRange(backgrounds);
+            layers.AddRange(Load_Layers_Backgrounds(objectsLoader));
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
             // Load level object
-            var levelObj = Load_Layers_LevelObject(loader, parent3d, objectsLoader, sector, scale);
-            layers.Add(levelObj);
+            layers.Add(Load_Layers_LevelObject(loader, parent3d, objectsLoader, sector, scale));
 
             // Add layer for 3D objects last
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: objectsLoader.GetIsAnimated)
@@ -918,64 +938,74 @@ namespace Ray1Map.PSKlonoa
             });
             gao_3dObjParent.transform.SetParent(parent3d.transform, false);
 
+            // Load the textures
+            await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
+
             // Log some debug info
             if (IncludeDebugInfo)
-            {
                 Debug.Log($"MAP INFO{Environment.NewLine}" +
                           $"{objectsLoader.Anim_Manager.AnimatedTextures.SelectMany(x => x.Value).Count()} texture animations{Environment.NewLine}" +
                           $"{objectsLoader.ScrollAnimations.Count} UV scroll animations{Environment.NewLine}" +
                           $"Objects:{Environment.NewLine}\t" +
                           $"{String.Join($"{Environment.NewLine}\t", objects3D.Take(objects3D.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} ({x.Data?.GlobalGameObjectType})"))}");
-            }
 
-            await objectsLoader.Anim_Manager.LoadTexturesAsync(loader.VRAM);
-
+            // Set the layers
             level.Layers = layers.ToArray();
         }
 
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader loader, int sector, float scale) {
 
             // Add background objects
-            var bgObjects = loader.BackgroundPack?.BackgroundGameObjectsFiles.Files.
-                ElementAtOrDefault(sector)?.Objects;
-            var bgClear = bgObjects?.
+            BackgroundGameObject[] bgObjects = loader.BackgroundPack?.BackgroundGameObjectsFiles.Files.ElementAtOrDefault(sector)?.Objects;
+            IEnumerable<BackgroundGameObjectData_Clear> bgClear = bgObjects?.
                 Where(x => x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear_Gradient ||
                            x.Type == BackgroundGameObject.BackgroundGameObjectType.Clear).
                 Select(x => x.Data_Clear);
 
             List<Unity_Layer_GameObject> gaoLayers = new List<Unity_Layer_GameObject>();
-            int pixelsPerUnit = 16;
 
-            foreach (var clear in bgClear) {
+            if (bgClear == null)
+                return gaoLayers;
+
+            const float pixelsPerUnit = 16;
+
+            foreach (var clear in bgClear) 
+            {
                 Mesh m = new Mesh();
-                Vector3[] vertices = clear.Entries.Select(e =>
-                    new Vector3(
-                        ((e.XPos_RelativeObj != -1 ? bgObjects[e.XPos_RelativeObj].XPos : 0) + e.XPos) / pixelsPerUnit,
-                        -((e.YPos_RelativeObj != -1 ? bgObjects[e.YPos_RelativeObj].YPos : 0) + e.YPos) / pixelsPerUnit,
-                        0)).ToArray();
-                Color[] colors = clear.Entries.Select(e =>
-                    e.Color.GetColor()).ToArray();
-                int[] triangles = new int[] {
+
+                Vector3[] vertices = clear.Entries.
+                    Select(e => new Vector3(
+                        x: ((e.XPos_RelativeObj != -1 ? bgObjects[e.XPos_RelativeObj].XPos : 0) + e.XPos) / pixelsPerUnit,
+                        y: -((e.YPos_RelativeObj != -1 ? bgObjects[e.YPos_RelativeObj].YPos : 0) + e.YPos) / pixelsPerUnit,
+                        z: 0)).
+                    ToArray();
+
+                Color[] colors = clear.Entries.Select(e => e.Color.GetColor()).ToArray();
+
+                int[] triangles = 
+                {
                     0, 1, 2, 0, 2, 1,
                     2, 1, 3, 2, 3, 1,
                 };
 
                 // Compensate for having gradients relative to the camera
-                int screenHeight = 208;
-                int screenWidth = 320;
-                if ((clear.Entries[0].YPos_RelativeObj == -1) != (clear.Entries[3].YPos_RelativeObj == -1)) {
-                    if (clear.Entries[0].YPos_RelativeObj == -1) {
-                        vertices[0] = new Vector3(vertices[0].x, vertices[3].y + (float)screenHeight / pixelsPerUnit, vertices[0].z);
-                    } else {
+                const int screenHeight = 208;
+                const int screenWidth = 320;
+
+                if ((clear.Entries[0].YPos_RelativeObj == -1) != (clear.Entries[3].YPos_RelativeObj == -1)) 
+                {
+                    if (clear.Entries[0].YPos_RelativeObj == -1) 
+                        vertices[0] = new Vector3(vertices[0].x, vertices[3].y + screenHeight / pixelsPerUnit, vertices[0].z);
+                    else 
                         vertices[3] += new Vector3(0, vertices[0].y, 0);
-                    }
                 }
-                if ((clear.Entries[0].XPos_RelativeObj == -1) != (clear.Entries[3].XPos_RelativeObj == -1)) {
-                    if (clear.Entries[0].XPos_RelativeObj == -1) {
-                        vertices[0] = new Vector3(vertices[3].x -(float)screenWidth / pixelsPerUnit, vertices[0].y, vertices[0].z);
-                    } else {
+
+                if ((clear.Entries[0].XPos_RelativeObj == -1) != (clear.Entries[3].XPos_RelativeObj == -1)) 
+                {
+                    if (clear.Entries[0].XPos_RelativeObj == -1) 
+                        vertices[0] = new Vector3(vertices[3].x -screenWidth / pixelsPerUnit, vertices[0].y, vertices[0].z);
+                    else 
                         vertices[3] += new Vector3(vertices[0].x, 0, 0);
-                    }
                 }
 
                 // Use points 0 and 3 only
@@ -1004,7 +1034,8 @@ namespace Ray1Map.PSKlonoa
                 mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
                 mf.mesh = m;
 
-                gaoLayers.Add(new Unity_Layer_GameObject(false) {
+                gaoLayers.Add(new Unity_Layer_GameObject(false) 
+                {
                     Graphics = gao,
                     Name = $"Gradient {index}",
                     ShortName = $"GR{index}"
@@ -1014,13 +1045,12 @@ namespace Ray1Map.PSKlonoa
             return gaoLayers;
         }
 
-        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(Loader loader, KlonoaObjectsLoader objectsLoader, float scale)
+        public IEnumerable<Unity_Layer> Load_Layers_Backgrounds(KlonoaObjectsLoader objectsLoader)
         {
-            // Get the background textures
-            var bgLayers = objectsLoader.BackgroundLayers;
-            int pixelsPerUnit = 16;
+            const int pixelsPerUnit = 16;
+
             // Add the backgrounds
-            return bgLayers.Select((t, i) => new Unity_Layer_Texture
+            return objectsLoader.BackgroundLayers.Select((t, i) => new Unity_Layer_Texture
             {
                 Name = $"Background {i}",
                 ShortName = $"BG{i}",
@@ -1033,29 +1063,27 @@ namespace Ray1Map.PSKlonoa
         public Unity_Layer Load_Layers_LevelObject(Loader loader, GameObject parent, KlonoaObjectsLoader objectsLoader, int sector, float scale)
         {
             var tmdGameObj = new KlonoaTMDGameObject(
-                    tmd: loader.LevelPack.Sectors[sector].LevelModel,
-                    vram: loader.VRAM,
-                    scale: scale,
-                    objectsLoader: objectsLoader,
-                    isPrimaryObj: true);
+                tmd: loader.LevelPack.Sectors[sector].LevelModel,
+                vram: loader.VRAM,
+                scale: scale,
+                objectsLoader: objectsLoader,
+                isPrimaryObj: true);
 
             GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo);
 
             Bounds levelBounds = loader.LevelPack.Sectors[sector].LevelModel.GetDimensions(scale);
 
             // Calculate actual level dimensions: switched axes for unity & multiplied by cellSize
-            int cellSize = 16;
+            const int cellSize = 16;
 
             //var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
             var layerDimensions = new Rect(
                 levelBounds.min.x * cellSize, -levelBounds.max.z * cellSize,
                 levelBounds.size.x * cellSize, levelBounds.size.z * cellSize);
-            // Correctly center object
-            //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
             
             obj.transform.SetParent(parent.transform, false);
 
-            var collisionObj = loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles.GetCollisionGameObject(scale);
+            GameObject collisionObj = loader.LevelPack.Sectors[sector].LevelCollisionTriangles.CollisionTriangles.GetCollisionGameObject(scale);
             collisionObj.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform, false);
 
             return new Unity_Layer_GameObject(true, isAnimated: tmdGameObj.HasAnimations)
@@ -1096,7 +1124,7 @@ namespace Ray1Map.PSKlonoa
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
-        public List<Unity_SpriteObject> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        public List<Unity_SpriteObject> Load_SpriteObjects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             var objects = new List<Unity_SpriteObject>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
@@ -1169,54 +1197,29 @@ namespace Ray1Map.PSKlonoa
             // Add scenery objects
             objects.AddRange(loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions.
                 Where(x => x.Data?.ScenerySprites != null || x.Data?.LightPositions != null).
-                SelectMany(x => (x.Data.LightPositions ?? x.Data.ScenerySprites).Vectors[0]).
+                SelectMany(x => (x.Data.LightPositions ?? x.Data.ScenerySprites!).Vectors[0]).
                 Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
-            {
-                Position = KlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
-            }));
-
-            var wpIndex = objects.Count;
-            // Temporarily add waypoints at each path block to visualize them
-            /*objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.SelectMany(b => new Unity_Object[]
-            {
-                new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}", objLinks: new int[]
                 {
-                    ++wpIndex
-                })
-                {
-                    Position = GetPosition(b.XPos, b.YPos, b.ZPos, scale),
-                },
-                new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}", objLinks: new []
-                {
-                    (wpIndex++) - 1
-                })
-                {
-                    Position = GetPosition(
-                        x: b.XPos + b.DirectionX * b.BlockLength,
-                        y: b.YPos + b.DirectionY * b.BlockLength,
-                        z: b.ZPos + b.DirectionZ * b.BlockLength,
-                        scale: scale),
-                }
-            })));*/
+                    Position = KlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
+                }));
 
             return objects;
         }
 
-        public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
-        {
-            return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
-        }
+        #endregion
+
+        #region Helpers
 
         public (Texture2D Texture, RectInt Rect) GetTexture(SpriteTexture[] spriteTextures, PS1_VRAM vram, int palX, int palY)
         {
             if (spriteTextures?.Any() != true)
                 return default;
 
-            var rects = spriteTextures.Select(s => 
+            var rects = spriteTextures.Select(s =>
                 new RectInt(
-                    xMin: s.FlipX ? s.XPos - s.Width - 1 : s.XPos, 
-                    yMin: s.FlipY ? s.YPos - s.Height - 1 : s.YPos, 
-                    width: s.Width, 
+                    xMin: s.FlipX ? s.XPos - s.Width - 1 : s.XPos,
+                    yMin: s.FlipY ? s.YPos - s.Height - 1 : s.YPos,
+                    width: s.Width,
                     height: s.Height)).ToArray();
 
             var minX = rects.Min(x => x.x);
@@ -1319,7 +1322,7 @@ namespace Ray1Map.PSKlonoa
             var minX = rects.Where(x => x != null).Min(x => x.Value.x);
             var minY = rects.Where(x => x != null).Min(x => x.Value.y);
 
-            return (textures, rects.Select((x, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x - minX, rects[i].Value.y - minY)).ToArray());
+            return (textures, rects.Select((_, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x - minX, rects[i].Value.y - minY)).ToArray());
         }
 
         public ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
@@ -1438,7 +1441,7 @@ namespace Ray1Map.PSKlonoa
         {
             // The game only loads portions of the BIN at a time
             await context.AddLinearFileAsync(config.FilePath_BIN);
-            
+
             // The IDX gets loaded into a fixed memory location
             await context.AddMemoryMappedFile(config.FilePath_IDX, config.Address_IDX);
 
@@ -1463,5 +1466,7 @@ namespace Ray1Map.PSKlonoa
             public int PalOffsetX { get; }
             public int PalOffsetY { get; }
         }
+
+        #endregion
     }
 }
