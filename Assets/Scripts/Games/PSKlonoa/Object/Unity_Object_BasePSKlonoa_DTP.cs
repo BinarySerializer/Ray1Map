@@ -59,6 +59,11 @@ namespace Ray1Map.PSKlonoa
         protected override int GetSpriteID => SpriteSetIndex;
         public override IList<Sprite> Sprites => SpriteSet?.Sprites;
 
+        protected int GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType type, int index)
+        {
+            return ObjManager.SpriteSets.FindItemIndex(x => x.Type == type && x.Index == index);
+        }
+
         private class LegacyEditorWrapper : BaseLegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_BasePSKlonoa_DTP obj)

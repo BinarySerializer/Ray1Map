@@ -1,4 +1,5 @@
-﻿using BinarySerializer;
+﻿using System.Collections.Generic;
+using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace Ray1Map.PSKlonoa
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;
+            WaypointLinks = new List<int>();
 
             if (SpriteSetIndex == -1)
                 Debug.LogWarning($"Enemy sprite {spriteInfo.SpriteSet} is not loaded in current level");
@@ -25,5 +27,10 @@ namespace Ray1Map.PSKlonoa
         public override int SecondaryType => Object.SecondaryType;
 
         public override float Scale { get; }
+
+        public override bool CanBeLinked => true;
+        public override IEnumerable<int> Links => WaypointLinks;
+
+        public List<int> WaypointLinks { get; }
     }
 }

@@ -4,14 +4,17 @@ using UnityEngine;
 
 namespace Ray1Map
 {
-    public class Unity_Object_Dummy : Unity_SpriteObject_3D
+    public sealed class Unity_Object_Dummy : Unity_SpriteObject_3D
     {
-        public Unity_Object_Dummy(BinarySerializable serializableData, Unity_ObjectType type, string debugText = null, int[] objLinks = null)
+        public Unity_Object_Dummy(BinarySerializable serializableData, Unity_ObjectType type, string debugText = null, int[] objLinks = null, string name = "DUMMY", Vector3 position = default, bool isEditor = false)
         {
             SerializableData = serializableData;
             Type = type;
             DebugText = debugText;
             ObjLinks = objLinks;
+            PrimaryName = name;
+            Position = position;
+            IsEditor = isEditor;
         }
 
         public override short XPosition { get; set; }
@@ -20,7 +23,9 @@ namespace Ray1Map
         public override BinarySerializable SerializableData { get; }
         public override string DebugText { get; }
         public override Unity_ObjectType Type { get; }
-        public override string PrimaryName => $"DUMMY";
+        public override string PrimaryName { get; }
+
+        public override bool IsEditor { get; }
 
         public int[] ObjLinks { get; }
 

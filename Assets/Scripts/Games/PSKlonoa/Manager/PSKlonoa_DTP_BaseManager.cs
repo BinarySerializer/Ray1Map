@@ -1101,10 +1101,10 @@ namespace Ray1Map.PSKlonoa
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
-            // Enumerate each sprite set
+            // Enumerate each common sprite set
             for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
-                Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteSets.Length}";
+                Controller.DetailedState = $"Loading common sprites {i + 1}/{loader.SpriteSets.Length}";
                 await Controller.WaitIfNecessary();
 
                 var frames = loader.SpriteSets[i];
@@ -1116,18 +1116,24 @@ namespace Ray1Map.PSKlonoa
                 // Create the sprites
                 var sprites = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).Texture.CreateSprite()).ToArray();
 
-                var set = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.SpriteSets, i);
+                var set = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.CommonSprites, i);
 
                 spriteSets.Add(set);
             }
+
+            // TODO: Load cutscene sprites
+            
+            // TODO: Load player sprites
+            
+            // TODO: Load boss sprites
 
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
 
         public List<Unity_SpriteObject> Load_SpriteObjects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
-            var objects = new List<Unity_SpriteObject>();
-            var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
+            var spriteObjects = new List<Unity_SpriteObject>();
+            MovementPath_File[] movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
             foreach (EnemyObject enemyObj in loader.LevelData2D.Enemy_Objects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex))
@@ -1144,12 +1150,41 @@ namespace Ray1Map.PSKlonoa
 
                 void addEnemyObj(EnemyObject obj)
                 {
-                    var spriteInfo = GetSprite_Enemy(obj);
+                    ObjSpriteInfo spriteInfo = GetSprite_Enemy(obj);
 
                     if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                         Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {obj.SecondaryType} and graphics index {obj.GraphicsIndex}");
 
-                    objects.Add(new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo));
+                    var unityObj = new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo);
+                    spriteObjects.Add(unityObj);
+
+                    // Add waypoints
+                    if (obj.Data?.Waypoints != null)
+                    {
+                        for (var i = 0; i < obj.Data.Waypoints.Length; i++)
+                        {
+                            EnemyWaypoint waypoint = obj.Data.Waypoints[i];
+                            
+                            // Add a dummy object since we don't care about animations
+                            spriteObjects.Add(new Unity_Object_Dummy(
+                                serializableData: waypoint,
+                                type: Unity_ObjectType.Waypoint,
+                                name: $"Waypoint {i} (start)",
+                                position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.StartPosition, Vector3.zero, scale),
+                                isEditor: true));
+
+                            unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
+
+                            spriteObjects.Add(new Unity_Object_Dummy(
+                                serializableData: waypoint,
+                                type: Unity_ObjectType.Waypoint,
+                                name: $"Waypoint {i} (end)",
+                                position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.EndPosition, Vector3.zero, scale),
+                                isEditor: true));
+
+                            unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
+                        }
+                    }
                 }
             }
 
@@ -1158,52 +1193,62 @@ namespace Ray1Map.PSKlonoa
             {
                 for (int objIndex = 0; objIndex < loader.LevelData2D.Enemy_ObjectIndexTables.IndexTables[pathIndex].Length; objIndex++)
                 {
-                    var obj = loader.LevelData2D.Enemy_Objects[loader.LevelData2D.Enemy_ObjectIndexTables.IndexTables[pathIndex][objIndex]];
+                    EnemyObject obj = loader.LevelData2D.Enemy_Objects[loader.LevelData2D.Enemy_ObjectIndexTables.IndexTables[pathIndex][objIndex]];
 
                     if (obj.GlobalSectorIndex != loader.GlobalSectorIndex)
                         continue;
 
-                    var pos = movementPaths[pathIndex].Blocks.GetPosition(obj.MovementPathSpawnPosition, Vector3.zero, scale);
+                    Vector3 pos = movementPaths[pathIndex].Blocks.GetPosition(obj.MovementPathSpawnPosition, Vector3.zero, scale);
 
-                    objects.Add(new Unity_Object_Dummy(obj, Unity_ObjectType.Trigger, objLinks: new int[]
-                    {
-                        objects.OfType<Unity_Object_PSKlonoa_DTP_Enemy>().FindItemIndex(x => x.Object == obj)
-                    })
-                    {
-                        Position = pos,
-                    });
+                    // Add a dummy object since we don't care about animations
+                    spriteObjects.Add(new Unity_Object_Dummy(
+                        serializableData: obj, 
+                        type: Unity_ObjectType.Trigger, 
+                        objLinks: new int[]
+                        {
+                            // Link to the object it spawns
+                            spriteObjects.FindIndex(x => x is Unity_Object_PSKlonoa_DTP_Enemy enemy && enemy.Object == obj)
+                        },
+                        name: "Spawn Trigger",
+                        position: pos,
+                        isEditor: true));
                 }
             }
 
             // Add collectibles
-            objects.AddRange(loader.LevelData2D.Collectible_Objects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex && x.SecondaryType != -1).Select(x =>
+            foreach (CollectibleObject collectibleObj in loader.LevelData2D.Collectible_Objects)
             {
+                if (collectibleObj.GlobalSectorIndex != loader.GlobalSectorIndex || collectibleObj.SecondaryType == -1)
+                    continue;
+
                 Vector3 pos;
 
                 // If the path index is -1 then the position is absolute, otherwise it's relative
-                if (x.MovementPath == -1)
-                    pos = KlonoaHelpers.GetPosition(x.Position.X.Value, x.Position.Y.Value, x.Position.Z.Value, scale);
+                if (collectibleObj.MovementPath == -1)
+                    pos = KlonoaHelpers.GetPosition(collectibleObj.Position.X.Value, collectibleObj.Position.Y.Value, collectibleObj.Position.Z.Value, scale);
                 else
-                    pos = movementPaths[x.MovementPath].Blocks.GetPosition(x.MovementPathPosition, new Vector3(0, x.Position.Y.Value, 0), scale);
+                    pos = movementPaths[collectibleObj.MovementPath].Blocks.GetPosition(collectibleObj.MovementPathPosition, new Vector3(0, collectibleObj.Position.Y.Value, 0), scale);
 
-                var spriteInfo = GetSprite_Collectible(x);
+                ObjSpriteInfo spriteInfo = GetSprite_Collectible(collectibleObj);
 
                 if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
-                    Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
+                    Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {collectibleObj.SecondaryType}");
 
-                return new Unity_Object_PSKlonoa_DTP_Collectible(objManager, x, pos, spriteInfo);
-            }));
+                spriteObjects.Add(new Unity_Object_PSKlonoa_DTP_Collectible(objManager, collectibleObj, pos, spriteInfo));
+            }
 
+            // TODO: Show graphics for these
             // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions.
+            spriteObjects.AddRange(loader.LevelData3D.SectorGameObjectDefinition[sector].ObjectsDefinitions.
                 Where(x => x.Data?.ScenerySprites != null || x.Data?.LightPositions != null).
                 SelectMany(x => (x.Data.LightPositions ?? x.Data.ScenerySprites!).Vectors[0]).
-                Select(x => new Unity_Object_Dummy(x, Unity_ObjectType.Object)
-                {
-                    Position = KlonoaHelpers.GetPosition(x.X, x.Y, x.Z, scale),
-                }));
+                Select(x => new Unity_Object_Dummy(
+                    serializableData: x,
+                    type: Unity_ObjectType.Object,
+                    name: "Scenery",
+                    position: KlonoaHelpers.GetPosition(x: x.X, y: x.Y, z: x.Z, scale: scale))));
 
-            return objects;
+            return spriteObjects;
         }
 
         #endregion

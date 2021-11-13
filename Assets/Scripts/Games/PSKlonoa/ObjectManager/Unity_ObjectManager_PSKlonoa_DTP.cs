@@ -46,9 +46,10 @@ namespace Ray1Map.PSKlonoa
 
         public enum SpritesType
         {
-            SpriteSets,
+            CommonSprites,
             Cutscene,
             Player,
+            Boss,
         }
     }
 }
