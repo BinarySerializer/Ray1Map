@@ -10,7 +10,6 @@ using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
-using ImageMagick;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -1276,7 +1275,190 @@ namespace Ray1Map.PSKlonoa
                     name: "Scenery",
                     position: KlonoaHelpers.GetPosition(x: x.X, y: x.Y, z: x.Z, scale: scale))));
 
+            // Add cutscene objects
+            spriteObjects.AddRange(Load_SpriteObjects_Cutscene(loader, sector, scale, objManager));
+
             return spriteObjects;
+        }
+
+        public IEnumerable<Unity_SpriteObject> Load_SpriteObjects_Cutscene(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        {
+            CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
+
+            if (cutscenePack?.Cutscenes == null)
+                yield break;
+
+            Dictionary<int, int[]> cutsceneStartSectors = loader.Settings.CutsceneStartSectors;
+
+            if (!cutsceneStartSectors.ContainsKey(loader.BINBlock))
+            {
+                Debug.LogWarning("No cutscene start sectors defined - cutscene objects are skipped");
+                yield break;
+            }
+
+            Unity_ObjectManager_PSKlonoa_DTP.SpriteSet cutsceneAnims = objManager.SpriteSets.FirstOrDefault(x => x.Type == Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene);
+
+            for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
+            {
+                Cutscene_File cutscene = cutscenePack.Cutscenes[cutsceneIndex].Cutscene_Normal;
+
+                var cutsceneObjInstances = new Dictionary<int, CutsceneObjectInstance>();
+                int currentSectorIndex = cutsceneStartSectors[loader.BINBlock][cutsceneIndex];
+
+                cutsceneObjInstances[0] = new CutsceneObjectInstance(); // Always default with a Klonoa instance (object 0)
+
+                foreach (CutsceneInstruction cmd in cutscene.Instructions)
+                {
+                    if (cmd.Type == CutsceneInstruction.InstructionType.ChangeSector)
+                    {
+                        var data_ChangeSector = (CutsceneInstructionData_ChangeSector)cmd.Data;
+                        currentSectorIndex = data_ChangeSector.SectorIndex;
+                        continue;
+                    }
+
+                    // Ignore if not in the current sector
+                    if (currentSectorIndex != loader.LevelSector)
+                        continue;
+
+                    int createObjIndex = -1;
+
+                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateObj2D)
+                        createObjIndex = ((CutsceneInstructionData_CreateObj)cmd.Data).ObjIndex;
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation &&
+                    //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex))
+                    //    createObjIndex = ((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex;
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos &&
+                    //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjPos)cmd.Data).ObjIndex))
+                    //    createObjIndex = ((CutsceneInstructionData_SetObjPos)cmd.Data).ObjIndex;
+
+                    if (createObjIndex != -1)
+                    {
+                        // If the object already exists we return the existing one
+                        if (cutsceneObjInstances.ContainsKey(createObjIndex))
+                        {
+                            var objInstance = cutsceneObjInstances[createObjIndex];
+
+                            if (objInstance.AnimIndex != null && objInstance.Position != null)
+                            {
+                                yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
+                                    objManager: objManager,
+                                    pos: objInstance.Position ?? Vector3.zero,
+                                    animIndex: objInstance.AnimIndex.Value,
+                                    cutsceneIndex: cutsceneIndex,
+                                    objIndex: createObjIndex,
+                                    flipX: objInstance.FlipX);
+                            }
+                        }
+
+                        cutsceneObjInstances[createObjIndex] = new CutsceneObjectInstance();
+                    }
+
+                    if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation)
+                    {
+                        var data_setObjAnim = (CutsceneInstructionData_SetObjAnimation)cmd.Data;
+
+                        if (!cutsceneObjInstances.ContainsKey(data_setObjAnim.ObjIndex))
+                            continue;
+
+                        if (data_setObjAnim.AnimIndex >= cutsceneAnims.Animations.Length)
+                            continue;
+
+                        if (cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex != null &&
+                            cutsceneAnims.Animations[cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex.Value].ObjAnimation != null)
+                            continue;
+
+                        cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex = Math.Abs(data_setObjAnim.AnimIndex); // Negative is ping-pong
+                    }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos)
+                    {
+                        var data_setObjPos = (CutsceneInstructionData_SetObjPos)cmd.Data;
+
+                        if (!cutsceneObjInstances.ContainsKey(data_setObjPos.ObjIndex))
+                            continue;
+
+                        if (cutsceneObjInstances[data_setObjPos.ObjIndex].Position != null)
+                            continue;
+
+                        Vector3 relativePos;
+
+                        if (data_setObjPos.PositionRelativeObjIndex >= 0 && cutsceneObjInstances.ContainsKey(data_setObjPos.PositionRelativeObjIndex))
+                            relativePos = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex].Position ?? Vector3.zero;
+                        else
+                            relativePos = Vector3.zero;
+
+                        Vector3 pos = data_setObjPos.Position.GetPositionVector(scale, true);
+
+                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos + relativePos;
+                    }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPosFromPath)
+                    {
+                        var data_setObjPosFromPath = (CutsceneInstructionData_SetObjPosFromPath)cmd.Data;
+
+                        var objIndex = data_setObjPosFromPath.IsCutsceneObj ? data_setObjPosFromPath.ObjIndex : 0;
+
+                        if (!cutsceneObjInstances.ContainsKey(objIndex))
+                            continue;
+
+                        if (cutsceneObjInstances[objIndex].Position != null)
+                            continue;
+
+                        if (data_setObjPosFromPath.MovementPathIndex < 0)
+                        {
+                            Debug.LogWarning($"Out of bounds movement path index {data_setObjPosFromPath.MovementPathIndex} for cutscene object");
+                            continue;
+                        }
+
+                        MovementPath_File[] paths = loader.LevelPack.Sectors[currentSectorIndex].MovementPaths.Files;
+
+                        if (data_setObjPosFromPath.MovementPathIndex >= paths.Length)
+                            continue;
+
+                        MovementPath_File path = paths[data_setObjPosFromPath.MovementPathIndex];
+                        Vector3 pos = path.Blocks.GetPosition(data_setObjPosFromPath.MovementPathDistance, Vector3.zero, scale);
+
+                        cutsceneObjInstances[objIndex].Position = pos;
+
+                        if (data_setObjPosFromPath.FlipX != null)
+                            cutsceneObjInstances[objIndex].FlipX = data_setObjPosFromPath.FlipX.Value;
+                    }
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.Instruction_2)
+                    //{
+                    //    var data_2 = (CutsceneInstructionData_2)cmd.Data;
+
+                    //    if (!cutsceneObjInstances.ContainsKey(data_2.ObjIndex))
+                    //        continue;
+
+                    //    if (cutsceneObjInstances[data_2.ObjIndex].Position != null)
+                    //        continue;
+
+                    //    MovementPath_File[] paths = loader.LevelPack.Sectors[currentSectorIndex].MovementPaths.Files;
+
+                    //    if (!paths.Any())
+                    //        continue;
+
+                    //    MovementPath_File path = paths[]; // Depends where the cutscene started
+                    //    Vector3 pos = path.Blocks.GetPosition(data_2.Short_Param00, Vector3.zero, scale);
+
+                    //    cutsceneObjInstances[data_2.ObjIndex].Position = pos;
+                    //}
+                }
+
+                foreach (var item in cutsceneObjInstances)
+                {
+                    var objInstance = item.Value;
+
+                    if (objInstance.AnimIndex == null || objInstance.Position == null)
+                        continue;
+
+                    yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
+                        objManager: objManager,
+                        pos: objInstance.Position ?? Vector3.zero,
+                        animIndex: objInstance.AnimIndex.Value,
+                        cutsceneIndex: cutsceneIndex,
+                        objIndex: item.Key,
+                        flipX: objInstance.FlipX);
+                }
+            }
         }
 
         #endregion
@@ -1564,6 +1746,7 @@ namespace Ray1Map.PSKlonoa
         public class CutsceneObjectInstance
         {
             public Vector3? Position { get; set; }
+            public bool FlipX { get; set; }
             public int? AnimIndex { get; set; }
         }
 
