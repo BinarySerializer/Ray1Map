@@ -821,8 +821,7 @@ namespace Ray1Map.PSKlonoa
                 Select(x => x.Data_Clear).
                 ToArray();
 
-            if (bgClear?.Any() == true)
-                level.CameraClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+            level.CameraClear = new Unity_CameraClear(bgClear?.FirstOrDefault()?.Entries[0].Color.GetColor() ?? Color.black);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
