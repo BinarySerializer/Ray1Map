@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BinarySerializer;
 using UnityEngine;
 
@@ -13,35 +15,66 @@ namespace Ray1Map.PSKlonoa
 
         public SpriteSet[] SpriteSets { get; }
 
+        public override string[] LegacyDESNames => SpriteSets.Select(x => x.DisplayName).ToArray();
+        public override string[] LegacyETANames => LegacyDESNames;
+
         public class SpriteSet
         {
-            public SpriteSet(Sprite[] sprites, SpritesType type, int index)
+            public SpriteSet(IEnumerable<Func<(Sprite Sprite, Vector2Int Pos)>> sprites, SpritesType type, int index = 0)
             {
-                Sprites = sprites;
+                Animations = sprites.Select(x => new Animation(() =>
+                {
+                    var sprite = x();
+
+                    return (
+                        Frames: sprite.Sprite.YieldToArray(), 
+                        Positions: sprite.Pos.YieldToArray());
+                })).ToArray();
                 Type = type;
                 Index = index;
-                Animations = Sprites.Select((x, i) => new Unity_ObjAnimation
-                {
-                    Frames = new Unity_ObjAnimationFrame[]
-                    {
-                        new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
-                        {
-                            new Unity_ObjAnimationPart()
-                            {
-                                ImageIndex = i,
-                                YPosition = (int)(-x.rect.height),
-                                XPosition = (int)(-x.rect.width / 2),
-                            }
-                        })
-                    }
-                }).ToArray();
+            }
+            public SpriteSet(Animation[] animations, SpritesType type, int index = 0)
+            {
+                Animations = animations;
+                Type = type;
+                Index = index;
             }
 
-            public Sprite[] Sprites { get; }
+            public Animation[] Animations { get; }
             public SpritesType Type { get; }
-            public Unity_ObjAnimation[] Animations { get; }
             public int Index { get; }
-            public string DisplayName => $"{Index}";
+            public string DisplayName => Type == SpritesType.CommonSprites ? $"Sprites {Index}" : $"{Type}";
+            public bool HasAnimations => Type == SpritesType.Cutscene;
+
+            public class Animation
+            {
+                public Animation(Func<(Sprite[] Frames, Vector2Int[] Positions)> animFrameFunc, int[] animSpeeds = null)
+                {
+                    AnimFrameFunc = animFrameFunc;
+                    AnimSpeeds = animSpeeds;
+                }
+
+                private (Sprite[] Frames, Vector2Int[] Positions)? Frames;
+                private Unity_ObjAnimation Anim;
+                protected Func<(Sprite[] frames, Vector2Int[] positions)> AnimFrameFunc { get; }
+                public int[] AnimSpeeds { get; }
+
+                public (Sprite[] Frames, Vector2Int[] Positions) AnimFrames => Frames ??= AnimFrameFunc();
+
+                public Unity_ObjAnimation ObjAnimation => AnimFrames.Frames == null ? null : (Anim ??= new Unity_ObjAnimation()
+                {
+                    Frames = Enumerable.Range(0, AnimFrames.Frames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
+                    {
+                        new Unity_ObjAnimationPart()
+                        {
+                            ImageIndex = x,
+                            XPosition = AnimFrames.Positions[x].x,
+                            YPosition = AnimFrames.Positions[x].y
+                        }
+                    })).ToArray(),
+                    AnimSpeeds = AnimSpeeds
+                });
+            }
         }
 
         public enum SpritesType

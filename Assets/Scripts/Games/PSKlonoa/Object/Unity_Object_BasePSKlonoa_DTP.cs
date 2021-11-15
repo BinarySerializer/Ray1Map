@@ -53,13 +53,13 @@ namespace Ray1Map.PSKlonoa
 
         public int AnimIndex { get; set; }
 
-        public override Unity_ObjAnimation CurrentAnimation => SpriteSet?.Animations.ElementAtOrDefault(AnimIndex);
-        public override int AnimSpeed => 0;
+        public override Unity_ObjAnimation CurrentAnimation => SpriteSet?.Animations.ElementAtOrDefault(AnimIndex)?.ObjAnimation;
+        public override int AnimSpeed => SpriteSet?.Animations.ElementAtOrDefault(AnimIndex)?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => SpriteSetIndex;
-        public override IList<Sprite> Sprites => SpriteSet?.Sprites;
+        public override IList<Sprite> Sprites => SpriteSet?.Animations.ElementAtOrDefault(AnimIndex)?.AnimFrames.Frames;
 
-        protected int GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType type, int index)
+        protected int GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType type, int index = 0)
         {
             return ObjManager.SpriteSets.FindItemIndex(x => x.Type == type && x.Index == index);
         }
@@ -121,7 +121,7 @@ namespace Ray1Map.PSKlonoa
             List<UIState> uiStates = new List<UIState>();
 
             for (byte i = 0; i < (SpriteSet?.Animations?.Length ?? 0); i++)
-                uiStates.Add(new PS1Klonoa_UIState($"Sprite {i}", animIndex: i));
+                uiStates.Add(new PS1Klonoa_UIState(SpriteSet!.HasAnimations ? $"Animation {i}" : $"Sprite {i}", animIndex: i));
 
             UIStates = uiStates.ToArray();
         }

@@ -12,7 +12,13 @@ namespace Ray1Map.PSKlonoa
 {
     public static class KlonoaHelpers
     {
-        public static Vector3 GetPosition(float x, float y, float z, float scale) => new Vector3(x / scale, -z / scale, -y / scale);
+        public static Vector3 GetPosition(float x, float y, float z, float scale, bool isSprite = true)
+        {
+            if (isSprite)
+                return new Vector3(x / scale, -z / scale, -y / scale);
+            else
+                return new Vector3(x / scale, -y / scale, z / scale);
+        }
 
         public static Vector3 GetPosition(this MovementPathBlock[] path, int position, Vector3 relativePos, float scale)
         {
@@ -68,9 +74,9 @@ namespace Ray1Map.PSKlonoa
             return GetPosition(xPos, yPos, zPos, scale);
         }
 
-        public static Vector3 GetPositionVector(this KlonoaVector16 pos, float scale)
+        public static Vector3 GetPositionVector(this KlonoaVector16 pos, float scale, bool isSprite = false)
         {
-            return new Vector3(pos.X / scale, -pos.Y / scale, pos.Z / scale);
+            return GetPosition(pos.X, pos.Y, pos.Z, scale, isSprite);
         }
 
         public static Bounds GetDimensions(this PS1_TMD tmd, float scale)

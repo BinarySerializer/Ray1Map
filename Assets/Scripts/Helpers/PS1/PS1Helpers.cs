@@ -163,6 +163,8 @@ namespace Ray1Map
                 regionHeight: tex.height,
                 flipTextureY: flipTextureY);
 
+            tex.Apply();
+
             return tex;
         }
 
