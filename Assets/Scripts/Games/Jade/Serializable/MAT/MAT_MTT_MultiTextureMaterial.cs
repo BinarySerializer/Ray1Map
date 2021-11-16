@@ -80,7 +80,7 @@ namespace Ray1Map.Jade {
 
 			public short TextureID { get; set; }
 			public uint AdditionalFlags { get; set; }
-			public uint Flags { get; set; }
+			public MaterialFlags Flags { get; set; }
 			public float ScaleSpeedPosU { get; set; }
 			public float ScaleSpeedPosV { get; set; }
 			public Jade_TextureReference Texture { get; set; }
@@ -108,7 +108,7 @@ namespace Ray1Map.Jade {
 				} else {
 					AdditionalFlags = s.Serialize<uint>(AdditionalFlags, name: nameof(AdditionalFlags));
 				}
-				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+				Flags = s.Serialize<MaterialFlags>(Flags, name: nameof(Flags));
 				ScaleSpeedPosU = s.Serialize<float>(ScaleSpeedPosU, name: nameof(ScaleSpeedPosU));
 				ScaleSpeedPosV = s.Serialize<float>(ScaleSpeedPosV, name: nameof(ScaleSpeedPosV));
 
@@ -136,6 +136,42 @@ namespace Ray1Map.Jade {
 						Data = s.SerializeObject<XenonData>(Data, name: nameof(Data));
 					}
 				}
+			}
+
+			[Flags] // From Horsez
+			public enum MaterialFlags : uint {
+				TilingU             = 0b0000000000000001,
+				TilingV             = 0b0000000000000010,
+				BilinearFiltering   = 0b0000000000000100,
+				TrilinearFiltering  = 0b0000000000001000,
+				AlphaTest           = 0b0000000000010000,
+				HideAlpha           = 0b0000000000100000,
+				HideColor           = 0b0000000001000000,
+				InvertAlpha         = 0b0000000010000000,
+				WriteOnlyOnSameZ    = 0b0000000100000000, // "WConATF" in Montreal (Spree)
+				NoZBuffer           = 0b0000001000000000,
+				UseLocalAlpha       = 0b0000010000000000,
+				ActiveLayer         = 0b0000100000000000,
+				OnlyAdditionalLayer = 0b0001000000000000,
+				Flag13 = 1 << 13,
+				Flag14 = 1 << 14,
+				Flag15 = 1 << 15,
+				Flag16 = 1 << 16,
+				Flag17 = 1 << 17,
+				Flag18 = 1 << 18,
+				Flag19 = 1 << 19,
+				Flag20 = 1 << 20,
+				Flag21 = 1 << 21,
+				Flag22 = 1 << 22,
+				Flag23 = 1 << 23,
+				Flag24 = 1 << 24,
+				Flag25 = 1 << 25,
+				Flag26 = 1 << 26,
+				Flag27 = 1 << 27,
+				Flag28 = 1 << 28,
+				Flag29 = 1 << 29,
+				Flag30 = 1 << 30,
+				Flag31 = (uint)1 << 31,
 			}
 
 			public class XenonData : BinarySerializable {
