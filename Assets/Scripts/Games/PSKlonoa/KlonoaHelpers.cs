@@ -192,29 +192,33 @@ namespace Ray1Map.PSKlonoa
             return true;
         }
 
-        public static Unity_CollisionLine[] GetMovementPaths(this IEnumerable<MovementPathBlock> paths, float scale, Color? color = null)
+        public static Unity_CollisionLine[] GetMovementPaths(this IEnumerable<MovementPathBlock> paths, float scale, int pathIndex = -1, Color? color = null)
         {
             var lines = new List<Unity_CollisionLine>();
             const float verticalAdjust = 0.2f;
             var up = new Vector3(0, 0, verticalAdjust);
 
+            int blockIndex = 0;
             foreach (var pathBlock in paths)
             {
-                var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale)
-                             + up;
+                var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale);
 
                 var end = GetPosition(
                               x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength,
                               y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength,
                               z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength,
-                              scale: scale)
-                          + up;
+                              scale: scale);
 
-                lines.Add(new Unity_CollisionLine(origin, end, lineColor: color)
+                lines.Add(new Unity_CollisionLine(origin + up, end + up, lineColor: color)
                 {
                     Is3D = true, 
                     UnityWidth = 0.5f,
+                    TypeName = pathIndex != -1 
+                        ? $"Path {pathIndex}-{blockIndex}"
+                        : $"Path {blockIndex}",
                 });
+
+                blockIndex++;
             }
 
             return lines.ToArray();

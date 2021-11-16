@@ -809,7 +809,7 @@ namespace Ray1Map.PSKlonoa
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
-            level.CollisionLines = loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).GetMovementPaths(scale);
+            level.CollisionLines = loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany((x, i) => x.Blocks.GetMovementPaths(scale, i)).ToArray();
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
