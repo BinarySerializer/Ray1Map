@@ -101,11 +101,11 @@ namespace Ray1Map.PSKlonoa
 
         private class PS1Klonoa_UIState : UIState
         {
-            public PS1Klonoa_UIState(string displayName, byte animIndex) : base(displayName, animIndex) { }
+            public PS1Klonoa_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_BasePSKlonoa_DTP)obj).AnimIndex = (byte)AnimIndex;
+                ((Unity_Object_BasePSKlonoa_DTP)obj).AnimIndex = AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
@@ -120,7 +120,7 @@ namespace Ray1Map.PSKlonoa
 
             List<UIState> uiStates = new List<UIState>();
 
-            for (byte i = 0; i < (SpriteSet?.Animations?.Length ?? 0); i++)
+            for (int i = 0; i < (SpriteSet?.Animations?.Length ?? 0); i++)
                 uiStates.Add(new PS1Klonoa_UIState(SpriteSet!.HasAnimations ? $"Animation {i}" : $"Sprite {i}", animIndex: i));
 
             UIStates = uiStates.ToArray();

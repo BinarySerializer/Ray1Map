@@ -500,7 +500,7 @@ namespace Ray1Map.PSKlonoa
                 {
                     var exportedPlayerSprites = new HashSet<PlayerSprite_File>();
 
-                    var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
+                    Color[] pal = GetCutscenePlayerPalette(loader.VRAM);
 
                     for (var i = 0; i < spritePack.PlayerSprites.Files.Length; i++)
                     {
@@ -1097,20 +1097,20 @@ namespace Ray1Map.PSKlonoa
 
             Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
 
-            // TODO: Load cutscene player sprites
             CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
             
+            // Add cutscene sprites
             if (cutscenePack.SpriteAnimations != null)
             {
                 int animsCount = cutscenePack.SpriteAnimations.Animations.Length;
 
                 var anims = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation[animsCount];
 
+                Controller.DetailedState = $"Loading cutscene sprites";
+                await Controller.WaitIfNecessary();
+
                 for (int i = 0; i < animsCount; i++)
                 {
-                    Controller.DetailedState = $"Loading cutscene sprites {i + 1}/{animsCount}";
-                    await Controller.WaitIfNecessary();
-
                     SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
 
                     int animIndex = i;
@@ -1125,11 +1125,41 @@ namespace Ray1Map.PSKlonoa
                 spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(anims, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene));
             }
 
-            // TODO: Load player sprites
+            LevelSpritePack_ArchiveFile spritesPack = loader.GetLoadedFile<LevelSpritePack_ArchiveFile>();
+
+            // Add player sprites
+            if (spritesPack?.PlayerSprites != null)
+            {
+                int count = spritesPack.PlayerSprites.Files.Length;
+                var anims = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation[count];
+
+                Controller.DetailedState = $"Loading player sprites";
+                await Controller.WaitIfNecessary();
+
+                for (var i = 0; i < count; i++)
+                {
+                    PlayerSprite_File file = spritesPack.PlayerSprites.Files[i];
+
+                    anims[i] = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation(() =>
+                    {
+                        Texture2D tex;
+
+                        if (file.TIM != null)
+                            tex = file.TIM.GetTexture(palette: playerPal);
+                        else
+                            tex = PS1Helpers.GetTexture(file.Raw_ImgData, playerPal, file.Raw_Width, file.Raw_Height,
+                                PS1_TIM.TIM_ColorFormat.BPP_8);
+
+                        return (tex.CreateSprite().YieldToArray(), new Vector2Int[1]);
+                    });
+                }
+
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(anims, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Player));
+            }
 
             // TODO: Load boss sprites
 
-            // Enumerate each common sprite set
+            // Add common sprites
             for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
                 Controller.DetailedState = $"Loading common sprites {i + 1}/{loader.SpriteSets.Length}";
