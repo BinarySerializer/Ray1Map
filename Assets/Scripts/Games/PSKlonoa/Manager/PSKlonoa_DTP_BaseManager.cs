@@ -10,7 +10,6 @@ using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
-using ImageMagick;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -55,8 +54,8 @@ namespace Ray1Map.PSKlonoa
             ("Ghadius", 2),
 
             // Order is different here than in-game
-            ("Final Vision 1", 2), // TODO: 1 in proto
-            ("Final Vision 2", 3),
+            ("Ending", 2), // TODO: 1 in proto
+            ("Final Vision", 3),
             ("Nahatomb", 3),
 
             ("Extra Vision", 9),
@@ -501,7 +500,7 @@ namespace Ray1Map.PSKlonoa
                 {
                     var exportedPlayerSprites = new HashSet<PlayerSprite_File>();
 
-                    var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
+                    Color[] pal = GetCutscenePlayerPalette(loader.VRAM);
 
                     for (var i = 0; i < spritePack.PlayerSprites.Files.Length; i++)
                     {
@@ -551,7 +550,7 @@ namespace Ray1Map.PSKlonoa
                 // CUTSCENE PLAYER SPRITES
                 if (cutscenePack?.PlayerFramesImgData != null)
                 {
-                    var playerPal = loader.VRAM.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
+                    Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
 
                     for (var i = 0; i < cutscenePack.PlayerFramesImgData.Files.Length; i++)
                     {
@@ -567,42 +566,38 @@ namespace Ray1Map.PSKlonoa
                 // CUTSCENE ANIMATIONS
                 if (cutscenePack?.SpriteAnimations != null)
                 {
-                    var playerPal = loader.VRAM.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
+                    Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
 
                     for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
                     {
-                        var anim = cutscenePack.SpriteAnimations.Animations[i];
+                        Texture2D[] frames;
+                        Vector2Int[] offsets;
 
-                        var isPlayerAnim = (cutscenePack.Cutscenes.SelectMany(x => x.Cutscene_Normal.Instructions).FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == i)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+                        (frames, offsets) = GetAnimationFrames(loader, cutscenePack, i, playerPal);
 
-                        var animFrames = GetAnimationFrames(
-                            loader: loader, 
-                            anim: anim, 
-                            sprites: cutscenePack.Sprites, 
-                            palX: 0, 
-                            palY: 500, 
-                            isCutscenePlayer: isPlayerAnim, 
-                            playerSprites: cutscenePack.PlayerFramesImgData.Files, 
-                            playerPalette: playerPal);
-
-                        if (animFrames.Textures == null)
+                        if (frames == null)
                             continue;
 
-                        if (animFrames.Textures.Any(x => x == null))
+                        if (frames.Any(x => x == null))
                         {
                             Debug.LogWarning($"At least one animation frame is null");
                             continue;
                         }
 
+                        var minX = offsets.Min(x => x.x);
+                        var minY = offsets.Min(x => x.y);
+
+                        offsets = offsets.Select(x => new Vector2Int(x.x - minX, x.y - minY)).ToArray();
+
+                        SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
+
                         Util.ExportAnimAsGif(
-                            frames: animFrames.Textures, 
+                            frames: frames, 
                             speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
                             center: false, 
                             trim: false, 
                             filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"),
-                            frameOffsets: animFrames.Offsets,
-                            uniformSize: true,
-                            uniformGravity: Gravity.Southwest);
+                            frameOffsets: offsets);
                     }
                 }
 
@@ -794,12 +789,12 @@ namespace Ray1Map.PSKlonoa
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
             // Load the layers
-            await Load_LayersAsync(level, loader, sector, scale);
+            KlonoaObjectsLoader objLoader = await Load_LayersAsync(level, loader, sector, scale);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
-            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
+            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader, objLoader);
             level.ObjManager = objManager;
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
@@ -814,7 +809,7 @@ namespace Ray1Map.PSKlonoa
             Controller.DetailedState = "Loading paths";
             await Controller.WaitIfNecessary();
 
-            level.CollisionLines = loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).GetMovementPaths(scale);
+            level.CollisionLines = loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany((x, i) => x.Blocks.GetMovementPaths(scale, i)).ToArray();
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
@@ -825,8 +820,7 @@ namespace Ray1Map.PSKlonoa
                 Select(x => x.Data_Clear).
                 ToArray();
 
-            if (bgClear?.Any() == true)
-                level.CameraClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+            level.CameraClear = new Unity_CameraClear(bgClear?.FirstOrDefault()?.Entries[0].Color.GetColor() ?? Color.black);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
@@ -875,7 +869,7 @@ namespace Ray1Map.PSKlonoa
             return level;
         }
 
-        public async UniTask Load_LayersAsync(Unity_Level level, Loader loader, int sector, float scale)
+        public async UniTask<KlonoaObjectsLoader> Load_LayersAsync(Unity_Level level, Loader loader, int sector, float scale)
         {
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles;
@@ -951,6 +945,8 @@ namespace Ray1Map.PSKlonoa
 
             // Set the layers
             level.Layers = layers.ToArray();
+
+            return objectsLoader;
         }
 
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader loader, int sector, float scale) {
@@ -1097,11 +1093,97 @@ namespace Ray1Map.PSKlonoa
             };
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader, KlonoaObjectsLoader objLoader)
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
-            // Enumerate each common sprite set
+            Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
+
+            CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
+            
+            // Add cutscene sprites
+            if (cutscenePack.SpriteAnimations != null)
+            {
+                int animsCount = cutscenePack.SpriteAnimations.Animations.Length;
+
+                var anims = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation[animsCount];
+
+                Controller.DetailedState = $"Loading cutscene sprites";
+                await Controller.WaitIfNecessary();
+
+                for (int i = 0; i < animsCount; i++)
+                {
+                    SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
+
+                    int animIndex = i;
+
+                    anims[i] = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation(() =>
+                    {
+                        var frames = GetAnimationFrames(loader, cutscenePack, animIndex, playerPal);
+                        return (frames.Textures?.Select(x => x.CreateSprite()).ToArray(), frames.Offsets);
+                    }, anim.Frames.Select(x => (int)x.FrameDelay).ToArray());
+                }
+
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(anims, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene));
+            }
+
+            LevelSpritePack_ArchiveFile spritesPack = loader.GetLoadedFile<LevelSpritePack_ArchiveFile>();
+
+            // Add player sprites
+            if (spritesPack?.PlayerSprites != null)
+            {
+                int count = spritesPack.PlayerSprites.Files.Length;
+                var anims = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation[count];
+
+                Controller.DetailedState = $"Loading player sprites";
+                await Controller.WaitIfNecessary();
+
+                for (var i = 0; i < count; i++)
+                {
+                    PlayerSprite_File file = spritesPack.PlayerSprites.Files[i];
+
+                    anims[i] = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet.Animation(() =>
+                    {
+                        Texture2D tex;
+
+                        if (file.TIM != null)
+                            tex = file.TIM.GetTexture(palette: playerPal);
+                        else
+                            tex = PS1Helpers.GetTexture(file.Raw_ImgData, playerPal, file.Raw_Width, file.Raw_Height,
+                                PS1_TIM.TIM_ColorFormat.BPP_8);
+
+                        return (tex.CreateSprite().YieldToArray(), new Vector2Int[1]);
+                    });
+                }
+
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(anims, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Player));
+            }
+
+            // Add additional sprites (cutscenes, bosses etc.)
+            for (var i = 0; i < objLoader.Sprites.Count; i++)
+            {
+                Controller.DetailedState = $"Loading additional sprites {i + 1}/{objLoader.Sprites.Count}";
+                await Controller.WaitIfNecessary();
+
+                GameObjectData_Sprites sprites = objLoader.Sprites[i];
+
+                bool isLastNull = sprites.Sprites.Length > 1 && sprites.Sprites.Last().Textures.Length == 0;
+
+                // TODO: Support animations
+                // Create the sprites
+                Func<(Sprite Sprite, Vector2Int Pos)>[] spriteFuncs = sprites.Sprites.
+                    Take(isLastNull ? sprites.Sprites.Length - 1 : sprites.Sprites.Length).
+                    Select(x => new Func<(Sprite Sprite, Vector2Int Pos)>(() =>
+                    {
+                        var tex = GetTexture(x.Textures, loader.VRAM, 0, 500);
+                        return (tex.Texture.CreateSprite(), tex.Rect.position);
+                    })).
+                    ToArray();
+
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(spriteFuncs, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Additional, i));
+            }
+
+            // Add common sprites
             for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
                 Controller.DetailedState = $"Loading common sprites {i + 1}/{loader.SpriteSets.Length}";
@@ -1114,18 +1196,17 @@ namespace Ray1Map.PSKlonoa
                     continue;
 
                 // Create the sprites
-                var sprites = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).Texture.CreateSprite()).ToArray();
+                Func<(Sprite Sprite, Vector2Int Pos)>[] sprites = frames.Files.
+                    Take(frames.Files.Length - 1).
+                    Select(x => new Func<(Sprite Sprite, Vector2Int Pos)>(() =>
+                    {
+                        var tex = GetTexture(x.Textures, loader.VRAM, 0, 500);
+                        return (tex.Texture.CreateSprite(), tex.Rect.position);
+                    })).
+                    ToArray();
 
-                var set = new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.CommonSprites, i);
-
-                spriteSets.Add(set);
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, i));
             }
-
-            // TODO: Load cutscene sprites
-            
-            // TODO: Load player sprites
-            
-            // TODO: Load boss sprites
 
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
         }
@@ -1248,7 +1329,190 @@ namespace Ray1Map.PSKlonoa
                     name: "Scenery",
                     position: KlonoaHelpers.GetPosition(x: x.X, y: x.Y, z: x.Z, scale: scale))));
 
+            // Add cutscene objects
+            spriteObjects.AddRange(Load_SpriteObjects_Cutscene(loader, sector, scale, objManager));
+
             return spriteObjects;
+        }
+
+        public IEnumerable<Unity_SpriteObject> Load_SpriteObjects_Cutscene(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
+        {
+            CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
+
+            if (cutscenePack?.Cutscenes == null)
+                yield break;
+
+            Dictionary<int, int[]> cutsceneStartSectors = loader.Settings.CutsceneStartSectors;
+
+            if (!cutsceneStartSectors.ContainsKey(loader.BINBlock))
+            {
+                Debug.LogWarning("No cutscene start sectors defined - cutscene objects are skipped");
+                yield break;
+            }
+
+            Unity_ObjectManager_PSKlonoa_DTP.SpriteSet cutsceneAnims = objManager.SpriteSets.FirstOrDefault(x => x.Type == Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene);
+
+            for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
+            {
+                Cutscene_File cutscene = cutscenePack.Cutscenes[cutsceneIndex].Cutscene_Normal;
+
+                var cutsceneObjInstances = new Dictionary<int, CutsceneObjectInstance>();
+                int currentSectorIndex = cutsceneStartSectors[loader.BINBlock][cutsceneIndex];
+
+                cutsceneObjInstances[0] = new CutsceneObjectInstance(); // Always default with a Klonoa instance (object 0)
+
+                foreach (CutsceneInstruction cmd in cutscene.Instructions)
+                {
+                    if (cmd.Type == CutsceneInstruction.InstructionType.ChangeSector)
+                    {
+                        var data_ChangeSector = (CutsceneInstructionData_ChangeSector)cmd.Data;
+                        currentSectorIndex = data_ChangeSector.SectorIndex;
+                        continue;
+                    }
+
+                    // Ignore if not in the current sector
+                    if (currentSectorIndex != loader.LevelSector)
+                        continue;
+
+                    int createObjIndex = -1;
+
+                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateObj2D)
+                        createObjIndex = ((CutsceneInstructionData_CreateObj)cmd.Data).ObjIndex;
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation &&
+                    //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex))
+                    //    createObjIndex = ((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex;
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos &&
+                    //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjPos)cmd.Data).ObjIndex))
+                    //    createObjIndex = ((CutsceneInstructionData_SetObjPos)cmd.Data).ObjIndex;
+
+                    if (createObjIndex != -1)
+                    {
+                        // If the object already exists we return the existing one
+                        if (cutsceneObjInstances.ContainsKey(createObjIndex))
+                        {
+                            var objInstance = cutsceneObjInstances[createObjIndex];
+
+                            if (objInstance.AnimIndex != null && objInstance.Position != null)
+                            {
+                                yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
+                                    objManager: objManager,
+                                    pos: objInstance.Position ?? Vector3.zero,
+                                    animIndex: objInstance.AnimIndex.Value,
+                                    cutsceneIndex: cutsceneIndex,
+                                    objIndex: createObjIndex,
+                                    flipX: objInstance.FlipX);
+                            }
+                        }
+
+                        cutsceneObjInstances[createObjIndex] = new CutsceneObjectInstance();
+                    }
+
+                    if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation)
+                    {
+                        var data_setObjAnim = (CutsceneInstructionData_SetObjAnimation)cmd.Data;
+
+                        if (!cutsceneObjInstances.ContainsKey(data_setObjAnim.ObjIndex))
+                            continue;
+
+                        if (data_setObjAnim.AnimIndex >= cutsceneAnims.Animations.Length)
+                            continue;
+
+                        if (cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex != null &&
+                            cutsceneAnims.Animations[cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex.Value].ObjAnimation != null)
+                            continue;
+
+                        cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex = Math.Abs(data_setObjAnim.AnimIndex); // Negative is ping-pong
+                    }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos)
+                    {
+                        var data_setObjPos = (CutsceneInstructionData_SetObjPos)cmd.Data;
+
+                        if (!cutsceneObjInstances.ContainsKey(data_setObjPos.ObjIndex))
+                            continue;
+
+                        if (cutsceneObjInstances[data_setObjPos.ObjIndex].Position != null)
+                            continue;
+
+                        Vector3 relativePos;
+
+                        if (data_setObjPos.PositionRelativeObjIndex >= 0 && cutsceneObjInstances.ContainsKey(data_setObjPos.PositionRelativeObjIndex))
+                            relativePos = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex].Position ?? Vector3.zero;
+                        else
+                            relativePos = Vector3.zero;
+
+                        Vector3 pos = data_setObjPos.Position.GetPositionVector(scale, true);
+
+                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos + relativePos;
+                    }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPosFromPath)
+                    {
+                        var data_setObjPosFromPath = (CutsceneInstructionData_SetObjPosFromPath)cmd.Data;
+
+                        var objIndex = data_setObjPosFromPath.IsCutsceneObj ? data_setObjPosFromPath.ObjIndex : 0;
+
+                        if (!cutsceneObjInstances.ContainsKey(objIndex))
+                            continue;
+
+                        if (cutsceneObjInstances[objIndex].Position != null)
+                            continue;
+
+                        if (data_setObjPosFromPath.MovementPathIndex < 0)
+                        {
+                            Debug.LogWarning($"Out of bounds movement path index {data_setObjPosFromPath.MovementPathIndex} for cutscene object");
+                            continue;
+                        }
+
+                        MovementPath_File[] paths = loader.LevelPack.Sectors[currentSectorIndex].MovementPaths.Files;
+
+                        if (data_setObjPosFromPath.MovementPathIndex >= paths.Length)
+                            continue;
+
+                        MovementPath_File path = paths[data_setObjPosFromPath.MovementPathIndex];
+                        Vector3 pos = path.Blocks.GetPosition(data_setObjPosFromPath.MovementPathDistance, Vector3.zero, scale);
+
+                        cutsceneObjInstances[objIndex].Position = pos;
+
+                        if (data_setObjPosFromPath.FlipX != null)
+                            cutsceneObjInstances[objIndex].FlipX = data_setObjPosFromPath.FlipX.Value;
+                    }
+                    //else if (cmd.Type == CutsceneInstruction.InstructionType.Instruction_2)
+                    //{
+                    //    var data_2 = (CutsceneInstructionData_2)cmd.Data;
+
+                    //    if (!cutsceneObjInstances.ContainsKey(data_2.ObjIndex))
+                    //        continue;
+
+                    //    if (cutsceneObjInstances[data_2.ObjIndex].Position != null)
+                    //        continue;
+
+                    //    MovementPath_File[] paths = loader.LevelPack.Sectors[currentSectorIndex].MovementPaths.Files;
+
+                    //    if (!paths.Any())
+                    //        continue;
+
+                    //    MovementPath_File path = paths[]; // Depends where the cutscene started
+                    //    Vector3 pos = path.Blocks.GetPosition(data_2.Short_Param00, Vector3.zero, scale);
+
+                    //    cutsceneObjInstances[data_2.ObjIndex].Position = pos;
+                    //}
+                }
+
+                foreach (var item in cutsceneObjInstances)
+                {
+                    var objInstance = item.Value;
+
+                    if (objInstance.AnimIndex == null || objInstance.Position == null)
+                        continue;
+
+                    yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
+                        objManager: objManager,
+                        pos: objInstance.Position ?? Vector3.zero,
+                        animIndex: objInstance.AnimIndex.Value,
+                        cutsceneIndex: cutsceneIndex,
+                        objIndex: item.Key,
+                        flipX: objInstance.FlipX);
+                }
+            }
         }
 
         #endregion
@@ -1314,6 +1578,30 @@ namespace Ray1Map.PSKlonoa
             return (tex, new RectInt(minX, minY, width, height));
         }
 
+        public Color[] GetCutscenePlayerPalette(PS1_VRAM vram)
+        {
+            return vram.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
+        }
+
+        public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader loader, CutscenePack_ArchiveFile cutscenePack, int animIndex, Color[] playerPal)
+        {
+            SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[animIndex];
+
+            bool isPlayerAnim = (cutscenePack.Cutscenes.
+                SelectMany(x => x.Cutscene_Normal.Instructions).
+                FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+
+            return GetAnimationFrames(
+                loader: loader,
+                anim: anim,
+                sprites: cutscenePack.Sprites,
+                palX: 0,
+                palY: 500,
+                isCutscenePlayer: isPlayerAnim,
+                playerSprites: cutscenePack.PlayerFramesImgData.Files,
+                playerPalette: playerPal);
+        }
+
         public (Texture2D[] Textures, Vector2Int[] Offsets) GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
         {
             var textures = new Texture2D[anim.FramesCount];
@@ -1335,7 +1623,7 @@ namespace Ray1Map.PSKlonoa
 
                                 textures[i] = PS1Helpers.GetTexture(playerSprite.ImgData, playerPalette, playerSprite.Width,
                                     playerSprite.Height, PS1_TIM.TIM_ColorFormat.BPP_8);
-                                rects[i] = new RectInt(frame.XPosition, 0, textures[i].width, textures[i].height);
+                                rects[i] = new RectInt(frame.XPosition, -playerSprite.Height, textures[i].width, textures[i].height);
                             }
                             else
                             {
@@ -1355,7 +1643,7 @@ namespace Ray1Map.PSKlonoa
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"Error exporting animation. IsPlayer: {isCutscenePlayer}, Sprite: {frame.SpriteIndex}, PlayerAnimation: {frame.PlayerAnimation}, Frame: {i}, Offset: {frame.Offset}, Exception: {ex}");
+                    Debug.LogWarning($"Error creating cutscene animation. IsPlayer: {isCutscenePlayer}, Sprite: {frame.SpriteIndex}, PlayerAnimation: {frame.PlayerAnimation}, Frame: {i}, Offset: {frame.Offset}, Exception: {ex}");
 
                     return default;
                 }
@@ -1364,10 +1652,7 @@ namespace Ray1Map.PSKlonoa
             if (rects.All(x => x == null))
                 return default;
 
-            var minX = rects.Where(x => x != null).Min(x => x.Value.x);
-            var minY = rects.Where(x => x != null).Min(x => x.Value.y);
-
-            return (textures, rects.Select((_, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x - minX, rects[i].Value.y - minY)).ToArray());
+            return (textures, rects.Select((_, i) => rects[i] == null ? default : new Vector2Int(rects[i].Value.x, rects[i].Value.y)).ToArray());
         }
 
         public ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
@@ -1510,6 +1795,13 @@ namespace Ray1Map.PSKlonoa
             public int Scale { get; }
             public int PalOffsetX { get; }
             public int PalOffsetY { get; }
+        }
+
+        public class CutsceneObjectInstance
+        {
+            public Vector3? Position { get; set; }
+            public bool FlipX { get; set; }
+            public int? AnimIndex { get; set; }
         }
 
         #endregion

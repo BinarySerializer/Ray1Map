@@ -10,7 +10,7 @@ namespace Ray1Map.PSKlonoa
         {
             Object = obj;
             Position = pos;
-            SpriteSetIndex = GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType.CommonSprites, spriteInfo.SpriteSet);
+            SpriteSetIndex = GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
 
             if (SpriteSetIndex == -1)

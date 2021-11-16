@@ -159,6 +159,10 @@ namespace Ray1Map.PSKlonoa
             // Add movements paths
             if (Obj.MovementPaths != null)
                 LoadObject_MovementPaths(collisionComponent);
+
+            // Add sprites
+            if (Obj.Sprites != null)
+                ObjLoader.Sprites.AddRange(Obj.Sprites);
         }
 
         public void LoadObject_Models(ObjectCollisionComponent collisionComponent)

@@ -11,7 +11,7 @@ namespace Ray1Map.PSKlonoa
         {
             Object = obj;
             Position = KlonoaHelpers.GetPosition(obj.Position.X.Value, obj.Position.Y.Value, obj.Position.Z.Value, scale);
-            SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
+            SpriteSetIndex = GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;
             WaypointLinks = new List<int>();
