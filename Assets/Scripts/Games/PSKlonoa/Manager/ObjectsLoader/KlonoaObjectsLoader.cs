@@ -19,6 +19,7 @@ namespace Ray1Map.PSKlonoa
             BackgroundLayers = new List<KlonoaBackgroundLayer>();
             BackgroundClears = new List<BackgroundGameObjectData_Clear>();
             ScrollAnimations = new List<UVScrollAnimation_File>();
+            Sprites = new List<GameObjectData_Sprites>();
             BGPaletteAnimations = new List<PS1VRAMAnimation>();
             PaletteAnimations = new List<PS1VRAMAnimation>();
             TextureAnimations = new List<PS1VRAMAnimation>();
@@ -42,6 +43,7 @@ namespace Ray1Map.PSKlonoa
         public List<PS1VRAMAnimation> PaletteAnimations { get; }
         public List<PS1VRAMAnimation> BGPaletteAnimations { get; }
         public List<UVScrollAnimation_File> ScrollAnimations { get; }
+        public List<GameObjectData_Sprites> Sprites { get; }
         public List<BackgroundGameObjectData_Clear> BackgroundClears { get; }
         public List<KlonoaBackgroundLayer> BackgroundLayers { get; }
 

@@ -43,8 +43,9 @@ namespace Ray1Map.PSKlonoa
             public Animation[] Animations { get; }
             public SpritesType Type { get; }
             public int Index { get; }
-            public string DisplayName => Type == SpritesType.CommonSprites ? $"Sprites {Index}" : $"{Type}";
+            public string DisplayName => HasMultipleSets ? $"{Type} {Index}" : $"{Type}";
             public bool HasAnimations => Type == SpritesType.Cutscene;
+            public bool HasMultipleSets => Type == SpritesType.Common || Type == SpritesType.Additional;
 
             public class Animation
             {
@@ -79,10 +80,10 @@ namespace Ray1Map.PSKlonoa
 
         public enum SpritesType
         {
-            CommonSprites,
+            Common,
             Cutscene,
             Player,
-            Boss,
+            Additional,
         }
     }
 }

@@ -789,12 +789,12 @@ namespace Ray1Map.PSKlonoa
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
             // Load the layers
-            await Load_LayersAsync(level, loader, sector, scale);
+            KlonoaObjectsLoader objLoader = await Load_LayersAsync(level, loader, sector, scale);
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
-            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
+            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader, objLoader);
             level.ObjManager = objManager;
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
@@ -869,7 +869,7 @@ namespace Ray1Map.PSKlonoa
             return level;
         }
 
-        public async UniTask Load_LayersAsync(Unity_Level level, Loader loader, int sector, float scale)
+        public async UniTask<KlonoaObjectsLoader> Load_LayersAsync(Unity_Level level, Loader loader, int sector, float scale)
         {
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles;
@@ -945,6 +945,8 @@ namespace Ray1Map.PSKlonoa
 
             // Set the layers
             level.Layers = layers.ToArray();
+
+            return objectsLoader;
         }
 
         public IEnumerable<Unity_Layer> Load_Layers_Gradients(Loader loader, int sector, float scale) {
@@ -1091,7 +1093,7 @@ namespace Ray1Map.PSKlonoa
             };
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader, KlonoaObjectsLoader objLoader)
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
@@ -1157,7 +1159,29 @@ namespace Ray1Map.PSKlonoa
                 spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(anims, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Player));
             }
 
-            // TODO: Load boss sprites
+            // Add additional sprites (cutscenes, bosses etc.)
+            for (var i = 0; i < objLoader.Sprites.Count; i++)
+            {
+                Controller.DetailedState = $"Loading additional sprites {i + 1}/{objLoader.Sprites.Count}";
+                await Controller.WaitIfNecessary();
+
+                GameObjectData_Sprites sprites = objLoader.Sprites[i];
+
+                bool isLastNull = sprites.Sprites.Length > 1 && sprites.Sprites.Last().Textures.Length == 0;
+
+                // TODO: Support animations
+                // Create the sprites
+                Func<(Sprite Sprite, Vector2Int Pos)>[] spriteFuncs = sprites.Sprites.
+                    Take(isLastNull ? sprites.Sprites.Length - 1 : sprites.Sprites.Length).
+                    Select(x => new Func<(Sprite Sprite, Vector2Int Pos)>(() =>
+                    {
+                        var tex = GetTexture(x.Textures, loader.VRAM, 0, 500);
+                        return (tex.Texture.CreateSprite(), tex.Rect.position);
+                    })).
+                    ToArray();
+
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(spriteFuncs, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Additional, i));
+            }
 
             // Add common sprites
             for (var i = 0; i < loader.SpriteSets.Length; i++)
@@ -1181,7 +1205,7 @@ namespace Ray1Map.PSKlonoa
                     })).
                     ToArray();
 
-                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.CommonSprites, i));
+                spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, i));
             }
 
             return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
