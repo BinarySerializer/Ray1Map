@@ -42,6 +42,8 @@ namespace Ray1Map.Jade {
 		public static long GetRandomFBXId() => System.BitConverter.ToInt64(System.Guid.NewGuid().ToByteArray(), 0);
 
 		public static async UniTask ExportFBXAsync(OBJ_GameObject gao, string outputPath) {
+
+			await UniTask.CompletedTask;
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
 			string outputFile = Path.Combine(outputPath, $"{gao.Key.Key:X8}_{gao.Export_FileBasename}.fbx");
@@ -127,12 +129,12 @@ namespace Ray1Map.Jade {
 			sb.AppendLine("\tProperties70:  {");
 
 			// Change this for each axis system
-			sb.AppendLine("\t\tP: \"UpAxis\", \"int\", \"Integer\", \"\",2");
-			sb.AppendLine("\t\tP: \"UpAxisSign\", \"int\", \"Integer\", \"\",1");
-			sb.AppendLine("\t\tP: \"FrontAxis\", \"int\", \"Integer\", \"\",1");
-			sb.AppendLine("\t\tP: \"FrontAxisSign\", \"int\", \"Integer\", \"\",1");
 			sb.AppendLine("\t\tP: \"CoordAxis\", \"int\", \"Integer\", \"\",0");
 			sb.AppendLine("\t\tP: \"CoordAxisSign\", \"int\", \"Integer\", \"\",1");
+			sb.AppendLine("\t\tP: \"FrontAxis\", \"int\", \"Integer\", \"\",1");
+			sb.AppendLine("\t\tP: \"FrontAxisSign\", \"int\", \"Integer\", \"\",1");
+			sb.AppendLine("\t\tP: \"UpAxis\", \"int\", \"Integer\", \"\",2");
+			sb.AppendLine("\t\tP: \"UpAxisSign\", \"int\", \"Integer\", \"\",1");
 			sb.AppendLine("\t\tP: \"OriginalUpAxis\", \"int\", \"Integer\", \"\",-1");
 			sb.AppendLine("\t\tP: \"OriginalUpAxisSign\", \"int\", \"Integer\", \"\",1");
 
@@ -280,7 +282,7 @@ namespace Ray1Map.Jade {
 			sb.AppendLine("\t\t\t\tP: \"SpecularFactor\", \"Number\", \"\", \"A\",1");
 			sb.AppendLine("\t\t\t\tP: \"ShininessExponent\", \"Number\", \"\", \"A\",20");
 			sb.AppendLine("\t\t\t\tP: \"ReflectionColor\", \"Color\", \"\", \"A\",0,0,0");
-			sb.AppendLine("\t\t\t\tP: \"ReflectionFactor\", \"Number\", \"\", \"A\",1");
+			sb.AppendLine("\t\t\t\tP: \"ReflectionFactor\", \"Number\", \"\", \"A\",0");
 			sb.AppendLine("\t\t\t}");
 			sb.AppendLine("\t\t}");
 			sb.AppendLine("\t}");
@@ -496,7 +498,7 @@ namespace Ray1Map.Jade {
 					for (int i = 0; i < normals.Length; i++) {
 						if (i > 0) tempObjectSb.Append(",");
 
-						tempObjectSb.AppendFormat("{0},{1},{2},", normals[i].X, normals[i].Y, normals[i].Z);
+						tempObjectSb.AppendFormat("{0},{1},{2}", normals[i].X, normals[i].Y, normals[i].Z);
 					}
 
 					tempObjectSb.AppendLine();
@@ -789,6 +791,9 @@ namespace Ray1Map.Jade {
 				writeColor("Diffuse", diffuse);
 				writeColor("Specular", specular);
 
+				// This is already 0 in the model, but Blender needs this to be 0 in the material too, otherwise the material becomes Metallic
+				tempObjectSb.AppendLine("\t\t\tP: \"ReflectionFactor\", \"Number\", \"\", \"A\",0");
+
 				/*if (mat.HasProperty("_Mode")) {
 					Color color = Color.white;
 
@@ -880,8 +885,8 @@ namespace Ray1Map.Jade {
 				Util.ByteArrayToFile(fullPath, tex.EncodeToPNG());
 			}
 
-			long textureReference = texture.Key.Key;
-			var textureName = $"{texture.Key:X8}";
+			long textureReference = texture.Key.Key ^ ((long)materialId << 30);
+			var textureName = $"{texture.Key.Key:X8}";
 
 			objectsSb.AppendLine($"\tTexture: {textureReference}, \"Texture::{materialName}\", \"\" {{");
 			objectsSb.AppendLine("\t\tType: \"TextureVideoClip\"");
