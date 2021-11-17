@@ -1,4 +1,5 @@
-﻿using BinarySerializer.Klonoa.DTP;
+﻿using System.Linq;
+using BinarySerializer.Klonoa.DTP;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa
@@ -13,6 +14,7 @@ namespace Ray1Map.PSKlonoa
             SpriteSetIndex = GetSpriteSetIndex(Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene);
             AnimIndex = animIndex;
             FlipHorizontally = flipX;
+            CutsceneScriptIndex = objManager.CutsceneScripts.FindItemIndex(x => x.CutsceneIndex == cutsceneIndex && x.IsNormalCutscene);
         }
 
         public int CutsceneIndex { get; }
@@ -26,5 +28,9 @@ namespace Ray1Map.PSKlonoa
         public override bool IsAlways => true;
 
         public override bool FlipHorizontally { get; }
+
+        public int CutsceneScriptIndex { get; set; }
+        public Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript CutsceneScript => 
+            ObjManager.CutsceneScripts.ElementAtOrDefault(CutsceneScriptIndex);
     }
 }

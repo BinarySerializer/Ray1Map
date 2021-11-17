@@ -793,8 +793,14 @@ namespace Ray1Map.PSKlonoa
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
-            // Load object manager
-            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader, objLoader);
+            // Load sprite sets
+            Unity_ObjectManager_PSKlonoa_DTP.SpriteSet[] spriteSets = await Load_SpriteSetsAsync(loader, objLoader);
+
+            // Load the cutscene scripts
+            Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript[] scripts = Load_CutsceneScripts(loader, level);
+
+            // Create the object manager
+            Unity_ObjectManager_PSKlonoa_DTP objManager = new Unity_ObjectManager_PSKlonoa_DTP(context, spriteSets, scripts);
             level.ObjManager = objManager;
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
@@ -1093,7 +1099,7 @@ namespace Ray1Map.PSKlonoa
             };
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader, KlonoaObjectsLoader objLoader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet[]> Load_SpriteSetsAsync(Loader loader, KlonoaObjectsLoader objLoader)
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
@@ -1208,7 +1214,89 @@ namespace Ray1Map.PSKlonoa
                 spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, i));
             }
 
-            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
+            return spriteSets.ToArray();
+        }
+
+        public Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript[] Load_CutsceneScripts(Loader loader, Unity_Level level)
+        {
+            var strings = new List<string>();
+            var scripts = new List<Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript>();
+            CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
+            Dictionary<string, char> translationTable = GetCutsceneTranslationTable;
+
+            var overrideFormatters = new Dictionary<CutsceneInstruction.InstructionType, CutsceneTextTranslationTables.InstructionFormatter>()
+            {
+                [CutsceneInstruction.InstructionType.DrawText] = (writeLine, instruction, fontHashes) =>
+                {
+                    var data_DrawText = (CutsceneInstructionData_DrawText)instruction.Data;
+                    writeLine($"Character = {data_DrawText.CharacterName}");
+                    writeLine($"Text = <locId={strings.Count}>CutsceneText[{strings.Count}]</locId>");
+
+                    var str = new StringBuilder();
+
+                    foreach (var cmd in data_DrawText.TextCommands)
+                    {
+                        switch (cmd.Type)
+                        {
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.DrawChar:
+                                var hash = fontHashes[cmd.Command];
+
+                                if (translationTable.ContainsKey(hash))
+                                    str.Append(translationTable[hash].ToString());
+                                else
+                                    str.Append($"❔");
+                                break;
+
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.CMD_0:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Blank:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Delay:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.PlaySound:
+                                str.Append($"[{cmd.Type}:{cmd.CommandParam}]");
+                                break;
+
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.LineBreak:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.End:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.WaitForInput:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Clear:
+                                str.Append($"[{cmd.Type}]");
+                                break;
+
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
+                    strings.Add(str.ToString());
+                }
+            };
+
+            if (cutscenePack.Cutscenes != null)
+            {
+                for (var i = 0; i < cutscenePack.Cutscenes.Length; i++)
+                {
+                    Cutscene cutscene = cutscenePack.Cutscenes[i];
+
+                    scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                        displayName: $"Cutscene {i}", 
+                        cutsceneIndex: i,
+                        isNormalCutscene: true,
+                        formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
+
+                    if (cutscene.Cutscene_Skip != null)
+                        scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                            displayName: $"Cutscene {i} (skip)",
+                            cutsceneIndex: i,
+                            isNormalCutscene: false,
+                            formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: false, overrideFormatters: overrideFormatters)));
+                }
+            }
+
+            level.Localization = new List<KeyValuePair<string, string[]>>()
+            {
+                new KeyValuePair<string, string[]>("Cutscenes", strings.ToArray())
+            };
+
+            return scripts.ToArray();
         }
 
         public List<Unity_SpriteObject> Load_SpriteObjects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)

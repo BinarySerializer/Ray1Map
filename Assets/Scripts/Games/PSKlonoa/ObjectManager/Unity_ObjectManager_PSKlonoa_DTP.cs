@@ -8,12 +8,14 @@ namespace Ray1Map.PSKlonoa
 {
     public class Unity_ObjectManager_PSKlonoa_DTP : Unity_ObjectManager
     {
-        public Unity_ObjectManager_PSKlonoa_DTP(Context context, SpriteSet[] spriteSets) : base(context)
+        public Unity_ObjectManager_PSKlonoa_DTP(Context context, SpriteSet[] spriteSets, CutsceneScript[] cutsceneScripts) : base(context)
         {
             SpriteSets = spriteSets;
+            CutsceneScripts = cutsceneScripts;
         }
 
         public SpriteSet[] SpriteSets { get; }
+        public CutsceneScript[] CutsceneScripts { get; }
 
         public override string[] LegacyDESNames => SpriteSets.Select(x => x.DisplayName).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
@@ -76,6 +78,22 @@ namespace Ray1Map.PSKlonoa
                     AnimSpeeds = AnimSpeeds
                 });
             }
+        }
+
+        public class CutsceneScript
+        {
+            public CutsceneScript(string displayName, int cutsceneIndex, bool isNormalCutscene, string formattedScript)
+            {
+                DisplayName = displayName;
+                CutsceneIndex = cutsceneIndex;
+                IsNormalCutscene = isNormalCutscene;
+                FormattedScript = formattedScript;
+            }
+
+            public string DisplayName { get; }
+            public int CutsceneIndex { get; }
+            public bool IsNormalCutscene { get; } // False = skip cutscene
+            public string FormattedScript { get; }
         }
 
         public enum SpritesType
