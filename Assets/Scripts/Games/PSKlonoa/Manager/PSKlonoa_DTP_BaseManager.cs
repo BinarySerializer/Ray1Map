@@ -1376,8 +1376,8 @@ namespace Ray1Map.PSKlonoa
 
                     int createObjIndex = -1;
 
-                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateObj2D)
-                        createObjIndex = ((CutsceneInstructionData_CreateObj)cmd.Data).ObjIndex;
+                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateCutsceneObj)
+                        createObjIndex = ((CutsceneInstructionData_CreateCutsceneObj)cmd.Data).ObjIndex;
                     //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation &&
                     //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex))
                     //    createObjIndex = ((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex;
@@ -1407,9 +1407,9 @@ namespace Ray1Map.PSKlonoa
                         cutsceneObjInstances[createObjIndex] = new CutsceneObjectInstance();
                     }
 
-                    if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation)
+                    if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjAnimation)
                     {
-                        var data_setObjAnim = (CutsceneInstructionData_SetObjAnimation)cmd.Data;
+                        var data_setObjAnim = (CutsceneInstructionData_SetCutsceneObjAnimation)cmd.Data;
 
                         if (!cutsceneObjInstances.ContainsKey(data_setObjAnim.ObjIndex))
                             continue;
@@ -1423,9 +1423,9 @@ namespace Ray1Map.PSKlonoa
 
                         cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex = Math.Abs(data_setObjAnim.AnimIndex); // Negative is ping-pong
                     }
-                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos)
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjPos)
                     {
-                        var data_setObjPos = (CutsceneInstructionData_SetObjPos)cmd.Data;
+                        var data_setObjPos = (CutsceneInstructionData_SetCutsceneObjPos)cmd.Data;
 
                         if (!cutsceneObjInstances.ContainsKey(data_setObjPos.ObjIndex))
                             continue;
@@ -1444,9 +1444,9 @@ namespace Ray1Map.PSKlonoa
 
                         cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos + relativePos;
                     }
-                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPosFromPath)
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjPosFromPath)
                     {
-                        var data_setObjPosFromPath = (CutsceneInstructionData_SetObjPosFromPath)cmd.Data;
+                        var data_setObjPosFromPath = (CutsceneInstructionData_SetCutsceneObjPosFromPath)cmd.Data;
 
                         var objIndex = data_setObjPosFromPath.IsCutsceneObj ? data_setObjPosFromPath.ObjIndex : 0;
 
@@ -1589,7 +1589,7 @@ namespace Ray1Map.PSKlonoa
 
             bool isPlayerAnim = (cutscenePack.Cutscenes.
                 SelectMany(x => x.Cutscene_Normal.Instructions).
-                FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+                FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetCutsceneObjAnimation && ((CutsceneInstructionData_SetCutsceneObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetCutsceneObjAnimation)?.ObjIndex == 0;
 
             return GetAnimationFrames(
                 loader: loader,
