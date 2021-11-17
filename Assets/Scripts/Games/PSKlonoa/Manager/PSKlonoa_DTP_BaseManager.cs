@@ -1239,7 +1239,7 @@ namespace Ray1Map.PSKlonoa
                     var unityObj = new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo);
                     spriteObjects.Add(unityObj);
 
-                    // Add waypoints
+                    // Add ranges
                     if (obj.Data?.Waypoints != null)
                     {
                         for (var i = 0; i < obj.Data.Waypoints.Length; i++)
@@ -1250,7 +1250,7 @@ namespace Ray1Map.PSKlonoa
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: waypoint,
                                 type: Unity_ObjectType.Waypoint,
-                                name: $"Waypoint {i} (start)",
+                                name: $"Range {i} (start)",
                                 position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.StartPosition, Vector3.zero, scale),
                                 isEditor: true));
 
@@ -1259,8 +1259,27 @@ namespace Ray1Map.PSKlonoa
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: waypoint,
                                 type: Unity_ObjectType.Waypoint,
-                                name: $"Waypoint {i} (end)",
+                                name: $"Range {i} (end)",
                                 position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.EndPosition, Vector3.zero, scale),
+                                isEditor: true));
+
+                            unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
+                        }
+                    }
+
+                    // Add movement waypoints
+                    if (obj.Data?.MovementData != null)
+                    {
+                        for (var i = 0; i < obj.Data.MovementData.Length; i++)
+                        {
+                            EnemyMovementData movementData = obj.Data.MovementData[i];
+                            
+                            // Add a dummy object since we don't care about animations
+                            spriteObjects.Add(new Unity_Object_Dummy(
+                                serializableData: movementData,
+                                type: Unity_ObjectType.Waypoint,
+                                name: $"Movement Waypoint {i} (start)",
+                                position: movementPaths[movementData.MovementPathIndex].Blocks.GetPosition(movementData.MovementPathDistance, Vector3.zero, scale),
                                 isEditor: true));
 
                             unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
