@@ -41,6 +41,7 @@ namespace Ray1Map {
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
+				new GameAction("Export models", false, true, (input, output) => ExportModelsAsync(settings, output)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, false)),
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
@@ -405,6 +406,61 @@ namespace Ray1Map {
 			}
 
             Debug.Log($"Finished export");
+		}
+		public async UniTask ExportModelsAsync(GameSettings settings, string outputDir) {
+			var parsedTexs = new HashSet<uint>();
+
+			var levIndex = 0;
+			uint currentKey = 0;
+
+			foreach (var lev in LevelInfos) {
+				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type.HasValue ?? false) {
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+						levIndex++;
+						continue;
+					}
+				}
+
+				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+
+				try {
+					using (var context = new Ray1MapContext(settings)) {
+						currentKey = 0;
+						await LoadFilesAsync(context);
+						await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures);
+
+						string worldName = null;
+
+						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+						foreach (var w in loader.LoadedWorlds) {
+							worldName = w?.Name;
+							foreach (var o in w.SerializedGameObjects) {
+								await FBXExporter.ExportFBXAsync(o, outputDir);
+							}
+						}
+					}
+				} catch (Exception ex) {
+					if (currentKey == 0) {
+						Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+					} else {
+						Debug.LogError($"Failed to export for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
+					}
+				}
+
+
+				// Unload textures
+				await Controller.WaitIfNecessary();
+				await Resources.UnloadUnusedAssets();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+				GC.WaitForPendingFinalizers();
+				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(2000);
+				}
+			}
+
+			Debug.Log($"Finished export");
 		}
 		public async UniTask ExportSoundsAsync(GameSettings settings, string outputDir, bool useComplexNames) {
 			var parsedSounds = new HashSet<uint>();
