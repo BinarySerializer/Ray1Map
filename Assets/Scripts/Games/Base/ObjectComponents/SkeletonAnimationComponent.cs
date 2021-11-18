@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SkeletonAnimationComponent : ObjectAnimationComponent
 {
+    public bool autoPlay = true;
+
     public Animation[] animations;
     public int animIndex;
 
@@ -41,7 +43,19 @@ public class SkeletonAnimationComponent : ObjectAnimationComponent
 
         int frameInt = speed.CurrentFrameInt;
 
+        // Check if the animation looped back to the start and if a new one should play instead
+        if (autoPlay && animations.Length > 1 && speed.CurrentFrame == 0)
+        {
+            speed.Reset();
+            frameInt = 0;
+            animIndex = (animIndex + 1) % animations.Length;
+            anim = CurrentAnimation;
+            framesCount = anim.FramesCount;
+        }
+
         int nextFrameIndex = frameInt + 1 * speed.Direction;
+
+        bool interpolate = true;
 
         if (nextFrameIndex >= framesCount)
         {
@@ -49,6 +63,7 @@ public class SkeletonAnimationComponent : ObjectAnimationComponent
             {
                 case AnimLoopMode.Repeat:
                     nextFrameIndex = 0;
+                    interpolate = false;
                     break;
 
                 case AnimLoopMode.PingPong:
@@ -66,7 +81,10 @@ public class SkeletonAnimationComponent : ObjectAnimationComponent
             }
         }
 
-        float lerpFactor = speed.CurrentFrame - frameInt;
+        float lerpFactor = interpolate ? speed.CurrentFrame - frameInt : 0;
+
+        if (interpolate && speed.Direction == -1)
+            lerpFactor = 1 - lerpFactor;
 
         foreach (Bone bone in anim.bones)
         {
@@ -84,28 +102,5 @@ public class SkeletonAnimationComponent : ObjectAnimationComponent
             else
                 bone.animatedTransform.localScale = Vector3.Lerp(currentFrame.Scale, nextFrame.Scale, lerpFactor);
         }
-    }
-
-    public void CombineAnimations()
-    {
-        var bonesCount = animations[0].bones.Length;
-        var bones = new Bone[bonesCount];
-
-        for (int boneIndex = 0; boneIndex < bonesCount; boneIndex++)
-        {
-            bones[boneIndex] = new Bone()
-            {
-                animatedTransform = animations[0].bones[boneIndex].animatedTransform,
-                frames = animations.SelectMany(x => x.bones[boneIndex].frames).ToArray(),
-            };
-        }
-
-        animations = new Animation[]
-        {
-            new Animation()
-            {
-                bones = bones
-            }
-        };
     }
 }

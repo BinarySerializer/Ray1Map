@@ -169,24 +169,29 @@ namespace Ray1Map.PSKlonoa
                 mtComponent.speed = animSpeed;
 
             mtComponent.loopMode = animLoopMode;
+            mtComponent.animations = new AnimatedTransformComponent.Animation[transforms.Count];
 
-            var positions = transforms.SelectMany(x => x.Positions.Vectors).Select(x =>
-                x.Length > objIndex ? x[objIndex].GetPositionVector(scale) : (Vector3?)null).ToArray();
-            var rotations = transforms.SelectMany(x => x.Rotations.Vectors)
-                .Select(x => x.Length > objIndex ? x[objIndex].GetQuaternion() : (Quaternion?)null).ToArray();
-
-            var frameCount = Math.Max(positions.Length, rotations.Length);
-            mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-
-            for (int i = 0; i < frameCount; i++)
+            for (int animIndex = 0; animIndex < transforms.Count; animIndex++)
             {
-                mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                var positions = transforms[animIndex].Positions.Vectors.Select(x =>
+                    x.Length > objIndex ? x[objIndex].GetPositionVector(scale) : (Vector3?)null).ToArray();
+                var rotations = transforms[animIndex].Rotations.Vectors
+                    .Select(x => x.Length > objIndex ? x[objIndex].GetQuaternion() : (Quaternion?)null).ToArray();
+
+                var frameCount = Math.Max(positions.Length, rotations.Length);
+
+                mtComponent.animations[animIndex].frames = new AnimatedTransformComponent.Frame[frameCount];
+
+                for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                 {
-                    Position = positions[i] ?? Vector3.zero,
-                    Rotation = rotations[i] ?? Quaternion.identity,
-                    Scale = Vector3.one,
-                    IsHidden = positions[i] == null || rotations[i] == null,
-                };
+                    mtComponent.animations[animIndex].frames[frameIndex] = new AnimatedTransformComponent.Frame()
+                    {
+                        Position = positions[frameIndex] ?? Vector3.zero,
+                        Rotation = rotations[frameIndex] ?? Quaternion.identity,
+                        Scale = Vector3.one,
+                        IsHidden = positions[frameIndex] == null || rotations[frameIndex] == null,
+                    };
+                }
             }
 
             return true;

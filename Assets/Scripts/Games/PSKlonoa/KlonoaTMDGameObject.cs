@@ -258,9 +258,6 @@ namespace Ray1Map.PSKlonoa
                     animComponent.animations[animIndex].bones = animComponent.animations[animIndex].bones.Concat(modelBones).ToArray();
                 }
             }
-
-            // TODO: Support selecting multiple animations
-            animComponent.CombineAnimations();
         }
     }
 }
