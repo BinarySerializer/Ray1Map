@@ -1511,7 +1511,7 @@ namespace Ray1Map.PSKlonoa
                         {
                             var objInstance = cutsceneObjInstances[createObjIndex];
 
-                            if (objInstance.AnimIndex != null && objInstance.Position != null)
+                            if (objInstance.AnimIndex != null && objInstance.Position != null && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null)
                             {
                                 Vector3 pos = objInstance.Position ?? Vector3.zero;
 
@@ -1632,7 +1632,7 @@ namespace Ray1Map.PSKlonoa
                 {
                     var objInstance = item.Value;
 
-                    if (objInstance.AnimIndex == null || objInstance.Position == null)
+                    if (objInstance.AnimIndex == null || objInstance.Position == null || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null)
                         continue;
 
                     Vector3 pos = objInstance.Position ?? Vector3.zero;
