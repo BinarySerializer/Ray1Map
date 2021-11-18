@@ -158,7 +158,11 @@ namespace Ray1Map.PSKlonoa
 
             // Add movements paths
             if (Obj.MovementPaths != null)
-                LoadObject_MovementPaths(collisionComponent);
+                LoadObject_MovementPaths(collisionComponent, Obj.MovementPaths);
+
+            if (Obj.MovementPathsArchive != null)
+                foreach (MovementPath_File path in Obj.MovementPathsArchive.Files)
+                    LoadObject_MovementPaths(collisionComponent, path);
 
             // Add sprites
             if (Obj.Sprites != null)
@@ -319,11 +323,11 @@ namespace Ray1Map.PSKlonoa
             collisionComponent.collisionObjects.Add(colObj);
         }
 
-        public void LoadObject_MovementPaths(ObjectCollisionComponent collisionComponent)
+        public void LoadObject_MovementPaths(ObjectCollisionComponent collisionComponent, MovementPath_File path)
         {
             Unity_CollisionLine[] lines =
-                Obj.MovementPaths.Blocks.GetMovementPaths(Scale,
-                    color: new Color(255 / 255f, 193 / 255f, 7 / 255f));
+                path.Blocks.GetMovementPaths(Scale,
+                    color: new Color(255 / 255f, 143 / 255f, 0 / 255f));
 
             foreach (Unity_CollisionLine line in lines)
             {
