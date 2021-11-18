@@ -1326,7 +1326,7 @@ namespace Ray1Map.PSKlonoa
 
                     var unityObj = new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo);
                     spriteObjects.Add(unityObj);
-
+                    
                     // Add ranges
                     if (obj.Data?.Waypoints != null)
                     {
@@ -1361,13 +1361,25 @@ namespace Ray1Map.PSKlonoa
                         for (var i = 0; i < obj.Data.MovementData.Length; i++)
                         {
                             EnemyMovementData movementData = obj.Data.MovementData[i];
-                            
+
+                            int pathIndex = movementData.MovementPathIndex;
+
+                            // Not all objects define this in which case both values are 0
+                            if (pathIndex == 0 && movementData.MovementPathDistance == 0)
+                                continue;
+
+                            if (pathIndex == -2)
+                                pathIndex = obj.MovementPath;
+
+                            if (pathIndex == -1)
+                                continue;
+
                             // Add a dummy object since we don't care about animations
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: movementData,
                                 type: Unity_ObjectType.Waypoint,
                                 name: $"Movement Waypoint {i} (start)",
-                                position: movementPaths[movementData.MovementPathIndex].Blocks.GetPosition(movementData.MovementPathDistance, Vector3.zero, scale),
+                                position: movementPaths[pathIndex].Blocks.GetPosition(movementData.MovementPathDistance, Vector3.zero, scale),
                                 isEditor: true));
 
                             unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
@@ -1501,9 +1513,14 @@ namespace Ray1Map.PSKlonoa
 
                             if (objInstance.AnimIndex != null && objInstance.Position != null)
                             {
+                                Vector3 pos = objInstance.Position ?? Vector3.zero;
+
+                                if (objInstance.RelativePosObj != null)
+                                    pos += objInstance.RelativePosObj.Position ?? Vector3.zero;
+
                                 yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
                                     objManager: objManager,
-                                    pos: objInstance.Position ?? Vector3.zero,
+                                    pos: pos,
                                     animIndex: objInstance.AnimIndex.Value,
                                     cutsceneIndex: cutsceneIndex,
                                     objIndex: createObjIndex,
@@ -1540,16 +1557,12 @@ namespace Ray1Map.PSKlonoa
                         if (cutsceneObjInstances[data_setObjPos.ObjIndex].Position != null)
                             continue;
 
-                        Vector3 relativePos;
-
                         if (data_setObjPos.PositionRelativeObjIndex >= 0 && cutsceneObjInstances.ContainsKey(data_setObjPos.PositionRelativeObjIndex))
-                            relativePos = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex].Position ?? Vector3.zero;
-                        else
-                            relativePos = Vector3.zero;
+                            cutsceneObjInstances[data_setObjPos.ObjIndex].RelativePosObj = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex];
 
                         Vector3 pos = data_setObjPos.Position.GetPositionVector(scale, true);
 
-                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos + relativePos;
+                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos;
                     }
                     else if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjPosFromPath)
                     {
@@ -1611,9 +1624,14 @@ namespace Ray1Map.PSKlonoa
                     if (objInstance.AnimIndex == null || objInstance.Position == null)
                         continue;
 
+                    Vector3 pos = objInstance.Position ?? Vector3.zero;
+
+                    if (objInstance.RelativePosObj != null)
+                        pos += objInstance.RelativePosObj.Position ?? Vector3.zero;
+
                     yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
                         objManager: objManager,
-                        pos: objInstance.Position ?? Vector3.zero,
+                        pos: pos,
                         animIndex: objInstance.AnimIndex.Value,
                         cutsceneIndex: cutsceneIndex,
                         objIndex: item.Key,
@@ -1907,6 +1925,7 @@ namespace Ray1Map.PSKlonoa
         public class CutsceneObjectInstance
         {
             public Vector3? Position { get; set; }
+            public CutsceneObjectInstance RelativePosObj { get; set; }
             public bool FlipX { get; set; }
             public int? AnimIndex { get; set; }
         }
