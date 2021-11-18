@@ -1368,6 +1368,13 @@ namespace Ray1Map.PSKlonoa
                             if (pathIndex == 0 && movementData.MovementPathDistance == 0)
                                 continue;
 
+                            // TODO: Fix. Probably related to file 5 in level pack.
+                            if (pathIndex >= movementPaths.Length)
+                            {
+                                Debug.LogWarning($"Out of bounds waypoint path index of {pathIndex}");
+                                continue;
+                            }
+
                             if (pathIndex == -2)
                                 pathIndex = obj.MovementPath;
 
