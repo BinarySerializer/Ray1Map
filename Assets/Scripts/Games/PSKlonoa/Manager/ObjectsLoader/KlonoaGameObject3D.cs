@@ -240,6 +240,11 @@ namespace Ray1Map.PSKlonoa
                 // Get the model
                 GameObjectData_Model model = Obj.Models[modelIndex];
 
+                GameObject[] pathObjects = null;
+
+                if (model.MovementPaths != null)
+                    pathObjects = GetMovementPathObjects(model.MovementPaths).ToArray();
+
                 var tmdGameObj = new KlonoaTMDGameObject(
                     tmd: model.TMD,
                     vram: VRAM,
@@ -252,7 +257,10 @@ namespace Ray1Map.PSKlonoa
                     boneAnimations: model.ModelBoneAnimations,
                     vertexAnimation: model.VertexAnimation,
                     objType: Obj.GlobalGameObjectType,
-                    objectPositionOffsets: model.TMDObjectPositionOffsets);
+                    objectPositionOffsets: model.TMDObjectPositionOffsets,
+                    collisionComponent: collisionComponent,
+                    collision: model.Collision,
+                    movementPathObjects: pathObjects);
 
                 // Create the model game object
                 GameObject modelGameObj = new GameObject($"Model {modelIndex}");
@@ -260,7 +268,6 @@ namespace Ray1Map.PSKlonoa
                 // Get the game object
                 GameObject modelGraphicsGameObj = tmdGameObj.CreateGameObject("Graphics", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
                 modelGraphicsGameObj.transform.SetParent(modelGameObj.transform, false);
-                collisionComponent.normalObjects.Add(modelGraphicsGameObj);
 
                 // Apply a position if available
                 if (model.Position != null)
@@ -279,10 +286,6 @@ namespace Ray1Map.PSKlonoa
                     AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Y, rot.RotY, rot.Min, rot.Length);
                     AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Z, rot.RotZ, rot.Min, rot.Length);
                 }
-
-                // Add collision if available
-                if (model.Collision != null)
-                    LoadObject_Collision(collisionComponent, modelGameObj, model.Collision);
 
                 bool isAnimated = tmdGameObj.HasAnimations;
 
@@ -325,6 +328,14 @@ namespace Ray1Map.PSKlonoa
 
         public void LoadObject_MovementPaths(ObjectCollisionComponent collisionComponent, MovementPath_File path)
         {
+            foreach (GameObject pathObj in GetMovementPathObjects(path))
+            {
+                pathObj.transform.SetParent(GameObject.transform, false);
+                collisionComponent.collisionObjects.Add(pathObj);
+            }
+        }
+        public IEnumerable<GameObject> GetMovementPathObjects(MovementPath_File path)
+        {
             Unity_CollisionLine[] lines =
                 path.Blocks.GetMovementPaths(Scale,
                     color: new Color(255 / 255f, 143 / 255f, 0 / 255f));
@@ -340,14 +351,13 @@ namespace Ray1Map.PSKlonoa
                 lr.widthMultiplier = line.UnityWidth;
                 lr.useWorldSpace = false;
 
-                lr.gameObject.transform.SetParent(GameObject.transform, false);
-                collisionComponent.collisionObjects.Add(lr.gameObject);
-
                 lr.SetPositions(new Vector3[]
                 {
                     line.GetUnityPosition(0, ObjLoader.IsometricData),
                     line.GetUnityPosition(1, ObjLoader.IsometricData),
                 });
+
+                yield return lr.gameObject;
             }
         }
 

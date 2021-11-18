@@ -26,12 +26,12 @@ namespace Ray1Map
         protected virtual void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex) { }
         protected virtual void OnCreateTexture(PS1VRAMTexture tex) { }
         protected virtual void OnCreatedBones(GameObject gameObject, PS1_TMD_Object obj, Transform[] bones) { }
-        protected virtual void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex) { }
+        protected virtual void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, PS1_TMD_Object obj, int objIndex) { }
         protected virtual void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes) { }
         protected virtual void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
         protected virtual void OnCreatedObjects(GameObject parentGameObject, GameObject[] objects, Transform[][] allBones) { }
 
-        protected virtual Mesh AddPrimitive(GameObject gameObject, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
+        protected virtual Mesh AddPrimitive(GameObject parent, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
         {
             // Helper method
             int getBoneForVertex(int vertexIndex)
@@ -106,7 +106,7 @@ namespace Ray1Map
 
             MeshFilter mf = gao.AddComponent<MeshFilter>();
             gao.layer = LayerMask.NameToLayer("3D Collision");
-            gao.transform.SetParent(gameObject.transform, false);
+            gao.transform.SetParent(parent.transform, false);
             gao.transform.localScale = Vector3.one;
             gao.transform.localPosition = Vector3.zero;
             mf.sharedMesh = unityMesh;
@@ -316,13 +316,16 @@ namespace Ray1Map
 
                 allBones[objIndex] = bones ?? new Transform[] { gameObject.transform };
 
-                OnCreateObject(gameObject, obj, objIndex);
+                GameObject primitivesGameObj = new GameObject($"Primitives");
+                primitivesGameObj.transform.SetParent(gameObject.transform, false);
+
+                OnCreateObject(gameObject, primitivesGameObj, obj, objIndex);
 
                 Mesh[] meshes = new Mesh[obj.Primitives.Length];
 
                 // Add each primitive
                 for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
-                    meshes[packetIndex] = AddPrimitive(gameObject, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo);
+                    meshes[packetIndex] = AddPrimitive(primitivesGameObj, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo);
 
                 OnCreatedPrimitives(gameObject, obj, objIndex, meshes);
             }
