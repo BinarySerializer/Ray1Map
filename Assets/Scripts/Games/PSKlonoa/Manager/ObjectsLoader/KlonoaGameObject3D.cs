@@ -154,7 +154,7 @@ namespace Ray1Map.PSKlonoa
 
             // Add collision
             if (Obj.Collision != null)
-                LoadObject_Collision(collisionComponent);
+                LoadObject_Collision(collisionComponent, GameObject, Obj.Collision);
 
             // Add movements paths
             if (Obj.MovementPaths != null)
@@ -250,8 +250,13 @@ namespace Ray1Map.PSKlonoa
                     isJoka: Obj.GlobalGameObjectType == GlobalGameObjectType.Boss_Joka,
                     objectPositionOffsets: model.TMDObjectPositionOffsets);
 
+                // Create the model game object
+                GameObject modelGameObj = new GameObject($"Model {modelIndex}");
+
                 // Get the game object
-                GameObject modelGameObj = tmdGameObj.CreateGameObject($"Model {modelIndex}", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
+                GameObject modelGraphicsGameObj = tmdGameObj.CreateGameObject("Graphics", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
+                modelGraphicsGameObj.transform.SetParent(modelGameObj.transform, false);
+                collisionComponent.normalObjects.Add(modelGraphicsGameObj);
 
                 // Apply a position if available
                 if (model.Position != null)
@@ -271,13 +276,16 @@ namespace Ray1Map.PSKlonoa
                     AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Z, rot.RotZ, rot.Min, rot.Length);
                 }
 
+                // Add collision if available
+                if (model.Collision != null)
+                    LoadObject_Collision(collisionComponent, modelGameObj, model.Collision);
+
                 bool isAnimated = tmdGameObj.HasAnimations;
 
                 if (isAnimated)
                     IsAnimated = true;
-
+                
                 modelGameObj.transform.SetParent(GameObject.transform);
-                collisionComponent.normalObjects.Add(modelGameObj);
             }
 
             // Get the absolute transforms
@@ -304,10 +312,10 @@ namespace Ray1Map.PSKlonoa
                 GameObject.transform.rotation = Obj.Rotation.GetQuaternion();
         }
 
-        public void LoadObject_Collision(ObjectCollisionComponent collisionComponent)
+        public void LoadObject_Collision(ObjectCollisionComponent collisionComponent, GameObject gameObj, CollisionTriangles_File collision)
         {
-            var colObj = Obj.Collision.CollisionTriangles.GetCollisionGameObject(Scale);
-            colObj.transform.SetParent(GameObject.transform, false);
+            GameObject colObj = collision.CollisionTriangles.GetCollisionGameObject(Scale);
+            colObj.transform.SetParent(gameObj.transform, false);
             collisionComponent.collisionObjects.Add(colObj);
         }
 
