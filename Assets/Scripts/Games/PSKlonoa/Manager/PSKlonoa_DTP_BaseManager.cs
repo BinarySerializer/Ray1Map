@@ -1595,6 +1595,17 @@ namespace Ray1Map.PSKlonoa
                         if (data_setObjPosFromPath.FlipX != null)
                             cutsceneObjInstances[objIndex].FlipX = data_setObjPosFromPath.FlipX.Value;
                     }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.FlipCutsceneObj)
+                    {
+                        var data_FlipCutsceneObj = (CutsceneInstructionData_FlipCutsceneObj)cmd.Data;
+
+                        var objIndex = data_FlipCutsceneObj.ObjIndex;
+
+                        if (!cutsceneObjInstances.ContainsKey(objIndex))
+                            continue;
+
+                        cutsceneObjInstances[objIndex].FlipX = data_FlipCutsceneObj.FlipX != 0;
+                    }
                     //else if (cmd.Type == CutsceneInstruction.InstructionType.Instruction_2)
                     //{
                     //    var data_2 = (CutsceneInstructionData_2)cmd.Data;
