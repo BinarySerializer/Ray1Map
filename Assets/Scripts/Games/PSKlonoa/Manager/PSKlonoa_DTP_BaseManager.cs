@@ -1771,6 +1771,11 @@ namespace Ray1Map.PSKlonoa
                         }
                     }
 
+                    // For some animations, such as in block 7, the sprite index is out of bounds
+                    // The object which references it has the rendering disabled, so what is this animation used for?
+                    if (frame.SpriteIndex >= sprites.Files.Length)
+                        return default;
+
                     var sprite = sprites.Files[frame.SpriteIndex];
 
                     var tex = GetTexture(sprite.Textures, loader.VRAM, palX, palY);
