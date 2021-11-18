@@ -55,6 +55,9 @@ namespace Ray1Map
 
             var lerpFactor = speed.CurrentFrame - frameInt;
 
+            if (speed.Direction == -1)
+                lerpFactor = 1 - lerpFactor;
+
             animatedTransform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
             animatedTransform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);
 
