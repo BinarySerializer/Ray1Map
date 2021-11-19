@@ -127,15 +127,15 @@ namespace Ray1Map.PSKlonoa
             if (VertexAnimation == null) 
                 return;
             
-            var c = gameObject.AddComponent<KlonoaDTPVertexAnimationComponent>();
+            var c = gameObject.AddComponent<VertexAnimationComponent>();
 
-            c.meshes = primitiveMeshes.Select((m, i) => new KlonoaDTPVertexAnimationComponent.MeshData()
+            c.meshes = primitiveMeshes.Select((m, i) => new VertexAnimationComponent.MeshData()
             {
                 mesh = m,
                 vertexIndices = obj.Primitives[i].Vertices,
                 normalIndices = obj.Primitives[i].Normals,
             }).ToArray();
-            c.frames = new KlonoaDTPVertexAnimationComponent.Frame[VertexAnimation.FrameIndices.Length];
+            c.frames = new VertexAnimationComponent.Frame[VertexAnimation.FrameIndices.Length];
 
             for (int i = 0; i < VertexAnimation.FrameIndices.Length; i++)
             {

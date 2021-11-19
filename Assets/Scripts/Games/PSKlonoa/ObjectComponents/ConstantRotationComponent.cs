@@ -1,10 +1,9 @@
-﻿using Ray1Map.PSKlonoa;
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace Ray1Map
+namespace Ray1Map.PSKlonoa
 {
-    public class KlonoaDTPConstantRotationComponent : ObjectAnimationComponent
+    public class ConstantRotationComponent : ObjectAnimationComponent
     {
         public Transform animatedTransform;
         public Quaternion initialRotation;

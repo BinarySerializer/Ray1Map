@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace Ray1Map
+namespace Ray1Map.PSKlonoa
 {
-    public class KlonoaDTPVertexAnimationComponent : ObjectAnimationComponent
+    public class VertexAnimationComponent : ObjectAnimationComponent
     {
         public MeshData[] meshes;
         public Frame[] frames;

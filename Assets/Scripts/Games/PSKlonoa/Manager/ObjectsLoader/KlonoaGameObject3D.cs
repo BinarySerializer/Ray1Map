@@ -148,19 +148,21 @@ namespace Ray1Map.PSKlonoa
 
             ObjectCollisionComponent collisionComponent = GameObject.AddComponent<ObjectCollisionComponent>();
 
+            bool hasModels = Obj.Models?.Any(x => x.TMD != null) == true;
+
             // Add models
-            if (Obj.Models?.Any(x => x.TMD != null) == true)
+            if (hasModels)
                 LoadObject_Models(collisionComponent);
 
             // Add collision
-            if (Obj.Collision != null)
+            if ((!hasModels || Obj.IsCollisionAbsolute) && Obj.Collision != null)
                 LoadObject_Collision(collisionComponent, GameObject, Obj.Collision);
 
             // Add movements paths
-            if (Obj.MovementPaths != null)
+            if ((!hasModels || Obj.IsMovementPathAbsolute) && Obj.MovementPaths != null)
                 LoadObject_MovementPaths(collisionComponent, Obj.MovementPaths);
 
-            if (Obj.MovementPathsArchive != null)
+            if ((!hasModels || Obj.IsMovementPathAbsolute) && Obj.MovementPathsArchive != null)
                 foreach (MovementPath_File path in Obj.MovementPathsArchive.Files)
                     LoadObject_MovementPaths(collisionComponent, path);
 
@@ -234,16 +236,40 @@ namespace Ray1Map.PSKlonoa
                 Obj.Models[0].TMD = combinedTmd;
             }
 
+            GameObject[] modelGameObjects = new GameObject[Obj.Models.Length];
+
+            bool shouldCycle = Obj.ShowAllModels == false && modelGameObjects.Length > 1;
+
             // Create a child object for each model the object contains
             for (var modelIndex = 0; modelIndex < Obj.Models.Length; modelIndex++)
             {
                 // Get the model
                 GameObjectData_Model model = Obj.Models[modelIndex];
 
-                GameObject[] pathObjects = null;
+                List<GameObject> pathObjects = null;
+                CollisionTriangles_File collision = null;
 
-                if (model.MovementPaths != null)
-                    pathObjects = GetMovementPathObjects(model.MovementPaths).ToArray();
+                // Add collision and paths for first model, unless it's a geyser platform in which case all of them need it
+                if (modelIndex == 0 || Obj.GlobalGameObjectType == GlobalGameObjectType.GeyserPlatform || shouldCycle)
+                {
+                    if (!Obj.IsCollisionAbsolute)
+                        collision = Obj.Collision;
+
+                    // Add movements paths
+                    if (!Obj.IsMovementPathAbsolute && Obj.MovementPaths != null)
+                    {
+                        pathObjects ??= new List<GameObject>();
+                        pathObjects.AddRange(GetMovementPathObjects(Obj.MovementPaths));
+                    }
+
+                    if (!Obj.IsMovementPathAbsolute && Obj.MovementPathsArchive != null)
+                    {
+                        pathObjects ??= new List<GameObject>();
+
+                        foreach (MovementPath_File path in Obj.MovementPathsArchive.Files)
+                            pathObjects.AddRange(GetMovementPathObjects(path));
+                    }
+                }
 
                 var tmdGameObj = new KlonoaTMDGameObject(
                     tmd: model.TMD,
@@ -259,11 +285,12 @@ namespace Ray1Map.PSKlonoa
                     objType: Obj.GlobalGameObjectType,
                     objectPositionOffsets: model.TMDObjectPositionOffsets,
                     collisionComponent: collisionComponent,
-                    collision: model.Collision,
-                    movementPathObjects: pathObjects);
+                    collision: collision,
+                    movementPathObjects: pathObjects?.ToArray());
 
                 // Create the model game object
                 GameObject modelGameObj = new GameObject($"Model {modelIndex}");
+                modelGameObjects[modelIndex] = modelGameObj;
 
                 // Get the game object
                 GameObject modelGraphicsGameObj = tmdGameObj.CreateGameObject("Graphics", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
@@ -282,9 +309,9 @@ namespace Ray1Map.PSKlonoa
                 // Apply a constant rotation if available
                 if (rot != null)
                 {
-                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.X, rot.RotX, rot.Min, rot.Length);
-                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Y, rot.RotY, rot.Min, rot.Length);
-                    AddConstantRot(modelGameObj, KlonoaDTPConstantRotationComponent.RotationAxis.Z, rot.RotZ, rot.Min, rot.Length);
+                    AddConstantRot(modelGameObj, ConstantRotationComponent.RotationAxis.X, rot.RotX, rot.Min, rot.Length);
+                    AddConstantRot(modelGameObj, ConstantRotationComponent.RotationAxis.Y, rot.RotY, rot.Min, rot.Length);
+                    AddConstantRot(modelGameObj, ConstantRotationComponent.RotationAxis.Z, rot.RotZ, rot.Min, rot.Length);
                 }
 
                 bool isAnimated = tmdGameObj.HasAnimations;
@@ -317,6 +344,14 @@ namespace Ray1Map.PSKlonoa
             // Apply an absolute rotation if available
             if (Obj.Rotation != null)
                 GameObject.transform.rotation = Obj.Rotation.GetQuaternion();
+
+            // Cycle models if they should only be shown one at a time
+            if (shouldCycle)
+            {
+                var c = GameObject.AddComponent<CycleObjectsActiveComponent>();
+                c.objects = modelGameObjects;
+                c.speed = new AnimSpeed_SecondIncrease(1 / 5f); // Cycle every 5 seconds
+            }
         }
 
         public void LoadObject_Collision(ObjectCollisionComponent collisionComponent, GameObject gameObj, CollisionTriangles_File collision)
@@ -361,12 +396,12 @@ namespace Ray1Map.PSKlonoa
             }
         }
 
-        public void AddConstantRot(GameObject obj, KlonoaDTPConstantRotationComponent.RotationAxis axis, float? speed, float min, float length)
+        public void AddConstantRot(GameObject obj, ConstantRotationComponent.RotationAxis axis, float? speed, float min, float length)
         {
             if (speed == null)
                 return;
 
-            var rotComponent = obj.AddComponent<KlonoaDTPConstantRotationComponent>();
+            var rotComponent = obj.AddComponent<ConstantRotationComponent>();
             rotComponent.animatedTransform = obj.transform;
             rotComponent.initialRotation = obj.transform.localRotation;
             rotComponent.axis = axis;
