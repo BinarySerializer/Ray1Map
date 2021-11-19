@@ -305,11 +305,12 @@ namespace Ray1Map
                     for (int i = 0; i < bindPoses.Length; i++)
                         bindPoses[i] = bones[i].worldToLocalMatrix * gameObject.transform.localToWorldMatrix;
 
-                    for (int i = 0; i < obj.Bones.Length; i++)
-                    {
-                        var b = bones[i + 1];
-                        b.transform.localPosition = new Vector3(obj.Bones[i].XPos / Scale, -obj.Bones[i].YPos / Scale, obj.Bones[i].ZPos / Scale);
-                    }
+                    // Gets set from animations later, ignore for now since it's the same position data
+                    //for (int i = 0; i < obj.Bones.Length; i++)
+                    //{
+                    //    var b = bones[i + 1];
+                    //    b.transform.localPosition = new Vector3(obj.Bones[i].XPos / Scale, -obj.Bones[i].YPos / Scale, obj.Bones[i].ZPos / Scale);
+                    //}
 
                     OnCreatedBones(gameObject, obj, bones);
                 }
