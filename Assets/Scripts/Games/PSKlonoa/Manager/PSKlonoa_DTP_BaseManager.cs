@@ -19,11 +19,11 @@ namespace Ray1Map.PSKlonoa
     {
         #region Manager
 
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Name, Enumerable.Range(0, x.SectorsCount).ToArray())).ToArray());
 
         public static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
 
-        public virtual (string, int)[] Levels => new (string, int)[]
+        public virtual (string Name, int SectorsCount)[] Levels => new (string Name, int SectorsCount)[]
         {
             ("FIX", 0),
             ("MENU", 0),
@@ -41,7 +41,7 @@ namespace Ray1Map.PSKlonoa
             ("Vision 3-2", 10),
             ("Gelg Bolm", 1),
 
-            ("Vision 4-1", 3), // TODO: 5 in proto
+            ("Vision 4-1", 3),
             ("Vision 4-2", 8),
             ("Baladium", 2),
 
@@ -54,7 +54,7 @@ namespace Ray1Map.PSKlonoa
             ("Ghadius", 2),
 
             // Order is different here than in-game
-            ("Ending", 2), // TODO: 1 in proto
+            ("Ending", 2),
             ("Final Vision", 3),
             ("Nahatomb", 3),
 
@@ -1175,7 +1175,6 @@ namespace Ray1Map.PSKlonoa
 
                 bool isLastNull = sprites.Sprites.Length > 1 && sprites.Sprites.Last().Textures.Length == 0;
 
-                // TODO: Support animations
                 // Create the sprites
                 Func<(Sprite Sprite, Vector2Int Pos)>[] spriteFuncs = sprites.Sprites.
                     Take(isLastNull ? sprites.Sprites.Length - 1 : sprites.Sprites.Length).
