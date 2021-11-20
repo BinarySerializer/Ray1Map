@@ -65,6 +65,8 @@ namespace Ray1Map.PSKlonoa
 
         public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
+        public virtual bool DisableLevelTextures(int binBlock, int sector) => false;
+
         public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
         {
             return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
@@ -1071,7 +1073,7 @@ namespace Ray1Map.PSKlonoa
                 objectsLoader: objectsLoader,
                 isPrimaryObj: true);
 
-            GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo);
+            GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo, loadTextures: !DisableLevelTextures(loader.BINBlock, sector));
 
             Bounds levelBounds = loader.LevelPack.Sectors[sector].LevelModel.GetDimensions(scale);
 

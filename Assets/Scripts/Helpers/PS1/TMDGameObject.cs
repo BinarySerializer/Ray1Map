@@ -31,7 +31,7 @@ namespace Ray1Map
         protected virtual void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
         protected virtual void OnCreatedObjects(GameObject parentGameObject, GameObject[] objects, Transform[][] allBones) { }
 
-        protected virtual Mesh AddPrimitive(GameObject parent, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo)
+        protected virtual Mesh AddPrimitive(GameObject parent, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo, bool loadTextures)
         {
             // Helper method
             int getBoneForVertex(int vertexIndex)
@@ -133,7 +133,7 @@ namespace Ray1Map
             }
 
             // Apply texture
-            if (packet.Mode.TME)
+            if (packet.Mode.TME && loadTextures)
                 ApplyTexture(vramTexturesLookup[packet], mat, unityMesh, obj, packet, gao, objIndex, packetIndex, includeDebugInfo);
 
             return unityMesh;
@@ -212,7 +212,7 @@ namespace Ray1Map
             OnAppliedTexture(packetGameObject, obj, packet, mat, tex);
         }
 
-        public GameObject CreateGameObject(string name, bool includeDebugInfo)
+        public GameObject CreateGameObject(string name, bool includeDebugInfo, bool loadTextures = true)
         {
             HasAnimations = false;
 
@@ -222,34 +222,37 @@ namespace Ray1Map
             var vramTextures = new HashSet<PS1VRAMTexture>();
             var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
 
-            // Get texture bounds
-            foreach (PS1_TMD_Packet packet in TMD.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
+            if (loadTextures)
             {
-                var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
-
-                PS1VRAMTexture overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
-
-                OnGetTextureBounds(packet, tex);
-
-                if (overlappingTex != null)
+                // Get texture bounds
+                foreach (PS1_TMD_Packet packet in TMD.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
                 {
-                    overlappingTex.ExpandWithBounds(tex);
-                    vramTexturesLookup.Add(packet, overlappingTex);
+                    var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
+
+                    PS1VRAMTexture overlappingTex = vramTextures.FirstOrDefault(x => x.HasOverlap(tex));
+
+                    OnGetTextureBounds(packet, tex);
+
+                    if (overlappingTex != null)
+                    {
+                        overlappingTex.ExpandWithBounds(tex);
+                        vramTexturesLookup.Add(packet, overlappingTex);
+                    }
+                    else
+                    {
+                        vramTextures.Add(tex);
+                        vramTexturesLookup.Add(packet, tex);
+                    }
                 }
-                else
+
+                // Create textures
+                foreach (PS1VRAMTexture vramTex in vramTextures)
                 {
-                    vramTextures.Add(tex);
-                    vramTexturesLookup.Add(packet, tex);
+                    // Create the default texture
+                    vramTex.SetTexture(vramTex.GetTexture(VRAM));
+
+                    OnCreateTexture(vramTex);
                 }
-            }
-
-            // Create textures
-            foreach (PS1VRAMTexture vramTex in vramTextures)
-            {
-                // Create the default texture
-                vramTex.SetTexture(vramTex.GetTexture(VRAM));
-
-                OnCreateTexture(vramTex);
             }
 
             var allBones = new Transform[TMD.Objects.Length][];
@@ -326,7 +329,7 @@ namespace Ray1Map
 
                 // Add each primitive
                 for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
-                    meshes[packetIndex] = AddPrimitive(primitivesGameObj, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo);
+                    meshes[packetIndex] = AddPrimitive(primitivesGameObj, obj, objIndex, packetIndex, vramTexturesLookup, bones, bindPoses, includeDebugInfo, loadTextures);
 
                 OnCreatedPrimitives(gameObject, obj, objIndex, meshes);
             }

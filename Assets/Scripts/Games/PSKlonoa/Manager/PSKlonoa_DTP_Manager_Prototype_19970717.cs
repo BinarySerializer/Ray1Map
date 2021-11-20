@@ -45,5 +45,7 @@ namespace Ray1Map.PSKlonoa
 
         public override KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings) => new KlonoaSettings_DTP_Prototype_19970717();
         public override Dictionary<string, char> GetCutsceneTranslationTable => new Dictionary<string, char>();
+
+        public override bool DisableLevelTextures(int binBlock, int sector) => binBlock == 12 && sector == 3;
     }
 }
