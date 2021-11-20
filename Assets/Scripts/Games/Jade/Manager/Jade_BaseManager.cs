@@ -412,6 +412,7 @@ namespace Ray1Map {
 
 			var levIndex = 0;
 			uint currentKey = 0;
+			HashSet<uint> exportedObjects = new HashSet<uint>();
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -435,8 +436,12 @@ namespace Ray1Map {
 						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						foreach (var w in loader.LoadedWorlds) {
 							worldName = w?.Name;
-							foreach (var o in w.SerializedGameObjects) {
-								await FBXExporter.ExportFBXAsync(o, outputDir);
+							var gaos = w.GameObjects?.Value?.GameObjects;
+							if(gaos == null) continue;
+							foreach (var o in gaos) {
+								if(o.IsNull || exportedObjects.Contains(o.Key.Key)) continue;
+								exportedObjects.Add(o.Key.Key);
+								if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
 							}
 						}
 					}

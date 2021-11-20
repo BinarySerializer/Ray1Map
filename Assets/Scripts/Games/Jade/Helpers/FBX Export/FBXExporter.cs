@@ -37,6 +37,13 @@ using UnityEngine;
 
 namespace Ray1Map.Jade {
 	public class FBXExporter {
+		public class FBXHeader {
+			public int TextureCount { get; set; }
+			public int MaterialCount { get; set; }
+			public int GeometryCount { get; set; }
+			public int DeformerCount { get; set; }
+			public int ModelCount { get; set; }
+		}
 		public static string VersionInformation => "Ray1Map FBX Export";
 
 		public static long GetRandomFBXId() => System.BitConverter.ToInt64(System.Guid.NewGuid().ToByteArray(), 0);
@@ -47,11 +54,14 @@ namespace Ray1Map.Jade {
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
 			string outputFile = Path.Combine(outputPath, $"{gao.Key.Key:X8}_{gao.Export_FileBasename}.fbx");
+			var header = new FBXHeader();
+
+			StringBuilder sb2 = new StringBuilder();
+			WriteGameObject(sb2, gao, outputPath, header);
 
 			StringBuilder sb = new StringBuilder();
-			WriteHeader(sb);
-			WriteGameObject(sb, gao, outputPath);
-
+			WriteHeader(sb, header);
+			sb.AppendLine(sb2.ToString());
 			string buildMesh = sb.ToString();
 
 			if (System.IO.File.Exists(outputFile))
@@ -61,7 +71,7 @@ namespace Ray1Map.Jade {
 		}
 
 		#region Header
-		private static void WriteHeader(StringBuilder sb) {
+		private static void WriteHeader(StringBuilder sb, FBXHeader header) {
 			// ========= Create header ========
 			// Intro
 			sb.AppendLine("; FBX 7.3.0 project file");
@@ -163,7 +173,7 @@ namespace Ray1Map.Jade {
 
 
 			sb.AppendLine("\tObjectType: \"Model\" {");
-			sb.AppendLine("\t\tCount: 1"); // TODO figure out if this count matters
+			sb.AppendLine($"\t\tCount: {header.ModelCount}");
 			sb.AppendLine("\t\tPropertyTemplate: \"FbxNode\" {");
 			sb.AppendLine("\t\t\tProperties70:  {");
 			sb.AppendLine("\t\t\t\tP: \"QuaternionInterpolate\", \"enum\", \"\", \"\",0");
@@ -243,7 +253,7 @@ namespace Ray1Map.Jade {
 
 			// The geometry
 			sb.AppendLine("\tObjectType: \"Geometry\" {");
-			sb.AppendLine("\t\tCount: 1"); // TODO - this must be set by the number of items being placed.
+			sb.AppendLine($"\t\tCount: {header.GeometryCount}");
 			sb.AppendLine("\t\tPropertyTemplate: \"FbxMesh\" {");
 			sb.AppendLine("\t\t\tProperties70:  {");
 			sb.AppendLine("\t\t\t\tP: \"Color\", \"ColorRGB\", \"Color\", \"\",0.8,0.8,0.8");
@@ -256,9 +266,14 @@ namespace Ray1Map.Jade {
 			sb.AppendLine("\t\t}");
 			sb.AppendLine("\t}");
 
+			// Deformers
+			sb.AppendLine("\tObjectType: \"Deformer\" {");
+			sb.AppendLine($"\t\tCount: {header.DeformerCount}");
+			sb.AppendLine("\t}");
+
 			// The materials
 			sb.AppendLine("\tObjectType: \"Material\" {");
-			sb.AppendLine("\t\tCount: 1");
+			sb.AppendLine($"\t\tCount: {header.MaterialCount}");
 			sb.AppendLine("\t\tPropertyTemplate: \"FbxSurfacePhong\" {");
 			sb.AppendLine("\t\t\tProperties70:  {");
 			sb.AppendLine("\t\t\t\tP: \"ShadingModel\", \"KString\", \"\", \"\", \"Phong\"");
@@ -289,7 +304,7 @@ namespace Ray1Map.Jade {
 
 			// Explanation of how textures work
 			sb.AppendLine("\tObjectType: \"Texture\" {");
-			sb.AppendLine("\t\tCount: 2"); // TODO - figure out if this texture number is important
+			sb.AppendLine($"\t\tCount: {header.TextureCount}");
 			sb.AppendLine("\t\tPropertyTemplate: \"FbxFileTexture\" {");
 			sb.AppendLine("\t\t\tProperties70:  {");
 			sb.AppendLine("\t\t\t\tP: \"TextureTypeUse\", \"enum\", \"\", \"\",0");
@@ -318,7 +333,7 @@ namespace Ray1Map.Jade {
 		#endregion
 
 
-		private static void WriteGameObject(StringBuilder sb, OBJ_GameObject gameObj, string outputPath) {
+		private static void WriteGameObject(StringBuilder sb, OBJ_GameObject gameObj, string outputPath, FBXHeader header) {
 			StringBuilder objectProps = new StringBuilder();
 			objectProps.AppendLine("; Object properties");
 			objectProps.AppendLine(";------------------------------------------------------------------");
@@ -334,15 +349,16 @@ namespace Ray1Map.Jade {
 
 			// Dictionary to collect all materials used by this FBX
 			var materials = new Dictionary<uint, GEO_Object>();
+			var writtenObjects = new HashSet<long>();
 
 			// First finds all unique materials and compiles them (and writes to the object connections) for funzies
 			string materialsObjectSerialized = "";
 			string materialConnectionsSerialized = "";
 
 			// Run recursive FBX Mesh grab over the entire gameobject
-			WriteGeometryForGameObject(gameObj, ref objectProps, ref objectConnections, materials, setToZeroPosition: true);
+			WriteGeometryForGameObject(gameObj, objectProps, objectConnections, materials, writtenObjects, header, setToZeroPosition: true);
 
-			AllMaterialsToString(materials, outputPath, out materialsObjectSerialized, out materialConnectionsSerialized);
+			AllMaterialsToString(materials, outputPath, out materialsObjectSerialized, out materialConnectionsSerialized, header);
 
 
 			// write the materials to the objectProps here. Should not do it in the above as it recursive.
@@ -368,20 +384,30 @@ namespace Ray1Map.Jade {
 		/// <param name="objects">The StringBuidler to create objects for the FBX file.</param>
 		/// <param name="connections">The StringBuidler to create connections for the FBX file.</param>
 		/// <param name="parentObject">Parent object, if left null this is the top parent.</param>
-		/// <param name="parentModelId">Parent model id, 0 if top parent.</param>
-		public static long WriteGeometryForGameObject(OBJ_GameObject gao,
-										   ref StringBuilder objects,
-										   ref StringBuilder connections,
+		/// <param name="parentGao">Parent model id, 0 if top parent.</param>
+		public static void WriteGeometryForGameObject(OBJ_GameObject gao,
+										   StringBuilder objects,
+										   StringBuilder connections,
 										   Dictionary<uint, GEO_Object> materials,
+										   HashSet<long> writtenObjects,
+										   FBXHeader header,
 										   OBJ_GameObject parentObject = null,
-										   long parentModelId = 0,
+										   long objectGroup = 0,
+										   long parentGao = 0,
 										   bool setToZeroPosition = false) {
+
+			long gameObjectID = gao.Key.Key;
+			if (objectGroup != 0) {
+				gameObjectID = (objectGroup << 8) ^ gameObjectID;
+			}
+			if(writtenObjects.Contains(gameObjectID)) return;
+			writtenObjects.Add(gameObjectID);
+
+			long geometryID = FBXExporter.GetRandomFBXId();
+
 			bool appendComma = false;
 			StringBuilder tempObjectSb = new StringBuilder();
 			StringBuilder tempConnectionsSb = new StringBuilder();
-
-			long geometryId = FBXExporter.GetRandomFBXId();
-			long modelId = gao.Key.Key;
 
 			GRO_GraphicRenderObject gro = gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Value;
 			GEO_GeometricObject geo = gro != null ? gro as GEO_GeometricObject : null;
@@ -395,13 +421,26 @@ namespace Ray1Map.Jade {
 				isMesh = "Mesh";
 			}
 
-			if (parentModelId == 0)
-				tempConnectionsSb.AppendLine("\t;Model::" + meshName + ", Model::RootNode");
-			else
-				tempConnectionsSb.AppendLine("\t;Model::" + meshName + ", Model::USING PARENT");
-			tempConnectionsSb.AppendLine("\tC: \"OO\"," + modelId + "," + parentModelId);
-			tempConnectionsSb.AppendLine();
-			tempObjectSb.AppendLine("\tModel: " + modelId + ", \"Model::" + meshName + "\", \"" + isMesh + "\" {");
+			var currentParent = parentGao;
+			if (gao.Base?.HierarchyData?.Father?.Value != null) {
+				currentParent = gao.Base.HierarchyData.Father.Value.Key;
+				if (objectGroup != 0) {
+					currentParent = (objectGroup << 8) ^ currentParent;
+				}
+			}
+
+			if (currentParent == 0) {
+				tempConnectionsSb.AppendLine($"\t;Model::{meshName}, Model::RootNode");
+				tempConnectionsSb.AppendLine($"\tC: \"OO\",{gameObjectID},{currentParent}");
+				tempConnectionsSb.AppendLine();
+			} else {
+				tempConnectionsSb.AppendLine($"\t;Model::{meshName}, Model::USING PARENT");
+				tempConnectionsSb.AppendLine($"\tC: \"OO\",{gameObjectID},{currentParent}");
+				tempConnectionsSb.AppendLine();
+			}
+
+			header.ModelCount++;
+			tempObjectSb.AppendLine("\tModel: " + gameObjectID + ", \"Model::" + meshName + "\", \"" + isMesh + "\" {");
 			tempObjectSb.AppendLine("\t\tVersion: 232");
 			tempObjectSb.AppendLine("\t\tProperties70:  {");
 			tempObjectSb.AppendLine("\t\t\tP: \"RotationOrder\", \"enum\", \"\", \"\",4");
@@ -412,6 +451,10 @@ namespace Ray1Map.Jade {
 
 			// ===== Local Transform =========
 			Jade_Matrix mtx = gao.Matrix;
+			if (gao.Base?.HierarchyData?.Father?.Value != null) {
+				setToZeroPosition = false;
+				mtx = gao.Base.HierarchyData.LocalMatrix;
+			}
 
 			var pos = setToZeroPosition ? UnityEngine.Vector3.zero : mtx.GetPosition(convertAxes: false);
 			var rot = setToZeroPosition ? UnityEngine.Vector3.zero : mtx.GetRotation(convertAxes: false).eulerAngles;
@@ -439,23 +482,12 @@ namespace Ray1Map.Jade {
 				//         General Geometry Info
 				// =================================
 				// Generate the geometry information for the mesh created
-
-				tempObjectSb.AppendLine($"\tGeometry: {geometryId}, \"Geometry::\", \"Mesh\" {{");
+				header.GeometryCount++;
+				string mainGeometryName = $"Geometry::{gao.Base.Visual.GeometricObject.Key:X8}";
+				tempObjectSb.AppendLine($"\tGeometry: {geometryID}, \"{mainGeometryName}\", \"Mesh\" {{");
 
 				// ===== WRITE THE VERTICES =====
-				var vertices = geo.Vertices;
-				int vertCount = vertices.Length * 3; // <= because the list of points is just a list of comma seperated values, we need to multiply by three
-
-				tempObjectSb.AppendLine("\t\tVertices: *" + vertCount + " {");
-				tempObjectSb.Append("\t\t\ta: ");
-				for (int i = 0; i < vertices.Length; i++) {
-					if (i > 0) tempObjectSb.Append(",");
-
-					tempObjectSb.AppendFormat("{0},{1},{2}", vertices[i].X, vertices[i].Y, vertices[i].Z);
-				}
-
-				tempObjectSb.AppendLine();
-				tempObjectSb.AppendLine("\t\t} ");
+				WriteVectorArray("Vertices", geo.Vertices, tempObjectSb);
 
 				// ======= WRITE THE TRIANGLES ========
 				int triangleCount = geo.Elements.Sum(e => e.Triangles.Length) * 3;
@@ -482,7 +514,7 @@ namespace Ray1Map.Jade {
 				tempObjectSb.AppendLine("\t\t} ");
 				tempObjectSb.AppendLine("\t\tGeometryVersion: 124");
 
-				bool hasNormals = geo.Normals != null;
+				bool hasNormals = true; // geo.Normals != null;
 				if (hasNormals) {
 					// ===== WRITE THE NORMALS ==========
 					var normals = geo.Normals;
@@ -492,17 +524,7 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine("\t\t\tMappingInformationType: \"ByVertex\"");
 					tempObjectSb.AppendLine("\t\t\tReferenceInformationType: \"Direct\"");
 
-					tempObjectSb.AppendLine("\t\t\tNormals: *" + (normals.Length * 3) + " {");
-					tempObjectSb.Append("\t\t\t\ta: ");
-
-					for (int i = 0; i < normals.Length; i++) {
-						if (i > 0) tempObjectSb.Append(",");
-
-						tempObjectSb.AppendFormat("{0},{1},{2}", normals[i].X, normals[i].Y, normals[i].Z);
-					}
-
-					tempObjectSb.AppendLine();
-					tempObjectSb.AppendLine("\t\t\t}");
+					if(normals != null) WriteVectorArray("Normals", normals, tempObjectSb, indentCount: 3);
 					tempObjectSb.AppendLine("\t\t}");
 				}
 
@@ -672,7 +694,7 @@ namespace Ray1Map.Jade {
 
 				// Add the connection for the model to the geometry so it is attached the right mesh
 				tempConnectionsSb.AppendLine("\t;Geometry::, Model::" + meshName);
-				tempConnectionsSb.AppendLine("\tC: \"OO\"," + geometryId + "," + modelId);
+				tempConnectionsSb.AppendLine("\tC: \"OO\"," + geometryID + "," + gameObjectID);
 				tempConnectionsSb.AppendLine();
 
 				// Add the connection of all the materials in order of submesh
@@ -686,7 +708,7 @@ namespace Ray1Map.Jade {
 								uint materialID = gro_material.Object.Key.Key;
 								string materialName = $"{materialID:X8}";
 								tempConnectionsSb.AppendLine($"\t;Material::{materialName}, Model::{meshName}");
-								tempConnectionsSb.AppendLine($"\tC: \"OO\",{materialID},{modelId}");
+								tempConnectionsSb.AppendLine($"\tC: \"OO\",{materialID},{gameObjectID}");
 								tempConnectionsSb.AppendLine();
 								materials[materialID] = gro_material.Object;
 							}
@@ -697,7 +719,7 @@ namespace Ray1Map.Jade {
 								uint materialID = matRef.Key.Key;
 								string materialName = $"{materialID:X8}";
 								tempConnectionsSb.AppendLine($"\t;Material::{materialName}, Model::{meshName}");
-								tempConnectionsSb.AppendLine($"\tC: \"OO\",{materialID},{modelId}");
+								tempConnectionsSb.AppendLine($"\tC: \"OO\",{materialID},{gameObjectID}");
 								tempConnectionsSb.AppendLine();
 								materials[materialID] = matRef.Value;
 							}
@@ -707,9 +729,46 @@ namespace Ray1Map.Jade {
 				} else {
 					//UnityEngine.Debug.LogError("ERROR: the game object " + meshName + " has no material");
 				}
+
+				// Write morph data
+				WriteMorphTargetsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, header);
 			}
 
 			// TODO: Export skeleton group (& group?)
+			// Export parent
+			if (gao.Base?.HierarchyData?.Father?.Value != null) {
+				var father = gao.Base?.HierarchyData?.Father?.Value;
+				WriteGeometryForGameObject(father, objects, connections, materials, writtenObjects, header, parentObject, objectGroup, parentGao, setToZeroPosition);
+			}
+
+			// Write connections
+			objects.Append(tempObjectSb.ToString());
+			connections.Append(tempConnectionsSb.ToString());
+
+			// Export skeleton group
+			if (gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects != null) {
+				var group = gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects;
+				var groupID = (objectGroup << 8) ^ gameObjectID;
+				foreach (var o in group) {
+					if (o.GameObject?.Value != null) {
+						WriteGeometryForGameObject(o.GameObject.Value, objects, connections, materials, writtenObjects, header,
+							gao, groupID, gameObjectID, false);
+					}
+				}
+			}
+
+			// Export group
+			if (gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects != null) {
+				var group = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
+				//var groupID = (objectGroup << 8) ^ gameObjectID;
+				foreach (var o in group) {
+					if (o.GameObject?.Value != null) {
+						WriteGeometryForGameObject(o.GameObject.Value, objects, connections, materials, writtenObjects, header,
+							parentObject, objectGroup, parentGao, false);
+					}
+				}
+			}
+
 			/*
 			// Recursively add all the other objects to the string that has been built.
 			for (int i = 0; i < gao.transform.childCount; i++) {
@@ -717,17 +776,95 @@ namespace Ray1Map.Jade {
 
 				FBXUnityMeshGetter.GetMeshToString(childObject, materials, ref tempObjectSb, ref tempConnectionsSb, gao, modelId);
 			}*/
+		}
 
-			objects.Append(tempObjectSb.ToString());
-			connections.Append(tempConnectionsSb.ToString());
+		public static void WriteMorphTargetsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, FBXHeader header) {
 
+			if (gao?.Extended?.Modifiers != null) {
+				var modifier = gao.Extended.Modifiers.FirstOrDefault(m => m.Type == MDF_ModifierType.GEO_ModifierMorphing);
+				if (modifier != null) {
+					var morph = (GEO_ModifierMorphing)modifier.Modifier;
+					if(morph.MorphDataCount == 0) return;
 
-			return modelId;
+					header.DeformerCount++;
+
+					string deformerName = $"Deformer::{gao.Key.Key:X8}_BlendShape";
+					var deformerID = GetRandomFBXId();
+					tempObjectSb.AppendLine($"\tDeformer: {deformerID}, \"{deformerName}\", \"BlendShape\" {{");
+					tempObjectSb.AppendLine("\t\tVersion: 100");
+					tempObjectSb.AppendLine("\t}");
+					tempObjectSb.AppendLine();
+					// Connections
+					tempConnectionsSb.AppendLine($"\t;{deformerName}, {mainGeometryName}");
+					tempConnectionsSb.AppendLine($"\tC: \"OO\",{deformerID},{mainGeometryID}");
+					tempConnectionsSb.AppendLine();
+
+					for (int m = 0; m < morph.MorphData.Length; m++) {
+						var md = morph.MorphData[m];
+						if(md.VectorsCount == 0) continue;
+
+						header.DeformerCount++;
+						string subDeformerName = $"SubDeformer::{gao.Key.Key:X8}_SubDeformer{m}";
+						var subDeformerID = GetRandomFBXId();
+						tempObjectSb.AppendLine($"\tDeformer: {subDeformerID}, \"{subDeformerName}\", \"BlendShapeChannel\" {{");
+						tempObjectSb.AppendLine("\t\tVersion: 100");
+						tempObjectSb.AppendLine("\t\tDeformPercent: 0");
+						tempObjectSb.AppendLine("\t\tFullWeights: *1 {");
+						tempObjectSb.AppendLine("\t\t\ta: 100");
+						tempObjectSb.AppendLine("\t\t}");
+						tempObjectSb.AppendLine("\t}");
+						tempObjectSb.AppendLine();
+
+						header.GeometryCount++;
+						string geometryName = $"Geometry::{gao.Key.Key:X8}_Shape{m}";
+						var geometryID = GetRandomFBXId();
+						tempObjectSb.AppendLine($"\tGeometry: {geometryID}, \"{geometryName}\", \"Shape\" {{");
+						tempObjectSb.AppendLine("\t\tVersion: 100");
+
+						tempObjectSb.AppendLine($"\t\tIndexes: *{md.Indices.Length} {{");
+						tempObjectSb.Append("\t\t\ta: ");
+						for (int i = 0; i < md.Indices.Length; i++) {
+							if (i > 0) tempObjectSb.Append(",");
+
+							tempObjectSb.AppendFormat("{0}", md.Indices[i]);
+						}
+						tempObjectSb.AppendLine();
+						tempObjectSb.AppendLine("\t\t}");
+
+						WriteVectorArray("Vertices", md.Vectors, tempObjectSb);
+						//WriteVectorArray("Normals", md.Vectors.Select(m => new Jade_Vector()).ToArray(), tempObjectSb);
+						tempObjectSb.AppendLine("\t}");
+						tempObjectSb.AppendLine();
+
+						// Connections
+						tempConnectionsSb.AppendLine($"\t;{subDeformerName}, {deformerName}");
+						tempConnectionsSb.AppendLine($"\tC: \"OO\",{subDeformerID},{deformerID}");
+						tempConnectionsSb.AppendLine();
+						tempConnectionsSb.AppendLine($"\t;{geometryName}, {subDeformerName}");
+						tempConnectionsSb.AppendLine($"\tC: \"OO\",{geometryID},{subDeformerID}");
+						tempConnectionsSb.AppendLine();
+					}
+				}
+
+			}
 		}
 		#endregion
 
+		private static void WriteVectorArray(string name, Jade_Vector[] vectors, StringBuilder tempObjectSb, int indentCount = 2) {
+			string indent = new string('\t', indentCount);
+			tempObjectSb.AppendLine($"{indent}{name}: *{vectors.Length * 3} {{");
+			tempObjectSb.Append($"{indent}\ta: ");
+			for (int i = 0; i < vectors.Length; i++) {
+				if (i > 0) tempObjectSb.Append(",");
+
+				tempObjectSb.AppendFormat("{0},{1},{2}", vectors[i].X, vectors[i].Y, vectors[i].Z);
+			}
+			tempObjectSb.AppendLine();
+			tempObjectSb.AppendLine($"{indent}}}");
+		}
+
 		
-		public static void AllMaterialsToString(Dictionary<uint, GEO_Object> materials, string outputPath, out string matObjects, out string connections) {
+		public static void AllMaterialsToString(Dictionary<uint, GEO_Object> materials, string outputPath, out string matObjects, out string connections, FBXHeader header) {
 			StringBuilder tempObjectSb = new StringBuilder();
 			StringBuilder tempConnectionsSb = new StringBuilder();
 
@@ -742,6 +879,7 @@ namespace Ray1Map.Jade {
 
 				uint referenceId = key;
 
+				header.MaterialCount++;
 				// Header
 				tempObjectSb.AppendLine();
 				tempObjectSb.AppendLine("\tMaterial: " + referenceId + ", \"Material::" + materialName + "\", \"\" {");
@@ -839,12 +977,12 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine();
 				}*/
 
-				// TODO: Add these to the file based on their relation to the PBR files
-				//				tempObjectSb.AppendLine("\t\t\tP: \"ShininessExponent\", \"Number\", \"\", \"A\",6.31179285049438");
-				//				tempObjectSb.AppendLine("\t\t\tP: \"Shininess\", \"double\", \"Number\", \"\",6.31179285049438");
-				//				tempObjectSb.AppendLine("\t\t\tP: \"Reflectivity\", \"double\", \"Number\", \"\",0");
+						// TODO: Add these to the file based on their relation to the PBR files
+						//				tempObjectSb.AppendLine("\t\t\tP: \"ShininessExponent\", \"Number\", \"\", \"A\",6.31179285049438");
+						//				tempObjectSb.AppendLine("\t\t\tP: \"Shininess\", \"double\", \"Number\", \"\",6.31179285049438");
+						//				tempObjectSb.AppendLine("\t\t\tP: \"Reflectivity\", \"double\", \"Number\", \"\",0");
 
-				tempObjectSb.AppendLine("\t\t}");
+						tempObjectSb.AppendLine("\t\t}");
 				tempObjectSb.AppendLine("\t}");
 
 				// Textures
@@ -857,7 +995,7 @@ namespace Ray1Map.Jade {
 
 				// Serialize first texture only
 				if (texture != null) {
-					SerializeOneTexture(texture, "DiffuseColor", tempObjectSb, tempConnectionsSb, true, outputPath, mat.Key.Key, materialName);
+					SerializeOneTexture(texture, "DiffuseColor", tempObjectSb, tempConnectionsSb, true, outputPath, mat.Key.Key, materialName, header);
 				}
 			}
 
@@ -873,9 +1011,11 @@ namespace Ray1Map.Jade {
 												bool extractTextures,
 												string outputPath,
 												uint materialId,
-												string materialName) {
+												string materialName,
+												FBXHeader header) {
 			if (texture == null) return false;
 
+			header.TextureCount++;
 			string textureFilePathFullName = $"Textures/{texture.Key:X8}.png";
 			var fullPath = Path.Combine(outputPath, textureFilePathFullName);
 
