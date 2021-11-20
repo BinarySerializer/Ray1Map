@@ -59,7 +59,9 @@ namespace Ray1Map.PSKlonoa
 
             // Add 3D and background objects
             objects.AddRange(gameObjects3D.Where(x => x.Data != null).Select(x => new KlonoaGameObject3D(this, x.Data)));
-            objects.AddRange(backgroundObjects.Select(x => new KlonoaBackgroundObject(this, x)));
+
+            if (backgroundObjects != null)
+                objects.AddRange(backgroundObjects.Select(x => new KlonoaBackgroundObject(this, x)));
 
             // Load hard-coded objects (cutscenes and boss objects)
             BaseHardCodedObjectsLoader hardCodedObjectsLoader = Loader.Settings.GetHardCodedObjectsLoader(Loader);

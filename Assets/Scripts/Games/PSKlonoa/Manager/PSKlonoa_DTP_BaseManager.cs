@@ -19,11 +19,11 @@ namespace Ray1Map.PSKlonoa
     {
         #region Manager
 
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Name, Enumerable.Range(0, x.SectorsCount).ToArray())).ToArray());
 
         public static bool IncludeDebugInfo => FileSystem.mode != FileSystem.Mode.Web && Settings.ShowDebugInfo;
 
-        public virtual (string, int)[] Levels => new (string, int)[]
+        public virtual (string Name, int SectorsCount)[] Levels => new (string Name, int SectorsCount)[]
         {
             ("FIX", 0),
             ("MENU", 0),
@@ -41,7 +41,7 @@ namespace Ray1Map.PSKlonoa
             ("Vision 3-2", 10),
             ("Gelg Bolm", 1),
 
-            ("Vision 4-1", 3), // TODO: 5 in proto
+            ("Vision 4-1", 3),
             ("Vision 4-2", 8),
             ("Baladium", 2),
 
@@ -54,7 +54,7 @@ namespace Ray1Map.PSKlonoa
             ("Ghadius", 2),
 
             // Order is different here than in-game
-            ("Ending", 2), // TODO: 1 in proto
+            ("Ending", 2),
             ("Final Vision", 3),
             ("Nahatomb", 3),
 
@@ -64,6 +64,8 @@ namespace Ray1Map.PSKlonoa
         public abstract KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings);
 
         public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
+
+        public virtual bool DisableLevelTextures(int binBlock, int sector) => false;
 
         public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
         {
@@ -793,8 +795,14 @@ namespace Ray1Map.PSKlonoa
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
-            // Load object manager
-            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader, objLoader);
+            // Load sprite sets
+            Unity_ObjectManager_PSKlonoa_DTP.SpriteSet[] spriteSets = await Load_SpriteSetsAsync(loader, objLoader);
+
+            // Load the cutscene scripts
+            Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript[] scripts = Load_CutsceneScripts(loader, level);
+
+            // Create the object manager
+            Unity_ObjectManager_PSKlonoa_DTP objManager = new Unity_ObjectManager_PSKlonoa_DTP(context, spriteSets, scripts);
             level.ObjManager = objManager;
 
             startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
@@ -1065,7 +1073,7 @@ namespace Ray1Map.PSKlonoa
                 objectsLoader: objectsLoader,
                 isPrimaryObj: true);
 
-            GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo);
+            GameObject obj = tmdGameObj.CreateGameObject("Map", IncludeDebugInfo, loadTextures: !DisableLevelTextures(loader.BINBlock, sector));
 
             Bounds levelBounds = loader.LevelPack.Sectors[sector].LevelModel.GetDimensions(scale);
 
@@ -1093,7 +1101,7 @@ namespace Ray1Map.PSKlonoa
             };
         }
 
-        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader, KlonoaObjectsLoader objLoader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet[]> Load_SpriteSetsAsync(Loader loader, KlonoaObjectsLoader objLoader)
         {
             var spriteSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
@@ -1169,7 +1177,6 @@ namespace Ray1Map.PSKlonoa
 
                 bool isLastNull = sprites.Sprites.Length > 1 && sprites.Sprites.Last().Textures.Length == 0;
 
-                // TODO: Support animations
                 // Create the sprites
                 Func<(Sprite Sprite, Vector2Int Pos)>[] spriteFuncs = sprites.Sprites.
                     Take(isLastNull ? sprites.Sprites.Length - 1 : sprites.Sprites.Length).
@@ -1208,7 +1215,89 @@ namespace Ray1Map.PSKlonoa
                 spriteSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(sprites, Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Common, i));
             }
 
-            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, spriteSets.ToArray());
+            return spriteSets.ToArray();
+        }
+
+        public Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript[] Load_CutsceneScripts(Loader loader, Unity_Level level)
+        {
+            var strings = new List<string>();
+            var scripts = new List<Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript>();
+            CutscenePack_ArchiveFile cutscenePack = loader.LevelPack.CutscenePack;
+            Dictionary<string, char> translationTable = GetCutsceneTranslationTable;
+
+            var overrideFormatters = new Dictionary<CutsceneInstruction.InstructionType, CutsceneTextTranslationTables.InstructionFormatter>()
+            {
+                [CutsceneInstruction.InstructionType.DrawText] = (writeLine, instruction, fontHashes) =>
+                {
+                    var data_DrawText = (CutsceneInstructionData_DrawText)instruction.Data;
+                    writeLine($"Character = {data_DrawText.CharacterName}");
+                    writeLine($"Text = <locId={strings.Count}>CutsceneText[{strings.Count}]</locId>");
+
+                    var str = new StringBuilder();
+
+                    foreach (var cmd in data_DrawText.TextCommands)
+                    {
+                        switch (cmd.Type)
+                        {
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.DrawChar:
+                                var hash = fontHashes[cmd.Command];
+
+                                if (translationTable.ContainsKey(hash))
+                                    str.Append(translationTable[hash].ToString());
+                                else
+                                    str.Append($"❔");
+                                break;
+
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.CMD_0:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Blank:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Delay:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.PlaySound:
+                                str.Append($"[{cmd.Type}:{cmd.CommandParam}]");
+                                break;
+
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.LineBreak:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.End:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.WaitForInput:
+                            case CutsceneInstructionData_DrawText.TextCommand.CommandType.Clear:
+                                str.Append($"[{cmd.Type}]");
+                                break;
+
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
+                    strings.Add(str.ToString());
+                }
+            };
+
+            if (cutscenePack.Cutscenes != null)
+            {
+                for (var i = 0; i < cutscenePack.Cutscenes.Length; i++)
+                {
+                    Cutscene cutscene = cutscenePack.Cutscenes[i];
+
+                    scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                        displayName: $"Cutscene {i}", 
+                        cutsceneIndex: i,
+                        isNormalCutscene: true,
+                        formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
+
+                    if (cutscene.Cutscene_Skip != null)
+                        scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                            displayName: $"Cutscene {i} (skip)",
+                            cutsceneIndex: i,
+                            isNormalCutscene: false,
+                            formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: false, overrideFormatters: overrideFormatters)));
+                }
+            }
+
+            level.Localization = new List<KeyValuePair<string, string[]>>()
+            {
+                new KeyValuePair<string, string[]>("Cutscenes", strings.ToArray())
+            };
+
+            return scripts.ToArray();
         }
 
         public List<Unity_SpriteObject> Load_SpriteObjects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
@@ -1238,8 +1327,8 @@ namespace Ray1Map.PSKlonoa
 
                     var unityObj = new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo);
                     spriteObjects.Add(unityObj);
-
-                    // Add waypoints
+                    
+                    // Add ranges
                     if (obj.Data?.Waypoints != null)
                     {
                         for (var i = 0; i < obj.Data.Waypoints.Length; i++)
@@ -1250,7 +1339,7 @@ namespace Ray1Map.PSKlonoa
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: waypoint,
                                 type: Unity_ObjectType.Waypoint,
-                                name: $"Waypoint {i} (start)",
+                                name: $"Range {i} (start)",
                                 position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.StartPosition, Vector3.zero, scale),
                                 isEditor: true));
 
@@ -1259,8 +1348,46 @@ namespace Ray1Map.PSKlonoa
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: waypoint,
                                 type: Unity_ObjectType.Waypoint,
-                                name: $"Waypoint {i} (end)",
+                                name: $"Range {i} (end)",
                                 position: movementPaths[waypoint.MovementPathIndex].Blocks.GetPosition(waypoint.EndPosition, Vector3.zero, scale),
+                                isEditor: true));
+
+                            unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
+                        }
+                    }
+
+                    // Add movement waypoints
+                    if (obj.Data?.MovementData != null)
+                    {
+                        for (var i = 0; i < obj.Data.MovementData.Length; i++)
+                        {
+                            EnemyMovementData movementData = obj.Data.MovementData[i];
+
+                            int pathIndex = movementData.MovementPathIndex;
+
+                            // Not all objects define this in which case both values are 0
+                            if (pathIndex == 0 && movementData.MovementPathDistance == 0)
+                                continue;
+
+                            // TODO: Fix. Probably related to file 5 in level pack.
+                            if (pathIndex >= movementPaths.Length)
+                            {
+                                Debug.LogWarning($"Out of bounds waypoint path index of {pathIndex}");
+                                continue;
+                            }
+
+                            if (pathIndex == -2)
+                                pathIndex = obj.MovementPath;
+
+                            if (pathIndex == -1)
+                                continue;
+
+                            // Add a dummy object since we don't care about animations
+                            spriteObjects.Add(new Unity_Object_Dummy(
+                                serializableData: movementData,
+                                type: Unity_ObjectType.Waypoint,
+                                name: $"Movement Waypoint {i} (start)",
+                                position: movementPaths[pathIndex].Blocks.GetPosition(movementData.MovementPathDistance, Vector3.zero, scale),
                                 isEditor: true));
 
                             unityObj.WaypointLinks.Add(spriteObjects.Count - 1);
@@ -1376,8 +1503,8 @@ namespace Ray1Map.PSKlonoa
 
                     int createObjIndex = -1;
 
-                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateObj2D)
-                        createObjIndex = ((CutsceneInstructionData_CreateObj)cmd.Data).ObjIndex;
+                    if (cmd.Type == CutsceneInstruction.InstructionType.CreateCutsceneObj)
+                        createObjIndex = ((CutsceneInstructionData_CreateCutsceneObj)cmd.Data).ObjIndex;
                     //else if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation &&
                     //         !cutsceneObjInstances.ContainsKey(((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex))
                     //    createObjIndex = ((CutsceneInstructionData_SetObjAnimation)cmd.Data).ObjIndex;
@@ -1392,11 +1519,16 @@ namespace Ray1Map.PSKlonoa
                         {
                             var objInstance = cutsceneObjInstances[createObjIndex];
 
-                            if (objInstance.AnimIndex != null && objInstance.Position != null)
+                            if (objInstance.AnimIndex != null && objInstance.Position != null && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null)
                             {
+                                Vector3 pos = objInstance.Position ?? Vector3.zero;
+
+                                if (objInstance.RelativePosObj != null)
+                                    pos += objInstance.RelativePosObj.Position ?? Vector3.zero;
+
                                 yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
                                     objManager: objManager,
-                                    pos: objInstance.Position ?? Vector3.zero,
+                                    pos: pos,
                                     animIndex: objInstance.AnimIndex.Value,
                                     cutsceneIndex: cutsceneIndex,
                                     objIndex: createObjIndex,
@@ -1407,9 +1539,9 @@ namespace Ray1Map.PSKlonoa
                         cutsceneObjInstances[createObjIndex] = new CutsceneObjectInstance();
                     }
 
-                    if (cmd.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation)
+                    if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjAnimation)
                     {
-                        var data_setObjAnim = (CutsceneInstructionData_SetObjAnimation)cmd.Data;
+                        var data_setObjAnim = (CutsceneInstructionData_SetCutsceneObjAnimation)cmd.Data;
 
                         if (!cutsceneObjInstances.ContainsKey(data_setObjAnim.ObjIndex))
                             continue;
@@ -1423,9 +1555,9 @@ namespace Ray1Map.PSKlonoa
 
                         cutsceneObjInstances[data_setObjAnim.ObjIndex].AnimIndex = Math.Abs(data_setObjAnim.AnimIndex); // Negative is ping-pong
                     }
-                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPos)
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjPos)
                     {
-                        var data_setObjPos = (CutsceneInstructionData_SetObjPos)cmd.Data;
+                        var data_setObjPos = (CutsceneInstructionData_SetCutsceneObjPos)cmd.Data;
 
                         if (!cutsceneObjInstances.ContainsKey(data_setObjPos.ObjIndex))
                             continue;
@@ -1433,20 +1565,16 @@ namespace Ray1Map.PSKlonoa
                         if (cutsceneObjInstances[data_setObjPos.ObjIndex].Position != null)
                             continue;
 
-                        Vector3 relativePos;
-
                         if (data_setObjPos.PositionRelativeObjIndex >= 0 && cutsceneObjInstances.ContainsKey(data_setObjPos.PositionRelativeObjIndex))
-                            relativePos = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex].Position ?? Vector3.zero;
-                        else
-                            relativePos = Vector3.zero;
+                            cutsceneObjInstances[data_setObjPos.ObjIndex].RelativePosObj = cutsceneObjInstances[data_setObjPos.PositionRelativeObjIndex];
 
                         Vector3 pos = data_setObjPos.Position.GetPositionVector(scale, true);
 
-                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos + relativePos;
+                        cutsceneObjInstances[data_setObjPos.ObjIndex].Position = pos;
                     }
-                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetObjPosFromPath)
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.SetCutsceneObjPosFromPath)
                     {
-                        var data_setObjPosFromPath = (CutsceneInstructionData_SetObjPosFromPath)cmd.Data;
+                        var data_setObjPosFromPath = (CutsceneInstructionData_SetCutsceneObjPosFromPath)cmd.Data;
 
                         var objIndex = data_setObjPosFromPath.IsCutsceneObj ? data_setObjPosFromPath.ObjIndex : 0;
 
@@ -1475,6 +1603,17 @@ namespace Ray1Map.PSKlonoa
                         if (data_setObjPosFromPath.FlipX != null)
                             cutsceneObjInstances[objIndex].FlipX = data_setObjPosFromPath.FlipX.Value;
                     }
+                    else if (cmd.Type == CutsceneInstruction.InstructionType.FlipCutsceneObj)
+                    {
+                        var data_FlipCutsceneObj = (CutsceneInstructionData_FlipCutsceneObj)cmd.Data;
+
+                        var objIndex = data_FlipCutsceneObj.ObjIndex;
+
+                        if (!cutsceneObjInstances.ContainsKey(objIndex))
+                            continue;
+
+                        cutsceneObjInstances[objIndex].FlipX = data_FlipCutsceneObj.FlipX != 0;
+                    }
                     //else if (cmd.Type == CutsceneInstruction.InstructionType.Instruction_2)
                     //{
                     //    var data_2 = (CutsceneInstructionData_2)cmd.Data;
@@ -1501,12 +1640,17 @@ namespace Ray1Map.PSKlonoa
                 {
                     var objInstance = item.Value;
 
-                    if (objInstance.AnimIndex == null || objInstance.Position == null)
+                    if (objInstance.AnimIndex == null || objInstance.Position == null || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null)
                         continue;
+
+                    Vector3 pos = objInstance.Position ?? Vector3.zero;
+
+                    if (objInstance.RelativePosObj != null)
+                        pos += objInstance.RelativePosObj.Position ?? Vector3.zero;
 
                     yield return new Unity_Object_PSKlonoa_DTP_CutsceneSprite(
                         objManager: objManager,
-                        pos: objInstance.Position ?? Vector3.zero,
+                        pos: pos,
                         animIndex: objInstance.AnimIndex.Value,
                         cutsceneIndex: cutsceneIndex,
                         objIndex: item.Key,
@@ -1589,7 +1733,7 @@ namespace Ray1Map.PSKlonoa
 
             bool isPlayerAnim = (cutscenePack.Cutscenes.
                 SelectMany(x => x.Cutscene_Normal.Instructions).
-                FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObj2DAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+                FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetCutsceneObjAnimation && ((CutsceneInstructionData_SetCutsceneObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetCutsceneObjAnimation)?.ObjIndex == 0;
 
             return GetAnimationFrames(
                 loader: loader,
@@ -1634,6 +1778,11 @@ namespace Ray1Map.PSKlonoa
                             continue;
                         }
                     }
+
+                    // For some animations, such as in block 7, the sprite index is out of bounds
+                    // The object which references it has the rendering disabled, so what is this animation used for?
+                    if (frame.SpriteIndex >= sprites.Files.Length)
+                        return default;
 
                     var sprite = sprites.Files[frame.SpriteIndex];
 
@@ -1800,6 +1949,7 @@ namespace Ray1Map.PSKlonoa
         public class CutsceneObjectInstance
         {
             public Vector3? Position { get; set; }
+            public CutsceneObjectInstance RelativePosObj { get; set; }
             public bool FlipX { get; set; }
             public int? AnimIndex { get; set; }
         }

@@ -5,7 +5,18 @@ namespace Ray1Map
     public class AnimatedTransformComponent : ObjectAnimationComponent
     {
         public Transform animatedTransform;
-        public Frame[] frames;
+
+        public bool autoPlay = true;
+
+        public Animation[] animations;
+        public int animIndex;
+
+        public Animation CurrentAnimation => animations[animIndex];
+
+        public struct Animation
+        {
+            public Frame[] frames;
+        }
 
         public struct Frame
         {
@@ -17,27 +28,38 @@ namespace Ray1Map
 
         protected override void UpdateAnimation()
         {
-            if (frames == null || speed == null)
+            if (animations == null || speed == null)
                 return;
 
-            speed.Update(frames.Length, loopMode);
+            speed.Update(CurrentAnimation.frames.Length, loopMode);
 
-            var frameInt = speed.CurrentFrameInt;
+            int frameInt = speed.CurrentFrameInt;
 
-            var currentFrame = frames[frameInt];
+            // Check if the animation looped back to the start and if a new one should play instead
+            if (autoPlay && animations.Length > 1 && speed.CurrentFrame == 0)
+            {
+                speed.Reset();
+                frameInt = 0;
+                animIndex = (animIndex + 1) % animations.Length;
+            }
+
+            Frame currentFrame = CurrentAnimation.frames[frameInt];
 
             int nextFrameIndex = frameInt + 1 * speed.Direction;
 
-            if (nextFrameIndex >= frames.Length)
+            bool interpolate = true;
+
+            if (nextFrameIndex >= CurrentAnimation.frames.Length)
             {
                 switch (loopMode)
                 {
                     case AnimLoopMode.Repeat:
                         nextFrameIndex = 0;
+                        interpolate = false;
                         break;
 
                     case AnimLoopMode.PingPong:
-                        nextFrameIndex = frames.Length - 1;
+                        nextFrameIndex = CurrentAnimation.frames.Length - 1;
                         break;
                 }
             }
@@ -51,9 +73,12 @@ namespace Ray1Map
                 }
             }
 
-            var nextFrame = frames[nextFrameIndex];
+            Frame nextFrame = CurrentAnimation.frames[nextFrameIndex];
 
-            var lerpFactor = speed.CurrentFrame - frameInt;
+            float lerpFactor = interpolate ? speed.CurrentFrame - frameInt : 0;
+
+            if (interpolate && speed.Direction == -1)
+                lerpFactor = 1 - lerpFactor;
 
             animatedTransform.localPosition = Vector3.Lerp(currentFrame.Position, nextFrame.Position, lerpFactor);
             animatedTransform.localRotation = Quaternion.Lerp(currentFrame.Rotation, nextFrame.Rotation, lerpFactor);

@@ -5,11 +5,11 @@ namespace Ray1Map.PSKlonoa
 {
     public class PSKlonoa_DTP_Manager_Prototype_19970717 : PSKlonoa_DTP_BaseManager
     {
-        public override (string, int)[] Levels => new (string, int)[]
+        public override (string Name, int SectorsCount)[] Levels => new (string Name, int SectorsCount)[]
         {
             ("FIX", 0),
             ("MENU", 0),
-            ("CODE", 0),
+            ("INTRO", 0),
 
             ("Vision 1-1", 3),
             ("Vision 1-2", 5),
@@ -33,14 +33,19 @@ namespace Ray1Map.PSKlonoa
 
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
-            ("", 2),
-            ("", 1), // Different
-            ("", 3),
-            ("", 3),
-            ("Klonoa's Grand Gale Strategy", 9),
+            ("Ghadius", 2),
+
+            // Order is different here than in-game
+            ("Ending", 1), // Different
+            ("Final Vision", 3),
+            ("Nahatomb", 3),
+
+            ("Extra Vision", 9),
         };
 
         public override KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings) => new KlonoaSettings_DTP_Prototype_19970717();
         public override Dictionary<string, char> GetCutsceneTranslationTable => new Dictionary<string, char>();
+
+        public override bool DisableLevelTextures(int binBlock, int sector) => binBlock == 12 && sector == 3;
     }
 }

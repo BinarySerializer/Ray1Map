@@ -1,7 +1,6 @@
-﻿using BinarySerializer.Klonoa;
+﻿using System.Linq;
 using BinarySerializer.Klonoa.DTP;
 using BinarySerializer.PS1;
-using System.Linq;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa
@@ -19,8 +18,11 @@ namespace Ray1Map.PSKlonoa
             AnimLoopMode animLoopMode = AnimLoopMode.Repeat,
             GameObjectData_ModelBoneAnimations boneAnimations = null,
             GameObjectData_ModelVertexAnimation vertexAnimation = null,
-            bool isJoka = false, 
-            KlonoaVector16[] objectPositionOffsets = null) : base(tmd, vram, scale)
+            GlobalGameObjectType objType = GlobalGameObjectType.Unknown, 
+            KlonoaVector16[] objectPositionOffsets = null,
+            ObjectCollisionComponent collisionComponent = null,
+            CollisionTriangles_File collision = null,
+            GameObject[] movementPathObjects = null) : base(tmd, vram, scale)
         {
             ObjectsLoader = objectsLoader;
             IsPrimaryObj = isPrimaryObj;
@@ -29,8 +31,11 @@ namespace Ray1Map.PSKlonoa
             AnimLoopMode = animLoopMode;
             BoneAnimations = boneAnimations;
             VertexAnimation = vertexAnimation;
-            IsJoka = isJoka;
+            ObjType = objType;
             ObjectPositionOffsets = objectPositionOffsets;
+            CollisionComponent = collisionComponent;
+            Collision = collision;
+            MovementPathObjects = movementPathObjects;
         }
 
         public KlonoaObjectsLoader ObjectsLoader { get; }
@@ -40,10 +45,11 @@ namespace Ray1Map.PSKlonoa
         public AnimLoopMode AnimLoopMode { get; }
         public GameObjectData_ModelBoneAnimations BoneAnimations { get; }
         public GameObjectData_ModelVertexAnimation VertexAnimation { get; }
-
-        public bool IsJoka { get; } // This object has bones in a weird order, so we need to hard-code it
-
+        GlobalGameObjectType ObjType { get; } // Some objects have bones in a weird order, so we need to hard-code it
         public KlonoaVector16[] ObjectPositionOffsets { get; }
+        public ObjectCollisionComponent CollisionComponent { get; }
+        public CollisionTriangles_File Collision { get; }
+        public GameObject[] MovementPathObjects { get; }
 
         protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
         {
@@ -75,8 +81,29 @@ namespace Ray1Map.PSKlonoa
             tex.SetAnimatedTexture(animatedTexture);
         }
 
-        protected override void OnCreateObject(GameObject gameObject, PS1_TMD_Object obj, int objIndex)
+        protected override void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, PS1_TMD_Object obj, int objIndex)
         {
+            CollisionComponent?.normalObjects.Add(primitivesGameObject);
+
+            if (Collision != null && objIndex == 0)
+            {
+                GameObject colObj = Collision.CollisionTriangles.GetCollisionGameObject(Scale);
+                colObj.transform.SetParent(gameObject.transform, false);
+                CollisionComponent?.collisionObjects.Add(colObj);
+            }
+
+            if (MovementPathObjects != null && objIndex == 0)
+            {
+                GameObject pathsObj = new GameObject($"Paths");
+                pathsObj.transform.SetParent(gameObject.transform, false);
+
+                foreach (GameObject path in MovementPathObjects)
+                {
+                    path.transform.SetParent(pathsObj.transform, false);
+                    CollisionComponent?.collisionObjects.Add(path);
+                }
+            }
+
             if (ObjectPositionOffsets?[objIndex] != null)
             {
                 gameObject.transform.localPosition = ObjectPositionOffsets[objIndex].GetPositionVector(Scale);
@@ -100,15 +127,15 @@ namespace Ray1Map.PSKlonoa
             if (VertexAnimation == null) 
                 return;
             
-            var c = gameObject.AddComponent<KlonoaDTPVertexAnimationComponent>();
+            var c = gameObject.AddComponent<VertexAnimationComponent>();
 
-            c.meshes = primitiveMeshes.Select((m, i) => new KlonoaDTPVertexAnimationComponent.MeshData()
+            c.meshes = primitiveMeshes.Select((m, i) => new VertexAnimationComponent.MeshData()
             {
                 mesh = m,
                 vertexIndices = obj.Primitives[i].Vertices,
                 normalIndices = obj.Primitives[i].Normals,
             }).ToArray();
-            c.frames = new KlonoaDTPVertexAnimationComponent.Frame[VertexAnimation.FrameIndices.Length];
+            c.frames = new VertexAnimationComponent.Frame[VertexAnimation.FrameIndices.Length];
 
             for (int i = 0; i < VertexAnimation.FrameIndices.Length; i++)
             {
@@ -153,7 +180,7 @@ namespace Ray1Map.PSKlonoa
 
             Transform[] bones;
 
-            if (IsJoka)
+            if (ObjType == GlobalGameObjectType.Boss_Joka)
                 bones = allBones[0].
                     Take(allBones[0].Length - 1).
                     Concat(allBones[1]).
@@ -168,8 +195,10 @@ namespace Ray1Map.PSKlonoa
             {
                 KlonoaVector16[] positions = BoneAnimations.InitialBonePositions.Vectors[0];
 
+                bool isRootIncluded = positions.Length != allBones[0].Length - 1;
+
                 for (int i = 0; i < positions.Length; i++)
-                    bones[i].transform.position = positions[i].GetPositionVector(Scale);
+                    bones[i + (isRootIncluded ? 0 : 1)].transform.position = positions[i].GetPositionVector(Scale);
             }
 
             // Set default bone rotations
@@ -179,8 +208,10 @@ namespace Ray1Map.PSKlonoa
                 var count = rot.BonesCount;
                 var rotations = Enumerable.Range(0, count).Select(x => rot.GetRotations(x).First()).ToArray();
 
+                bool isRootIncluded = rotations.Length != allBones[0].Length - 1;
+
                 for (int i = 0; i < rotations.Length; i++)
-                    bones[i].transform.rotation = rotations[i];
+                    bones[i + (isRootIncluded ? 0 : 1)].transform.rotation = rotations[i];
             }
 
             Transform[] models = objects.Select(x => x.transform).ToArray();
@@ -255,9 +286,6 @@ namespace Ray1Map.PSKlonoa
                     animComponent.animations[animIndex].bones = animComponent.animations[animIndex].bones.Concat(modelBones).ToArray();
                 }
             }
-
-            // TODO: Support selecting multiple animations
-            animComponent.CombineAnimations();
         }
     }
 }

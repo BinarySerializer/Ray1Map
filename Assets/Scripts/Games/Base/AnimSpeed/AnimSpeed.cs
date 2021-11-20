@@ -78,6 +78,15 @@ namespace Ray1Map
             return newFrame != curFrame;
         }
 
+        /// <summary>
+        /// Resets the frame to 0
+        /// </summary>
+        public void Reset()
+        {
+            CurrentFrame = 0;
+            Direction = 1;
+        }
+
         public object Clone() => MemberwiseClone();
         public AnimSpeed CloneAnimSpeed() => (AnimSpeed)Clone();
     }

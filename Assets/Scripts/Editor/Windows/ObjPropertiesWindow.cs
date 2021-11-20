@@ -1,8 +1,8 @@
-﻿using Ray1Map;
-using System;
+﻿using System;
 using System.Linq;
-using BinarySerializer;
+using Ray1Map;
 using Ray1Map.GBAVV;
+using Ray1Map.PSKlonoa;
 using Ray1Map.Rayman1;
 using UnityEditor;
 using UnityEngine;
@@ -11,14 +11,14 @@ public class ObjPropertiesWindow : UnityWindow
 {
     [MenuItem("Ray1Map/Object Properties")]
     public static void ShowWindow()
-	{
-		GetWindow<ObjPropertiesWindow>(false, "Object Properties", true);
-	}
+    {
+        GetWindow<ObjPropertiesWindow>(false, "Object Properties", true);
+    }
 
-	private void OnEnable()
-	{
-		titleContent = EditorGUIUtility.IconContent("SceneViewTools");
-		titleContent.text = "Object Properties";
+    private void OnEnable()
+    {
+        titleContent = EditorGUIUtility.IconContent("SceneViewTools");
+        titleContent.text = "Object Properties";
     }
 
     protected UnityWindowSerializer Serializer { get; set; }
@@ -93,6 +93,19 @@ public class ObjPropertiesWindow : UnityWindow
                         {
                             // TODO: Cache the commands, but make sure to update if modified
                             var lines = vv.GetTranslatedScript;
+
+                            // TODO: Better way to get height?
+                            EditorGUI.TextArea(GetNextRect(ref YPos, height: lines.Length * 15 + 2), String.Join(Environment.NewLine, lines));
+                        }
+                    }
+                    if (selectedObjData is Unity_Object_PSKlonoa_DTP_CutsceneSprite dtpCut && dtpCut.CutsceneScript != null)
+                    {
+                        CmdPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), CmdPanelOpen, "Cutscene Script");
+
+                        if (CmdPanelOpen)
+                        {
+                            // TODO: Cache the commands, but make sure to update if modified
+                            var lines = dtpCut.CutsceneScript.FormattedScript;
 
                             // TODO: Better way to get height?
                             EditorGUI.TextArea(GetNextRect(ref YPos, height: lines.Length * 15 + 2), String.Join(Environment.NewLine, lines));
