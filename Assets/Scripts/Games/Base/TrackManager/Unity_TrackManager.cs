@@ -86,7 +86,14 @@ namespace Ray1Map
             if (Rotations != null)
             {
                 var pathPoint = CinemachinePath.ToNativePathUnits(distance, CinemachinePathBase.PositionUnits.Distance);
-                return Quaternion.Lerp(Rotations[Mathf.FloorToInt(pathPoint)], Rotations[Mathf.CeilToInt(pathPoint)], pathPoint % 1);
+
+                int floor = Mathf.FloorToInt(pathPoint);
+                int ceil = Mathf.CeilToInt(pathPoint);
+
+                floor = Mathf.Clamp(floor, 0, Rotations.Length - 1);
+                ceil = Mathf.Clamp(ceil, 0, Rotations.Length - 1);
+
+                return Quaternion.Lerp(Rotations[floor], Rotations[ceil], pathPoint % 1);
             }
             else if (UseBezierPath)
             {
