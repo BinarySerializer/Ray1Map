@@ -47,6 +47,9 @@ namespace Ray1Map.PSKlonoa
                 case GlobalGameObjectType.VRAMScrollAnimationWithTexture:
                     KlonoaSettings_DTP.VRAMScrollInfo[] scroll = Obj.VRAMScrollInfos;
 
+                    if (scroll == null)
+                        return;
+
                     // Kind of hacky solution, but works... The game essentially just defines what data gets copied where in VRAM
                     for (int scrollIndex = 0; scrollIndex < scroll.Length; scrollIndex += 2)
                     {
@@ -293,7 +296,7 @@ namespace Ray1Map.PSKlonoa
                 modelGameObjects[modelIndex] = modelGameObj;
 
                 // Get the game object
-                GameObject modelGraphicsGameObj = tmdGameObj.CreateGameObject("Graphics", PSKlonoa_DTP_BaseManager.IncludeDebugInfo);
+                GameObject modelGraphicsGameObj = tmdGameObj.CreateGameObject("Graphics", PSKlonoa_DTP_BaseManager.IncludeDebugInfo, loadTextures: !model.IsMissingImageData);
                 modelGraphicsGameObj.transform.SetParent(modelGameObj.transform, false);
 
                 // Apply a position if available

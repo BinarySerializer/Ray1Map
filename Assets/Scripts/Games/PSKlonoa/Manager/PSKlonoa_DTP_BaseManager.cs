@@ -666,7 +666,7 @@ namespace Ray1Map.PSKlonoa
                     // Read the data
                     var lvl = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
 
-                    // Make sure it has normal cutscens
+                    // Make sure it has normal cutscene
                     if (lvl.CutscenePack.Cutscenes == null)
                         return;
 
@@ -674,13 +674,17 @@ namespace Ray1Map.PSKlonoa
                     for (var cutsceneIndex = 0; cutsceneIndex < lvl.CutscenePack.Cutscenes.Length; cutsceneIndex++)
                     {
                         Cutscene cutscene = lvl.CutscenePack.Cutscenes[cutsceneIndex];
-                        var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
-                            cutscene: cutscene,
-                            translationTable: GetCutsceneTranslationTable,
-                            includeInstructionIndex: false,
-                            normalCutscene: true);
 
-                        File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+                        if (cutscene.Cutscene_Normal != null)
+                        {
+                            var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                                cutscene: cutscene,
+                                translationTable: GetCutsceneTranslationTable,
+                                includeInstructionIndex: false,
+                                normalCutscene: true);
+
+                            File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+                        }
 
                         if (cutscene.Cutscene_Skip != null)
                         {
@@ -1277,11 +1281,12 @@ namespace Ray1Map.PSKlonoa
                 {
                     Cutscene cutscene = cutscenePack.Cutscenes[i];
 
-                    scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
-                        displayName: $"Cutscene {i}", 
-                        cutsceneIndex: i,
-                        isNormalCutscene: true,
-                        formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
+                    if (cutscene.Cutscene_Normal != null)
+                        scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                            displayName: $"Cutscene {i}", 
+                            cutsceneIndex: i,
+                            isNormalCutscene: true,
+                            formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
 
                     if (cutscene.Cutscene_Skip != null)
                         scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
@@ -1482,6 +1487,9 @@ namespace Ray1Map.PSKlonoa
             for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
             {
                 Cutscene_File cutscene = cutscenePack.Cutscenes[cutsceneIndex].Cutscene_Normal;
+
+                if (cutscene == null)
+                    continue;
 
                 var cutsceneObjInstances = new Dictionary<int, CutsceneObjectInstance>();
                 int currentSectorIndex = cutsceneStartSectors[loader.BINBlock][cutsceneIndex];
