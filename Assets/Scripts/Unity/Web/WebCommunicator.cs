@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Ray1Map.PSKlonoa;
 using UnityEngine;
 
 public class WebCommunicator : MonoBehaviour {
@@ -490,6 +491,33 @@ public class WebCommunicator : MonoBehaviour {
 
 					webObj.KlonoaHeroes_ObjType = klonoaHeroesObj.EnemyObject?.ObjType ?? klonoaHeroesObj.GenericObject.ObjType;
                     break;
+
+                case Unity_Object_BasePSKlonoa_DTP klonoaDTPObj:
+                    webObj.KlonoaDTP_SpriteSetIndex = klonoaDTPObj.SpriteSetIndex;
+
+                    if (includeLists)
+                        webObj.KlonoaDTP_SpriteSetNames = klonoaDTPObj.ObjManager.SpriteSets.Select(x => x.DisplayName).ToArray();
+
+					webObj.KlonoaDTP_PrimaryType = (int)klonoaDTPObj.PrimaryType;
+					webObj.KlonoaDTP_SecondaryType = klonoaDTPObj.SecondaryType;
+
+					if (klonoaDTPObj is Unity_Object_PSKlonoa_DTP_Enemy e)
+					    webObj.KlonoaDTP_Path = e.Object?.MovementPath >= 0 ? (int?)e.Object.MovementPath : null;
+					else if (klonoaDTPObj is Unity_Object_PSKlonoa_DTP_Collectible co)
+                        webObj.KlonoaDTP_Path = co.Object?.MovementPath >= 0 ? (int?)co.Object.MovementPath : null;
+
+                    // TODO: Create seperate properties for DTP scripts rather than reusing the GBAVV ones
+					if (klonoaDTPObj is Unity_Object_PSKlonoa_DTP_CutsceneSprite c)
+                    {
+                        webObj.GBAVV_ScriptIndex = c.CutsceneScriptIndex;
+
+                        if (includeLists)
+                        {
+                            webObj.GBAVV_ScriptNames = c.ObjManager.CutsceneScripts?.Select(s => s.DisplayName).ToArray();
+                            webObj.GBAVV_ScriptContent = c.CutsceneScript.FormattedScript;
+                        }
+                    }
+					break;
             }
 		}
 		return webObj;

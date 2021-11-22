@@ -23,7 +23,7 @@ namespace Ray1Map.PSKlonoa
         public override string PrimaryName => $"Cutscene_{CutsceneIndex}_{ObjIndex}";
 
         public override PrimaryObjectType PrimaryType => PrimaryObjectType.CutsceneObject;
-        public override int SecondaryType => default;
+        public override int SecondaryType => 0;
 
         public override bool IsAlways => true;
 
