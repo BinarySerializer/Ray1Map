@@ -1,0 +1,162 @@
+{
+    "name": "Klonoa: Door to Phantomile (JP - Prototype 1997/07/17)",
+    "mode": "KlonoaDoorToPhantomilePS1USPrototype_19970717",
+    "folder": "ps_klonoa/klonoa_dtp_proto_19970717",
+	"icons": [
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V1.png",
+            "level": 0
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V2.png",
+            "level": 10
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V3.png",
+            "level": 22
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V4.png",
+            "level": 38
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V5.png",
+            "level": 53
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V6.png",
+            "level": 70
+        },
+        {
+            "image": ".\/img\/icon\/KlonoaDTP\/V7.png",
+            "level": 88
+        }
+    ],
+    "levels": [
+        { "world": 3, "level": 0, "nameInternal": "1100.NAK (8 - 3_0)", "name": "Vision 1-1 (The Beginnings of Gale) Part 1" },
+        { "world": 3, "level": 1, "nameInternal": "1101.NAK (9 - 3_1)", "name": "Vision 1-1 (The Beginnings of Gale) Part 2" },
+        { "world": 3, "level": 2, "nameInternal": "1102.NAK (10 - 3_2)", "name": "Vision 1-1 (The Beginnings of Gale) Part 3" },
+
+        { "world": 4, "level": 0, "nameInternal": "1200.NAK (18 - 4_0)", "name": "Vision 1-2 (The Diva and the Dark Spirit) Part 1" },
+        { "world": 4, "level": 1, "nameInternal": "1201.NAK (19 - 4_1)", "name": "Vision 1-2 (The Diva and the Dark Spirit) Part 2" },
+        { "world": 4, "level": 2, "nameInternal": "1202.NAK (20 - 4_2)", "name": "Vision 1-2 (The Diva and the Dark Spirit) Part 3" },
+        { "world": 4, "level": 3, "nameInternal": "1203.NAK (21 - 4_3)", "name": "Vision 1-2 (The Diva and the Dark Spirit) Part 4" },
+        { "world": 4, "level": 4, "nameInternal": "1204.NAK (22 - 4_4)", "name": "Vision 1-2 (The Diva and the Dark Spirit) Part 5" },
+
+        { "world": 5, "level": 0, "nameInternal": "1300.NAK (28 - 5_0)", "name": "Rongo Lango Part 1" },
+        { "world": 5, "level": 1, "nameInternal": "1301.NAK (29 - 5_1)", "name": "Rongo Lango Part 2" },
+
+        { "world": 6, "level": 0, "nameInternal": "2100.NAK (38 - 6_0)", "name": "Vision 2-1 (Deep in the Dying Forest) Part 1" },
+        { "world": 6, "level": 1, "nameInternal": "2101.NAK (39 - 6_1)", "name": "Vision 2-1 (Deep in the Dying Forest) Part 2" },
+        { "world": 6, "level": 2, "nameInternal": "2102.NAK (40 - 6_2)", "name": "Vision 2-1 (Deep in the Dying Forest) Part 3" },
+        { "world": 6, "level": 3, "nameInternal": "2103.NAK (41 - 6_3)", "name": "Vision 2-1 (Deep in the Dying Forest) Part 4" },
+
+        { "world": 7, "level": 0, "nameInternal": "2200.NAK (48 - 7_0)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 1" },
+        { "world": 7, "level": 1, "nameInternal": "2201.NAK (49 - 7_1)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 2" },
+        { "world": 7, "level": 2, "nameInternal": "2202.NAK (50 - 7_2)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 3" },
+        { "world": 7, "level": 3, "nameInternal": "2203.NAK (51 - 7_3)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 4" },
+        { "world": 7, "level": 4, "nameInternal": "2204.NAK (52 - 7_4)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 5" },
+        { "world": 7, "level": 5, "nameInternal": "2205.NAK (53 - 7_5)", "name": "Vision 2-2 (Beyond the Backwards Waterfall) Part 6" },
+
+        { "world": 8, "level": 0, "nameInternal": "2300.NAK (58 - 8_0)", "name": "Pamela Part 1" },
+        { "world": 8, "level": 1, "nameInternal": "2301.NAK (59 - 8_1)", "name": "Pamela Part 2" },
+
+        { "world": 9, "level": 0, "nameInternal": "3100.NAK (68 - 9_0)", "name": "Vision 3-1 (Rebirth of the Forest) Part 1" },
+        { "world": 9, "level": 1, "nameInternal": "3101.NAK (69 - 9_1)", "name": "Vision 3-1 (Rebirth of the Forest) Part 2" },
+        { "world": 9, "level": 2, "nameInternal": "3102.NAK (70 - 9_2)", "name": "Vision 3-1 (Rebirth of the Forest) Part 3" },
+        { "world": 9, "level": 3, "nameInternal": "3103.NAK (71 - 9_3)", "name": "Vision 3-1 (Rebirth of the Forest) Part 4" },
+        { "world": 9, "level": 4, "nameInternal": "3104.NAK (72 - 9_4)", "name": "Vision 3-1 (Rebirth of the Forest) Part 5" },
+
+        { "world": 10, "level": 0, "nameInternal": "3200.NAK (78 - 10_0)", "name": "Vision 3-2 (The Stopped Gear) Part 1" },
+        { "world": 10, "level": 1, "nameInternal": "3201.NAK (79 - 10_1)", "name": "Vision 3-2 (The Stopped Gear) Part 2" },
+        { "world": 10, "level": 2, "nameInternal": "3202.NAK (80 - 10_2)", "name": "Vision 3-2 (The Stopped Gear) Part 3" },
+        { "world": 10, "level": 3, "nameInternal": "3203.NAK (81 - 10_3)", "name": "Vision 3-2 (The Stopped Gear) Part 4" },
+        { "world": 10, "level": 4, "nameInternal": "3204.NAK (82 - 10_4)", "name": "Vision 3-2 (The Stopped Gear) Part 5" },
+        { "world": 10, "level": 5, "nameInternal": "3205.NAK (83 - 10_5)", "name": "Vision 3-2 (The Stopped Gear) Part 6" },
+        { "world": 10, "level": 6, "nameInternal": "3206.NAK (84 - 10_6)", "name": "Vision 3-2 (The Stopped Gear) Part 7" },
+        { "world": 10, "level": 7, "nameInternal": "3207.NAK (85 - 10_7)", "name": "Vision 3-2 (The Stopped Gear) Part 8" },
+        { "world": 10, "level": 8, "nameInternal": "3208.NAK (86 - 10_8)", "name": "Vision 3-2 (The Stopped Gear) Part 9" },
+        { "world": 10, "level": 9, "nameInternal": "3209.NAK (87 - 10_9)", "name": "Vision 3-2 (The Stopped Gear) Part 10" },
+
+        { "world": 11, "level": 0, "nameInternal": "3300.NAK (88 - 11_0)", "name": "Gelg Bolm" },
+
+        { "world": 12, "level": 0, "nameInternal": "4100.NAK (98 - 12_0)", "name": "Vision 4-1 (A Village in Danger) Part 1" },
+        { "world": 12, "level": 1, "nameInternal": "4101.NAK (99 - 12_1)", "name": "Vision 4-1 (A Village in Danger) Part 2" },
+        { "world": 12, "level": 2, "nameInternal": "4102.NAK (100 - 12_2)", "name": "Vision 4-1 (A Village in Danger) Part 3" },
+        { "world": 12, "level": 3, "nameInternal": "4103.NAK (101 - 12_3)", "name": "(Unused) Vision 4-1 (A Village in Danger) Part 4" },
+        { "world": 12, "level": 4, "nameInternal": "4104.NAK (102 - 12_4)", "name": "(Unused) Vision 4-1 (A Village in Danger) Part 5" },
+
+        { "world": 13, "level": 0, "nameInternal": "4200.NAK (108 - 13_0)", "name": "Vision 4-2 (A Lull in the Wind) Part 1" },
+        { "world": 13, "level": 1, "nameInternal": "4201.NAK (109 - 13_1)", "name": "Vision 4-2 (A Lull in the Wind) Part 2" },
+        { "world": 13, "level": 2, "nameInternal": "4202.NAK (110 - 13_2)", "name": "Vision 4-2 (A Lull in the Wind) Part 3" },
+        { "world": 13, "level": 3, "nameInternal": "4203.NAK (111 - 13_3)", "name": "Vision 4-2 (A Lull in the Wind) Part 4" },
+        { "world": 13, "level": 4, "nameInternal": "4204.NAK (112 - 13_4)", "name": "Vision 4-2 (A Lull in the Wind) Part 5" },
+        { "world": 13, "level": 5, "nameInternal": "4205.NAK (113 - 13_5)", "name": "Vision 4-2 (A Lull in the Wind) Part 6" },
+        { "world": 13, "level": 6, "nameInternal": "4206.NAK (114 - 13_6)", "name": "Vision 4-2 (A Lull in the Wind) Part 7" },
+        { "world": 13, "level": 7, "nameInternal": "4207.NAK (115 - 13_7)", "name": "Vision 4-2 (A Lull in the Wind) Part 8" },
+
+        { "world": 14, "level": 0, "nameInternal": "4300.NAK (118 - 14_0)", "name": "Baladium Part 1" },
+        { "world": 14, "level": 1, "nameInternal": "4301.NAK (119 - 14_1)", "name": "Baladium Part 2" },
+
+        { "world": 15, "level": 0, "nameInternal": "5100.NAK (128 - 15_0)", "name": "Vision 5-1 (The Four Orbs) Part 1" },
+        { "world": 15, "level": 1, "nameInternal": "5101.NAK (129 - 15_1)", "name": "Vision 5-1 (The Four Orbs) Part 2" },
+        { "world": 15, "level": 2, "nameInternal": "5102.NAK (130 - 15_2)", "name": "Vision 5-1 (The Four Orbs) Part 3" },
+        { "world": 15, "level": 3, "nameInternal": "5103.NAK (131 - 15_3)", "name": "Vision 5-1 (The Four Orbs) Part 4" },
+        { "world": 15, "level": 4, "nameInternal": "5104.NAK (132 - 15_4)", "name": "Vision 5-1 (The Four Orbs) Part 5" },
+        { "world": 15, "level": 5, "nameInternal": "5105.NAK (133 - 15_5)", "name": "Vision 5-1 (The Four Orbs) Part 6" },
+        { "world": 15, "level": 6, "nameInternal": "5106.NAK (134 - 15_6)", "name": "Vision 5-1 (The Four Orbs) Part 7" },
+
+        { "world": 16, "level": 0, "nameInternal": "5200.NAK (138 - 16_0)", "name": "Vision 5-2 (Between Light and Darkness) Part 1" },
+        { "world": 16, "level": 1, "nameInternal": "5201.NAK (139 - 16_1)", "name": "Vision 5-2 (Between Light and Darkness) Part 2" },
+        { "world": 16, "level": 2, "nameInternal": "5202.NAK (140 - 16_2)", "name": "Vision 5-2 (Between Light and Darkness) Part 3" },
+        { "world": 16, "level": 3, "nameInternal": "5203.NAK (141 - 16_3)", "name": "Vision 5-2 (Between Light and Darkness) Part 4" },
+        { "world": 16, "level": 4, "nameInternal": "5204.NAK (142 - 16_4)", "name": "Vision 5-2 (Between Light and Darkness) Part 5" },
+        { "world": 16, "level": 5, "nameInternal": "5205.NAK (143 - 16_5)", "name": "Vision 5-2 (Between Light and Darkness) Part 6" },
+        { "world": 16, "level": 6, "nameInternal": "5206.NAK (144 - 16_6)", "name": "Vision 5-2 (Between Light and Darkness) Part 7" },
+        { "world": 16, "level": 7, "nameInternal": "5207.NAK (145 - 16_7)", "name": "Vision 5-2 (Between Light and Darkness) Part 8" },
+        { "world": 16, "level": 8, "nameInternal": "5208.NAK (146 - 16_8)", "name": "Vision 5-2 (Between Light and Darkness) Part 9" },
+
+        { "world": 17, "level": 0, "nameInternal": "5300.NAK (148 - 17_0)", "name": "Joka" },
+
+        { "world": 18, "level": 0, "nameInternal": "6100.NAK (158 - 18_0)", "name": "Vision 6-1 (The Legendary Kingdom) Part 1" },
+        { "world": 18, "level": 1, "nameInternal": "6101.NAK (159 - 18_1)", "name": "Vision 6-1 (The Legendary Kingdom) Part 2" },
+        { "world": 18, "level": 2, "nameInternal": "6102.NAK (160 - 18_2)", "name": "Vision 6-1 (The Legendary Kingdom) Part 3" },
+        { "world": 18, "level": 3, "nameInternal": "6103.NAK (161 - 18_3)", "name": "Vision 6-1 (The Legendary Kingdom) Part 4" },
+        { "world": 18, "level": 4, "nameInternal": "6104.NAK (162 - 18_4)", "name": "Vision 6-1 (The Legendary Kingdom) Part 5" },
+        { "world": 18, "level": 5, "nameInternal": "6105.NAK (163 - 18_5)", "name": "Vision 6-1 (The Legendary Kingdom) Part 6" },
+        { "world": 18, "level": 6, "nameInternal": "6106.NAK (164 - 18_6)", "name": "Vision 6-1 (The Legendary Kingdom) Part 7" },
+        { "world": 18, "level": 7, "nameInternal": "6107.NAK (165 - 18_7)", "name": "Vision 6-1 (The Legendary Kingdom) Part 8" },
+
+        { "world": 19, "level": 0, "nameInternal": "6200.NAK (168 - 19_0)", "name": "Vision 6-2 (The Time of Restoration) Part 1" },
+        { "world": 19, "level": 1, "nameInternal": "6201.NAK (169 - 19_1)", "name": "Vision 6-2 (The Time of Restoration) Part 2" },
+        { "world": 19, "level": 2, "nameInternal": "6202.NAK (170 - 19_2)", "name": "Vision 6-2 (The Time of Restoration) Part 3" },
+        { "world": 19, "level": 3, "nameInternal": "6203.NAK (171 - 19_3)", "name": "Vision 6-2 (The Time of Restoration) Part 4" },
+        { "world": 19, "level": 4, "nameInternal": "6204.NAK (172 - 19_4)", "name": "Vision 6-2 (The Time of Restoration) Part 5" },
+        { "world": 19, "level": 5, "nameInternal": "6205.NAK (173 - 19_5)", "name": "Vision 6-2 (The Time of Restoration) Part 6" },
+        { "world": 19, "level": 6, "nameInternal": "6206.NAK (174 - 19_6)", "name": "Vision 6-2 (The Time of Restoration) Part 7" },
+        { "world": 19, "level": 7, "nameInternal": "6207.NAK (175 - 19_7)", "name": "Vision 6-2 (The Time of Restoration) Part 8" },
+
+        { "world": 20, "level": 0, "nameInternal": "6300.NAK (178 - 20_0)", "name": "Ghadius Part 1" },
+        { "world": 20, "level": 1, "nameInternal": "6301.NAK (179 - 20_1)", "name": "Ghadius Part 2" },
+
+        { "world": 22, "level": 0, "nameInternal": "7200.NAK (198 - 22_0)", "name": "Final Vision Part 1" },
+        { "world": 22, "level": 1, "nameInternal": "7201.NAK (199 - 22_1)", "name": "Final Vision Part 2" },
+        { "world": 22, "level": 2, "nameInternal": "7202.NAK (200 - 22_2)", "name": "Final Vision Part 3" },
+
+        { "world": 23, "level": 0, "nameInternal": "7300.NAK (208 - 23_0)", "name": "Nahatomb Part 1" },
+        { "world": 23, "level": 1, "nameInternal": "7301.NAK (209 - 23_1)", "name": "Nahatomb Part 2" },
+        { "world": 23, "level": 2, "nameInternal": "7302.NAK (210 - 23_2)", "name": "Nahatomb Part 3" },
+
+        { "world": 21, "level": 0, "nameInternal": "7100.NAK (188 - 21_0)", "name": "Ending" },
+
+        { "world": 24, "level": 0, "nameInternal": "8100.NAK (218 - 24_0)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 1" },
+        { "world": 24, "level": 1, "nameInternal": "8101.NAK (219 - 24_1)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 2" },
+        { "world": 24, "level": 2, "nameInternal": "8102.NAK (220 - 24_2)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 3" },
+        { "world": 24, "level": 3, "nameInternal": "8103.NAK (221 - 24_3)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 4" },
+        { "world": 24, "level": 4, "nameInternal": "8104.NAK (222 - 24_4)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 5" },
+        { "world": 24, "level": 5, "nameInternal": "8105.NAK (223 - 24_5)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 6" },
+        { "world": 24, "level": 6, "nameInternal": "8106.NAK (224 - 24_6)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 7" },
+        { "world": 24, "level": 7, "nameInternal": "8107.NAK (225 - 24_7)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 8" },
+        { "world": 24, "level": 8, "nameInternal": "8108.NAK (226 - 24_8)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 9" }
+    ]
+}
