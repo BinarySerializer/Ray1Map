@@ -956,6 +956,11 @@ namespace Ray1Map.PSKlonoa
 
             level.PS1_VRAM = loader.VRAM;
 
+            // Default map animation to be enabled on web. This is normally defaulted to false due to being slow
+            // for tiles, but here we use it to animate textures on objects which isn't as slow.
+            if (FileSystem.mode == FileSystem.Mode.Web)
+                Settings.AnimateTiles = true;
+
             return level;
         }
 
