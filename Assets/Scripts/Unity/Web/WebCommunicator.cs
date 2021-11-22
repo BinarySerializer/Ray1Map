@@ -514,7 +514,7 @@ public class WebCommunicator : MonoBehaviour {
                         if (includeLists)
                         {
                             webObj.GBAVV_ScriptNames = c.ObjManager.CutsceneScripts?.Select(s => s.DisplayName).ToArray();
-                            webObj.GBAVV_ScriptContent = c.CutsceneScript.FormattedScript;
+                            webObj.GBAVV_ScriptContent = c.CutsceneScript?.FormattedScript;
                         }
                     }
 					break;
@@ -902,6 +902,20 @@ public class WebCommunicator : MonoBehaviour {
                     refreshObjectLists = true;
                 }
                 break;
+            case Unity_Object_BasePSKlonoa_DTP klonoaDTPObj:
+                if (msg.KlonoaDTP_SpriteSetIndex.HasValue && klonoaDTPObj.SpriteSetIndex != msg.KlonoaDTP_SpriteSetIndex.Value)
+                {
+                    klonoaDTPObj.SpriteSetIndex = msg.KlonoaDTP_SpriteSetIndex.Value;
+                    refreshObjectLists = true;
+                }
+				if (klonoaDTPObj is Unity_Object_PSKlonoa_DTP_CutsceneSprite c && 
+                    msg.GBAVV_ScriptIndex.HasValue && 
+                    c.CutsceneScriptIndex != msg.GBAVV_ScriptIndex.Value)
+                {
+                    c.CutsceneScriptIndex = msg.GBAVV_ScriptIndex.Value;
+                    refreshObjectLists = true;
+                }
+				break;
         }
 
 		if (refreshObjectLists)
