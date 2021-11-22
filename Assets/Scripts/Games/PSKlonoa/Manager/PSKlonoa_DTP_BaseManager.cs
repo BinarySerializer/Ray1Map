@@ -255,6 +255,10 @@ namespace Ray1Map.PSKlonoa
                 loader.SwitchBlocks(blockIndex);
                 loader.LoadAndProcessBINBlock();
 
+                // Block 21 updates the VRAM for the cutscene sprites in sector 1, so to get all the sprites looking correct
+                // we need to do a speial case here and export for both sectors (not including for the prototype)
+                bool isNormalBlock21 = blockIndex == 21 && config.Version != KlonoaGameVersion.DTP_Prototype_19970717;
+
                 BaseHardCodedObjectsLoader objLoader = loader.Settings.GetHardCodedObjectsLoader(loader);
 
                 if (blockIndex >= config.BLOCK_FirstLevel)
@@ -263,6 +267,9 @@ namespace Ray1Map.PSKlonoa
 
                     for (int sectorIndex = 0; sectorIndex < loader.LevelPack.Sectors.Length; sectorIndex++)
                     {
+                        if (isNormalBlock21 && sectorIndex > 0)
+                            break;
+
                         loader.LevelSector = sectorIndex;
                         objLoader.LoadObjects();
                     }
@@ -561,12 +568,73 @@ namespace Ray1Map.PSKlonoa
                         exportSprite(lvlMenuSprites.Sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Level Menu)", 1, frameIndex, -1, -1); // TODO: Correct pal
                 }
 
-                // CUTSCENE SPRITES
                 var cutscenePack = loader.LevelPack?.CutscenePack;
-                if (cutscenePack?.Sprites != null)
+
+                // CUTSCENE SPRITES & ANIMATIONS
+                void exportCutsceneSpritesAndAnims(int? sector)
                 {
-                    for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
-                        exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Cutscenes)", 0, frameIndex, 0, 500);
+                    if (cutscenePack?.Sprites != null)
+                    {
+                        for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
+                            exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Cutscenes{sector})", 0, frameIndex, 0, 500);
+                    }
+
+                    if (cutscenePack?.SpriteAnimations != null)
+                    {
+                        Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
+
+                        for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
+                        {
+                            Texture2D[] frames;
+                            Vector2Int[] offsets;
+
+                            (frames, offsets) = GetAnimationFrames(loader, cutscenePack, i, playerPal);
+
+                            if (frames == null)
+                                continue;
+
+                            if (frames.Any(x => x == null))
+                            {
+                                Debug.LogWarning($"At least one animation frame is null");
+                                continue;
+                            }
+
+                            var minX = offsets.Min(x => x.x);
+                            var minY = offsets.Min(x => x.y);
+
+                            offsets = offsets.Select(x => new Vector2Int(x.x - minX, x.y - minY)).ToArray();
+
+                            SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
+
+                            try
+                            {
+                                Util.ExportAnimAsGif(
+                                    frames: frames,
+                                    speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(),
+                                    center: false,
+                                    trim: false,
+                                    filePath: Path.Combine(outputPath, $"{blockIndex} - Animations (Cutscenes{sector})", $"{i}.gif"),
+                                    frameOffsets: offsets);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning($"Error exporting cutscene anim with ex: {ex}");
+                            }
+                        }
+                    }
+                }
+
+                if (isNormalBlock21)
+                {
+                    exportCutsceneSpritesAndAnims(0);
+                    loader.LevelSector = 1;
+                    objLoader.LoadObjects();
+                    loader.LevelSector = -1;
+                    exportCutsceneSpritesAndAnims(1);
+                }
+                else
+                {
+                    exportCutsceneSpritesAndAnims(null);
                 }
 
                 // CUTSCENE CHARACTER NAMES
@@ -610,51 +678,6 @@ namespace Ray1Map.PSKlonoa
                                 PS1_TIM.TIM_ColorFormat.BPP_8), 
                             blockName: $"{blockIndex} - Textures (Cutscene Players)",
                             name: $"{i}");
-                    }
-                }
-
-                // CUTSCENE ANIMATIONS
-                if (cutscenePack?.SpriteAnimations != null)
-                {
-                    Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
-
-                    for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
-                    {
-                        Texture2D[] frames;
-                        Vector2Int[] offsets;
-
-                        (frames, offsets) = GetAnimationFrames(loader, cutscenePack, i, playerPal);
-
-                        if (frames == null)
-                            continue;
-
-                        if (frames.Any(x => x == null))
-                        {
-                            Debug.LogWarning($"At least one animation frame is null");
-                            continue;
-                        }
-
-                        var minX = offsets.Min(x => x.x);
-                        var minY = offsets.Min(x => x.y);
-
-                        offsets = offsets.Select(x => new Vector2Int(x.x - minX, x.y - minY)).ToArray();
-
-                        SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
-
-                        try
-                        {
-                            Util.ExportAnimAsGif(
-                                frames: frames,
-                                speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(),
-                                center: false,
-                                trim: false,
-                                filePath: Path.Combine(outputPath, $"{blockIndex} - Animations (Cutscenes)", $"{i}.gif"),
-                                frameOffsets: offsets);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"Error exporting cutscene anim with ex: {ex}");
-                        }
                     }
                 }
 
