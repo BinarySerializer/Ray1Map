@@ -1568,6 +1568,10 @@ namespace Ray1Map.PSKlonoa
                 yield break;
             }
 
+            // Ignore invalid anim indexes here so we get the objects to show. The cutscene data is half-corrupted,
+            // so the animation indexes are invalid
+            bool ignoreInvalidAnims = loader.GameVersion == KlonoaGameVersion.DTP_Prototype_19970717 && (loader.BINBlock == 21 || loader.BINBlock == 23);
+
             Unity_ObjectManager_PSKlonoa_DTP.SpriteSet cutsceneAnims = objManager.SpriteSets.FirstOrDefault(x => x.Type == Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene);
 
             for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
@@ -1613,7 +1617,10 @@ namespace Ray1Map.PSKlonoa
                         {
                             var objInstance = cutsceneObjInstances[createObjIndex];
 
-                            if (objInstance.AnimIndex != null && objInstance.Position != null && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null)
+                            if (ignoreInvalidAnims && objInstance.AnimIndex == null)
+                                objInstance.AnimIndex = 0;
+
+                            if (objInstance.AnimIndex != null && objInstance.Position != null && (ignoreInvalidAnims || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null))
                             {
                                 Vector3 pos = objInstance.Position ?? Vector3.zero;
 
@@ -1734,7 +1741,10 @@ namespace Ray1Map.PSKlonoa
                 {
                     var objInstance = item.Value;
 
-                    if (objInstance.AnimIndex == null || objInstance.Position == null || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null)
+                    if (ignoreInvalidAnims && objInstance.AnimIndex == null)
+                        objInstance.AnimIndex = 0;
+
+                    if (objInstance.AnimIndex == null || objInstance.Position == null || (!ignoreInvalidAnims && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null))
                         continue;
 
                     Vector3 pos = objInstance.Position ?? Vector3.zero;
