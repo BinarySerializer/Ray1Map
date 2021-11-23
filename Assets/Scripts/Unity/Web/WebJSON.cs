@@ -180,6 +180,13 @@ public class WebJSON {
         public int? KlonoaHeroes_AnimSetIndex { get; set; }
         public string[] KlonoaHeroes_AnimSetNames { get; set; }
 		public int? KlonoaHeroes_ObjType { get; set; }
+
+		// Klonoa DTP
+        public int? KlonoaDTP_SpriteSetIndex { get; set; }
+        public string[] KlonoaDTP_SpriteSetNames { get; set; }
+		public int? KlonoaDTP_PrimaryType { get; set; }
+		public int? KlonoaDTP_SecondaryType { get; set; }
+		public int? KlonoaDTP_Path { get; set; }
 	}
     public class Layer {
 		public string Name { get; set; }

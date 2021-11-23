@@ -238,12 +238,12 @@ namespace Ray1Map.PSKlonoa
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new Ray1MapContext(settings);
-            var config = GetKlonoaSettings(settings);
+            KlonoaSettings_DTP config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
             context.AddKlonoaSettings(config);
 
             // Load the IDX
-            var idxData = Load_IDX(context, config);
+            IDX idxData = Load_IDX(context, config);
 
             // Create the loader
             var loader = Loader.Create(context, idxData);
@@ -255,12 +255,31 @@ namespace Ray1Map.PSKlonoa
                 loader.SwitchBlocks(blockIndex);
                 loader.LoadAndProcessBINBlock();
 
+                // Block 21 updates the VRAM for the cutscene sprites in sector 1, so to get all the sprites looking correct
+                // we need to do a speial case here and export for both sectors (not including for the prototype)
+                bool isNormalBlock21 = blockIndex == 21 && config.Version != KlonoaGameVersion.DTP_Prototype_19970717;
+
+                BaseHardCodedObjectsLoader objLoader = loader.Settings.GetHardCodedObjectsLoader(loader);
+
                 if (blockIndex >= config.BLOCK_FirstLevel)
+                {
                     loader.ProcessLevelData();
+
+                    for (int sectorIndex = 0; sectorIndex < loader.LevelPack.Sectors.Length; sectorIndex++)
+                    {
+                        if (isNormalBlock21 && sectorIndex > 0)
+                            break;
+
+                        loader.LevelSector = sectorIndex;
+                        objLoader.LoadObjects();
+                    }
+
+                    loader.LevelSector = -1;
+                }
 
                 // WORLD MAP SPRITES
                 var wldMap = loader.GetLoadedFile<WorldMap_ArchiveFile>();
-                if (wldMap != null)
+                if (wldMap?.AnimatedSprites != null)
                 {
                     for (int i = 0; i < 2; i++)
                     {
@@ -269,7 +288,7 @@ namespace Ray1Map.PSKlonoa
 
                         // Enumerate every frame
                         for (int frameIndex = 0; frameIndex < wldMap.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
-                            exportSprite(wldMap.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - WorldMapSprites", i, frameIndex, -1, -1); // TODO: Correct pal
+                            exportSprite(wldMap.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Sprites (World Map)", i, frameIndex, -1, -1); // TODO: Correct pal
                     }
                 }
 
@@ -280,7 +299,7 @@ namespace Ray1Map.PSKlonoa
 
                     exportTex(
                         getTex: () => tim.GetTexture(),
-                        blockName: $"{blockIndex} - WorldMapTextures",
+                        blockName: $"{blockIndex} - Textures (World Map)",
                         name: $"{i}");
                 }
 
@@ -313,13 +332,13 @@ namespace Ray1Map.PSKlonoa
                 }
 
                 for (int frameIndex = 0; frameIndex < sprites_0?.Files.Length - 1; frameIndex++)
-                    exportSprite(sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Menu", 0, frameIndex, 960, 442);
+                    exportSprite(sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Menu)", 0, frameIndex, 960, 442);
 
                 for (int frameIndex = 0; frameIndex < sprites_1?.Files.Length - 1; frameIndex++)
-                    exportSprite(sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Menu", 1, frameIndex, 0, 480);
+                    exportSprite(sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Menu)", 1, frameIndex, 0, 480);
 
                 for (int frameIndex = 0; frameIndex < sprites_2?.Files.Length - 1; frameIndex++)
-                    exportSprite(sprites_2.Files[frameIndex].Textures, $"{blockIndex} - Menu", 2, frameIndex, 960, 440);
+                    exportSprite(sprites_2.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Menu)", 2, frameIndex, 960, 440);
 
                 for (int frameIndex = 0; frameIndex < menuSprites?.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
                 {
@@ -336,7 +355,7 @@ namespace Ray1Map.PSKlonoa
                     else
                         palY = 480;
 
-                    exportSprite(menuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Menu", 3, frameIndex, 0, palY);
+                    exportSprite(menuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Menu)", 3, frameIndex, 0, palY);
                 }
 
                 // MENU BACKGROUND TEXTURES
@@ -350,7 +369,7 @@ namespace Ray1Map.PSKlonoa
                         PS1_TIM tim = tims.Files[j];
                         exportTex(
                             getTex: () => tim.GetTexture(onlyFirstTransparent: true),
-                            blockName: $"{blockIndex} - MenuBackgrounds",
+                            blockName: $"{blockIndex} - Textures (Menu Background)",
                             name: $"{i} - {j}");
                     }
                 }
@@ -366,7 +385,7 @@ namespace Ray1Map.PSKlonoa
                         PS1_TIM tim = timArchive.Files[i];
                         exportTex(
                             getTex: () => tim.GetTexture(),
-                            blockName: $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
+                            blockName: $"{blockIndex} - Textures ({loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)})",
                             name: $"{fileIndex} - {i}");
                     }
                 }
@@ -386,7 +405,7 @@ namespace Ray1Map.PSKlonoa
                             {
                                 exportTex(
                                     getTex: () => obj.Data?.TIM.GetTexture(),
-                                    blockName: $"{blockIndex} - GameObjectTextures",
+                                    blockName: $"{blockIndex} - Textures (Game Objects)",
                                     name: $"{sectorIndex} - {objIndex} - Texture");
                             }
                             
@@ -398,7 +417,7 @@ namespace Ray1Map.PSKlonoa
                                 {
                                     exportTex(
                                         getTex: () => textures.Files[texIndex].Obj.GetTexture(),
-                                        blockName: $"{blockIndex} - GameObjectTextures",
+                                        blockName: $"{blockIndex} - Textures (Game Objects)",
                                         name: $"{sectorIndex} - {objIndex} - Textures - {texIndex}");
                                 }
                             }
@@ -411,7 +430,7 @@ namespace Ray1Map.PSKlonoa
                                 {
                                     exportTex(
                                         getTex: () => texAnim.Files[texIndex].Obj.GetTexture(),
-                                        blockName: $"{blockIndex} - GameObjectTextures",
+                                        blockName: $"{blockIndex} - Textures (Game Objects)",
                                         name: $"{sectorIndex} - {objIndex} - TextureAnimation - {texIndex}");
                                 }
                             }
@@ -426,7 +445,7 @@ namespace Ray1Map.PSKlonoa
                     var tim = bgPack.TIMFiles.Files[i];
                     exportTex(
                         getTex: () => tim.GetTexture(noPal: true),
-                        blockName: $"{blockIndex} - BackgroundTileSets",
+                        blockName: $"{blockIndex} - Textures (Background Tile Sets)",
                         name: $"{i}");
                 }
 
@@ -493,7 +512,7 @@ namespace Ray1Map.PSKlonoa
 
                     // Enumerate every sprite
                     for (int spriteIndex = 0; spriteIndex < spriteSet.Files.Length - 1; spriteIndex++)
-                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - SpriteSets", spriteSetIndex, spriteIndex, 0, 500);
+                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - Sprites (Common)", spriteSetIndex, spriteIndex, 0, 500);
                 }
 
                 // SPRITE SET PLAYER SPRITES
@@ -518,7 +537,22 @@ namespace Ray1Map.PSKlonoa
                                 else
                                     return PS1Helpers.GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height,
                                         PS1_TIM.TIM_ColorFormat.BPP_8);
-                            }, $"{blockIndex} - PlayerSprites", $"{i}");
+                            }, $"{blockIndex} - Textures (Player)", $"{i}");
+                        }
+                    }
+                }
+
+                // ADDITIONAL SPRITES
+                GameObjectData_Sprites[] allAdditionalSprites = objLoader.GameObjects.Select(x => x.Sprites).Where(x => x != null).SelectMany(x => x).ToArray();
+                if (allAdditionalSprites != null)
+                {
+                    for (int i = 0; i < allAdditionalSprites.Length; i++)
+                    {
+                        for (int spriteIndex = 0; spriteIndex < allAdditionalSprites[i].Sprites.Length; spriteIndex++)
+                        {
+                            Sprite_File sprite = allAdditionalSprites[i].Sprites[spriteIndex];
+
+                            exportSprite(sprite.Textures, $"{blockIndex} - Sprites (Additional)", i, spriteIndex, 0, 500);
                         }
                     }
                 }
@@ -528,26 +562,108 @@ namespace Ray1Map.PSKlonoa
                 if (lvlMenuSprites != null)
                 {
                     for (int frameIndex = 0; frameIndex < lvlMenuSprites.Sprites_0.Files.Length; frameIndex++)
-                        exportSprite(lvlMenuSprites.Sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Menu", 0, frameIndex, 960, 442);
+                        exportSprite(lvlMenuSprites.Sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Level Menu)", 0, frameIndex, 960, 442);
 
                     for (int frameIndex = 0; frameIndex < lvlMenuSprites.Sprites_1.Files.Length; frameIndex++)
-                        exportSprite(lvlMenuSprites.Sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Menu", 1, frameIndex, -1, -1); // TODO: Correct pal
+                        exportSprite(lvlMenuSprites.Sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Level Menu)", 1, frameIndex, -1, -1); // TODO: Correct pal
                 }
 
-                // CUTSCENE SPRITES
                 var cutscenePack = loader.LevelPack?.CutscenePack;
-                if (cutscenePack?.Sprites != null)
+
+                // CUTSCENE SPRITES & ANIMATIONS
+                void exportCutsceneSpritesAndAnims(int? sector)
                 {
-                    for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
-                        exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - CutsceneSprites", 0, frameIndex, 0, 500);
+                    if (cutscenePack?.Sprites != null)
+                    {
+                        for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
+                            exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Sprites (Cutscenes{sector})", 0, frameIndex, 0, 500);
+                    }
+
+                    if (cutscenePack?.SpriteAnimations != null)
+                    {
+                        Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
+
+                        for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
+                        {
+                            Texture2D[] frames;
+                            Vector2Int[] offsets;
+
+                            (frames, offsets) = GetAnimationFrames(loader, cutscenePack, i, playerPal);
+
+                            if (frames == null)
+                                continue;
+
+                            if (frames.Any(x => x == null))
+                            {
+                                Debug.LogWarning($"At least one animation frame is null");
+                                continue;
+                            }
+
+                            var minX = offsets.Min(x => x.x);
+                            var minY = offsets.Min(x => x.y);
+
+                            offsets = offsets.Select(x => new Vector2Int(x.x - minX, x.y - minY)).ToArray();
+
+                            SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
+
+                            try
+                            {
+                                Util.ExportAnimAsGif(
+                                    frames: frames,
+                                    speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(),
+                                    center: false,
+                                    trim: false,
+                                    filePath: Path.Combine(outputPath, $"{blockIndex} - Animations (Cutscenes{sector})", $"{i}.gif"),
+                                    frameOffsets: offsets);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning($"Error exporting cutscene anim with ex: {ex}");
+                            }
+                        }
+                    }
+                }
+
+                if (isNormalBlock21)
+                {
+                    exportCutsceneSpritesAndAnims(0);
+                    loader.LevelSector = 1;
+                    objLoader.LoadObjects();
+                    loader.LevelSector = -1;
+                    exportCutsceneSpritesAndAnims(1);
+                }
+                else
+                {
+                    exportCutsceneSpritesAndAnims(null);
                 }
 
                 // CUTSCENE CHARACTER NAMES
                 if (cutscenePack?.CharacterNamesImgData != null)
                     exportTex(
                         getTex: () => PS1Helpers.GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4), 
-                        blockName: $"{blockIndex} - CutsceneCharacterNames",
+                        blockName: $"{blockIndex} - Textures (Cutscene Character Names)",
                         name: $"0");
+
+                // CUTSCENE FONTS
+                if (cutscenePack?.Cutscenes != null)
+                {
+                    for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
+                    {
+                        CutsceneFont_File font = cutscenePack.Cutscenes[cutsceneIndex]?.Font;
+
+                        if (font == null)
+                            continue;
+
+                        for (int fontCharIndex = 0; fontCharIndex < font.CharactersCount; fontCharIndex++)
+                        {
+                            exportTex(
+                                getTex: () => PS1Helpers.GetTexture(font.CharactersImgData[fontCharIndex], null, 8 / (2 * 2), 16,
+                                    PS1_TIM.TIM_ColorFormat.BPP_4),
+                                blockName: $"{blockIndex} - Textures (Cutscene Fonts)",
+                                name: $"{cutsceneIndex}_{fontCharIndex}");
+                        }
+                    }
+                }
 
                 // CUTSCENE PLAYER SPRITES
                 if (cutscenePack?.PlayerFramesImgData != null)
@@ -560,50 +676,12 @@ namespace Ray1Map.PSKlonoa
                         exportTex(
                             getTex: () => PS1Helpers.GetTexture(file.ImgData, playerPal, file.Width, file.Height,
                                 PS1_TIM.TIM_ColorFormat.BPP_8), 
-                            blockName: $"{blockIndex} - CutscenePlayerSprites",
+                            blockName: $"{blockIndex} - Textures (Cutscene Players)",
                             name: $"{i}");
                     }
                 }
 
-                // CUTSCENE ANIMATIONS
-                if (cutscenePack?.SpriteAnimations != null)
-                {
-                    Color[] playerPal = GetCutscenePlayerPalette(loader.VRAM);
-
-                    for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
-                    {
-                        Texture2D[] frames;
-                        Vector2Int[] offsets;
-
-                        (frames, offsets) = GetAnimationFrames(loader, cutscenePack, i, playerPal);
-
-                        if (frames == null)
-                            continue;
-
-                        if (frames.Any(x => x == null))
-                        {
-                            Debug.LogWarning($"At least one animation frame is null");
-                            continue;
-                        }
-
-                        var minX = offsets.Min(x => x.x);
-                        var minY = offsets.Min(x => x.y);
-
-                        offsets = offsets.Select(x => new Vector2Int(x.x - minX, x.y - minY)).ToArray();
-
-                        SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[i];
-
-                        Util.ExportAnimAsGif(
-                            frames: frames, 
-                            speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
-                            center: false, 
-                            trim: false, 
-                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"),
-                            frameOffsets: offsets);
-                    }
-                }
-
-                loader.VRAM.ExportToFile(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"));
+                loader.VRAM.ExportToFile(Path.Combine(outputPath, $"VRAM {blockIndex}.png"));
             }
 
             void exportTex(Func<Texture2D> getTex, string blockName, string name)
@@ -666,7 +744,7 @@ namespace Ray1Map.PSKlonoa
                     // Read the data
                     var lvl = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
 
-                    // Make sure it has normal cutscens
+                    // Make sure it has normal cutscene
                     if (lvl.CutscenePack.Cutscenes == null)
                         return;
 
@@ -674,13 +752,17 @@ namespace Ray1Map.PSKlonoa
                     for (var cutsceneIndex = 0; cutsceneIndex < lvl.CutscenePack.Cutscenes.Length; cutsceneIndex++)
                     {
                         Cutscene cutscene = lvl.CutscenePack.Cutscenes[cutsceneIndex];
-                        var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
-                            cutscene: cutscene,
-                            translationTable: GetCutsceneTranslationTable,
-                            includeInstructionIndex: false,
-                            normalCutscene: true);
 
-                        File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+                        if (cutscene.Cutscene_Normal != null)
+                        {
+                            var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                                cutscene: cutscene,
+                                translationTable: GetCutsceneTranslationTable,
+                                includeInstructionIndex: false,
+                                normalCutscene: true);
+
+                            File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+                        }
 
                         if (cutscene.Cutscene_Skip != null)
                         {
@@ -873,6 +955,11 @@ namespace Ray1Map.PSKlonoa
             }
 
             level.PS1_VRAM = loader.VRAM;
+
+            // Default map animation to be enabled on web. This is normally defaulted to false due to being slow
+            // for tiles, but here we use it to animate textures on objects which isn't as slow.
+            if (FileSystem.mode == FileSystem.Mode.Web)
+                Settings.AnimateTiles = true;
 
             return level;
         }
@@ -1251,8 +1338,11 @@ namespace Ray1Map.PSKlonoa
                             case CutsceneInstructionData_DrawText.TextCommand.CommandType.CMD_0:
                             case CutsceneInstructionData_DrawText.TextCommand.CommandType.Blank:
                             case CutsceneInstructionData_DrawText.TextCommand.CommandType.Delay:
+                                str.Append($"[{cmd.Type}:{cmd.Param_Generic}]");
+                                break;
+
                             case CutsceneInstructionData_DrawText.TextCommand.CommandType.PlaySound:
-                                str.Append($"[{cmd.Type}:{cmd.CommandParam}]");
+                                str.Append($"[{cmd.Type}:{cmd.Param_SoundRef.Value_00},{cmd.Param_SoundRef.Value_04},{cmd.Param_SoundRef.Value_11},{cmd.Param_SoundRef.Value_12},{cmd.Param_SoundRef.Value_15}]");
                                 break;
 
                             case CutsceneInstructionData_DrawText.TextCommand.CommandType.LineBreak:
@@ -1277,11 +1367,12 @@ namespace Ray1Map.PSKlonoa
                 {
                     Cutscene cutscene = cutscenePack.Cutscenes[i];
 
-                    scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
-                        displayName: $"Cutscene {i}", 
-                        cutsceneIndex: i,
-                        isNormalCutscene: true,
-                        formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
+                    if (cutscene.Cutscene_Normal != null)
+                        scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
+                            displayName: $"Cutscene {i}", 
+                            cutsceneIndex: i,
+                            isNormalCutscene: true,
+                            formattedScript: CutsceneTextTranslationTables.CutsceneToText(cutscene, translationTable, normalCutscene: true, overrideFormatters: overrideFormatters)));
 
                     if (cutscene.Cutscene_Skip != null)
                         scripts.Add(new Unity_ObjectManager_PSKlonoa_DTP.CutsceneScript(
@@ -1477,11 +1568,18 @@ namespace Ray1Map.PSKlonoa
                 yield break;
             }
 
+            // Ignore invalid anim indexes here so we get the objects to show. The cutscene data is half-corrupted,
+            // so the animation indexes are invalid
+            bool ignoreInvalidAnims = loader.GameVersion == KlonoaGameVersion.DTP_Prototype_19970717 && (loader.BINBlock == 21 || loader.BINBlock == 23);
+
             Unity_ObjectManager_PSKlonoa_DTP.SpriteSet cutsceneAnims = objManager.SpriteSets.FirstOrDefault(x => x.Type == Unity_ObjectManager_PSKlonoa_DTP.SpritesType.Cutscene);
 
             for (int cutsceneIndex = 0; cutsceneIndex < cutscenePack.Cutscenes.Length; cutsceneIndex++)
             {
                 Cutscene_File cutscene = cutscenePack.Cutscenes[cutsceneIndex].Cutscene_Normal;
+
+                if (cutscene == null)
+                    continue;
 
                 var cutsceneObjInstances = new Dictionary<int, CutsceneObjectInstance>();
                 int currentSectorIndex = cutsceneStartSectors[loader.BINBlock][cutsceneIndex];
@@ -1519,7 +1617,10 @@ namespace Ray1Map.PSKlonoa
                         {
                             var objInstance = cutsceneObjInstances[createObjIndex];
 
-                            if (objInstance.AnimIndex != null && objInstance.Position != null && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null)
+                            if (ignoreInvalidAnims && objInstance.AnimIndex == null)
+                                objInstance.AnimIndex = 0;
+
+                            if (objInstance.AnimIndex != null && objInstance.Position != null && (ignoreInvalidAnims || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation != null))
                             {
                                 Vector3 pos = objInstance.Position ?? Vector3.zero;
 
@@ -1640,7 +1741,10 @@ namespace Ray1Map.PSKlonoa
                 {
                     var objInstance = item.Value;
 
-                    if (objInstance.AnimIndex == null || objInstance.Position == null || cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null)
+                    if (ignoreInvalidAnims && objInstance.AnimIndex == null)
+                        objInstance.AnimIndex = 0;
+
+                    if (objInstance.AnimIndex == null || objInstance.Position == null || (!ignoreInvalidAnims && cutsceneAnims.Animations[objInstance.AnimIndex.Value].ObjAnimation == null))
                         continue;
 
                     Vector3 pos = objInstance.Position ?? Vector3.zero;
@@ -1731,7 +1835,7 @@ namespace Ray1Map.PSKlonoa
         {
             SpriteAnimation anim = cutscenePack.SpriteAnimations.Animations[animIndex];
 
-            bool isPlayerAnim = (cutscenePack.Cutscenes.
+            bool isPlayerAnim = (cutscenePack.Cutscenes.Where(x => x.Cutscene_Normal != null).
                 SelectMany(x => x.Cutscene_Normal.Instructions).
                 FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetCutsceneObjAnimation && ((CutsceneInstructionData_SetCutsceneObjAnimation)x.Data).AnimIndex == animIndex)?.Data as CutsceneInstructionData_SetCutsceneObjAnimation)?.ObjIndex == 0;
 
@@ -1742,7 +1846,7 @@ namespace Ray1Map.PSKlonoa
                 palX: 0,
                 palY: 500,
                 isCutscenePlayer: isPlayerAnim,
-                playerSprites: cutscenePack.PlayerFramesImgData.Files,
+                playerSprites: cutscenePack.PlayerFramesImgData?.Files,
                 playerPalette: playerPal);
         }
 

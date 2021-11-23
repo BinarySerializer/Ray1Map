@@ -1,7 +1,7 @@
 {
-    "name": "Klonoa: Door to Phantomile (US)",
-    "mode": "KlonoaDoorToPhantomilePS1US",
-    "folder": "ps_klonoa/klonoa_dtp_us",
+    "name": "Klonoa: Door to Phantomile (JP - Prototype 1997/07/17)",
+    "mode": "KlonoaDoorToPhantomilePS1USPrototype_19970717",
+    "folder": "ps_klonoa/klonoa_dtp_proto_19970717",
 	"icons": [
         {
             "image": ".\/img\/icon\/KlonoaDTP\/V1.png",
@@ -21,15 +21,15 @@
         },
         {
             "image": ".\/img\/icon\/KlonoaDTP\/V5.png",
-            "level": 51
+            "level": 53
         },
         {
             "image": ".\/img\/icon\/KlonoaDTP\/V6.png",
-            "level": 68
+            "level": 70
         },
         {
             "image": ".\/img\/icon\/KlonoaDTP\/V7.png",
-            "level": 86
+            "level": 88
         }
     ],
     "levels": [
@@ -83,6 +83,8 @@
         { "world": 12, "level": 0, "nameInternal": "4100.NAK (98 - 12_0)", "name": "Vision 4-1 (A Village in Danger) Part 1" },
         { "world": 12, "level": 1, "nameInternal": "4101.NAK (99 - 12_1)", "name": "Vision 4-1 (A Village in Danger) Part 2" },
         { "world": 12, "level": 2, "nameInternal": "4102.NAK (100 - 12_2)", "name": "Vision 4-1 (A Village in Danger) Part 3" },
+        { "world": 12, "level": 3, "nameInternal": "4103.NAK (101 - 12_3)", "name": "(Unused) Vision 4-1 (A Village in Danger) Part 4" },
+        { "world": 12, "level": 4, "nameInternal": "4104.NAK (102 - 12_4)", "name": "(Unused) Vision 4-1 (A Village in Danger) Part 5" },
 
         { "world": 13, "level": 0, "nameInternal": "4200.NAK (108 - 13_0)", "name": "Vision 4-2 (A Lull in the Wind) Part 1" },
         { "world": 13, "level": 1, "nameInternal": "4201.NAK (109 - 13_1)", "name": "Vision 4-2 (A Lull in the Wind) Part 2" },
@@ -145,8 +147,7 @@
         { "world": 23, "level": 1, "nameInternal": "7301.NAK (209 - 23_1)", "name": "Nahatomb Part 2" },
         { "world": 23, "level": 2, "nameInternal": "7302.NAK (210 - 23_2)", "name": "Nahatomb Part 3" },
 
-        { "world": 21, "level": 0, "nameInternal": "7100.NAK (188 - 21_0)", "name": "Ending Part 1" },
-        { "world": 21, "level": 1, "nameInternal": "7101.NAK (189 - 21_1)", "name": "Ending Part 2" },
+        { "world": 21, "level": 0, "nameInternal": "7100.NAK (188 - 21_0)", "name": "Ending" },
 
         { "world": 24, "level": 0, "nameInternal": "8100.NAK (218 - 24_0)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 1" },
         { "world": 24, "level": 1, "nameInternal": "8101.NAK (219 - 24_1)", "name": "Extra Vision (Klonoa's Grand Gale Strategy) Part 2" },

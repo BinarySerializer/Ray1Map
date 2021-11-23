@@ -87,13 +87,13 @@ namespace Ray1Map.PSKlonoa
                 DisplayName = displayName;
                 CutsceneIndex = cutsceneIndex;
                 IsNormalCutscene = isNormalCutscene;
-                FormattedScript = formattedScript;
+                FormattedScript = formattedScript.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToArray();
             }
 
             public string DisplayName { get; }
             public int CutsceneIndex { get; }
             public bool IsNormalCutscene { get; } // False = skip cutscene
-            public string FormattedScript { get; }
+            public string[] FormattedScript { get; }
         }
 
         public enum SpritesType
