@@ -427,7 +427,7 @@ namespace Ray1Map.Jade {
 			if (geo != null) {
 				modelType = "Mesh";
 				// If material == FFFFFFFF modelType can be LimbNode
-				if (gao.Base.Visual.Material.Value == null && objectGroup != null) {
+				if (gao.Base.Visual.Material.Value == null && objectGroup != 0) {
 					isBone = true;
 					modelType = "LimbNode";
 				}

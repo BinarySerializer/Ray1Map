@@ -280,7 +280,11 @@ public class UnityWindowSerializer : SerializerObject
         });
     }
 
-    public override void Log(string logString)
+	public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) {
+        serializeFunc(new UnityWindowBitSerializer(this, null, 0));
+	}
+
+	public override void Log(string logString)
     {
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
     }

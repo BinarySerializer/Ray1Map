@@ -101,6 +101,14 @@ namespace Ray1Map.Jade {
 			public bool IsRotationAnim { get; set; }
 			public int RotationSpeed { get; set; }
 
+			// Test
+			public MaterialFlagsUShort FlagsUShort { get; set; }
+			public int BlendMode { get; set; }
+			public UVType Type { get; set; }
+			public int AlphaTreshold { get; set; }
+			public UVScroll Scroll { get; set; }
+
+
 			public override void SerializeImpl(SerializerObject s) {
 				TextureID = s.Serialize<short>(TextureID, name: nameof(TextureID));
 				if (Material.ObjectVersion < 7) {
@@ -108,7 +116,14 @@ namespace Ray1Map.Jade {
 				} else {
 					AdditionalFlags = s.Serialize<uint>(AdditionalFlags, name: nameof(AdditionalFlags));
 				}
-				Flags = s.Serialize<MaterialFlags>(Flags, name: nameof(Flags));
+				s.DoBits<uint>(b => {
+					FlagsUShort = b.SerializeBit<MaterialFlagsUShort>(FlagsUShort, 16, name: nameof(Flags));
+					BlendMode = b.SerializeBit<int>(BlendMode, 4, name: nameof(BlendMode));
+					Type = b.SerializeBit<UVType>(Type, 4, name: nameof(Type));
+					AlphaTreshold = b.SerializeBit<int>(AlphaTreshold, 6, name: nameof(AlphaTreshold));
+					Scroll = b.SerializeBit<UVScroll>(Scroll, 2, name: nameof(Scroll));
+				});
+				//Flags = s.Serialize<MaterialFlags>(Flags, name: nameof(Flags));
 				ScaleSpeedPosU = s.Serialize<float>(ScaleSpeedPosU, name: nameof(ScaleSpeedPosU));
 				ScaleSpeedPosV = s.Serialize<float>(ScaleSpeedPosV, name: nameof(ScaleSpeedPosV));
 
@@ -137,7 +152,54 @@ namespace Ray1Map.Jade {
 					}
 				}
 			}
+			
+			[Flags] // From Horsez
+			public enum MaterialFlagsUShort : ushort {
+				TilingU             = 0b0000000000000001,
+				TilingV             = 0b0000000000000010,
+				BilinearFiltering   = 0b0000000000000100,
+				TrilinearFiltering  = 0b0000000000001000,
+				AlphaTest           = 0b0000000000010000,
+				HideAlpha           = 0b0000000000100000,
+				HideColor           = 0b0000000001000000,
+				InvertAlpha         = 0b0000000010000000,
+				WriteOnlyOnSameZ    = 0b0000000100000000, // "WConATF" in Montreal (Spree)
+				NoZBuffer           = 0b0000001000000000,
+				UseLocalAlpha       = 0b0000010000000000,
+				ActiveLayer         = 0b0000100000000000,
+				OnlyAdditionalLayer = 0b0001000000000000,
+				Flag13 = 1 << 13,
+				Flag14 = 1 << 14,
+				Flag15 = 1 << 15,
+			}
 
+			public enum UVType : int {
+				OBJ1 = 0,
+				OBJ2,
+				Chrome,
+				DF_GIZMO,
+				PHONG_GIZMO,
+				Previous,
+				PLANAR_GIZMO,
+				FACE_MAP,
+				FOGZZ,
+				Default9,
+				Default10,
+				Default11,
+				Default12,
+				Default13,
+				Default14,
+				Default15,
+			}
+
+			[Flags]
+			public enum UVScroll : int {
+				None = 0,
+				AddU = 1 << 0,
+				AddV = 1 << 1
+			}
+
+			
 			[Flags] // From Horsez
 			public enum MaterialFlags : uint {
 				TilingU             = 0b0000000000000001,
@@ -156,24 +218,23 @@ namespace Ray1Map.Jade {
 				Flag13 = 1 << 13,
 				Flag14 = 1 << 14,
 				Flag15 = 1 << 15,
-				Flag16 = 1 << 16,
-				Flag17 = 1 << 17,
-				Flag18 = 1 << 18,
-				Flag19 = 1 << 19,
-				Flag20 = 1 << 20,
-				Flag21 = 1 << 21,
-				Flag22 = 1 << 22,
-				Flag23 = 1 << 23,
+				Flag16 = 1 << 16, // next 4 bits are used in GXI_SetTextureBlending
+				Flag17 = 1 << 17, //
+				Flag18 = 1 << 18, //
+				Flag19 = 1 << 19, //
+				Flag20 = 1 << 20, // next 4 bits are used as u8Type in SetTextureMatrix
+				Flag21 = 1 << 21, // UVType is (see FuncTable):
+				Flag22 = 1 << 22, // OBJ1, OBJ2, Chrome, DF_GIZMO, PHONG_GIZMO, Previous, PLANAR_GIZMO, FACE_MAP, FOGZZ
+				Flag23 = 1 << 23, //
 				Flag24 = 1 << 24,
 				Flag25 = 1 << 25,
 				Flag26 = 1 << 26,
 				Flag27 = 1 << 27,
 				Flag28 = 1 << 28,
 				Flag29 = 1 << 29,
-				Flag30 = 1 << 30,
-				Flag31 = (uint)1 << 31,
+				AddU = 1 << 30,
+				AddV = (uint)1 << 31,
 			}
-
 			public class XenonData : BinarySerializable {
 				public uint Version { get; set; }
 				public uint Flags { get; set; }
