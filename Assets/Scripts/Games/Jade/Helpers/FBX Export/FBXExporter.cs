@@ -43,6 +43,7 @@ namespace Ray1Map.Jade {
 			public int GeometryCount { get; set; }
 			public int DeformerCount { get; set; }
 			public int ModelCount { get; set; }
+			public int NodeAttributeCount { get; set; }
 		}
 		public static string VersionInformation => "Ray1Map FBX Export";
 
@@ -271,6 +272,11 @@ namespace Ray1Map.Jade {
 			sb.AppendLine($"\t\tCount: {header.DeformerCount}");
 			sb.AppendLine("\t}");
 
+			// NodeAttributes
+			sb.AppendLine("\tObjectType: \"NodeAttribute\" {");
+			sb.AppendLine($"\t\tCount: {header.NodeAttributeCount}");
+			sb.AppendLine("\t}");
+
 			// The materials
 			sb.AppendLine("\tObjectType: \"Material\" {");
 			sb.AppendLine($"\t\tCount: {header.MaterialCount}");
@@ -415,10 +421,16 @@ namespace Ray1Map.Jade {
 			string meshName = gao.Export_FileBasename;
 
 			// A NULL parent means that the gameObject is at the top
-			string isMesh = "Null";
+			string modelType = "Null";
+			bool isBone = false;
 
 			if (geo != null) {
-				isMesh = "Mesh";
+				modelType = "Mesh";
+				// If material == FFFFFFFF modelType can be LimbNode
+				if (gao.Base.Visual.Material.Value == null && objectGroup != null) {
+					isBone = true;
+					modelType = "LimbNode";
+				}
 			}
 
 			var currentParent = parentGao;
@@ -440,7 +452,8 @@ namespace Ray1Map.Jade {
 			}
 
 			header.ModelCount++;
-			tempObjectSb.AppendLine("\tModel: " + gameObjectID + ", \"Model::" + meshName + "\", \"" + isMesh + "\" {");
+			string modelName = $"Model::{meshName}";
+			tempObjectSb.AppendLine($"\tModel: {gameObjectID}, \"{modelName}\", \"{modelType}\" {{");
 			tempObjectSb.AppendLine("\t\tVersion: 232");
 			tempObjectSb.AppendLine("\t\tProperties70:  {");
 			tempObjectSb.AppendLine("\t\t\tP: \"RotationOrder\", \"enum\", \"\", \"\",4");
@@ -448,6 +461,9 @@ namespace Ray1Map.Jade {
 			tempObjectSb.AppendLine("\t\t\tP: \"InheritType\", \"enum\", \"\", \"\",1");
 			tempObjectSb.AppendLine("\t\t\tP: \"ScalingMax\", \"Vector3D\", \"Vector\", \"\",0,0,0");
 			tempObjectSb.AppendLine("\t\t\tP: \"DefaultAttributeIndex\", \"int\", \"Integer\", \"\",0");
+			if (isBone) {
+				tempObjectSb.AppendLine("\t\t\tP: \"lockInfluenceWeights\", \"Bool\", \"\", \"A+U\",0");
+			}
 
 			// ===== Local Transform =========
 			Jade_Matrix mtx = gao.Matrix;
@@ -476,7 +492,7 @@ namespace Ray1Map.Jade {
 			tempObjectSb.AppendLine("\t}");
 
 			// Adds in geometry if it exists, if it it does not exist, this is a empty gameObject file and skips over this
-			if (geo != null) {
+			if (geo != null && !isBone) {
 
 				// =================================
 				//         General Geometry Info
@@ -732,9 +748,14 @@ namespace Ray1Map.Jade {
 
 				// Write morph data
 				WriteMorphTargetsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, header);
+				WriteDeformationsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, objectGroup, header);
 			}
 
-			// TODO: Export skeleton group (& group?)
+			if (isBone) {
+				// Write NodeAttribute 
+				WriteBone(gao, tempObjectSb, tempConnectionsSb, gameObjectID, modelName, header);
+			}
+
 			// Export parent
 			if (gao.Base?.HierarchyData?.Father?.Value != null) {
 				var father = gao.Base?.HierarchyData?.Father?.Value;
@@ -848,6 +869,182 @@ namespace Ray1Map.Jade {
 
 			}
 		}
+
+		public static void WriteDeformationsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, long objectGroup, FBXHeader header) {
+
+			long gameObjectID = gao.Key.Key;
+			if (objectGroup != 0) {
+				gameObjectID = (objectGroup << 8) ^ gameObjectID;
+			}
+			GRO_GraphicRenderObject gro = gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Value;
+			GEO_GeometricObject geo = gro != null ? gro as GEO_GeometricObject : null;
+
+			if (geo?.ObjectPonderation?.PonderationLists != null) {
+				header.DeformerCount++;
+
+				string deformerName = $"Deformer::{gao.Key.Key:X8}_Skin";
+				var deformerID = GetRandomFBXId();
+				tempObjectSb.AppendLine($"\tDeformer: {deformerID}, \"{deformerName}\", \"Skin\" {{");
+				tempObjectSb.AppendLine("\t\tVersion: 101");
+				tempObjectSb.AppendLine("\t\tLink_DeformAcuracy: 50");
+				tempObjectSb.AppendLine("\t\tSkinningType: \"Linear\"");
+				tempObjectSb.AppendLine("\t}");
+				tempObjectSb.AppendLine();
+				// Connections
+				tempConnectionsSb.AppendLine($"\t;{deformerName}, {mainGeometryName}");
+				tempConnectionsSb.AppendLine($"\tC: \"OO\",{deformerID},{mainGeometryID}");
+				tempConnectionsSb.AppendLine();
+
+				var ponderationLists = geo.ObjectPonderation.PonderationLists;
+				int ponderationIndex = 0;
+				foreach (var p in ponderationLists) {
+					header.DeformerCount++;
+					string subDeformerName = $"SubDeformer::{gao.Key.Key:X8}_Skin{ponderationIndex}";
+					var subDeformerID = GetRandomFBXId();
+					tempObjectSb.AppendLine($"\tDeformer: {subDeformerID}, \"{subDeformerName}\", \"Cluster\" {{");
+					tempObjectSb.AppendLine("\t\tVersion: 100");
+					tempObjectSb.AppendLine("\t\tUserData: \"\", \"\"");
+
+					// Indices
+					tempObjectSb.AppendLine($"\t\tIndexes: *{p.Indices.Length} {{");
+					tempObjectSb.Append("\t\t\ta: ");
+					for (int i = 0; i < p.Indices.Length; i++) {
+						if (i > 0) tempObjectSb.Append(",");
+
+						tempObjectSb.AppendFormat("{0}", p.Indices[i]);
+					}
+					tempObjectSb.AppendLine();
+					tempObjectSb.AppendLine("\t\t}");
+
+
+					// Weights
+					tempObjectSb.AppendLine($"\t\tWeights: *{p.Ponderations.Length} {{");
+					tempObjectSb.Append("\t\t\ta: ");
+					for (int i = 0; i < p.Ponderations.Length; i++) {
+						if (i > 0) tempObjectSb.Append(",");
+
+						tempObjectSb.AppendFormat("{0}", p.Ponderations[i]);
+					}
+					tempObjectSb.AppendLine();
+					tempObjectSb.AppendLine("\t\t}");
+
+					WriteMatrix("Transform", p.FlashedMatrix, tempObjectSb);
+					WriteMatrix("TransformLink", p.FlashedMatrix, tempObjectSb);
+					tempObjectSb.AppendLine("\t}");
+					tempObjectSb.AppendLine();
+
+
+					// Connections
+					if (gao?.Base?.AddMatrix?.Gizmos != null) {
+						var gizmo = gao.Base.AddMatrix.Gizmos[p.IndexOfMatrix];
+						if (gizmo.GameObject?.Value != null) {
+							long gizmoID = gizmo.GameObject.Key.Key;
+							if(objectGroup != 0) gizmoID = (objectGroup << 8) ^ gizmoID;
+							string gizmoName = $"Model::{gizmo.GameObject.Value.Export_FileBasename}";
+
+							tempConnectionsSb.AppendLine($"\t;{subDeformerName}, {deformerName}");
+							tempConnectionsSb.AppendLine($"\tC: \"OO\",{subDeformerID},{deformerID}");
+							tempConnectionsSb.AppendLine();
+
+							tempConnectionsSb.AppendLine($"\t;{gizmoName}, {subDeformerName}");
+							tempConnectionsSb.AppendLine($"\tC: \"OO\",{gizmoID},{subDeformerID}");
+							tempConnectionsSb.AppendLine();
+						}
+					}
+
+
+					ponderationIndex++;
+				}
+			}
+
+			if (gao?.Extended?.Modifiers != null) {
+				var modifier = gao.Extended.Modifiers.FirstOrDefault(m => m.Type == MDF_ModifierType.GEO_ModifierMorphing);
+				if (modifier != null) {
+					var morph = (GEO_ModifierMorphing)modifier.Modifier;
+					if (morph.MorphDataCount == 0) return;
+
+					header.DeformerCount++;
+
+					string deformerName = $"Deformer::{gao.Key.Key:X8}_BlendShape";
+					var deformerID = GetRandomFBXId();
+					tempObjectSb.AppendLine($"\tDeformer: {deformerID}, \"{deformerName}\", \"BlendShape\" {{");
+					tempObjectSb.AppendLine("\t\tVersion: 100");
+					tempObjectSb.AppendLine("\t}");
+					tempObjectSb.AppendLine();
+					// Connections
+					tempConnectionsSb.AppendLine($"\t;{deformerName}, {mainGeometryName}");
+					tempConnectionsSb.AppendLine($"\tC: \"OO\",{deformerID},{mainGeometryID}");
+					tempConnectionsSb.AppendLine();
+
+					for (int m = 0; m < morph.MorphData.Length; m++) {
+						var md = morph.MorphData[m];
+						if (md.VectorsCount == 0) continue;
+
+						header.DeformerCount++;
+						string subDeformerName = $"SubDeformer::{gao.Key.Key:X8}_SubDeformer{m}";
+						var subDeformerID = GetRandomFBXId();
+						tempObjectSb.AppendLine($"\tDeformer: {subDeformerID}, \"{subDeformerName}\", \"BlendShapeChannel\" {{");
+						tempObjectSb.AppendLine("\t\tVersion: 100");
+						tempObjectSb.AppendLine("\t\tDeformPercent: 0");
+						tempObjectSb.AppendLine("\t\tFullWeights: *1 {");
+						tempObjectSb.AppendLine("\t\t\ta: 100");
+						tempObjectSb.AppendLine("\t\t}");
+						tempObjectSb.AppendLine("\t}");
+						tempObjectSb.AppendLine();
+
+						header.GeometryCount++;
+						string geometryName = $"Geometry::{gao.Key.Key:X8}_Shape{m}";
+						var geometryID = GetRandomFBXId();
+						tempObjectSb.AppendLine($"\tGeometry: {geometryID}, \"{geometryName}\", \"Shape\" {{");
+						tempObjectSb.AppendLine("\t\tVersion: 100");
+
+						tempObjectSb.AppendLine($"\t\tIndexes: *{md.Indices.Length} {{");
+						tempObjectSb.Append("\t\t\ta: ");
+						for (int i = 0; i < md.Indices.Length; i++) {
+							if (i > 0) tempObjectSb.Append(",");
+
+							tempObjectSb.AppendFormat("{0}", md.Indices[i]);
+						}
+						tempObjectSb.AppendLine();
+						tempObjectSb.AppendLine("\t\t}");
+
+						WriteVectorArray("Vertices", md.Vectors, tempObjectSb);
+						//WriteVectorArray("Normals", md.Vectors.Select(m => new Jade_Vector()).ToArray(), tempObjectSb);
+						tempObjectSb.AppendLine("\t}");
+						tempObjectSb.AppendLine();
+
+						// Connections
+						tempConnectionsSb.AppendLine($"\t;{subDeformerName}, {deformerName}");
+						tempConnectionsSb.AppendLine($"\tC: \"OO\",{subDeformerID},{deformerID}");
+						tempConnectionsSb.AppendLine();
+						tempConnectionsSb.AppendLine($"\t;{geometryName}, {subDeformerName}");
+						tempConnectionsSb.AppendLine($"\tC: \"OO\",{geometryID},{subDeformerID}");
+						tempConnectionsSb.AppendLine();
+					}
+				}
+
+			}
+		}
+
+		public static void WriteBone(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainModelID, string mainModelName, FBXHeader header) {
+
+			header.NodeAttributeCount++;
+
+			string nodeAttrName = $"NodeAttribute::{gao.Key.Key:X8}_LimbNode";
+			var nodeAttrID = GetRandomFBXId();
+			tempObjectSb.AppendLine($"\tNodeAttribute: {nodeAttrID}, \"{nodeAttrName}\", \"LimbNode\" {{");
+			tempObjectSb.AppendLine("\t\tProperties70:  {");
+			tempObjectSb.AppendLine("\t\t\tP: \"Size\", \"double\", \"Number\", \"\",5");// P: "Size", "double", "Number", "",7.776
+			tempObjectSb.AppendLine("\t\t}");
+			tempObjectSb.AppendLine("\t\tTypeFlags: \"Skeleton\"");
+			tempObjectSb.AppendLine("\t}");
+			tempObjectSb.AppendLine();
+
+			// Connections
+			tempConnectionsSb.AppendLine($"\t;{nodeAttrName}, {mainModelName}");
+			tempConnectionsSb.AppendLine($"\tC: \"OO\",{nodeAttrID},{mainModelID}");
+			tempConnectionsSb.AppendLine();
+		}
 		#endregion
 
 		private static void WriteVectorArray(string name, Jade_Vector[] vectors, StringBuilder tempObjectSb, int indentCount = 2) {
@@ -862,8 +1059,19 @@ namespace Ray1Map.Jade {
 			tempObjectSb.AppendLine();
 			tempObjectSb.AppendLine($"{indent}}}");
 		}
+		private static void WriteMatrix(string name, Jade_Matrix m, StringBuilder tempObjectSb, int indentCount = 2) {
+			string indent = new string('\t', indentCount);
+			tempObjectSb.AppendLine($"{indent}{name}: *16 {{");
+			tempObjectSb.Append($"{indent}\ta: ");
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", m.Ix, m.Iy, m.Iz, m.Sx);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", m.Jx, m.Jy, m.Jz, m.Sy);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", m.Kx, m.Ky, m.Kz, m.Sz);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3}", m.Tx, m.Ty, m.Tz, m.w);
+			tempObjectSb.AppendLine();
+			tempObjectSb.AppendLine($"{indent}}}");
+		}
 
-		
+
 		public static void AllMaterialsToString(Dictionary<uint, GEO_Object> materials, string outputPath, out string matObjects, out string connections, FBXHeader header) {
 			StringBuilder tempObjectSb = new StringBuilder();
 			StringBuilder tempConnectionsSb = new StringBuilder();
