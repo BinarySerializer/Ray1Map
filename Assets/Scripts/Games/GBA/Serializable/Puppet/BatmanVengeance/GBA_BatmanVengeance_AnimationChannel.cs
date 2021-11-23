@@ -25,37 +25,37 @@ namespace Ray1Map.GBA
         public override void SerializeImpl(SerializerObject s) 
         {
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_CrouchingTiger) {
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    YPosition = (short)bitFunc(YPosition, 8, name: nameof(YPosition));
+                s.DoBits<ushort>(b => {
+                    YPosition = (short)b.SerializeBits<int>(YPosition, 8, name: nameof(YPosition));
                     if (YPosition >= 128) YPosition -= 256;
-                    bitFunc(default, 6, name: "Unknown");
-                    SpriteShape = (GBA_AnimationChannel.Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
+                    b.SerializeBits<int>(default, 6, name: "Unknown");
+                    SpriteShape = (GBA_AnimationChannel.Shape)b.SerializeBits<int>((int)SpriteShape, 2, name: nameof(SpriteShape));
                 });
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    XPosition = (short)bitFunc(XPosition, 8, name: nameof(XPosition));
+                s.DoBits<ushort>(b => {
+                    XPosition = (short)b.SerializeBits<int>(XPosition, 8, name: nameof(XPosition));
                     if (XPosition >= 128) XPosition -= 256;
-                    bitFunc(default, 4, name: "Unknown");
-                    IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
-                    IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
-                    SpriteSize = bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
+                    b.SerializeBits<int>(default, 4, name: "Unknown");
+                    IsFlippedHorizontally = b.SerializeBits<int>(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    IsFlippedVertically = b.SerializeBits<int>(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    SpriteSize = b.SerializeBits<int>(SpriteSize, 2, name: nameof(SpriteSize));
                 });
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    bitFunc(default, 4, name: "Unknown");
-                    bitFunc(default, 4, name: "Unknown");
-                    bitFunc(default, 4, name: "Unknown");
-                    PaletteIndex = bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                s.DoBits<ushort>(b => {
+                    b.SerializeBits<int>(default, 4, name: "Unknown");
+                    b.SerializeBits<int>(default, 4, name: "Unknown");
+                    b.SerializeBits<int>(default, 4, name: "Unknown");
+                    PaletteIndex = b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
                 ImageIndex = s.Serialize<ushort>(ImageIndex, name: nameof(ImageIndex));
             } else {
-                s.SerializeBitValues<byte>(bitFunc => {
-                    bitFunc(default, 6, name: "Padding");
-                    IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
-                    IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedVertically)) == 1;
+                s.DoBits<byte>(b => {
+                    b.SerializeBits<int>(default, 6, name: "Padding");
+                    IsFlippedHorizontally = b.SerializeBits<int>(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    IsFlippedVertically = b.SerializeBits<int>(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedVertically)) == 1;
                 });
-                s.SerializeBitValues<byte>(bitFunc => {
-                    SpriteSize = bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
-                    SpriteShape = (GBA_AnimationChannel.Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
-                    PaletteIndex = bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                s.DoBits<byte>(b => {
+                    SpriteSize = b.SerializeBits<int>(SpriteSize, 2, name: nameof(SpriteSize));
+                    SpriteShape = (GBA_AnimationChannel.Shape)b.SerializeBits<int>((int)SpriteShape, 2, name: nameof(SpriteShape));
+                    PaletteIndex = b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
 
                 YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));

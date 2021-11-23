@@ -15,11 +15,11 @@ namespace Ray1Map.GBAKlonoa
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
-            s.SerializeBitValues<byte>(bitFunc =>
+            s.DoBits<byte>(b =>
             {
-                IsFlipped = bitFunc(IsFlipped ? 1 : 0, 1, name: nameof(IsFlipped)) == 1;
-                Flag_1 = bitFunc(Flag_1 ? 1 : 0, 1, name: nameof(Flag_1)) == 1;
-                Sector = (byte)bitFunc(Sector, 6, name: nameof(Sector));
+                IsFlipped = b.SerializeBits<int>(IsFlipped ? 1 : 0, 1, name: nameof(IsFlipped)) == 1;
+                Flag_1 = b.SerializeBits<int>(Flag_1 ? 1 : 0, 1, name: nameof(Flag_1)) == 1;
+                Sector = (byte)b.SerializeBits<int>(Sector, 6, name: nameof(Sector));
             });
 
             s.SerializePadding(3, logIfNotNull: true);

@@ -9,10 +9,10 @@ namespace Ray1Map.GBAVV
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<byte>(bitFunc =>
+            s.DoBits<byte>(b =>
             {
-                Type = (byte)bitFunc(Type, 2, name: nameof(Type));
-                Count = (byte)bitFunc(Count, 6, name: nameof(Count));
+                Type = (byte)b.SerializeBits<int>(Type, 2, name: nameof(Type));
+                Count = (byte)b.SerializeBits<int>(Count, 6, name: nameof(Count));
             });
         }
     }

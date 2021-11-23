@@ -117,11 +117,11 @@ namespace Ray1Map.Jade {
 					AdditionalFlags = s.Serialize<uint>(AdditionalFlags, name: nameof(AdditionalFlags));
 				}
 				s.DoBits<uint>(b => {
-					FlagsUShort = b.SerializeBit<MaterialFlagsUShort>(FlagsUShort, 16, name: nameof(Flags));
-					BlendMode = b.SerializeBit<int>(BlendMode, 4, name: nameof(BlendMode));
-					Type = b.SerializeBit<UVType>(Type, 4, name: nameof(Type));
-					AlphaTreshold = b.SerializeBit<int>(AlphaTreshold, 6, name: nameof(AlphaTreshold));
-					Scroll = b.SerializeBit<UVScroll>(Scroll, 2, name: nameof(Scroll));
+					FlagsUShort = b.SerializeBits<MaterialFlagsUShort>(FlagsUShort, 16, name: nameof(Flags));
+					BlendMode = b.SerializeBits<int>(BlendMode, 4, name: nameof(BlendMode));
+					Type = b.SerializeBits<UVType>(Type, 4, name: nameof(Type));
+					AlphaTreshold = b.SerializeBits<int>(AlphaTreshold, 6, name: nameof(AlphaTreshold));
+					Scroll = b.SerializeBits<UVScroll>(Scroll, 2, name: nameof(Scroll));
 				});
 				//Flags = s.Serialize<MaterialFlags>(Flags, name: nameof(Flags));
 				ScaleSpeedPosU = s.Serialize<float>(ScaleSpeedPosU, name: nameof(ScaleSpeedPosU));
@@ -134,12 +134,12 @@ namespace Ray1Map.Jade {
 					DispOffsetV = s.Serialize<float>(DispOffsetV, name: nameof(DispOffsetV));
 				}
 				if (Material.ObjectVersion >= 3) {
-					s.SerializeBitValues<int>(bitFunc => {
-						RotationSpeed = bitFunc(RotationSpeed, 15, name: nameof(RotationSpeed));
-						IsRotationAnim = bitFunc(IsRotationAnim ? 1 : 0, 1, name: nameof(IsRotationAnim)) == 1;
-						FrameCycle = bitFunc(FrameCycle, 4, name: nameof(FrameCycle));
-						UnusedFlags = bitFunc(UnusedFlags, 4, name: nameof(UnusedFlags));
-						AlphaTestValue = bitFunc(AlphaTestValue, 8, name: nameof(AlphaTestValue));
+					s.DoBits<int>(b => {
+						RotationSpeed = b.SerializeBits<int>(RotationSpeed, 15, name: nameof(RotationSpeed));
+						IsRotationAnim = b.SerializeBits<int>(IsRotationAnim ? 1 : 0, 1, name: nameof(IsRotationAnim)) == 1;
+						FrameCycle = b.SerializeBits<int>(FrameCycle, 4, name: nameof(FrameCycle));
+						UnusedFlags = b.SerializeBits<int>(UnusedFlags, 4, name: nameof(UnusedFlags));
+						AlphaTestValue = b.SerializeBits<int>(AlphaTestValue, 8, name: nameof(AlphaTestValue));
 					});
 				}
 

@@ -27,33 +27,33 @@ namespace Ray1Map.GBAIsometric
         {
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR) {
                 Height = s.Serialize<byte>(Height, name: nameof(Height));
-                s.SerializeBitValues<byte>(serializeFunc => {
-                    Type = (CollisionType_RHR)serializeFunc((int)Type, 4, name: nameof(Type));
-                    AddType = (AdditionalTypeFlags_RHR)serializeFunc((int)AddType, 4, name: nameof(AddType));
+                s.DoBits<byte>(b => {
+                    Type = b.SerializeBits<CollisionType_RHR>(Type, 4, name: nameof(Type));
+                    AddType = b.SerializeBits<AdditionalTypeFlags_RHR>(AddType, 4, name: nameof(AddType));
                 });
-                s.SerializeBitValues<ushort>(serializeFunc => {
-                    Layer1 = (byte)serializeFunc(Layer1, 4, name: nameof(Layer1));
-                    Layer2 = (byte)serializeFunc(Layer2, 4, name: nameof(Layer2));
-                    Layer3 = (byte)serializeFunc(Layer3, 4, name: nameof(Layer3));
-                    Shape = (ShapeType_RHR)serializeFunc((int)Shape, 4, name: nameof(Shape));
+                s.DoBits<ushort>(b => {
+                    Layer1 = b.SerializeBits<byte>(Layer1, 4, name: nameof(Layer1));
+                    Layer2 = b.SerializeBits<byte>(Layer2, 4, name: nameof(Layer2));
+                    Layer3 = b.SerializeBits<byte>(Layer3, 4, name: nameof(Layer3));
+                    Shape = b.SerializeBits<ShapeType_RHR>(Shape, 4, name: nameof(Shape));
                 });
             } else if(s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 || s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Tron2) {
                 if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
-                    s.SerializeBitValues<byte>(bitFunc => {
-                        Height = (byte)bitFunc(Height,6,name: nameof(Height));
-                        HeightFlags = (byte)bitFunc(HeightFlags, 2, nameof(HeightFlags));
+                    s.DoBits<byte>(b => {
+                        Height = (byte)b.SerializeBits<int>(Height,6,name: nameof(Height));
+                        HeightFlags = (byte)b.SerializeBits<int>(HeightFlags, 2, nameof(HeightFlags));
                     });
                 } else {
                     Height = s.Serialize<byte>(Height, name: nameof(Height));
                 }
                 Depth = s.Serialize<byte>(Depth, name: nameof(Depth));
-                s.SerializeBitValues<byte>(serializeFunc => {
-                    Shape_Spyro = (ShapeType_Spyro)serializeFunc((int)Shape_Spyro, 4, name: nameof(Shape_Spyro));
-                    Unk_Spyro = (byte)serializeFunc(Unk_Spyro, 4, name: nameof(Unk_Spyro)); // Could be part of shape, or just padding
+                s.DoBits<byte>(b => {
+                    Shape_Spyro = b.SerializeBits<ShapeType_Spyro>(Shape_Spyro, 4, name: nameof(Shape_Spyro));
+                    Unk_Spyro = b.SerializeBits<byte>(Unk_Spyro, 4, name: nameof(Unk_Spyro)); // Could be part of shape, or just padding
                 });
-                s.SerializeBitValues<byte>(serializeFunc => {
-                    Type_Spyro = (CollisionType_Spyro)serializeFunc((int)Type_Spyro, 4, name: nameof(Type_Spyro));
-                    AddType_Spyro = (AdditionalTypeFlags_Spyro)serializeFunc((int)AddType_Spyro, 4, name: nameof(AddType_Spyro));
+                s.DoBits<byte>(b => {
+                    Type_Spyro = b.SerializeBits<CollisionType_Spyro>(Type_Spyro, 4, name: nameof(Type_Spyro));
+                    AddType_Spyro = b.SerializeBits<AdditionalTypeFlags_Spyro>(AddType_Spyro, 4, name: nameof(AddType_Spyro));
                 });
             } else {
                 Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));

@@ -54,10 +54,10 @@ namespace Ray1Map.GBA
 
                 if (s.GetR1Settings().GBA_IsMilan)
                 {
-                    s.SerializeBitValues<byte>(bitFunc =>
+                    s.DoBits<byte>(b =>
                     {
-                        Milan_MapCompressionType = (Milan_CompressionType)bitFunc((byte)Milan_MapCompressionType, 7, name: nameof(Milan_MapCompressionType));
-                        Milan_UnkFlag = bitFunc(Milan_UnkFlag ? 1 : 0, 1, name: nameof(Milan_UnkFlag)) == 1;
+                        Milan_MapCompressionType = (Milan_CompressionType)b.SerializeBits<int>((byte)Milan_MapCompressionType, 7, name: nameof(Milan_MapCompressionType));
+                        Milan_UnkFlag = b.SerializeBits<int>(Milan_UnkFlag ? 1 : 0, 1, name: nameof(Milan_UnkFlag)) == 1;
                     });
 
                     Milan_Byte_05 = s.Serialize<byte>(Milan_Byte_05, name: nameof(Milan_Byte_05));

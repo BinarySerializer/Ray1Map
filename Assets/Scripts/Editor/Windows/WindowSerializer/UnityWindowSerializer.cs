@@ -260,26 +260,6 @@ public class UnityWindowSerializer : SerializerObject
         });
     }
 
-    public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) 
-    {
-        serializeFunc((value, length, name) =>
-        {
-            var rect = PrefixEditorField(name);
-
-            return Window.EditorField(String.Empty, value, rect: rect);
-        });
-    }
-
-    public override void SerializeBitValues64<T>(Action<SerializeBits64> serializeFunc)
-    {
-        serializeFunc((value, length, name) =>
-        {
-            var rect = PrefixEditorField(name);
-
-            return Window.EditorField(String.Empty, value, rect: rect);
-        });
-    }
-
 	public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) {
         serializeFunc(new UnityWindowBitSerializer(this, null, 0));
 	}

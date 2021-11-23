@@ -8,9 +8,9 @@ namespace Ray1Map.GBA
         public byte Type { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
-            s.SerializeBitValues<byte>(serializeFunc => {
-                Height = (byte)serializeFunc(Height, 5, name: nameof(Height));
-                Type = (byte)serializeFunc(Type, 3, name: nameof(Type));
+            s.DoBits<byte>(b => {
+                Height = b.SerializeBits<byte>(Height, 5, name: nameof(Height));
+                Type = b.SerializeBits<byte>(Type, 3, name: nameof(Type));
             });
         }
 

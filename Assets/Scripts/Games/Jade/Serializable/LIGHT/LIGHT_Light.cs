@@ -29,15 +29,15 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				s.SerializeBitValues<int>(bitFunc => {
-					Type = (LightType)bitFunc((int)Type, 4, name: nameof(Type));
-					Flags = (LightFlags)bitFunc((int)Flags, 28, name: nameof(Flags));
+				s.DoBits<int>(b => {
+					Type = (LightType)b.SerializeBits<int>((int)Type, 4, name: nameof(Type));
+					Flags = (LightFlags)b.SerializeBits<int>((int)Flags, 28, name: nameof(Flags));
 				});
 			} else {
-				s.SerializeBitValues<int>(bitFunc => {
-					Type = (LightType)bitFunc((int)Type, 3, name: nameof(Type));
+				s.DoBits<int>(b => {
+					Type = (LightType)b.SerializeBits<int>((int)Type, 3, name: nameof(Type));
 					// TODO: Flags are different for Montpellier
-					Flags = (LightFlags)bitFunc((int)Flags, 29, name: nameof(Flags));
+					Flags = (LightFlags)b.SerializeBits<int>((int)Flags, 29, name: nameof(Flags));
 				});
 			}
 			s.Log(Type + " - " + Flags);

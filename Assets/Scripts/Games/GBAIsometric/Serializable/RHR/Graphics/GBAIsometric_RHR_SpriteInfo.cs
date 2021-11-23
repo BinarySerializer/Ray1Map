@@ -14,9 +14,9 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<byte>((bitFunc) => {
-                Width = bitFunc(Width, 4, name: nameof(Width));
-                Height = bitFunc(Height, 4, name: nameof(Height));
+            s.DoBits<byte>(b => {
+                Width = b.SerializeBits<int>(Width, 4, name: nameof(Width));
+                Height = b.SerializeBits<int>(Height, 4, name: nameof(Height));
             });
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));

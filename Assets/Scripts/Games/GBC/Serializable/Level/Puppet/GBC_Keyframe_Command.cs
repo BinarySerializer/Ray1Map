@@ -119,12 +119,12 @@ namespace Ray1Map.GBC
             public bool Unknown2 { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
-                s.SerializeBitValues<byte>(bitFunc => {
-                    PalIndex = (byte)bitFunc(PalIndex, 3, name: nameof(PalIndex));
-                    TransparentColorIndex = (byte)bitFunc(TransparentColorIndex, 2, name: nameof(TransparentColorIndex));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                    Unknown2 = bitFunc(Unknown2 ? 1 : 0, 1, name: nameof(Unknown2)) == 1;
+                s.DoBits<byte>(b => {
+                    PalIndex = (byte)b.SerializeBits<int>(PalIndex, 3, name: nameof(PalIndex));
+                    TransparentColorIndex = (byte)b.SerializeBits<int>(TransparentColorIndex, 2, name: nameof(TransparentColorIndex));
+                    HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    Unknown2 = b.SerializeBits<int>(Unknown2 ? 1 : 0, 1, name: nameof(Unknown2)) == 1;
                 });
             }
         }

@@ -15,10 +15,10 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<ushort>(bitFunc =>
+            s.DoBits<ushort>(b =>
             {
-                FrameImageIndex = (ushort)bitFunc(FrameImageIndex, 11, name: nameof(FrameImageIndex));
-                UnkBitFieldValue = bitFunc(UnkBitFieldValue, 5, name: nameof(UnkBitFieldValue));
+                FrameImageIndex = (ushort)b.SerializeBits<int>(FrameImageIndex, 11, name: nameof(FrameImageIndex));
+                UnkBitFieldValue = b.SerializeBits<int>(UnkBitFieldValue, 5, name: nameof(UnkBitFieldValue));
             });
             XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));

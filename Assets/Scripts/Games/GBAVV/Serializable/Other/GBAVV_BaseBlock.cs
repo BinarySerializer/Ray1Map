@@ -17,11 +17,11 @@ namespace Ray1Map.GBAVV
             // Serialize the header
             if (HasHeader)
             {
-                s.DoAt(s.CurrentPointer, () => s.SerializeBitValues<uint>(bitFunc =>
+                s.DoAt(s.CurrentPointer, () => s.DoBits<uint>(b =>
                 {
-                    bitFunc(default, 4, name: "Padding");
-                    Compression = (BlockCompressionType)bitFunc((byte)Compression, 4, name: nameof(Compression));
-                    BlockLength = bitFunc(BlockLength, 24, name: nameof(BlockLength));
+                    b.SerializeBits<int>(default, 4, name: "Padding");
+                    Compression = (BlockCompressionType)b.SerializeBits<int>((byte)Compression, 4, name: nameof(Compression));
+                    BlockLength = b.SerializeBits<int>(BlockLength, 24, name: nameof(BlockLength));
                 }));
             }
 

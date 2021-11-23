@@ -158,11 +158,11 @@ namespace Ray1Map.GBA
             public byte PaletteIndex { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    TileIndex = (ushort)bitFunc(TileIndex, 10, name: nameof(TileIndex));
-                    IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
-                    IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
-                    PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                s.DoBits<ushort>(b => {
+                    TileIndex = (ushort)b.SerializeBits<int>(TileIndex, 10, name: nameof(TileIndex));
+                    IsFlippedHorizontally = b.SerializeBits<int>(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    IsFlippedVertically = b.SerializeBits<int>(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
         }

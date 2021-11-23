@@ -10,9 +10,9 @@ namespace Ray1Map.Jade {
 		public ushort UseLongFormat { get; set; }
 		public LinkList[] LinkLists { get; set; }
 		protected override void SerializeFile(SerializerObject s) {
-			s.SerializeBitValues<uint>(bitFunc => {
-				Count = (ushort)bitFunc(Count, 16, name: nameof(Count));
-				UseLongFormat = (ushort)bitFunc(UseLongFormat, 16, name: nameof(UseLongFormat));
+			s.DoBits<uint>(b => {
+				Count = (ushort)b.SerializeBits<int>(Count, 16, name: nameof(Count));
+				UseLongFormat = (ushort)b.SerializeBits<int>(UseLongFormat, 16, name: nameof(UseLongFormat));
 			});
 			LinkLists = s.SerializeObjectArray<LinkList>(LinkLists, Count, onPreSerialize: ll => ll.UseLongFormat = UseLongFormat, name: nameof(LinkLists));
 		}

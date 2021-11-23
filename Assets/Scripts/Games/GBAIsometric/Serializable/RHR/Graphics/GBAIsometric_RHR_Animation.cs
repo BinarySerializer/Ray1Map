@@ -13,9 +13,9 @@ namespace Ray1Map.GBAIsometric
         {
             Speed = s.Serialize<byte>(Speed, name: nameof(Speed));
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
-            s.SerializeBitValues<ushort>(bitfunc => {
-                StartFrameIndex = (ushort)bitfunc(StartFrameIndex, 15, name: nameof(StartFrameIndex));
-                FlipX = bitfunc(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
+            s.DoBits<ushort>(b => {
+                StartFrameIndex = (ushort)b.SerializeBits<int>(StartFrameIndex, 15, name: nameof(StartFrameIndex));
+                FlipX = b.SerializeBits<int>(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
             });
         }
     }

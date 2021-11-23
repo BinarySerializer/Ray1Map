@@ -29,19 +29,19 @@ namespace Ray1Map.GBAIsometric
             TileIndex = s.Serialize<ushort>(TileIndex, name: nameof(TileIndex));
             Width = s.Serialize<byte>(Width, name: nameof(Width));
             Height = s.Serialize<byte>(Height, name: nameof(Height));
-            s.SerializeBitValues<byte>(bitFunc => {
-                UnkFlags = (byte)bitFunc(UnkFlags, 7, name: nameof(UnkFlags));
-                HasPatterns = bitFunc(HasPatterns ? 1 : 0, 1, name: nameof(HasPatterns)) == 1;
+            s.DoBits<byte>(b => {
+                UnkFlags = (byte)b.SerializeBits<int>(UnkFlags, 7, name: nameof(UnkFlags));
+                HasPatterns = b.SerializeBits<int>(HasPatterns ? 1 : 0, 1, name: nameof(HasPatterns)) == 1;
             });
             NumPatterns = s.Serialize<byte>(NumPatterns, name: nameof(NumPatterns));
             if (HasPatterns) {
                 PatternsOffset = s.Serialize<ushort>(PatternsOffset, name: nameof(PatternsOffset));
             } else {
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    SpriteSize = (byte)bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
-                    SpriteShape = (GBAIsometric_Spyro_AnimPattern.Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
-                    PalIndex = (byte)bitFunc(PalIndex, 4, name: nameof(PalIndex));
-                    UnkPatternValue = (byte)bitFunc(UnkPatternValue, 8, name: nameof(UnkPatternValue));
+                s.DoBits<ushort>(b => {
+                    SpriteSize = (byte)b.SerializeBits<int>(SpriteSize, 2, name: nameof(SpriteSize));
+                    SpriteShape = (GBAIsometric_Spyro_AnimPattern.Shape)b.SerializeBits<int>((int)SpriteShape, 2, name: nameof(SpriteShape));
+                    PalIndex = (byte)b.SerializeBits<int>(PalIndex, 4, name: nameof(PalIndex));
+                    UnkPatternValue = (byte)b.SerializeBits<int>(UnkPatternValue, 8, name: nameof(UnkPatternValue));
                 });
             }
             if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAIsometric_Spyro3) {

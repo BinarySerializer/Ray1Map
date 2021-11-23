@@ -49,16 +49,16 @@ namespace Ray1Map.Jade
                 //Ushort_02 &= 0xFFFB;
             } else {
                 if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && ListEvents.Track.ListTracks.Montreal_Version >= 0x8000) {
-                    s.SerializeBitValues<int>(bitFunc => {
-                        Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
-                        TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
-                        Flags_01 = bitFunc(Flags_01, 5 + 16, name: nameof(Flags_01));
+                    s.DoBits<int>(b => {
+                        Flags_00 = (ushort)b.SerializeBits<int>(Flags_00, 6, name: nameof(Flags_00));
+                        TypeCode = (ushort)b.SerializeBits<int>(TypeCode, 5, name: nameof(TypeCode));
+                        Flags_01 = b.SerializeBits<int>(Flags_01, 5 + 16, name: nameof(Flags_01));
                     });
                 } else {
-                    s.SerializeBitValues<ushort>(bitFunc => {
-                        Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
-                        TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
-                        Flags_01 = bitFunc(Flags_01, 5, name: nameof(Flags_01));
+                    s.DoBits<ushort>(b => {
+                        Flags_00 = (ushort)b.SerializeBits<int>(Flags_00, 6, name: nameof(Flags_00));
+                        TypeCode = (ushort)b.SerializeBits<int>(TypeCode, 5, name: nameof(TypeCode));
+                        Flags_01 = b.SerializeBits<int>(Flags_01, 5, name: nameof(Flags_01));
                     });
                 }
             }

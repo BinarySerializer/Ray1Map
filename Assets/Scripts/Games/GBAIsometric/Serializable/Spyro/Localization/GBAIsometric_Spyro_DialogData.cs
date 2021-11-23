@@ -124,35 +124,35 @@ namespace Ray1Map.GBAIsometric
 
             public override void SerializeImpl(SerializerObject s)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
                     if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                     {
-                        Param = bitFunc(Param, 10, name: nameof(Param));
-                        bitFunc(default, 1, name: "Padding");
-                        IsLastEntry = bitFunc(IsLastEntry ? 1 : 0, 1, name: nameof(IsLastEntry)) == 1;
-                        IsLastParameter = bitFunc(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
-                        HasMultiChoiceIndices = bitFunc(HasMultiChoiceIndices ? 1 : 0, 1, name: nameof(HasMultiChoiceIndices)) == 1;
-                        Instruction = (Instruction)bitFunc((byte)Instruction, 2, name: nameof(Instruction));
+                        Param = b.SerializeBits<int>(Param, 10, name: nameof(Param));
+                        b.SerializeBits<int>(default, 1, name: "Padding");
+                        IsLastEntry = b.SerializeBits<int>(IsLastEntry ? 1 : 0, 1, name: nameof(IsLastEntry)) == 1;
+                        IsLastParameter = b.SerializeBits<int>(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
+                        HasMultiChoiceIndices = b.SerializeBits<int>(HasMultiChoiceIndices ? 1 : 0, 1, name: nameof(HasMultiChoiceIndices)) == 1;
+                        Instruction = (Instruction)b.SerializeBits<int>((byte)Instruction, 2, name: nameof(Instruction));
                     }
                     else
                     {
                         if (IsInstruction)
                         {
-                            Instruction = (Instruction)bitFunc((byte)Instruction, 4, name: nameof(Instruction));
-                            bitFunc(default, 6, name: "Padding");
-                            HasMultiChoiceIndices = bitFunc(HasMultiChoiceIndices ? 1 : 0, 1, name: nameof(HasMultiChoiceIndices)) == 1;
-                            IsLastEntry = bitFunc(IsLastEntry ? 1 : 0, 1, name: nameof(IsLastEntry)) == 1;
-                            bitFunc(default, 2, name: "Padding");
-                            IsInstruction = bitFunc(IsInstruction ? 1 : 0, 1, name: nameof(IsInstruction)) == 1;
-                            IsLastParameter = bitFunc(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
+                            Instruction = (Instruction)b.SerializeBits<int>((byte)Instruction, 4, name: nameof(Instruction));
+                            b.SerializeBits<int>(default, 6, name: "Padding");
+                            HasMultiChoiceIndices = b.SerializeBits<int>(HasMultiChoiceIndices ? 1 : 0, 1, name: nameof(HasMultiChoiceIndices)) == 1;
+                            IsLastEntry = b.SerializeBits<int>(IsLastEntry ? 1 : 0, 1, name: nameof(IsLastEntry)) == 1;
+                            b.SerializeBits<int>(default, 2, name: "Padding");
+                            IsInstruction = b.SerializeBits<int>(IsInstruction ? 1 : 0, 1, name: nameof(IsInstruction)) == 1;
+                            IsLastParameter = b.SerializeBits<int>(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
                         }
                         else
                         {
-                            Param = bitFunc(Param, 12, name: nameof(Param));
-                            bitFunc(default, 2, name: "Padding");
-                            IsInstruction = bitFunc(IsInstruction ? 1 : 0, 1, name: nameof(IsInstruction)) == 1;
-                            IsLastParameter = bitFunc(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
+                            Param = b.SerializeBits<int>(Param, 12, name: nameof(Param));
+                            b.SerializeBits<int>(default, 2, name: "Padding");
+                            IsInstruction = b.SerializeBits<int>(IsInstruction ? 1 : 0, 1, name: nameof(IsInstruction)) == 1;
+                            IsLastParameter = b.SerializeBits<int>(IsLastParameter ? 1 : 0, 1, name: nameof(IsLastParameter)) == 1;
                         }
                     }
                 });

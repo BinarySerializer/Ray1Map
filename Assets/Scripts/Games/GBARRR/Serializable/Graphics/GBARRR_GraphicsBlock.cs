@@ -66,9 +66,9 @@ namespace Ray1Map.GBARRR
             public int ExtraBytes { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				s.SerializeBitValues<uint>((bitFunc) => {
-                    TileOffset = bitFunc(TileOffset, 24, name: nameof(TileOffset));
-                    ExtraBytes = bitFunc(ExtraBytes, 8, name: nameof(ExtraBytes));
+				s.DoBits<uint>(b => {
+                    TileOffset = b.SerializeBits<int>(TileOffset, 24, name: nameof(TileOffset));
+                    ExtraBytes = b.SerializeBits<int>(ExtraBytes, 8, name: nameof(ExtraBytes));
                 });
 			}
 		}

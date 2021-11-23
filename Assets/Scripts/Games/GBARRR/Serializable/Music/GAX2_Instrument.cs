@@ -30,9 +30,9 @@ namespace Ray1Map.GBARRR
             Envelope = s.SerializePointer<GAX2_InstrumentVolumeEnvelope>(Envelope, resolve: true, name: nameof(Envelope));
             UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
             InstrumentConfig = s.SerializePointer<GAX2_InstrumentConfig2>(InstrumentConfig, resolve: true, name: nameof(InstrumentConfig));
-            /*s.SerializeBitValues<byte>(bitFunc => {
-                FineTune = (byte)bitFunc(FineTune, 5, name: nameof(FineTune));
-                RelativeNoteNumberSmall = (byte)bitFunc(RelativeNoteNumberSmall, 3, name: nameof(RelativeNoteNumberSmall));
+            /*s.DoBits<byte>(b => {
+                FineTune = (byte)b.SerializeBit<int>(FineTune, 5, name: nameof(FineTune));
+                RelativeNoteNumberSmall = (byte)b.SerializeBit<int>(RelativeNoteNumberSmall, 3, name: nameof(RelativeNoteNumberSmall));
             });
             RelativeNoteNumberBig = s.Serialize<sbyte>(RelativeNoteNumberBig, name: nameof(RelativeNoteNumberBig));*/
             Pitch = s.Serialize<short>(Pitch, name: nameof(Pitch));

@@ -126,10 +126,10 @@ namespace Ray1Map.GBAVV
 
             public override void SerializeImpl(SerializerObject s)
             {
-                s.SerializeBitValues<byte>(bitFunc =>
+                s.DoBits<byte>(b =>
                 {
-                    ShapeIndex = (byte)bitFunc(ShapeIndex, 4, name: nameof(ShapeIndex));
-                    Unknown = (byte)bitFunc(Unknown, 4, name: nameof(Unknown));
+                    ShapeIndex = (byte)b.SerializeBits<int>(ShapeIndex, 4, name: nameof(ShapeIndex));
+                    Unknown = (byte)b.SerializeBits<int>(Unknown, 4, name: nameof(Unknown));
                 });
             }
         }

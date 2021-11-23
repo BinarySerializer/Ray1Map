@@ -30,8 +30,8 @@ namespace Ray1Map.Jade {
 					s.DoAt(s.CurrentPointer - 4 * PonderatedVerticesCount, () => {
 						Indices = new int[PonderatedVerticesCount];
 						for (int i = 0; i < PonderatedVerticesCount; i++) {
-							s.SerializeBitValues<uint>(bitFunc => {
-								Indices[i] = bitFunc(Indices[i], 16, name: $"{nameof(Indices)}[{i}]");
+							s.DoBits<uint>(b => {
+								Indices[i] = b.SerializeBits<int>(Indices[i], 16, name: $"{nameof(Indices)}[{i}]");
 							});
 						}
 					});

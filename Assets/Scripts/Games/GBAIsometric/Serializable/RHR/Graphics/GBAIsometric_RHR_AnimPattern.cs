@@ -17,13 +17,13 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<ushort>(bitFunc => {
-                WidthPower = (byte)bitFunc(WidthPower, 2, name: nameof(WidthPower));
-                HeightPower = (byte)bitFunc(HeightPower, 2, name: nameof(HeightPower));
-                XPosition = (byte)bitFunc(XPosition, 5, name: nameof(XPosition));
-                YPosition = (byte)bitFunc(YPosition, 5, name: nameof(YPosition));
-                Unknown = (byte)bitFunc(Unknown, 1, name: nameof(Unknown));
-                IsLastPattern = bitFunc(IsLastPattern ? 1 : 0, 1, name: nameof(IsLastPattern)) == 1;
+            s.DoBits<ushort>(b => {
+                WidthPower = (byte)b.SerializeBits<int>(WidthPower, 2, name: nameof(WidthPower));
+                HeightPower = (byte)b.SerializeBits<int>(HeightPower, 2, name: nameof(HeightPower));
+                XPosition = (byte)b.SerializeBits<int>(XPosition, 5, name: nameof(XPosition));
+                YPosition = (byte)b.SerializeBits<int>(YPosition, 5, name: nameof(YPosition));
+                Unknown = (byte)b.SerializeBits<int>(Unknown, 1, name: nameof(Unknown));
+                IsLastPattern = b.SerializeBits<int>(IsLastPattern ? 1 : 0, 1, name: nameof(IsLastPattern)) == 1;
             });
         }
     }

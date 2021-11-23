@@ -17,10 +17,10 @@ namespace Ray1Map.GBAIsometric
             Y = s.Serialize<byte>(Y, name: nameof(Y));
             RelativeTileIndex = s.Serialize<byte>(RelativeTileIndex, name: nameof(RelativeTileIndex));
 
-            s.SerializeBitValues<byte>(bitFunc => {
-                SpriteSize = (byte)bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
-                SpriteShape = (Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
-                PalIndex = (byte)bitFunc(PalIndex, 4, name: nameof(PalIndex));
+            s.DoBits<byte>(b => {
+                SpriteSize = (byte)b.SerializeBits<int>(SpriteSize, 2, name: nameof(SpriteSize));
+                SpriteShape = (Shape)b.SerializeBits<int>((int)SpriteShape, 2, name: nameof(SpriteShape));
+                PalIndex = (byte)b.SerializeBits<int>(PalIndex, 4, name: nameof(PalIndex));
             });
         }
         public enum Shape {

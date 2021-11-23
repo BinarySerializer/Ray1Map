@@ -66,9 +66,9 @@ namespace Ray1Map.Jade {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
-			s.SerializeBitValues<uint>(bitFunc => {
-				StatusFlags = (OBJ_GameObject_StatusFlags)bitFunc((ushort)StatusFlags, 16, name: nameof(StatusFlags));
-				ControlFlags = (OBJ_GameObject_ControlFlags)bitFunc((ushort)ControlFlags, 16, name: nameof(ControlFlags));
+			s.DoBits<uint>(b => {
+				StatusFlags = b.SerializeBits<OBJ_GameObject_StatusFlags>(StatusFlags, 16, name: nameof(StatusFlags));
+				ControlFlags = b.SerializeBits<OBJ_GameObject_ControlFlags>(ControlFlags, 16, name: nameof(ControlFlags));
 			});
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				MiscFlags = s.Serialize<byte>(MiscFlags, name: nameof(MiscFlags));

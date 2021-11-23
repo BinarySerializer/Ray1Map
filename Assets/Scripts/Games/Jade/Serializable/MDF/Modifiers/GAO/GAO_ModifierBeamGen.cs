@@ -191,12 +191,12 @@ namespace Ray1Map.Jade {
 				CenterObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(CenterObject, name: nameof(CenterObject))?.Resolve();
 
 				if (BeamGen.Version >= 3) {
-					s.SerializeBitValues<ushort>(bitFunc => {
-						UseGizmoForCenter = bitFunc(UseGizmoForCenter ? 1 : 0, 1, name: nameof(UseGizmoForCenter)) == 1;
-						UseObjectForCenter = bitFunc(UseObjectForCenter ? 1 : 0, 1, name: nameof(UseObjectForCenter)) == 1;
-						UseTextureForGenPoints = bitFunc(UseTextureForGenPoints ? 1 : 0, 1, name: nameof(UseTextureForGenPoints)) == 1;
-						OneBeamPerValidTexel = bitFunc(OneBeamPerValidTexel ? 1 : 0, 1, name: nameof(OneBeamPerValidTexel)) == 1;
-						UnusedFlags = (ushort)bitFunc(UnusedFlags, 12, name: nameof(UnusedFlags));
+					s.DoBits<ushort>(b => {
+						UseGizmoForCenter = b.SerializeBits<int>(UseGizmoForCenter ? 1 : 0, 1, name: nameof(UseGizmoForCenter)) == 1;
+						UseObjectForCenter = b.SerializeBits<int>(UseObjectForCenter ? 1 : 0, 1, name: nameof(UseObjectForCenter)) == 1;
+						UseTextureForGenPoints = b.SerializeBits<int>(UseTextureForGenPoints ? 1 : 0, 1, name: nameof(UseTextureForGenPoints)) == 1;
+						OneBeamPerValidTexel = b.SerializeBits<int>(OneBeamPerValidTexel ? 1 : 0, 1, name: nameof(OneBeamPerValidTexel)) == 1;
+						UnusedFlags = (ushort)b.SerializeBits<int>(UnusedFlags, 12, name: nameof(UnusedFlags));
 					});
 				} else {
 					if (!Loader.IsBinaryData) Byte_Editor_03 = s.Serialize<byte>(Byte_Editor_03, name: nameof(Byte_Editor_03));

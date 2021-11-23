@@ -31,9 +31,9 @@ namespace Ray1Map.GBA
 
         public override void SerializeBlock(SerializerObject s)
         {
-            s.SerializeBitValues<byte>(bitFunc => {
-                IsObjAnimation = bitFunc(IsObjAnimation ? 1 : 0, 1, name: nameof(IsObjAnimation)) == 1;
-                Batman_Byte00 = (byte)bitFunc(Batman_Byte00, 7, name: nameof(Batman_Byte00));
+            s.DoBits<byte>(b => {
+                IsObjAnimation = b.SerializeBits<int>(IsObjAnimation ? 1 : 0, 1, name: nameof(IsObjAnimation)) == 1;
+                Batman_Byte00 = (byte)b.SerializeBits<int>(Batman_Byte00, 7, name: nameof(Batman_Byte00));
             });
 
             Index_Palette = s.Serialize<byte>(Index_Palette, name: nameof(Index_Palette));

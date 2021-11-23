@@ -30,14 +30,14 @@ namespace Ray1Map.GBAIsometric
             }
             else
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    ObjectType = (ushort)bitFunc(ObjectType, 10, name: nameof(ObjectType));
-                    Value1 = bitFunc(Value1 ? 1 : 0, 1, name: nameof(Value1)) == 1;
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    Value2 = bitFunc(Value2 ? 1 : 0, 1, name: nameof(Value2)) == 1;
-                    Value3 = bitFunc(Value3, 2, name: nameof(Value3));
-                    IsNormalObj = bitFunc(IsNormalObj ? 1 : 0, 1, name: nameof(IsNormalObj)) == 1;
+                    ObjectType = (ushort)b.SerializeBits<int>(ObjectType, 10, name: nameof(ObjectType));
+                    Value1 = b.SerializeBits<int>(Value1 ? 1 : 0, 1, name: nameof(Value1)) == 1;
+                    HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    Value2 = b.SerializeBits<int>(Value2 ? 1 : 0, 1, name: nameof(Value2)) == 1;
+                    Value3 = b.SerializeBits<int>(Value3, 2, name: nameof(Value3));
+                    IsNormalObj = b.SerializeBits<int>(IsNormalObj ? 1 : 0, 1, name: nameof(IsNormalObj)) == 1;
 
                     if (!IsNormalObj)
                         ObjectType = 0; // Some waypoints in Spyro 2 have an object type which is wrong, so make sure it's always 0

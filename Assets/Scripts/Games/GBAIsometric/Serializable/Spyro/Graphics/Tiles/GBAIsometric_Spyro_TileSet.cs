@@ -12,10 +12,10 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<uint>(bitFunc =>
+            s.DoBits<uint>(b =>
             {
-                RegionOffset = bitFunc(RegionOffset, 14, name: nameof(RegionOffset));
-                Region = bitFunc(Region, 2, name: nameof(Region));
+                RegionOffset = b.SerializeBits<int>(RegionOffset, 14, name: nameof(RegionOffset));
+                Region = b.SerializeBits<int>(Region, 2, name: nameof(Region));
             });
             TileData = s.SerializeArray<byte>(TileData, BlockSize - 4, name: nameof(TileData));
         }

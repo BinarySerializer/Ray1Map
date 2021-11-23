@@ -132,19 +132,19 @@ namespace Ray1Map
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
-                s.SerializeBitValues<int>(bitFunc =>
+                s.DoBits<int>(b =>
                 {
-                    TileMapX = (ushort)bitFunc(TileMapX, 10, name: nameof(TileMapX));
-                    TileMapY = (ushort)bitFunc(TileMapY, 6, name: nameof(TileMapY));
-                    CollisionType = (byte)bitFunc(CollisionType, 8, name: nameof(CollisionType));
+                    TileMapX = (ushort)b.SerializeBits<int>(TileMapX, 10, name: nameof(TileMapX));
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 6, name: nameof(TileMapY));
+                    CollisionType = (byte)b.SerializeBits<int>(CollisionType, 8, name: nameof(CollisionType));
                 });
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapX = (ushort)bitFunc(TileMapX, 4, name: nameof(TileMapX));
-                    TileMapY = (ushort)bitFunc(TileMapY, 12, name: nameof(TileMapY));
+                    TileMapX = (ushort)b.SerializeBits<int>(TileMapX, 4, name: nameof(TileMapX));
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 12, name: nameof(TileMapY));
                 });
 
                 CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
@@ -152,10 +152,10 @@ namespace Ray1Map
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, 12, name: nameof(TileMapY));
-                    CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 12, name: nameof(TileMapY));
+                    CollisionType = (byte)b.SerializeBits<int>(CollisionType, 4, name: nameof(CollisionType));
                 });
 
                 TileMapX = 0;
@@ -164,23 +164,23 @@ namespace Ray1Map
             {
                 if (!SNES_Is8PxTile)
                 {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        CollisionType = (byte)b.SerializeBits<int>(CollisionType, 4, name: nameof(CollisionType));
                     });
                 }
                 else
                 {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 3, name: nameof(PaletteIndex));
-                        Priority = bitFunc(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 3, name: nameof(PaletteIndex));
+                        Priority = b.SerializeBits<int>(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
                     });
                 }
 
@@ -192,12 +192,12 @@ namespace Ray1Map
                 
                 if (s.GetR1Settings().GBA_IsShanghai || s.GetR1Settings().GBA_IsMilan)
                 {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                     });
                 }
                 else if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
@@ -304,19 +304,19 @@ namespace Ray1Map
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapX = (ushort)bitFunc(TileMapX, 4, name: nameof(TileMapX));
-                    TileMapY = (ushort)bitFunc(TileMapY, 6, name: nameof(TileMapY));
-                    CollisionType = (byte)bitFunc(CollisionType, 6, name: nameof(CollisionType));
+                    TileMapX = (ushort)b.SerializeBits<int>(TileMapX, 4, name: nameof(TileMapX));
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 6, name: nameof(TileMapY));
+                    CollisionType = (byte)b.SerializeBits<int>(CollisionType, 6, name: nameof(CollisionType));
                 });
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapX = (ushort)bitFunc(TileMapX, 9, name: nameof(TileMapX));
-                    CollisionType = (byte)bitFunc(CollisionType, 7, name: nameof(CollisionType));
+                    TileMapX = (ushort)b.SerializeBits<int>(TileMapX, 9, name: nameof(TileMapX));
+                    CollisionType = (byte)b.SerializeBits<int>(CollisionType, 7, name: nameof(CollisionType));
                 });
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBARRR)
@@ -330,24 +330,24 @@ namespace Ray1Map
                     TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Foreground) {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
-                        //Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        //Unk = (byte)b.SerializeBit<int>(Unk, 4, name: nameof(Unk));
                     });
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Menu) {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 8, name: nameof(TileMapY));
-                        GBARRR_MenuUnk = (byte)bitFunc(GBARRR_MenuUnk, 2, name: nameof(GBARRR_MenuUnk));
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
-                        //Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 8, name: nameof(TileMapY));
+                        GBARRR_MenuUnk = (byte)b.SerializeBits<int>(GBARRR_MenuUnk, 2, name: nameof(GBARRR_MenuUnk));
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        //Unk = (byte)b.SerializeBit<int>(Unk, 4, name: nameof(Unk));
                     });
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Mode7Tiles) {
@@ -356,36 +356,36 @@ namespace Ray1Map
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAIsometric)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                    PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                    HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC)
             {
                 switch (GBCTileType) {
                     case GBC_TileType.Full:
-                        s.SerializeBitValues<ushort>(bitFunc => {
-                            TileMapY = (ushort)bitFunc(TileMapY, 9, name: nameof(TileMapY));
-                            HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                            VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                            CollisionType = (byte)bitFunc(CollisionType, 5, name: nameof(CollisionType));
+                        s.DoBits<ushort>(b => {
+                            TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 9, name: nameof(TileMapY));
+                            HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                            VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                            CollisionType = (byte)b.SerializeBits<int>(CollisionType, 5, name: nameof(CollisionType));
                         });
                         break;
                     case GBC_TileType.BGMapTileNumbers:
                         TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                         break;
                     case GBC_TileType.BGMapAttributes:
-                        s.SerializeBitValues<byte>(bitFunc => {
-                            PaletteIndex = (byte)bitFunc((byte)PaletteIndex, 3, name: nameof(PaletteIndex));
-                            GBC_BankNumber = (byte)bitFunc((byte)GBC_BankNumber, 1, name: nameof(GBC_BankNumber));
-                            GBC_Unused = (byte)bitFunc((byte)GBC_Unused, 1, name: nameof(GBC_Unused));
-                            HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                            VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                            Priority = bitFunc(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
+                        s.DoBits<byte>(b => {
+                            PaletteIndex = (byte)b.SerializeBits<int>((byte)PaletteIndex, 3, name: nameof(PaletteIndex));
+                            GBC_BankNumber = (byte)b.SerializeBits<int>((byte)GBC_BankNumber, 1, name: nameof(GBC_BankNumber));
+                            GBC_Unused = (byte)b.SerializeBits<int>((byte)GBC_Unused, 1, name: nameof(GBC_Unused));
+                            HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                            VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                            Priority = b.SerializeBits<int>(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
                         });
                         break;
                     case GBC_TileType.Collision:
@@ -395,22 +395,22 @@ namespace Ray1Map
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAVV)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                s.DoBits<ushort>(b =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, GBAVV_IsWorldMap ? 12 : Is8Bpp ? 14 : 10, name: nameof(TileMapY));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, GBAVV_IsWorldMap ? 12 : Is8Bpp ? 14 : 10, name: nameof(TileMapY));
+                    HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
 
                     if (!Is8Bpp || GBAVV_IsWorldMap)
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, GBAVV_IsWorldMap ? 2 : 4, name: nameof(PaletteIndex));
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, GBAVV_IsWorldMap ? 2 : 4, name: nameof(PaletteIndex));
                 });
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Gameloft)
             {
-                s.SerializeBitValues<byte>(bitFunc =>
+                s.DoBits<byte>(b =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, 7, name: nameof(TileMapY));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 7, name: nameof(TileMapY));
+                    HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                 });
             }
             else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAKlonoa)
@@ -421,12 +421,12 @@ namespace Ray1Map
                 }
                 else
                 {
-                    s.SerializeBitValues<ushort>(bitFunc =>
+                    s.DoBits<ushort>(b =>
                     {
-                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        TileMapY = (ushort)b.SerializeBits<int>(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = b.SerializeBits<int>(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = b.SerializeBits<int>(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        PaletteIndex = (byte)b.SerializeBits<int>(PaletteIndex, 4, name: nameof(PaletteIndex));
                     });
                 }
             }

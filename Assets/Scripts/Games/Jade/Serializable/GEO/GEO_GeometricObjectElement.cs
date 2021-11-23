@@ -95,9 +95,9 @@ namespace Ray1Map.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-				s.SerializeBitValues<int>(bitFunc => {
-					VertexCount = bitFunc(VertexCount, 31, name: nameof(VertexCount));
-					HasNoEditorInts = bitFunc(HasNoEditorInts ? 1 : 0, 1, name: nameof(HasNoEditorInts)) == 1;
+				s.DoBits<int>(b => {
+					VertexCount = b.SerializeBits<int>(VertexCount, 31, name: nameof(VertexCount));
+					HasNoEditorInts = b.SerializeBits<bool>(HasNoEditorInts, 1, name: nameof(HasNoEditorInts));
 				});
 				if (!HasNoEditorInts && !Loader.IsBinaryData
 					&& s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))

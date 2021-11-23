@@ -18,10 +18,10 @@ namespace Ray1Map.GBAVV
 
             for (int i = 0; i < CollisionMap.Length; i+=2)
             {
-                s.SerializeBitValues<byte>(bitFunc =>
+                s.DoBits<byte>(b =>
                 {
-                    CollisionMap[i] = (byte)bitFunc(CollisionMap[i], 4, name: $"{nameof(CollisionMap)}[{i}]");
-                    CollisionMap[i + 1] = (byte)bitFunc(CollisionMap[i + 1], 4, name: $"{nameof(CollisionMap)}[{i + 1}]");
+                    CollisionMap[i] = (byte)b.SerializeBits<int>(CollisionMap[i], 4, name: $"{nameof(CollisionMap)}[{i}]");
+                    CollisionMap[i + 1] = (byte)b.SerializeBits<int>(CollisionMap[i + 1], 4, name: $"{nameof(CollisionMap)}[{i + 1}]");
                 });
             }
         }

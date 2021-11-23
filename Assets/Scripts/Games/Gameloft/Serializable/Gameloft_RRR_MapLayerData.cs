@@ -19,7 +19,7 @@ namespace Ray1Map.Gameloft
 
                     for (int i = 0; i < TileMap.Length;)
                     {
-                        s.SerializeBitValues<byte>(bitFunc =>
+                        s.DoBits<byte>(b =>
                         {
 							int bpt = 2; // bits per tile
 							if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_CZ) {
@@ -33,7 +33,7 @@ namespace Ray1Map.Gameloft
 								if (TileMap[i] == null)
 									TileMap[i] = new MapTile();
 
-								TileMap[i].CollisionType = (ushort)bitFunc(TileMap[i].CollisionType, bpt, name: $"{nameof(TileMap)}[{i}]");
+								TileMap[i].CollisionType = (ushort)b.SerializeBits<int>(TileMap[i].CollisionType, bpt, name: $"{nameof(TileMap)}[{i}]");
 
 								i++;
 							}

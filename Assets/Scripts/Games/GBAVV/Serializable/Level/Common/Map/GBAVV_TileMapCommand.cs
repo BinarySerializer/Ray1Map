@@ -12,10 +12,10 @@ namespace Ray1Map.GBAVV
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.SerializeBitValues<ushort>(bitFunc =>
+            s.DoBits<ushort>(b =>
             {
-                Length = (ushort)bitFunc(Length, 14, name: nameof(Length));
-                Type = (byte)bitFunc(Type, 2, name: nameof(Type));
+                Length = (ushort)b.SerializeBits<int>(Length, 14, name: nameof(Length));
+                Type = (byte)b.SerializeBits<int>(Type, 2, name: nameof(Type));
             });
 
             if (Type == 3)

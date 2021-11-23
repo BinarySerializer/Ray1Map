@@ -312,12 +312,12 @@ namespace Ray1Map.Gameloft
 
 			public override void SerializeImpl(SerializerObject s) {
 				s.DoEndian(Endian.Big, () => {
-					s.SerializeBitValues<uint>(bitFunc => {
-						PaletteLength = (byte)bitFunc(PaletteLength, 8, name: nameof(PaletteLength));
-						Height = bitFunc(Height, 9, name: nameof(Height));
-						Width = bitFunc(Width, 9, name: nameof(Width));
-						BitsPerPixel = (byte)bitFunc(BitsPerPixel, 4, name: nameof(BitsPerPixel));
-						Unknown2 = (byte)bitFunc(Unknown2, 2, name: nameof(Unknown2));
+					s.DoBits<uint>(b => {
+						PaletteLength = (byte)b.SerializeBits<int>(PaletteLength, 8, name: nameof(PaletteLength));
+						Height = b.SerializeBits<int>(Height, 9, name: nameof(Height));
+						Width = b.SerializeBits<int>(Width, 9, name: nameof(Width));
+						BitsPerPixel = (byte)b.SerializeBits<int>(BitsPerPixel, 4, name: nameof(BitsPerPixel));
+						Unknown2 = (byte)b.SerializeBits<int>(Unknown2, 2, name: nameof(Unknown2));
 					});
 				});
 				Palette = s.SerializeObjectArray<RGB888Color>(Palette, PaletteLength + 1, name: nameof(Palette));

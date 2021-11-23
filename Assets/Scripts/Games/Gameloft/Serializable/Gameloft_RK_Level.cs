@@ -213,11 +213,11 @@ namespace Ray1Map.Gameloft
 			}
 
 			public override void SerializeImpl(SerializerObject s) {
-				s.SerializeBitValues<byte>(bitFunc => {
-					YDelta = (byte)bitFunc(YDelta, 3, name: nameof(YDelta));
-					XDelta = (byte)bitFunc(XDelta, 3, name: nameof(XDelta));
-					YDeltaSign = bitFunc(YDeltaSign ? 1 : 0, 1, name: nameof(YDeltaSign)) == 1;
-					XDeltaSign = bitFunc(XDeltaSign ? 1 : 0, 1, name: nameof(XDeltaSign)) == 1;
+				s.DoBits<byte>(b => {
+					YDelta = (byte)b.SerializeBits<int>(YDelta, 3, name: nameof(YDelta));
+					XDelta = (byte)b.SerializeBits<int>(XDelta, 3, name: nameof(XDelta));
+					YDeltaSign = b.SerializeBits<int>(YDeltaSign ? 1 : 0, 1, name: nameof(YDeltaSign)) == 1;
+					XDeltaSign = b.SerializeBits<int>(XDeltaSign ? 1 : 0, 1, name: nameof(XDeltaSign)) == 1;
 				});
 			}
 		}
@@ -346,10 +346,10 @@ namespace Ray1Map.Gameloft
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
-				s.SerializeBitValues<ushort>(bitFunc => {
-					UShort1 = (ushort)bitFunc(UShort1, 7, name: nameof(UShort1));
-					UShort2 = (ushort)bitFunc(UShort2, 7, name: nameof(UShort2));
-					UShort3 = (ushort)bitFunc(UShort3, 2, name: nameof(UShort3));
+				s.DoBits<ushort>(b => {
+					UShort1 = (ushort)b.SerializeBits<int>(UShort1, 7, name: nameof(UShort1));
+					UShort2 = (ushort)b.SerializeBits<int>(UShort2, 7, name: nameof(UShort2));
+					UShort3 = (ushort)b.SerializeBits<int>(UShort3, 2, name: nameof(UShort3));
 				});
 				Commands = s.SerializeObjectArray<Command>(Commands, Count, name: nameof(Commands));
 			}
@@ -408,9 +408,9 @@ namespace Ray1Map.Gameloft
 					public short Z { get; set; }
 					public override void SerializeImpl(SerializerObject s) {
 						X = s.Serialize<short>(X, name: nameof(X));
-						s.SerializeBitValues<short>(bitFunc => {
-							Y = (short)bitFunc(Y, 14, name: nameof(Y));
-							Z = (short)bitFunc(Z, 1, name: nameof(Z));
+						s.DoBits<short>(b => {
+							Y = (short)b.SerializeBits<int>(Y, 14, name: nameof(Y));
+							Z = (short)b.SerializeBits<int>(Z, 1, name: nameof(Z));
 						});
 					}
 				}
@@ -465,14 +465,14 @@ namespace Ray1Map.Gameloft
 			public bool FlagLast { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				s.SerializeBitValues<short>(bitFunc => {
-					TrackObjectIndex = (short)bitFunc(TrackObjectIndex, 11, name: nameof(TrackObjectIndex));
-					FlipX = bitFunc(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
-					ObjType = bitFunc(ObjType, 3, name: nameof(ObjType));
-					/*FlagUnknown = bitFunc(FlagUnknown ? 1 : 0, 1, name: nameof(FlagUnknown)) == 1;
-					DisplaySprite = bitFunc(DisplaySprite ? 1 : 0, 1, name: nameof(DisplaySprite)) == 1;
-					HasCollision = bitFunc(HasCollision ? 1 : 0, 1, name: nameof(HasCollision)) == 1;*/
-					FlagLast = bitFunc(FlagLast ? 1 : 0, 1, name: nameof(FlagLast)) == 1;
+				s.DoBits<short>(b => {
+					TrackObjectIndex = (short)b.SerializeBits<int>(TrackObjectIndex, 11, name: nameof(TrackObjectIndex));
+					FlipX = b.SerializeBits<int>(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
+					ObjType = b.SerializeBits<int>(ObjType, 3, name: nameof(ObjType));
+					/*FlagUnknown = b.SerializeBit<int>(FlagUnknown ? 1 : 0, 1, name: nameof(FlagUnknown)) == 1;
+					DisplaySprite = b.SerializeBit<int>(DisplaySprite ? 1 : 0, 1, name: nameof(DisplaySprite)) == 1;
+					HasCollision = b.SerializeBit<int>(HasCollision ? 1 : 0, 1, name: nameof(HasCollision)) == 1;*/
+					FlagLast = b.SerializeBits<int>(FlagLast ? 1 : 0, 1, name: nameof(FlagLast)) == 1;
 				});
 			}
 		}
@@ -481,9 +481,9 @@ namespace Ray1Map.Gameloft
 			public int Count { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				s.SerializeBitValues<short>(bitFunc => {
-					InstanceIndex = (short)bitFunc(InstanceIndex, 11, name: nameof(InstanceIndex));
-					Count = bitFunc(Count, 5, name: nameof(Count));
+				s.DoBits<short>(b => {
+					InstanceIndex = (short)b.SerializeBits<int>(InstanceIndex, 11, name: nameof(InstanceIndex));
+					Count = b.SerializeBits<int>(Count, 5, name: nameof(Count));
 				});
 			}
 		}
