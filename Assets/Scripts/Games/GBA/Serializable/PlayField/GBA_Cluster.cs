@@ -56,8 +56,8 @@ namespace Ray1Map.GBA
                 {
                     s.DoBits<byte>(b =>
                     {
-                        Milan_MapCompressionType = (Milan_CompressionType)b.SerializeBits<int>((byte)Milan_MapCompressionType, 7, name: nameof(Milan_MapCompressionType));
-                        Milan_UnkFlag = b.SerializeBits<int>(Milan_UnkFlag ? 1 : 0, 1, name: nameof(Milan_UnkFlag)) == 1;
+                        Milan_MapCompressionType = b.SerializeBits<Milan_CompressionType>(Milan_MapCompressionType, 7, name: nameof(Milan_MapCompressionType));
+                        Milan_UnkFlag = b.SerializeBits<bool>(Milan_UnkFlag, 1, name: nameof(Milan_UnkFlag));
                     });
 
                     Milan_Byte_05 = s.Serialize<byte>(Milan_Byte_05, name: nameof(Milan_Byte_05));

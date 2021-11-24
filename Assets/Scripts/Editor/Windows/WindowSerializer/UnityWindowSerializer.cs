@@ -260,8 +260,9 @@ public class UnityWindowSerializer : SerializerObject
         });
     }
 
-	public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) {
-        serializeFunc(new UnityWindowBitSerializer(this, null, 0));
+	public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) 
+    {
+        serializeFunc(new UnityWindowBitSerializer(this, CurrentPointer, null, 0));
 	}
 
 	public override void Log(string logString)

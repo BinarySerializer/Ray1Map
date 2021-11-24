@@ -166,8 +166,8 @@ namespace Ray1Map.GBA
                     } else {
                         s.DoBits<byte>(b =>
                         {
-                            LinkedActorsCount = (byte)b.SerializeBits<int>(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
-                            CaptorID = (CaptorType)b.SerializeBits<int>((byte)CaptorID, 3, name: nameof(CaptorID));
+                            LinkedActorsCount = b.SerializeBits<byte>(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
+                            CaptorID = b.SerializeBits<CaptorType>(CaptorID, 3, name: nameof(CaptorID));
                         });
                     }
                     Index_CaptorData = s.Serialize<byte>(Index_CaptorData, name: nameof(Index_CaptorData));

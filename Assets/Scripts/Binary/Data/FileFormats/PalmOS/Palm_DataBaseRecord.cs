@@ -26,9 +26,10 @@ namespace Ray1Map
             else
             {
                 DataPointer = s.SerializePointer(DataPointer, name: nameof(DataPointer));
-                s.DoBits<uint>(b => {
-                    UniqueID = (uint)b.SerializeBits<int>((int)UniqueID, 24, name: nameof(UniqueID));
-                    Attributes = (byte)b.SerializeBits<int>(Attributes, 8, name: nameof(Attributes));
+                s.DoBits<uint>(b => 
+                {
+                    UniqueID = b.SerializeBits<uint>(UniqueID, 24, name: nameof(UniqueID));
+                    Attributes = b.SerializeBits<byte>(Attributes, 8, name: nameof(Attributes));
                 });
             }
         }
