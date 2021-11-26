@@ -1477,7 +1477,7 @@ namespace Ray1Map.PSKlonoa
                             spriteObjects.Add(new Unity_Object_Dummy(
                                 serializableData: movementData,
                                 type: Unity_ObjectType.Waypoint,
-                                name: $"Movement Waypoint {i} (start)",
+                                name: $"Movement Waypoint {i}",
                                 position: movementPaths[pathIndex].Blocks.GetPosition(movementData.MovementPathDistance, Vector3.zero, scale),
                                 isEditor: true));
 
