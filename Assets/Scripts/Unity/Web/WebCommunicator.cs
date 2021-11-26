@@ -750,7 +750,7 @@ public class WebCommunicator : MonoBehaviour {
 			var bgTint = Controller.obj?.levelController?.controllerTilemap?.backgroundTint;
 			if (bgTint != null) bgTint.color = msg.BackgroundTint.Value;
 		}
-		if (msg.BackgroundTintDark.HasValue && LevelEditorData.Level?.CameraClear != null) {
+		if (msg.BackgroundTintDark.HasValue && LevelEditorData.Level?.CameraClear == null) {
 			Camera.main.backgroundColor = msg.BackgroundTintDark.Value;
 		}
 		if (updatedSettings) {
