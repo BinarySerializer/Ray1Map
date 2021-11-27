@@ -118,8 +118,14 @@ namespace Ray1Map
                 VibratoRate = s.Serialize<byte>(VibratoRate, name: nameof(VibratoRate));
                 VolumeFadeout = s.Serialize<ushort>(VolumeFadeout, name: nameof(VolumeFadeout));
                 Reserved = s.SerializeArray<byte>(Reserved, 2, name: nameof(Reserved));
-
-                Samples = s.SerializeObjectArray<XM_Sample>(Samples, NumSamples, name: nameof(Samples));
+            }
+            if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + InstrumentSize) {
+                s.LogWarning("XM: Incorrect Instrument Size");
+                s.Goto(Offset + InstrumentSize);
+            }
+            Samples = s.SerializeObjectArray<XM_Sample>(Samples, NumSamples, name: nameof(Samples));
+            foreach (var sam in Samples) {
+                sam.SerializeData(s);
             }
         }
     }

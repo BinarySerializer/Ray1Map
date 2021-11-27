@@ -427,10 +427,10 @@ namespace Ray1Map.Jade {
 			if (geo != null) {
 				modelType = "Mesh";
 				// If material == FFFFFFFF modelType can be LimbNode
-				if (gao.Base.Visual.Material.Value == null && objectGroup != 0) {
+				/*if (gao.Base.Visual.Material.Value == null && objectGroup != 0) {
 					isBone = true;
 					modelType = "LimbNode";
-				}
+				}*/
 			}
 
 			var currentParent = parentGao;
@@ -748,7 +748,7 @@ namespace Ray1Map.Jade {
 
 				// Write morph data
 				WriteMorphTargetsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, header);
-				WriteDeformationsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, objectGroup, header);
+				//WriteDeformationsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, objectGroup, header);
 			}
 
 			if (isBone) {
@@ -1033,9 +1033,9 @@ namespace Ray1Map.Jade {
 			string nodeAttrName = $"NodeAttribute::{gao.Key.Key:X8}_LimbNode";
 			var nodeAttrID = GetRandomFBXId();
 			tempObjectSb.AppendLine($"\tNodeAttribute: {nodeAttrID}, \"{nodeAttrName}\", \"LimbNode\" {{");
-			tempObjectSb.AppendLine("\t\tProperties70:  {");
+			/*tempObjectSb.AppendLine("\t\tProperties70:  {");
 			tempObjectSb.AppendLine("\t\t\tP: \"Size\", \"double\", \"Number\", \"\",5");// P: "Size", "double", "Number", "",7.776
-			tempObjectSb.AppendLine("\t\t}");
+			tempObjectSb.AppendLine("\t\t}");*/
 			tempObjectSb.AppendLine("\t\tTypeFlags: \"Skeleton\"");
 			tempObjectSb.AppendLine("\t}");
 			tempObjectSb.AppendLine();
@@ -1067,6 +1067,11 @@ namespace Ray1Map.Jade {
 			tempObjectSb.AppendFormat("{0},{1},{2},{3},", m.Jx, m.Jy, m.Jz, m.Sy);
 			tempObjectSb.AppendFormat("{0},{1},{2},{3},", m.Kx, m.Ky, m.Kz, m.Sz);
 			tempObjectSb.AppendFormat("{0},{1},{2},{3}", m.Tx, m.Ty, m.Tz, m.w);
+			/*var mat = Matrix4x4.TRS(m.GetPosition(), m.GetRotation(), m.GetScale());
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", mat.m00, mat.m10, mat.m20, mat.m30);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", mat.m01, mat.m11, mat.m21, mat.m31);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3},", mat.m02, mat.m12, mat.m22, mat.m32);
+			tempObjectSb.AppendFormat("{0},{1},{2},{3}" , mat.m03, mat.m13, mat.m23, mat.m33);*/
 			tempObjectSb.AppendLine();
 			tempObjectSb.AppendLine($"{indent}}}");
 		}

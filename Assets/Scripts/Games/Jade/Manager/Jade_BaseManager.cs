@@ -413,6 +413,7 @@ namespace Ray1Map {
 			var levIndex = 0;
 			uint currentKey = 0;
 			HashSet<uint> exportedObjects = new HashSet<uint>();
+			HashSet<string> exportedObjectIDs = new HashSet<string>();
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -441,6 +442,19 @@ namespace Ray1Map {
 							foreach (var o in gaos) {
 								if(o.IsNull || exportedObjects.Contains(o.Key.Key)) continue;
 								exportedObjects.Add(o.Key.Key);
+								string objectID = "";
+								if (o?.Value?.Base?.Visual != null) {
+									var visu = o?.Value?.Base?.Visual;
+									objectID += $"G{visu.GeometricObject.Key.Key:X8}-M{visu.Material.Key.Key:X8}";
+								}
+								if (o?.Value?.Base?.ActionData?.SkeletonGroup != null) {
+									objectID += $"-S{o.Value.Base.ActionData.SkeletonGroup.Key.Key:X8}";
+								}
+								if (o?.Value?.Extended?.Group != null) {
+									objectID += $"-Gr{o?.Value.Extended?.Group.Key.Key:X8}";
+								}
+								if(exportedObjectIDs.Contains(objectID)) continue;
+								exportedObjectIDs.Add(objectID);
 								if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
 							}
 						}

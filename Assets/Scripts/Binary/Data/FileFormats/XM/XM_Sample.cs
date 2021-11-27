@@ -41,7 +41,9 @@ namespace Ray1Map
             RelativeNoteNumber = s.Serialize<sbyte>(RelativeNoteNumber, name: nameof(RelativeNoteNumber));
             DataType = s.Serialize<byte>(DataType, name: nameof(DataType));
             SampleName = s.SerializeString(SampleName, 22, Encoding.ASCII, name: nameof(SampleName));
+        }
 
+        public void SerializeData(SerializerObject s) {
             if (BitHelpers.ExtractBits(Type, 1, 4) == 1) {
                 SampleData16 = s.SerializeArray<short>(SampleData16, SampleLength / 2, name: nameof(SampleData16));
             } else {
