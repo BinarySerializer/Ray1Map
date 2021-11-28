@@ -632,6 +632,77 @@ namespace Ray1Map.Rayman1_Jaguar
                 // Get a deserializer
                 var s = context.Deserializer;
 
+                // Taken from the few R1 Jaguar source files available
+                /*string[] filenames = new string[] {
+                    "fee10",
+                    "suspen10",
+                    "jungle10",
+                    "mstik10",
+                    "mstik20",
+                    "jungle20",
+                    "monta10",
+                    "joe1",
+                    "grotte",
+                    "espace",
+                    "musik",
+                    "mrsax",
+                    "monta20",
+                    "zen",
+                    "joe2",
+                    "gameover",
+                    "save10",
+                    "pirate",
+                    "percus",
+                    "joconde",
+                    "joconde2",
+                    "rap",
+                    "monta30",
+                    "cirque",
+                    "skop",
+                    "gateaux",
+                    "replay",
+                    "magic",
+                    "virus10",
+                    "stone10",
+                    "gagner",
+                    "perdu"
+                };*/
+
+                string[] filenames = new string[] {
+                    "mus_fee",
+                    "mus_suspense",
+                    "mus_jung1",
+                    "mus_mous_stress",
+                    "mus_mous_cool",
+                    "mus_jung2",
+                    "mus_mont1",
+                    "mus_joe1",
+                    "mus_grotte",
+                    "mus_pirate_espace",
+                    "mus_musik",
+                    "mus_mr_sax",
+                    "mus_mont3",
+                    "mus_zen",
+                    "mus_joe2",
+                    "mus_gameover",
+                    "jingle_save",
+                    "mus_pirate_bateau",
+                    "mus_percu",
+                    "mus_joconde",
+                    "mus_joconde2",
+                    "mus_rap",
+                    "mus_mr_stone",
+                    "mus_cirque",
+                    "mus_mr_skops",
+                    "mus_gateaux",
+                    "mus_replay",
+                    "mus_magic",
+                    "mus_mr_black",
+                    "mus_mont2",
+                    "mus_gagne",
+                    "mus_perdu"
+                };
+
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
                 s.Goto(file.StartPointer);
@@ -644,9 +715,13 @@ namespace Ray1Map.Rayman1_Jaguar
                     // For each entry
                     R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
                     for (int i = 0; i < MusicTable.Length; i++) {
-                        w.Write(MusicTable[i],
-                            Path.Combine(outputPath,
-                                $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid"));
+                        string filename;
+                        if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar) {
+                            filename = $"{filenames[i]}.mid";
+                        } else {
+                            filename = $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid";
+                        }
+                        w.Write(MusicTable[i], Path.Combine(outputPath, filename));
                     }
                 });
             }

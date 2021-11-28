@@ -199,6 +199,53 @@ namespace Ray1Map.GBA
                 // Get the deserialize
                 var s = context.Deserializer;
 
+                // Track order matches the the digiBLAST version sorted based on filenames in alphabetical order :)
+                string[] fileNames = new string[] {
+                    "ancients",
+                    "baddreams",
+                    "barbeslide",
+                    "barrel",
+                    "barrel_BA",
+                    "bigplatform",
+                    "bigtrees",
+                    "boss1",
+                    "boss34",
+                    "canopy",
+                    "death",
+                    "echocave",
+                    "enemy1",
+                    "enemy2",
+                    "fairyglades",
+                    "finalboss",
+                    "firestone",
+                    "happyslide",
+                    "helico",
+                    "jano",
+                    "lyfree",
+                    "lyfreeVOX4",
+                    "lyrace",
+                    "mountain1",
+                    "mountain2",
+                    "polokus",
+                    "precipice",
+                    "raytheme",
+                    "rockchase",
+                    "rocket",
+                    "rocket_BA",
+                    "sadslide",
+                    "ship",
+                    "spiderchase",
+                    "tag",
+                    "tizetre",
+                    "tizetre_Swing",
+                    "waterski",
+                    "win1",
+                    "win2",
+                    "win3",
+                    "Win_BOSS",
+                    "woodlight"
+                };
+
                 // Music is stored at the end
                 const int trackCount = 43;
                 int trackStart = dataBlock.UiOffsetTable.OffsetsCount - trackCount;
@@ -230,7 +277,7 @@ namespace Ray1Map.GBA
 
 
                     // Get the output path
-                    var name = $"Track_{i}.xm";
+                    var name = $"{fileNames[i]}.xm";
                     var outputFilePath = Path.Combine(outputPath, name);
 
                     using (var outputStream = File.Create(outputFilePath)) {
