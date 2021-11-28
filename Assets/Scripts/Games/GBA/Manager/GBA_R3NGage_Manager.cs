@@ -221,7 +221,7 @@ namespace Ray1Map.GBA
                 });
 
                 for (int i = 0; i < trackCount; i++) {
-                    Tracks[i].NumInstruments = (ushort)Instruments.Length;
+                    //Tracks[i].NumInstruments = (ushort)Instruments.Length;
                     Tracks[i].Instruments = new XM_Instrument[Tracks[i].NumInstruments];
                     for (int j = 0; j < Tracks[i].Instruments.Length; j++) {
                         Tracks[i].Instruments[j] = Instruments[j];
