@@ -106,6 +106,15 @@ namespace Ray1Map.GBA
             await context.AddMemoryMappedFile(ExeFilePath, 0x0fffff84);
         }
 
+
+        // Game actions
+        public override GameAction[] GetGameActions(GameSettings settings) {
+            return base.GetGameActions(settings).Concat(new GameAction[]
+            {
+                new GameAction("Export Music", false, true, (input, output) => ExportMusicAsync(settings, output)),
+            }).ToArray();
+        }
+
         // NOTE: In order to use this the FileSystem class needs to be updated to allow file stream sharing for read/write streams. Also note that this method will overwrite the GBA rom file, so keep a backup! All N-Gage data is appended rather than replaced, so the data can be swapped out by changing the offsets. Only the level offsets are automatically changed to use the N-Gage versions, thus keeping the menu etc.
         public async UniTask AddNGageToGBAAsync(GameModeSelection gbaGameModeSelection)
         {
@@ -174,6 +183,62 @@ namespace Ray1Map.GBA
                     // Update level offsets
                     for (int i = 0; i < 65; i++)
                         ss.DoAt(gbaBase + 4 + (i * 4), () => ss.Serialize<int>((int)((ngageBlocks[i].Offset.FileOffset - gbaBase.FileOffset) / 4)));
+                }
+            }
+        }
+
+
+        public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
+            using (var context = new Ray1MapContext(settings)) {
+                // Load the ROM
+                await LoadFilesAsync(context);
+
+                // Load the data
+                var dataBlock = LoadDataBlock(context);
+
+                // Get the deserialize
+                var s = context.Deserializer;
+
+                // Music is stored at the end
+                const int trackCount = 43;
+                int trackStart = dataBlock.UiOffsetTable.OffsetsCount - trackCount;
+                int instrumentBlock = trackStart - 1;
+
+                XM[] Tracks = new XM[trackCount];
+                XM_Instrument[] Instruments = null;
+
+                for (int i = 0; i < trackCount; i++) {
+                    s.DoAt(dataBlock.UiOffsetTable.GetPointer(trackStart + i), () => {
+                        Tracks[i] = s.SerializeObject<XM>(Tracks[i], onPreSerialize: t => t.Pre_SerializeInstruments = false, name: $"{nameof(Tracks)}[{i}]");
+                    });
+                }
+                s.DoAt(dataBlock.UiOffsetTable.GetPointer(instrumentBlock), () => {
+                    //for (int i = 0; i < trackCount; i++) {
+                    ushort instrumentsCount = 0;
+					instrumentsCount = s.Serialize<ushort>(instrumentsCount, name: nameof(instrumentsCount));
+                    Instruments = s.SerializeObjectArray<XM_Instrument>(Instruments, instrumentsCount, name: nameof(Instruments));
+                    //}
+                });
+
+                for (int i = 0; i < trackCount; i++) {
+                    Tracks[i].NumInstruments = (ushort)Instruments.Length;
+                    Tracks[i].Instruments = new XM_Instrument[Tracks[i].NumInstruments];
+                    for (int j = 0; j < Tracks[i].Instruments.Length; j++) {
+                        Tracks[i].Instruments[j] = Instruments[j];
+                    }
+                    Tracks[i].Pre_SerializeInstruments = true;
+
+
+                    // Get the output path
+                    var name = $"Track_{i}.xm";
+                    var outputFilePath = Path.Combine(outputPath, name);
+
+                    using (var outputStream = File.Create(outputFilePath)) {
+                        using (var xmContext = new Ray1MapContext(outputPath, settings)) {
+                            xmContext.AddFile(new StreamFile(context, name, outputStream));
+                            FileFactory.Write<XM>(name, Tracks[i], xmContext);
+                        }
+                    }
                 }
             }
         }

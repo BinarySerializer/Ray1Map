@@ -8,6 +8,8 @@ namespace Ray1Map
     /// XM audio file data
     /// </summary>
     public class XM : BinarySerializable {
+        public bool Pre_SerializeInstruments { get; set; } = true;
+
         public string IDText { get; set; } = "Extended Module: ";
         public string ModuleName { get; set; }
         public byte EscapeName { get; set;} = 0x1A;
@@ -50,7 +52,9 @@ namespace Ray1Map
             DefaultBPM = s.Serialize<ushort>(DefaultBPM, name: nameof(DefaultBPM));
             PatternOrderTable = s.SerializeArray<byte>(PatternOrderTable, HeaderSize - 20, name: nameof(PatternOrderTable));
             Patterns = s.SerializeObjectArray<XM_Pattern>(Patterns, NumPatterns, onPreSerialize: p => p.NumChannels = NumChannels, name: nameof(Patterns));
-            Instruments = s.SerializeObjectArray<XM_Instrument>(Instruments, NumInstruments, name: nameof(Instruments));
+            if (Pre_SerializeInstruments) {
+                Instruments = s.SerializeObjectArray<XM_Instrument>(Instruments, NumInstruments, name: nameof(Instruments));
+            }
         }
     }
 }
