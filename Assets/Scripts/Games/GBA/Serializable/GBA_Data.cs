@@ -5,6 +5,8 @@ namespace Ray1Map
 {
     public class GBA_Data : BinarySerializable
     {
+        public bool Pre_SerializeLocalization { get; set; } = true;
+
         // Common
         public GBA_OffsetTable UiOffsetTable { get; set; }
         public GBA_Scene Scene { get; set; }
@@ -20,6 +22,10 @@ namespace Ray1Map
 
         // Milan
         public GBA_Milan_SceneList Milan_SceneList { get; set; }
+
+        // Localization
+        public GBA_Localization Localization { get; set; }
+        public GBA_Milan_LocTable Milan_Localization { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -74,6 +80,15 @@ namespace Ray1Map
                 case GBA_Manager.LevelType.DLC:
                     // Nothing more to do here if it's a DLC map...
                     break;
+            }
+
+            // Serialize localization
+            if (Pre_SerializeLocalization && pointerTable.ContainsKey(DefinedPointer.Localization))
+            {
+                if (s.GetR1Settings().GBA_IsMilan)
+                    s.DoAt(pointerTable[DefinedPointer.Localization], () => Milan_Localization = s.SerializeObject<GBA_Milan_LocTable>(Milan_Localization, name: nameof(Milan_Localization)));
+                else
+                    s.DoAt(pointerTable[DefinedPointer.Localization], () => Localization = s.SerializeObject<GBA_Localization>(Localization, name: nameof(Localization)));
             }
         }
     }

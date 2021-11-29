@@ -12,9 +12,9 @@ namespace Ray1Map.GBA
         public override bool HasR3SinglePakLevel => false;
 
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
-        public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => null;
+        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context).Localization;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearFileAsync(GetROMFilePath(context));
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath(context), 0x8000);
 
         // Game actions
         public override GameAction[] GetGameActions(GameSettings settings) {

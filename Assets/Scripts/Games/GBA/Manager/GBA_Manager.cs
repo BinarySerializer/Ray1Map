@@ -570,18 +570,19 @@ namespace Ray1Map.GBA
         }
 
         public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data;
-        public virtual GBA_LocLanguageTable LoadLocalizationTable(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Localization;
+        public virtual GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data.Localization;
         public virtual string[] Languages => null;
+        public virtual int[] LocalizationGroupLengths => null;
         public virtual KeyValuePair<string, string[]>[] LoadLocalization(Context context)
         {
-            var strings = LoadLocalizationTable(context)?.StringGroups;
+            var strings = LoadLocalizationTable(context)?.LanguageGroups;
             KeyValuePair<string, string[]>[] loc = null;
 
             if (strings != null)
             {
                 var languages = Languages;
 
-                loc = strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.LocStrings.SelectMany(x => x.Strings).ToArray())).ToArray();
+                loc = strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.Groups.SelectMany(x => x.Where(x => x.Lines != null).SelectMany(s => s.Lines)).ToArray())).ToArray();
             }
 
             return loc;

@@ -266,7 +266,21 @@ namespace Ray1Map.GBA
                 Util.ByteArrayToFile(Path.Combine(outputDir, $"Icon_{i}.png"), creditsIconsTex.EncodeToPNG());
             }
         }
-
+        public override int[] LocalizationGroupLengths => new int[]
+        {
+            17,
+            6,
+            9,
+            2,
+            2,
+            3,
+            2,
+            7,
+            35, // Level names
+            13,
+            1, // Credits
+            18, // Multiplayer, GCN etc.
+        };
         public override string[] Languages => new string[]
         {
             "English",

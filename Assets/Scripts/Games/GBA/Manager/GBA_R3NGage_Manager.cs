@@ -97,8 +97,8 @@ namespace Ray1Map.GBA
             }
         }
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
-        public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => FileFactory.Read<GBA_R3Ngage_ExeFile>(ExeFilePath, context).Localization;
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context, (_, x) => x.Pre_SerializeLocalization = false);
+        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_R3Ngage_ExeFile>(ExeFilePath, context).Localization;
 
         public override async UniTask LoadFilesAsync(Context context)
         {
@@ -536,6 +536,21 @@ namespace Ray1Map.GBA
             }
         }
 
+        public override int[] LocalizationGroupLengths => new int[]
+        {
+            17,
+            6,
+            9,
+            2,
+            2,
+            3,
+            2,
+            7,
+            35, // Level names
+            13,
+            1, // Credits
+            40, // Multiplayer
+        };
         public override string[] Languages => new string[]
         {
             "English",

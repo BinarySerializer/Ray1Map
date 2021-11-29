@@ -5,13 +5,13 @@ namespace Ray1Map
 {
     public class GBA_R3Ngage_ExeFile : BinarySerializable
     {
-        public GBA_LocLanguageTable Localization { get; set; }
+        public GBA_Localization Localization { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.File);
 
-            s.DoAt(pointerTable[DefinedPointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
+            s.DoAt(pointerTable[DefinedPointer.Localization], () => Localization = s.SerializeObject<GBA_Localization>(Localization, name: nameof(Localization)));
         }
     }
 }

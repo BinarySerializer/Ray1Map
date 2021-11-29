@@ -13,10 +13,6 @@ namespace Ray1Map
         // Contains general info about levels, but not anything map related
         public GBA_R3_SceneInfo[] LevelInfo { get; set; }
 
-        // Localization
-        public GBA_LocLanguageTable Localization { get; set; }
-        public GBA_Milan_LocTable Milan_Localization { get; set; }
-
         // Actor type data
         public GBA_ActorTypeTableEntry[] ActorTypeTable { get; set; }
 
@@ -42,22 +38,13 @@ namespace Ray1Map
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.File);
             var lvlType = manager.GetLevelType(s.Context);
 
-            // Serialize the offset table
+            // Serialize the main data
             if (lvlType != GBA_Manager.LevelType.R3SinglePak)
-                s.DoAt(pointerTable[DefinedPointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
+                Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data));
 
             // Serialize level info
             if (pointerTable.ContainsKey(DefinedPointer.LevelInfo))
                 LevelInfo = s.DoAt(pointerTable[DefinedPointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_SceneInfo>(LevelInfo, manager.LevelCount, name: nameof(LevelInfo)));
-
-            // Serialize localization
-            if (pointerTable.ContainsKey(DefinedPointer.Localization))
-            {
-                if (s.GetR1Settings().GBA_IsMilan)
-                    s.DoAt(pointerTable[DefinedPointer.Localization], () => Milan_Localization = s.SerializeObject<GBA_Milan_LocTable>(Milan_Localization, name: nameof(Milan_Localization)));
-                else
-                    s.DoAt(pointerTable[DefinedPointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
-            }
 
             // Serialize actor type data
             if (pointerTable.ContainsKey(DefinedPointer.ActorTypeTable))

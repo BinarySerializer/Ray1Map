@@ -37,6 +37,21 @@ namespace Ray1Map.GBA
             114
         };
 
+        public override int[] LocalizationGroupLengths => new int[]
+        {
+            17,
+            6,
+            9,
+            2,
+            2,
+            3,
+            2,
+            3,
+            30, // Level names
+            9,
+            1, // Credits
+            6, // Multiplayer, GCN etc.
+        };
         public override string[] Languages => new string[]
         {
             "English",

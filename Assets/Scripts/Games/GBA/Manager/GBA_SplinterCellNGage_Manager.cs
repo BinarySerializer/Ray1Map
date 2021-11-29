@@ -31,7 +31,7 @@ namespace Ray1Map.GBA
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
-        public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => null;
+        public override GBA_Localization LoadLocalizationTable(Context context) => null;
 
         public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearFileAsync(GetROMFilePath(context));
     }

@@ -32,7 +32,7 @@ namespace Ray1Map.GBA
 
         public override KeyValuePair<string, string[]>[] LoadLocalization(Context context)
         {
-            var locTable = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Milan_Localization;
+            var locTable = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data.Milan_Localization;
 
             KeyValuePair<string, string[]>[] loc = null;
 

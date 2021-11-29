@@ -105,9 +105,10 @@ namespace Ray1Map
 
                 case GameModeSelection.Rayman3Digiblast:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
-                        [GBA.DefinedPointer.UiOffsetTable] = 0x1F9928,
-                        [GBA.DefinedPointer.Vignette] = 0x1666A0,
-                        [GBA.DefinedPointer.VignettePalettes] = 0x1451E8,
+                        [GBA.DefinedPointer.UiOffsetTable] = 0x1F9928 + 0x8000,
+                        [GBA.DefinedPointer.Vignette] = 0x1666A0 + 0x8000,
+                        [GBA.DefinedPointer.VignettePalettes] = 0x1451E8 + 0x8000,
+                        [GBA.DefinedPointer.Localization] = 0x14862c + 0x8000,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.PrinceOfPersiaGBAEU:
