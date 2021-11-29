@@ -444,7 +444,7 @@ namespace Ray1Map
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
 
-                tex.FillRegion(imgData, i * tileSize, tileX, tileY, tileWidth, tileWidth, flipY);
+                tex.FillRegion(imgData, i * tileSize, tileX, tileY, tileWidth, tileWidth, flipTextureY: flipY);
             }
 
             tex.Apply();
