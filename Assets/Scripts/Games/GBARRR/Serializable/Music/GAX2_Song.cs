@@ -13,14 +13,14 @@ namespace Ray1Map.GBARRR
         public ushort NumChannels { get; set; }
         public ushort NumRowsPerPattern { get; set; }
         public ushort NumPatternsPerChannel { get; set; }
-        public ushort UShort_06 { get; set; }
+        public ushort LoopPoint { get; set; } // Pattern index starting from 0
         public ushort Volume { get; set; }
         public ushort UShort_0A { get; set; }
         public Pointer SequenceDataPointer { get; set; }
         public Pointer InstrumentSetPointer { get; set; }
         public Pointer SampleSetPointer { get; set; }
         public ushort SampleRate { get; set; } // 0x3D99
-        public ushort UShort_1A { get; set; }
+        public ushort FXSampleRate { get; set; } // 0 for same as music
         public ushort UShort_1C { get; set; }
         public ushort UShort_1E { get; set; }
         public Pointer[] PatternTablePointers { get; set; }
@@ -40,14 +40,14 @@ namespace Ray1Map.GBARRR
             NumChannels = s.Serialize<ushort>(NumChannels, name: nameof(NumChannels));
             NumRowsPerPattern = s.Serialize<ushort>(NumRowsPerPattern, name: nameof(NumRowsPerPattern));
             NumPatternsPerChannel = s.Serialize<ushort>(NumPatternsPerChannel, name: nameof(NumPatternsPerChannel));
-            UShort_06 = s.Serialize<ushort>(UShort_06, name: nameof(UShort_06));
+            LoopPoint = s.Serialize<ushort>(LoopPoint, name: nameof(LoopPoint));
             Volume = s.Serialize<ushort>(Volume, name: nameof(Volume));
             UShort_0A = s.Serialize<ushort>(UShort_0A, name: nameof(UShort_0A));
             SequenceDataPointer = s.SerializePointer(SequenceDataPointer, name: nameof(SequenceDataPointer));
             InstrumentSetPointer = s.SerializePointer(InstrumentSetPointer, name: nameof(InstrumentSetPointer));
             SampleSetPointer = s.SerializePointer(SampleSetPointer, name: nameof(SampleSetPointer));
             SampleRate = s.Serialize<ushort>(SampleRate, name: nameof(SampleRate));
-            UShort_1A = s.Serialize<ushort>(UShort_1A, name: nameof(UShort_1A));
+            FXSampleRate = s.Serialize<ushort>(FXSampleRate, name: nameof(FXSampleRate));
             UShort_1C = s.Serialize<ushort>(UShort_1C, name: nameof(UShort_1C));
             UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));
             PatternTablePointers = s.SerializePointerArray(PatternTablePointers, NumChannels, name: nameof(PatternTablePointers));

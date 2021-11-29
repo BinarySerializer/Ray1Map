@@ -4,9 +4,9 @@ using BinarySerializer;
 namespace Ray1Map {
     public class MusyX_Sample : BinarySerializable {
         public uint Length { get; set; }
-        public int Int_04 { get; set; }
+        public int LoopStart { get; set; }
         public ushort SampleRate { get; set; }
-        public ushort UShort_0A { get; set; }
+        public ushort BaseNote { get; set; } // usually 0x3C (MIDI C4) 
         public uint UInt_0C { get; set; }
         public sbyte[] SampleData { get; set; }
 
@@ -17,9 +17,9 @@ namespace Ray1Map {
         public override void SerializeImpl(SerializerObject s)
         {
             Length = s.Serialize<uint>(Length, name: nameof(Length));
-            Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
+            LoopStart = s.Serialize<int>(LoopStart, name: nameof(LoopStart));
             SampleRate = s.Serialize<ushort>(SampleRate, name: nameof(SampleRate));
-            UShort_0A = s.Serialize<ushort>(UShort_0A, name: nameof(UShort_0A));
+            BaseNote = s.Serialize<ushort>(BaseNote, name: nameof(BaseNote));
             UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
             SampleData = s.SerializeArray<sbyte>(SampleData, Length, name: nameof(SampleData));
         }

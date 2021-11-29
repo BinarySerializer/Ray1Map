@@ -9,9 +9,9 @@ namespace Ray1Map
     public class MusyX_File : BinarySerializable
     {
         public Pointer<MusyX_InstrumentTable> InstrumentTable { get; set; }
-        public Pointer<MusyX_UnknownTable> Unknown2List1 { get; set; }
-        public Pointer<MusyX_UnknownTable> Unknown2List2 { get; set; }
-        public Pointer<MusyX_UnknownTable> Unknown2List3 { get; set; }
+        public Pointer<MusyX_SFXGroup> SFXGroup1 { get; set; } // in Rayman Advance this points to a list. in RHR, this points to a pointer (or a list of pointers with only 1 entry), which points to 1 8 byte struct
+        public Pointer<MusyX_SFXGroup> SFXGroup2 { get; set; }
+        public Pointer<MusyX_SFXGroup> SFXGroup3 { get; set; }
         public uint UInt_10 { get; set; }
         public uint UInt_14 { get; set; }
         public Pointer<MusyX_SongTable> SongTable { get; set; }
@@ -24,9 +24,9 @@ namespace Ray1Map
         public override void SerializeImpl(SerializerObject s)
         {
             InstrumentTable = s.SerializePointer<MusyX_InstrumentTable>(InstrumentTable, anchor: Offset, name: nameof(InstrumentTable));
-            Unknown2List1 = s.SerializePointer<MusyX_UnknownTable>(Unknown2List1, anchor: Offset, resolve: true, name: nameof(Unknown2List1));
-            Unknown2List2 = s.SerializePointer<MusyX_UnknownTable>(Unknown2List2, anchor: Offset, resolve: true, name: nameof(Unknown2List2));
-            Unknown2List3 = s.SerializePointer<MusyX_UnknownTable>(Unknown2List3, anchor: Offset, resolve: true, name: nameof(Unknown2List3));
+            SFXGroup1 = s.SerializePointer<MusyX_SFXGroup>(SFXGroup1, anchor: Offset, resolve: false, name: nameof(SFXGroup1)); // Don't resolve for now, this isn't parsed correctly
+            SFXGroup2 = s.SerializePointer<MusyX_SFXGroup>(SFXGroup2, anchor: Offset, resolve: true, name: nameof(SFXGroup2));
+            SFXGroup3 = s.SerializePointer<MusyX_SFXGroup>(SFXGroup3, anchor: Offset, resolve: true, name: nameof(SFXGroup3));
             UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
             UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
             SongTable = s.SerializePointer<MusyX_SongTable>(SongTable, anchor: Offset, name: nameof(SongTable));
@@ -36,7 +36,7 @@ namespace Ray1Map
             // Read instrument table
             InstrumentTable.Resolve(s, onPreSerialize: st => {
                 st.BaseOffset = Offset;
-                st.EndOffset = Unknown2List1.PointerValue;
+                st.EndOffset = SFXGroup1.PointerValue;
             });
 
             // Read song table
