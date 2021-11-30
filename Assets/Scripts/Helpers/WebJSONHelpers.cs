@@ -68,7 +68,7 @@ namespace Ray1Map
             JsonHelpers.SerializeToFile(jsonObj, outputPath);
         }
 
-        public static void OutputEDUJSONForWeb(string dir, GameModeSelection mode, bool isPC)
+        public static void OutputEDUJSONForWeb(string dir, GameModeSelection mode, bool isPC, bool forceNoNames = false)
         {
             var modeName = mode == GameModeSelection.RaymanQuizPC || mode == GameModeSelection.RaymanQuizPS1 ? "quiz" : "edu";
             var platformName = isPC ? "PC" : "PS1";
@@ -90,7 +90,7 @@ namespace Ray1Map
                         context.AddFile(new LinearFile(context, specialPath));
 
                         var wldMap = m.LoadArchiveFile<PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
-                        var text = m.LoadArchiveFile<PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
+                        PC_LocFile text = forceNoNames ? null : m.LoadArchiveFile<PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
 
                         var worlds = v.Worlds;
 
@@ -153,7 +153,7 @@ namespace Ray1Map
 
                                     if (currentWorld == world && entry.Level == level)
                                     {
-                                        if (text.TextDefine.Length <= lvl.LevelName)
+                                        if (text == null || text.TextDefine.Length <= lvl.LevelName)
                                             return $"{(World)world} {level}";
 
                                         return $"{text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex}";

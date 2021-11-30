@@ -93,7 +93,9 @@
 						{ "json": "pc_fg2", "image": ".\/img\/version\/msdos.png", "name": "Finnish 🡒 English 2/3 (FG2)", "volume": "FG2", "folder": "r1/quiz/pc_fg2" },
 						{ "json": "pc_kg1", "image": ".\/img\/version\/msdos.png", "name": "Korean 🡒 English 1 (KG1)", "volume": "KG1", "folder": "r1/quiz/pc_kg1" },
 						{ "json": "pc_pg1", "image": ".\/img\/version\/msdos.png", "name": "Polish 🡒 English 1 (PG1)", "volume": "PG1", "folder": "r1/quiz/pc_pg1" },
-						{ "json": "pc_pg2", "image": ".\/img\/version\/msdos.png", "name": "Polish 🡒 English 2/3 (PG2)", "volume": "PG2", "folder": "r1/quiz/pc_pg2" }
+						{ "json": "pc_pg2", "image": ".\/img\/version\/msdos.png", "name": "Polish 🡒 English 2/3 (PG2)", "volume": "PG2", "folder": "r1/quiz/pc_pg2" },
+						{ "json": "pc_tg1", "image": ".\/img\/version\/msdos.png", "name": "Chinese 🡒 English 1 (TG1)", "volume": "TG1", "folder": "r1/quiz/pc_tg1" },
+						{ "json": "pc_tg2", "image": ".\/img\/version\/msdos.png", "name": "Chinese 🡒 English 2/3 (TG2)", "volume": "TG2", "folder": "r1/quiz/pc_tg2" }
 					]
 				},
 				{
