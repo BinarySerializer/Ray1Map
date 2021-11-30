@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
 using UnityEngine;
@@ -80,6 +81,21 @@ namespace Ray1Map
                         file => NameTable_EDUDES = JsonHelpers.DeserializeFromFile<string[][]>(file));
                     await loadFile(dir + "edu_eta.json",
                         file => NameTable_EDUETA = JsonHelpers.DeserializeFromFile<string[][]>(file));
+
+                    // Some versions have an additional DES & ETA for the text, so add an extra null entry
+                    string[] extraDESVolumes = { "TG", "PO", "ISM", "ISL" };
+
+                    if (extraDESVolumes.Any(x => settings.EduVolume.StartsWith(x)))
+                    {
+                        for (int i = 0; i < NameTable_EDUDES.Length; i++)
+                        {
+                            NameTable_EDUDES[i] = NameTable_EDUDES[i].Take(8).Append(null).Concat(NameTable_EDUDES[i].Skip(8)).ToArray();
+                        }
+                        for (int i = 0; i < NameTable_EDUETA.Length; i++)
+                        {
+                            NameTable_EDUETA[i] = NameTable_EDUETA[i].Take(8).Append(null).Concat(NameTable_EDUETA[i].Skip(8)).ToArray();
+                        }
+                    }
                 }
                 
                 if (loadAll || settings.EngineVersion == EngineVersion.R1_PC_Kit)
