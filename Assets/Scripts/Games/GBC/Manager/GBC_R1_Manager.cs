@@ -60,9 +60,11 @@ namespace Ray1Map.GBC
 
                 var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
 
-                for (int i = 0; i < rom.ReferencesCount; i++)
-                {
-                    var dir = Path.Combine(outputDir, $"{i}");
+                for (int i = 0; i < rom.ReferencesCount; i++) {
+                    var ptr = rom.References[i].Pointer.GetPointer();
+                    var type = rom.References[i].BlockHeader.Type;
+                    string path = $"{i} - {type}_0x{ptr.StringFileOffset}";
+                    var dir = Path.Combine(outputDir, path);
 
                     Directory.CreateDirectory(dir);
 

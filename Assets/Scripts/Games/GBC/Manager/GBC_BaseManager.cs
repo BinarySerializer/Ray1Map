@@ -60,8 +60,10 @@ namespace Ray1Map.GBC
                     {
                         indentLevel++;
 
-                        if (export && block.Data != null)
-                            Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.File.FilePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
+                        if (export && block.Data != null) {
+                            string filename = context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1 ? $"{block.GBC_Header.Type}" : $"{block.Offset.File.FilePath}";
+                            Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{filename}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
+                        }
 
                         writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.DependencyTable.DependenciesCount} - BlockSize: {block.Data?.Length}");
 
@@ -77,7 +79,9 @@ namespace Ray1Map.GBC
                             references[block.SubBlocks[i].Offset].Add(block.Offset);
 
                             // Export
-                            ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.File.FilePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
+                            string blockFilename = context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1 ? $"{block.SubBlocks[i].GBC_Header.Type}" : $"{block.SubBlocks[i].Offset.File.FilePath}";
+                            string blockName = $"{i} - {blockFilename}_0x{block.SubBlocks[i].Offset.StringFileOffset}";
+                            ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, blockName));
                         }
 
                         indentLevel--;
