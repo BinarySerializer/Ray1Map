@@ -83,7 +83,7 @@ namespace Ray1Map
                         file => NameTable_EDUETA = JsonHelpers.DeserializeFromFile<string[][]>(file));
 
                     // Some versions have an additional DES & ETA for the text, so add an extra null entry
-                    string[] extraDESVolumes = { "TG", "PO", "ISM", "ISL" };
+                    string[] extraDESVolumes = { "TG", "PO", "ISM", "ISL", "CH", };
 
                     if (extraDESVolumes.Any(x => settings.EduVolume.StartsWith(x)))
                     {

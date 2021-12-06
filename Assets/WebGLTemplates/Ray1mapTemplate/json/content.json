@@ -69,7 +69,10 @@
 						{ "json": "pc_hn2", "image": ".\/img\/version\/msdos.png", "name": "Hungarian 2 (HN2)", "volume": "HN2", "folder": "r1/edu/pc_hn2" },
 						{ "json": "pc_isl", "image": ".\/img\/version\/msdos.png", "name": "Hebrew L (ISL)", "volume": "ISL", "folder": "r1/edu/pc_isl" },
 						{ "json": "pc_ism", "image": ".\/img\/version\/msdos.png", "name": "Hebrew M (ISM)", "volume": "ISM", "folder": "r1/edu/pc_ism" },
-						{ "json": "pc_po", "image": ".\/img\/version\/msdos.png", "name": "Polish 1/2/3 (PO)", "volume": "PO", "folder": "r1/edu/pc_po" }
+						{ "json": "pc_po", "image": ".\/img\/version\/msdos.png", "name": "Polish 1/2/3 (PO)", "volume": "PO", "folder": "r1/edu/pc_po" },
+						{ "json": "pc_ch1", "image": ".\/img\/version\/msdos.png", "name": "Chinese 1 (CH1)", "volume": "CH1", "folder": "r1/edu/pc_ch1" },
+						{ "json": "pc_ch2", "image": ".\/img\/version\/msdos.png", "name": "Chinese 2 (CH2)", "volume": "CH2", "folder": "r1/edu/pc_ch2" },
+						{ "json": "pc_ch3", "image": ".\/img\/version\/msdos.png", "name": "Chinese 3 (CH3)", "volume": "CH3", "folder": "r1/edu/pc_ch3" }
 					]
 				},
 				{
@@ -94,8 +97,8 @@
 						{ "json": "pc_kg1", "image": ".\/img\/version\/msdos.png", "name": "Korean 🡒 English 1 (KG1)", "volume": "KG1", "folder": "r1/quiz/pc_kg1" },
 						{ "json": "pc_pg1", "image": ".\/img\/version\/msdos.png", "name": "Polish 🡒 English 1 (PG1)", "volume": "PG1", "folder": "r1/quiz/pc_pg1" },
 						{ "json": "pc_pg2", "image": ".\/img\/version\/msdos.png", "name": "Polish 🡒 English 2/3 (PG2)", "volume": "PG2", "folder": "r1/quiz/pc_pg2" },
-						{ "json": "pc_tg1", "image": ".\/img\/version\/msdos.png", "name": "Chinese 🡒 English 1 (TG1)", "volume": "TG1", "folder": "r1/quiz/pc_tg1" },
-						{ "json": "pc_tg2", "image": ".\/img\/version\/msdos.png", "name": "Chinese 🡒 English 2/3 (TG2)", "volume": "TG2", "folder": "r1/quiz/pc_tg2" }
+						{ "json": "pc_tg1", "image": ".\/img\/version\/msdos.png", "name": "Chinese (TW) 🡒 English 1 (TG1)", "volume": "TG1", "folder": "r1/quiz/pc_tg1" },
+						{ "json": "pc_tg2", "image": ".\/img\/version\/msdos.png", "name": "Chinese (TW) 🡒 English 2/3 (TG2)", "volume": "TG2", "folder": "r1/quiz/pc_tg2" }
 					]
 				},
 				{
