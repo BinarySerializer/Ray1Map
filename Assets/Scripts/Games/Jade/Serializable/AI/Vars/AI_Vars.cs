@@ -146,66 +146,72 @@ namespace Ray1Map.Jade {
 
 
 
-		public void ExportIDAStruct(string worldName, string name) {
+		public void ExportIDAStruct(string worldName, string name, bool save = false) {
 			StringBuilder b = new StringBuilder();
 			string structName = $"AI2C_Vars_{Key.Key:X8}";
 			if(name != null) structName += $"_{name}";
 			b.AppendLine($"struct {structName} {{");
-			var varsOrderered = Vars.OrderBy(v => v.Info.BufferOffset);
+			var varsOrderered = !save ? (IEnumerable<AI_Var>)Vars.OrderBy(v => v.Info.BufferOffset) : Vars;
 			int curBufferOffset = 0;
 			foreach (var v in varsOrderered) {
-				var newBufferOffset = v.Info.BufferOffset;
-				if(newBufferOffset < curBufferOffset) throw new Exception("Buffer offset was below the last one");
-				if (newBufferOffset > curBufferOffset) {
-					b.AppendLine($"\t_BYTE gap_{curBufferOffset:X8}[{newBufferOffset-curBufferOffset}];");
-					curBufferOffset = newBufferOffset;
+				if (!save) {
+					var newBufferOffset = v.Info.BufferOffset;
+					if (newBufferOffset < curBufferOffset) throw new Exception("Buffer offset was below the last one");
+					if (newBufferOffset > curBufferOffset) {
+						b.AppendLine($"\t_BYTE gap_{curBufferOffset:X8}[{newBufferOffset - curBufferOffset}];");
+						curBufferOffset = newBufferOffset;
+					}
 				}
-				var varName = v.Name;
-				if (v.Info.ArrayDimensionsCount != 0) {
-					b.AppendLine($"\tint {varName}__dimensions[{v.Info.ArrayDimensionsCount}];");
-					curBufferOffset += v.Info.ArrayDimensionsCount * 4;
+				if (!save
+					|| BitHelpers.ExtractBits(v.Info.Flags, 1, 6) == 1 // If this is 0, the values are read from the save file but not overwritten
+					|| BitHelpers.ExtractBits(v.Info.Flags, 1, 4) == 0) {
+					var varName = v.Name;
+					if (v.Info.ArrayDimensionsCount != 0) {
+						b.AppendLine($"\tint {varName}__dimensions[{v.Info.ArrayDimensionsCount}];");
+						curBufferOffset += v.Info.ArrayDimensionsCount * 4;
+					}
+					string arrayString = "";
+					if (v.Info.ArrayDimensionsCount != 0) {
+						arrayString = $"[{v.Info.ArrayLength}]";
+					}
+					string type = "int";
+					switch (v.Type) {
+						case AI_VarType.Float:
+							type = "float";
+							break;
+						case AI_VarType.Vector:
+							if (v.Link.Size == 12) {
+								type = "Vector";
+							}
+							break;
+						case AI_VarType.Trigger:
+							type = "Var_Trigger";
+							break;
+						case AI_VarType.Message:
+							type = "Var_Message";
+							break;
+						case AI_VarType.Text:
+							type = "Var_Text";
+							break;
+						case AI_VarType.Key:
+							type = "Var_Key";
+							break;
+						case AI_VarType.PointerRef:
+							type = "Var_PointerRef";
+							break;
+						case AI_VarType.MessageId:
+							type = "Var_MessageId";
+							break;
+						case AI_VarType.GAO:
+							type = "Var_GAO";
+							break;
+						case AI_VarType.String:
+							type = "Var_String";
+							break;
+					}
+					b.AppendLine($"\t{type} {varName}{arrayString};");
+					curBufferOffset += (int)(v.Info.ArrayLength * v.Link.Size);
 				}
-				string arrayString = "";
-				if (v.Info.ArrayDimensionsCount != 0) {
-					arrayString = $"[{v.Info.ArrayLength}]";
-				}
-				string type = "int";
-				switch (v.Type) {
-					case AI_VarType.Float:
-						type = "float";
-						break;
-					case AI_VarType.Vector:
-						if (v.Link.Size == 12) {
-							type = "Vector";
-						}
-						break;
-					case AI_VarType.Trigger:
-						type = "Var_Trigger";
-						break;
-					case AI_VarType.Message:
-						type = "Var_Message";
-						break;
-					case AI_VarType.Text:
-						type = "Var_Text";
-						break;
-					case AI_VarType.Key:
-						type = "Var_Key";
-						break;
-					case AI_VarType.PointerRef:
-						type = "Var_PointerRef";
-						break;
-					case AI_VarType.MessageId:
-						type = "Var_MessageId";
-						break;
-					case AI_VarType.GAO:
-						type = "Var_GAO";
-						break;
-					case AI_VarType.String:
-						type = "Var_String";
-						break;
-				}
-				b.AppendLine($"\t{type} {varName}{arrayString};");
-				curBufferOffset += (int)(v.Info.ArrayLength * v.Link.Size);
 			}
 			b.AppendLine($"}};");
 

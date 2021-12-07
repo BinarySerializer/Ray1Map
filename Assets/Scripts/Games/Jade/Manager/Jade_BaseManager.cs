@@ -2047,6 +2047,7 @@ namespace Ray1Map {
 				univers?.Value?.Vars?.Value?.ExportIDAStruct(worldName, $"{name}_instance");
 				univers?.Value?.Model?.Value?.Vars?.ExportVarsOverview(worldName, $"{name}_model");
 				univers?.Value?.Model?.Value?.Vars?.ExportIDAStruct(worldName, $"{name}_model");
+				univers?.Value?.Model?.Value?.Vars?.ExportIDAStruct(worldName, $"{name}_save", save: true);
 			}
 
 			return univers;
