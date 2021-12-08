@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using Cysharp.Threading.Tasks;
 using Ray1Map.GBARRR;
 using System;
 using System.Linq;
@@ -48,6 +49,12 @@ namespace Ray1Map
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
+            // If loop
+            if (gax_instr.LoopStart != 0 || gax_instr.LoopEnd != 0) {
+                smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
+                smp.SampleLoopStart = gax_instr.LoopStart * 2;
+                smp.SampleLoopLength = (gax_instr.LoopEnd - gax_instr.LoopStart) * 2 - 2;
+            }
             int instrPitch = (gax_instr.Pitch / 32);
             int relNote = (gax_instr.InstrumentConfig.Value.RelativeNoteNumber & 63);
             int relativeNoteNumber =
@@ -85,7 +92,7 @@ namespace Ray1Map
             instr.VolumeType = 1;
 
             // Panning envelope
-            instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
+            /*instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
             if (gax_instr.Envelope.Value.NumPointsPanning == 0xFF) {
                 instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsVolume;
             } else {
@@ -98,7 +105,7 @@ namespace Ray1Map
             }
             instr.PanningLoopEndPoint = 0;
             instr.PanningLoopStartPoint = 0;
-            instr.PanningSustainPoint = 0;
+            instr.PanningSustainPoint = 0;*/
             return instr;
         }
 

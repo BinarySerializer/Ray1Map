@@ -19,6 +19,11 @@ namespace Ray1Map.GBARRR
         public sbyte RelativeNoteNumberBig { get; set; }*/
         public short Pitch { get; set; }
         public short Short_1A { get; set; }
+        public int Int_1C { get; set; }
+        public uint LoopStart { get; set; }
+        public uint LoopEnd { get; set; }
+        public int Int_28 { get; set; }
+        public int Int_2C { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -37,6 +42,11 @@ namespace Ray1Map.GBARRR
             RelativeNoteNumberBig = s.Serialize<sbyte>(RelativeNoteNumberBig, name: nameof(RelativeNoteNumberBig));*/
             Pitch = s.Serialize<short>(Pitch, name: nameof(Pitch));
             Short_1A = s.Serialize<short>(Short_1A, name: nameof(Short_1A));
-        }
+			Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
+			LoopStart = s.Serialize<uint>(LoopStart, name: nameof(LoopStart));
+			LoopEnd = s.Serialize<uint>(LoopEnd, name: nameof(LoopEnd));
+			Int_28 = s.Serialize<int>(Int_28, name: nameof(Int_28));
+			Int_2C = s.Serialize<int>(Int_2C, name: nameof(Int_2C));
+		}
     }
 }
