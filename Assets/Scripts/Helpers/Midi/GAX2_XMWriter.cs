@@ -18,7 +18,7 @@ namespace Ray1Map
             xm.PatternOrderTable = Enumerable.Range(0,song.NumPatternsPerChannel).Select(i => (byte)i).ToArray();
             xm.SongLength = (ushort)xm.PatternOrderTable.Length;
             xm.DefaultTempo = 6;
-            xm.DefaultBPM = 150;
+            xm.DefaultBPM = 149;
             xm.Flags = 1;
             if (xm.PatternOrderTable.Length < 256) {
                 byte[] patOrderTable = xm.PatternOrderTable;
@@ -50,7 +50,8 @@ namespace Ray1Map
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
             // If loop
-            if (gax_instr.LoopStart != 0 || gax_instr.LoopEnd != 0) {
+            bool loop = gax_instr.LoopStart != 0 || gax_instr.LoopEnd != 0;
+            if (loop) {
                 smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
                 smp.SampleLoopStart = gax_instr.LoopStart * 2;
                 smp.SampleLoopLength = (gax_instr.LoopEnd - gax_instr.LoopStart) * 2 - 2;
@@ -90,6 +91,7 @@ namespace Ray1Map
             instr.VolumeLoopStartPoint = 0;
             instr.VolumeSustainPoint = 0;
             instr.VolumeType = 1;
+            if(loop) BitHelpers.SetBits(instr.VolumeType, 1, 1, 2); // Todo: find sustain point, loop start & end point, etc. Set sustain flag if necessary
 
             // Panning envelope
             /*instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
@@ -133,50 +135,82 @@ namespace Ray1Map
             byte? vol = null;
             byte? eff = null;
             byte? effParam = null;
+            byte? note = null;
+            if (gax.IsEmptyTrack) {
+                while (curRow < rows.Length) {
+                    rows[curRow++] = new XM_PatternRow();
+                }
+                return rows;
+            }
             foreach (var row in gax.Rows) {
+                eff = null;
+                effParam = null;
+                vol = null;
+                note = null;
+
+                void ConfigureEffect() {
+                    /*eff = (row.Effect < 16 && row.Effect != 12) ? (byte?)row.Effect : null;
+                    effParam = eff.HasValue ? (byte?)(row.EffectParameter) : null;
+                    vol = (row.Effect == 12) ? (byte?)(0x10 + (row.EffectParameter >> 2)) : null;*/
+                    eff = row.Effect;
+                    if (row.Effect > 16) eff++;
+                    effParam = row.EffectParameter;
+                    switch (row.Effect) {
+                        case 24:
+                        case 32:
+                        case 8:
+                        case 9:
+                        case 3:
+                            // TODO
+                            eff = null;
+                            effParam = null;
+                            break;
+                        case 12: // Set volume
+                            effParam >>= 2; // Volume ranges from 0-255 in GAX, and 0-64 in XM
+                            break;
+                    }
+                }
+                void ConfigureNote() {
+                    if(row.Note != 0) note = row.Note;
+                }
+
                 switch (row.Command) {
-                    case GAX2_PatternRow.Cmd.StartTrack:
-                        break;
-                    case GAX2_PatternRow.Cmd.EmptyTrack:
-                        while (curRow < rows.Length) {
-                            rows[curRow++] = new XM_PatternRow();
-                        }
-                        break;
                     // TODO: correct these
                     case GAX2_PatternRow.Cmd.Unknown:
                         break;
                     case GAX2_PatternRow.Cmd.EffectOnly:
-                        eff = (row.Effect < 16 && row.Effect != 14 && row.Effect != 12) ? (byte?)row.Effect : null;
-                        effParam = eff.HasValue ? (byte?)(row.Velocity) : null;
-                        vol = (row.Effect == 12) ? (byte?)(0x10 + (row.Velocity >> 2)) : null;
+                        ConfigureEffect();
                         rows[curRow++] = new XM_PatternRow(volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         break;
-                    case GAX2_PatternRow.Cmd.RestSingle:
+                    case GAX2_PatternRow.Cmd.Rest:
                         rows[curRow++] = new XM_PatternRow();
                         break;
-                    case GAX2_PatternRow.Cmd.RestMultiple:
+                    case GAX2_PatternRow.Cmd.RestMulti:
                         for (int i = 0; i < row.RestDuration; i++) {
                             rows[curRow++] = new XM_PatternRow();
                         }
                         break;
                     case GAX2_PatternRow.Cmd.Note:
-                        eff = (row.Effect < 16 && row.Effect != 14 && row.Effect != 12) ? (byte?)row.Effect : null;
-                        effParam = eff.HasValue ? (byte?)(row.Velocity) : null;
-                        vol = (row.Effect == 12) ? (byte?)(0x10 + (row.Velocity >> 2)) : null;
-                        if (row.Instrument == 250) {
+                        ConfigureEffect();
+                        ConfigureNote();
+                        if (row.Instrument == 250) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
-                            rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
+                            rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         }
                         break;
-                    case GAX2_PatternRow.Cmd.NoteCompressed:
-                        if (row.Instrument == 250) {
+                    case GAX2_PatternRow.Cmd.NoteOnly:
+                        ConfigureNote();
+                        if (row.Instrument == 250) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97);
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
-                            rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr);
+                            rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr);
                         }
+                        break;
+                    case GAX2_PatternRow.Cmd.NoteOff:
+                        rows[curRow++] = new XM_PatternRow(note: 97, instrument: 0);
                         break;
                 }
             }

@@ -48,12 +48,14 @@ namespace Ray1Map
             byte? volumeColumnByte = null,
             byte? effectType = null,
             byte? effectParameter = null) {
-            if(!(instrument.HasValue || volumeColumnByte.HasValue || effectType.HasValue || effectParameter.HasValue)) {
-                if (note.HasValue) {
-                    Flags = note.Value;
-                    Note = note.Value;
-                }
-                Size = 1;
+            if(note.HasValue && instrument.HasValue && volumeColumnByte.HasValue && effectType.HasValue && effectParameter.HasValue) {
+                Flags = note.Value;
+                Note = note.Value;
+                Instrument = instrument.Value;
+                VolumeColumnByte = volumeColumnByte.Value;
+                EffectType = effectType.Value;
+                EffectParameter = effectParameter.Value;
+                Size = 5;
             } else {
                 Size = 1;
                 if (note.HasValue) {

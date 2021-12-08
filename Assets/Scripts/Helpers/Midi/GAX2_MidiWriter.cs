@@ -58,7 +58,7 @@ namespace Ray1Map {
                     GAX2_PatternRow cmd = gaxTrack.Rows[i];
                     switch (cmd.Command) {
                         case GAX2_PatternRow.Cmd.Note:
-                        case GAX2_PatternRow.Cmd.NoteCompressed:
+                        case GAX2_PatternRow.Cmd.NoteOnly:
                             if(cmd.Instrument == 250) continue;
                             if (exportSingleSoundfont) {
                                 if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;
@@ -93,7 +93,7 @@ namespace Ray1Map {
                             {
                                 builder.Command = ChannelCommand.NoteOn;
                                 int freq = cmd.Note;
-                                int vel = cmd.Velocity;
+                                int vel = cmd.EffectParameter;
                                 builder.Data1 = freq; //GetMidiPitch(GetFrequency(freq));
                                 float velf = (vel / 255f); // hack
                                 int veli = Mathf.RoundToInt(velf * 127f);

@@ -66,11 +66,13 @@ namespace Ray1Map.GBARRR
                             for (int j = 0; j < Patterns[i].Length; j++) {
                                 s.DoAt(SequenceDataPointer + PatternTable[i][j].SequenceOffset, () => {
                                     Patterns[i][j] = s.SerializeObject<GAX2_Pattern>(Patterns[i][j], onPreSerialize: t => t.Duration = NumRowsPerPattern, name: $"{nameof(Patterns)}[{i}][{j}]");
-                                    instrumentCount = Math.Max(instrumentCount, Patterns[i][j].Rows
-                                        .Max(cmd => (cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteCompressed) ? cmd.Instrument + 1 : 0));
-                                    instruments.AddRange(Patterns[i][j].Rows
-                                        .Where(cmd => cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteCompressed)
-                                        .Select(cmd => (int)cmd.Instrument));
+                                    if (Patterns[i][j].Rows.Length > 0) {
+                                        instrumentCount = Math.Max(instrumentCount, Patterns[i][j].Rows
+                                            .Max(cmd => (cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteOnly) ? cmd.Instrument + 1 : 0));
+                                        instruments.AddRange(Patterns[i][j].Rows
+                                            .Where(cmd => cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteOnly)
+                                            .Select(cmd => (int)cmd.Instrument));
+                                    }
                                 });
                             }
                         }
