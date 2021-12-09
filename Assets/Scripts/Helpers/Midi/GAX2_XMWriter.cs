@@ -89,9 +89,15 @@ namespace Ray1Map
             }
             instr.VolumeLoopEndPoint = (byte)Math.Max(instr.NumVolumePoints - 1,0);
             instr.VolumeLoopStartPoint = 0;
-            instr.VolumeSustainPoint = 0;
+            instr.VolumeSustainPoint = instr.VolumeLoopEndPoint;
             instr.VolumeType = 1;
-            if(loop) BitHelpers.SetBits(instr.VolumeType, 1, 1, 2); // Todo: find sustain point, loop start & end point, etc. Set sustain flag if necessary
+            instr.VolumeFadeout = 0x400;
+            //if(loop) BitHelpers.SetBits(instr.VolumeType, 1, 1, 2); // Todo: find sustain point, loop start & end point, etc. Set sustain flag if necessary
+            if (gax_instr.Envelope.Value.VolumeSustainPoint.HasValue) {
+                instr.VolumeSustainPoint = gax_instr.Envelope.Value.VolumeSustainPoint.Value;
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
+            }
+
 
             // Panning envelope
             /*instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
@@ -136,6 +142,7 @@ namespace Ray1Map
             byte? eff = null;
             byte? effParam = null;
             byte? note = null;
+            int lastInstr = 0;
             if (gax.IsEmptyTrack) {
                 while (curRow < rows.Length) {
                     rows[curRow++] = new XM_PatternRow();
@@ -197,6 +204,7 @@ namespace Ray1Map
                             rows[curRow++] = new XM_PatternRow(note: 97, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
+                            lastInstr = instr;
                             rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         }
                         break;
@@ -206,11 +214,13 @@ namespace Ray1Map
                             rows[curRow++] = new XM_PatternRow(note: 97);
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
+                            lastInstr = instr;
                             rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr);
                         }
                         break;
                     case GAX2_PatternRow.Cmd.NoteOff:
-                        rows[curRow++] = new XM_PatternRow(note: 97, instrument: 0);
+                        rows[curRow++] = new XM_PatternRow(note: 97);
+                        //rows[curRow++] = new XM_PatternRow(effectType: 0xe, effectParameter: 0xc0);
                         break;
                 }
             }

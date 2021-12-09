@@ -7,7 +7,7 @@ namespace Ray1Map.GBARRR
 {
     public class GAX2_InstrumentVolumeEnvelope : BinarySerializable {
         public byte NumPointsVolume { get; set; }
-        public byte? NumPointsPanning { get; set; }
+        public byte? VolumeSustainPoint { get; set; }
         public byte Byte_02 { get; set; }
         public byte Byte_03 { get; set; }
         public Point[] Points { get; set; }
@@ -15,7 +15,7 @@ namespace Ray1Map.GBARRR
         public override void SerializeImpl(SerializerObject s)
         {
             NumPointsVolume = s.Serialize<byte>(NumPointsVolume, name: nameof(NumPointsVolume));
-            NumPointsPanning = s.Serialize<byte?>(NumPointsPanning, name: nameof(NumPointsPanning));
+            VolumeSustainPoint = s.Serialize<byte?>(VolumeSustainPoint, name: nameof(VolumeSustainPoint));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
             Points = s.SerializeObjectArray<Point>(Points, NumPointsVolume, name: nameof(Points));
