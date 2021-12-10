@@ -2,6 +2,7 @@
 using BinarySerializer.GBA;
 using BinarySerializer.Image;
 using Cysharp.Threading.Tasks;
+using Ray1Map.GBARRR;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +32,51 @@ namespace Ray1Map.GBAVV
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
             new GameAction("Force Export FLC Files", false, true, (input, output) => ForceExportFLCAsync(settings, output)),
+            new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
         };
+
+        public virtual async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
+            var GAXInfo = GAXHelpers.Info.TryGetItem(settings.GameModeSelection);
+            if(GAXInfo == null)
+                throw new NotImplementedException("GAX Export isn't defined for this game!");
+            var songCount = GAXInfo.MusicCount;
+            var fxCount = GAXInfo.FXCount;
+
+            using (var context = new Ray1MapContext(settings)) {
+                var s = context.Deserializer;
+                
+                await LoadFilesAsync(context);
+
+                var file = s.Context.GetFile(GetROMFilePath);
+
+                Pointer SongOffset = songCount > 0 ? new Pointer(GAXInfo.MusicOffset, file) : null;
+                Pointer FXOffset = fxCount > 0 ? new Pointer(GAXInfo.FXOffset, file) : null;
+
+                if(SongOffset == null && FXOffset == null)
+                    throw new NotImplementedException("GAX Export isn't defined for this game!");
+
+                if (songCount != 0) {
+                    Pointer<GAX2_Song>[] Songs = null;
+                    s.DoAt(SongOffset, () => {
+                        Songs = s.SerializePointerArray<GAX2_Song>(Songs, songCount, resolve: true, name: nameof(Songs));
+                    });
+                    for (int i = 0; i < Songs.Length; i++) {
+                        GAXHelpers.ExportGAX(settings, outputPath, $"music/{i}", Songs[i], 2);
+                    }
+                }
+                if (fxCount != 0) {
+                    Pointer<GAX2_Song>[] FX = null;
+                    s.DoAt(FXOffset, () => {
+                        FX = s.SerializePointerArray<GAX2_Song>(FX, fxCount, resolve: true, name: nameof(FX));
+                    });
+                    for (int i = 0; i < FX.Length; i++) {
+                        GAXHelpers.ExportGAX(settings, outputPath, $"fx/{i}", FX[i], 1);
+                    }
+                }
+            }
+        }
+
+
         public abstract UniTask ExportCutscenesAsync(GameSettings settings, string outputDir);
         public void ExportCutscenesFromScripts(IEnumerable<GBAVV_Script> scripts, string outputDir)
         {

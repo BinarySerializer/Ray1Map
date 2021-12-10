@@ -10,7 +10,7 @@ namespace Ray1Map.GBARRR
     {
         public int? PredefinedSampleCount { get; set; } // Set in onPreSerialize
 
-        public ushort NumChannels { get; set; }
+        public ushort NumChannels { get; set; } // Actually a byte?
         public ushort NumRowsPerPattern { get; set; }
         public ushort NumPatternsPerChannel { get; set; }
         public ushort LoopPoint { get; set; } // Pattern index starting from 0
@@ -21,7 +21,8 @@ namespace Ray1Map.GBARRR
         public Pointer SampleSetPointer { get; set; }
         public ushort SampleRate { get; set; } // 0x3D99
         public ushort FXSampleRate { get; set; } // 0 for same as music
-        public ushort UShort_1C { get; set; }
+        public byte NumFXChannels { get; set; }
+        public byte Byte_1D { get; set; }
         public ushort UShort_1E { get; set; }
         public Pointer[] PatternTablePointers { get; set; }
         public uint[] Reserved { get; set; }
@@ -48,8 +49,9 @@ namespace Ray1Map.GBARRR
             SampleSetPointer = s.SerializePointer(SampleSetPointer, name: nameof(SampleSetPointer));
             SampleRate = s.Serialize<ushort>(SampleRate, name: nameof(SampleRate));
             FXSampleRate = s.Serialize<ushort>(FXSampleRate, name: nameof(FXSampleRate));
-            UShort_1C = s.Serialize<ushort>(UShort_1C, name: nameof(UShort_1C));
-            UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));
+			NumFXChannels = s.Serialize<byte>(NumFXChannels, name: nameof(NumFXChannels));
+			Byte_1D = s.Serialize<byte>(Byte_1D, name: nameof(Byte_1D));
+			UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));
             PatternTablePointers = s.SerializePointerArray(PatternTablePointers, NumChannels, name: nameof(PatternTablePointers));
             Reserved = s.SerializeArray<uint>(Reserved, NumChannels, name: nameof(Reserved));
 

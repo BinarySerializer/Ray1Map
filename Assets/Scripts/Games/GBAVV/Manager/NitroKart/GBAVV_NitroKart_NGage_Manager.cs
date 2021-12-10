@@ -41,97 +41,9 @@ namespace Ray1Map.GBAVV
             new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
         };
 
-        public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
+        public override async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
             using (var context = new Ray1MapContext(settings)) {
                 var s = context.Deserializer;
-
-                void ExportSample(string directory, string filename, byte[] data, uint sampleRate, ushort channels) {
-                    // Create the directory
-                    Directory.CreateDirectory(directory);
-
-                    // Create WAV data
-                    var formatChunk = new WAVFormatChunk() {
-                        ChunkHeader = "fmt ",
-                        FormatType = 1,
-                        ChannelCount = channels,
-                        SampleRate = sampleRate,
-                        BitsPerSample = 8,
-                    };
-
-                    var wav = new WAV {
-                        Magic = "RIFF",
-                        FileTypeHeader = "WAVE",
-                        Chunks = new WAVChunk[]
-                        {
-                            formatChunk,
-                            new WAVChunk()
-                            {
-                                ChunkHeader = "data",
-                                Data = data
-                            }
-                        }
-                    };
-
-                    formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
-                    formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
-
-                    // Get the output path
-                    var outputFilePath = Path.Combine(directory, filename + ".wav");
-
-                    // Create and open the output file
-                    using (var outputStream = File.Create(outputFilePath)) {
-                        // Create a context
-                        using (var wavContext = new Ray1MapContext(settings)) {
-                            // Create a key
-                            const string wavKey = "wav";
-
-                            // Add the file to the context
-                            wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
-
-                            // Write the data
-                            FileFactory.Write<WAV>(wavKey, wav, wavContext);
-                        }
-                    }
-                }
-
-                void ExportGAX(string directory, GAX2_Song song, ushort channels) {
-                    for (int i = 0; i < song.Samples.Length; i++) {
-                        var e = song.Samples[i];
-                        string outPath = Path.Combine(directory, "Samples");
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, channels);
-                    }
-                    var h = song;
-                    if(h.SampleRate == 0) return;
-                    // For each entry
-                    GAX2_MidiWriter w = new GAX2_MidiWriter();
-                    Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
-                    w.Write(h, Path.Combine(outputPath, "midi", $"{h.ParsedName}.mid"));
-
-                    GAX2_XMWriter xmw = new GAX2_XMWriter();
-                    Directory.CreateDirectory(Path.Combine(outputPath, "xm"));
-
-                    XM xm = xmw.ConvertToXM(h);
-
-                    // Get the output path
-                    var outputFilePath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.xm");
-
-                    // Create and open the output file
-                    using (var outputStream = File.Create(outputFilePath)) {
-                        // Create a context
-                        using (var xmContext = new Ray1MapContext(settings)) {
-                            xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
-                            // Create a key
-                            string xmKey = $"{h.ParsedName}.xm";
-
-                            // Add the file to the context
-                            xmContext.AddFile(new StreamFile(context, xmKey, outputStream));
-
-                            // Write the data
-                            FileFactory.Write<XM>(xmKey, xm, xmContext);
-                        }
-                    }
-
-                }
 
                 await LoadFilesAsync(context);
                 // Load the data file
@@ -142,45 +54,11 @@ namespace Ray1Map.GBAVV
 
                 // Load the rom
                 for (int i = 0; i < exe.GAX_Music.Songs.Length; i++) {
-                    ExportGAX($"{outputPath}/music/{i}", exe.GAX_Music.Songs[i], 2);
+                    GAXHelpers.ExportGAX(settings, outputPath, $"music/{i}", exe.GAX_Music.Songs[i], 2);
                 }
                 for (int i = 0; i < exe.GAX_FX.Songs.Length; i++) {
-                    ExportGAX($"{outputPath}/fx/{i}", exe.GAX_FX.Songs[i], 1);
+                    GAXHelpers.ExportGAX(settings, outputPath, $"fx/{i}", exe.GAX_FX.Songs[i], 1);
                 }
-                /*uint[] ptrs = s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
-                foreach (var ptr in ptrs) {
-                    s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
-                        GAX2_Song h = s.SerializeObject<GAX2_Song>(default, name: "SongHeader");
-                        // For each entry
-                        GAX2_MidiWriter w = new GAX2_MidiWriter();
-                        Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
-                        w.Write(h, Path.Combine(outputPath, "midi", $"{h.ParsedName}.mid"));
-
-                        GAX2_XMWriter xmw = new GAX2_XMWriter();
-                        Directory.CreateDirectory(Path.Combine(outputPath, "xm"));
-
-                        XM xm = xmw.ConvertToXM(h);
-
-                        // Get the output path
-                        var outputFilePath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.xm");
-
-                        // Create and open the output file
-                        using (var outputStream = File.Create(outputFilePath)) {
-                            // Create a context
-                            using (var xmContext = new R1Context(settings)) {
-                                xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
-                                // Create a key
-                                string xmKey = $"{h.ParsedName}.xm";
-
-                                // Add the file to the context
-                                xmContext.AddFile(new StreamFile(xmKey, outputStream, context));
-
-                                // Write the data
-                                FileFactory.Write<XM>(xmKey, xm, xmContext);
-                            }
-                        }
-                    });
-                }*/
             }
         }
 

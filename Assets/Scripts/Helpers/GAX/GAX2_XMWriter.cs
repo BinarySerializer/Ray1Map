@@ -57,14 +57,16 @@ namespace Ray1Map
                 smp.SampleLoopLength = (gax_instr.LoopEnd - gax_instr.LoopStart) * 2 - 2;
             }
             int instrPitch = (gax_instr.Pitch / 32);
-            int relNote = (gax_instr.InstrumentConfig.Value.RelativeNoteNumber & 63);
+            int relNote = BitHelpers.ExtractBits(gax_instr.InstrumentConfig.Value.RelativeNoteNumber, 6, 0);
             int relativeNoteNumber =
                 instrPitch - 1 // GAX notes start at 1
-                + (gax_instr.InstrumentConfig.Value.Byte_01 == 1 ? -1 : 1) * relNote - 2;
+                + (gax_instr.InstrumentConfig.Value.RelativeNoteNumberSign == 1 ? -1 : 1) * (relNote - 2);
+                //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
+            //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
             UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.Sample}" +
                 $" - Pitch:{gax_instr.Pitch}" +
                 $" - Relative Note Number:{relativeNoteNumber}" +
-                $" - Cfg1:{gax_instr.InstrumentConfig.Value.Byte_01}" +
+                $" - Cfg1:{gax_instr.InstrumentConfig.Value.RelativeNoteNumberSign}" +
                 $" - CfgRelNote:{relNote}" +
                 $"");
             smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
@@ -163,15 +165,6 @@ namespace Ray1Map
                     if (row.Effect > 16) eff++;
                     effParam = row.EffectParameter;
                     switch (row.Effect) {
-                        case 24:
-                        case 32:
-                        case 8:
-                        case 9:
-                        case 3:
-                            // TODO
-                            eff = null;
-                            effParam = null;
-                            break;
                         case 12: // Set volume
                             effParam >>= 2; // Volume ranges from 0-255 in GAX, and 0-64 in XM
                             break;
