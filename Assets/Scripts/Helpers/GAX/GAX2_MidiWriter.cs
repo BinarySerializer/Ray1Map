@@ -61,7 +61,7 @@ namespace Ray1Map {
                         case GAX2_PatternRow.Cmd.NoteOnly:
                             if(cmd.Instrument == 250) continue;
                             if (exportSingleSoundfont) {
-                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;
+                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.SampleIndices[0] >= 128) continue;
                             } else {
                                 if (song.InstrumentSet[cmd.Instrument]?.Value == null || Array.IndexOf(song.InstrumentIndices, cmd.Instrument) >= 128) continue;
                             }
@@ -79,7 +79,7 @@ namespace Ray1Map {
                             {
                                 int instrument = 0;
                                 if (exportSingleSoundfont) {
-                                    instrument = song.InstrumentSet[cmd.Instrument].Value.Sample;
+                                    instrument = song.InstrumentSet[cmd.Instrument].Value.SampleIndices[0];
                                 } else {
                                     instrument = Array.IndexOf(song.InstrumentIndices, cmd.Instrument);
                                 }

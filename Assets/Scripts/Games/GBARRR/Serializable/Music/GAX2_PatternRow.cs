@@ -33,7 +33,7 @@ namespace Ray1Map.GBARRR
                 switch (Flags) {
                     case 0x80: return Cmd.Rest;
                     //case 0x81: return Cmd.NoteOff;
-                    case 0xFA: return Cmd.EffectOnly;
+                    case 0xFA: return Cmd.EffectOnly; // 0xFB - 0xFF
                     case 0xFF: return Cmd.RestMulti;
                     default:
                         if (IsCompressed) {

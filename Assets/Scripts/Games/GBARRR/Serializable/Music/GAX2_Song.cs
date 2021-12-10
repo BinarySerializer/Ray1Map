@@ -25,7 +25,13 @@ namespace Ray1Map.GBARRR
         public byte Byte_1D { get; set; }
         public ushort UShort_1E { get; set; }
         public Pointer[] PatternTablePointers { get; set; }
-        public uint[] Reserved { get; set; }
+        public uint UInt_A0 { get; set; }
+        public uint[] UInts_A4 { get; set; }
+        public uint[] UInts_B0 { get; set; }
+        public uint UInt_BC { get; set; }
+        public uint UInt_C0 { get; set; }
+        public uint UInt_C4 { get; set; }
+
         public string Name { get; set; }
         public string ParsedName { get; set; }
         public string ParsedArtist { get; set; }
@@ -52,15 +58,20 @@ namespace Ray1Map.GBARRR
 			NumFXChannels = s.Serialize<byte>(NumFXChannels, name: nameof(NumFXChannels));
 			Byte_1D = s.Serialize<byte>(Byte_1D, name: nameof(Byte_1D));
 			UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));
-            PatternTablePointers = s.SerializePointerArray(PatternTablePointers, NumChannels, name: nameof(PatternTablePointers));
-            Reserved = s.SerializeArray<uint>(Reserved, NumChannels, name: nameof(Reserved));
+            PatternTablePointers = s.SerializePointerArray(PatternTablePointers, 32, name: nameof(PatternTablePointers));
+			UInt_A0 = s.Serialize<uint>(UInt_A0, name: nameof(UInt_A0));
+			UInts_A4 = s.SerializeArray<uint>(UInts_A4, 3, name: nameof(UInts_A4));
+			UInts_B0 = s.SerializeArray<uint>(UInts_B0, 3, name: nameof(UInts_B0));
+			UInt_BC = s.Serialize<uint>(UInt_BC, name: nameof(UInt_BC));
+			UInt_C0 = s.Serialize<uint>(UInt_C0, name: nameof(UInt_C0));
+			UInt_C4 = s.Serialize<uint>(UInt_C4, name: nameof(UInt_C4));
 
-            List<int> instruments = new List<int>();
+			List<int> instruments = new List<int>();
             if (PatternTable == null) {
                 int instrumentCount = 0;
-                PatternTable = new GAX2_PatternHeader[PatternTablePointers.Length][];
-                Patterns = new GAX2_Pattern[PatternTablePointers.Length][];
-                for (int i = 0; i < PatternTablePointers.Length; i++) {
+                PatternTable = new GAX2_PatternHeader[NumChannels][];
+                Patterns = new GAX2_Pattern[NumChannels][];
+                for (int i = 0; i < NumChannels; i++) {
                     s.DoAt(PatternTablePointers[i], () => {
                         PatternTable[i] = s.SerializeObjectArray<GAX2_PatternHeader>(PatternTable[i], NumPatternsPerChannel, name: $"{nameof(PatternTable)}[{i}]");
                         if (Patterns[i] == null) {
@@ -98,7 +109,7 @@ namespace Ray1Map.GBARRR
                     int ind = PredefinedSampleCount.HasValue ? i : InstrumentIndices[i];
                     var instr = InstrumentSet[ind].Value;
                     if (instr != null) {
-                        s.DoAt(SampleSetPointer + (instr.Sample) * 8, () => {
+                        s.DoAt(SampleSetPointer + (instr.SampleIndices[0]) * 8, () => {
                             Samples[i] = s.SerializeObject<GAX2_Sample>(Samples[i], name: $"{nameof(Samples)}[{i}]");
                         });
                     }

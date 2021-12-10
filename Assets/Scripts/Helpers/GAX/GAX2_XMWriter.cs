@@ -44,33 +44,33 @@ namespace Ray1Map
             var gax_instr = song.InstrumentSet[ind].Value;
 
             XM_Sample smp = new XM_Sample();
-            smp.SampleName = "Sample " + gax_instr.Sample;
+            smp.SampleName = "Sample " + gax_instr.SampleIndices;
             smp.SampleData16 = ConvertSample(song.Samples[index].Sample);
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
             // If loop
-            bool loop = gax_instr.LoopStart != 0 || gax_instr.LoopEnd != 0;
+            bool loop = gax_instr.Samples[0].LoopStart != 0 || gax_instr.Samples[0].LoopEnd != 0;
             if (loop) {
                 smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
-                smp.SampleLoopStart = gax_instr.LoopStart * 2;
-                smp.SampleLoopLength = (gax_instr.LoopEnd - gax_instr.LoopStart) * 2 - 2;
+                smp.SampleLoopStart = gax_instr.Samples[0].LoopStart * 2;
+                smp.SampleLoopLength = (gax_instr.Samples[0].LoopEnd - gax_instr.Samples[0].LoopStart) * 2 - 2;
             }
-            int instrPitch = (gax_instr.Pitch / 32);
-            int relNote = BitHelpers.ExtractBits(gax_instr.InstrumentConfig.Value.RelativeNoteNumber, 6, 0);
+            int instrPitch = (gax_instr.Samples[0].Pitch / 32);
+            int relNote = BitHelpers.ExtractBits(gax_instr.Keymap[0].RelativeNoteNumber, 6, 0);
             int relativeNoteNumber =
                 instrPitch - 1 // GAX notes start at 1
-                + (gax_instr.InstrumentConfig.Value.RelativeNoteNumberSign == 1 ? -1 : 1) * (relNote - 2);
+                + (gax_instr.Keymap[0].RelativeNoteNumberSign == 1 ? -1 : 1) * (relNote - 2);
                 //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
             //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
-            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.Sample}" +
-                $" - Pitch:{gax_instr.Pitch}" +
+            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices}" +
+                $" - Pitch:{gax_instr.Samples[0].Pitch}" +
                 $" - Relative Note Number:{relativeNoteNumber}" +
-                $" - Cfg1:{gax_instr.InstrumentConfig.Value.RelativeNoteNumberSign}" +
+                $" - Cfg1:{gax_instr.Keymap[0].RelativeNoteNumberSign}" +
                 $" - CfgRelNote:{relNote}" +
                 $"");
             smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
-            smp.FineTune = (sbyte)((gax_instr.Pitch - (instrPitch * 32)) * 4);
+            smp.FineTune = (sbyte)((gax_instr.Samples[0].Pitch - (instrPitch * 32)) * 4);
             if (ind == 0) {
                 smp.RelativeNoteNumber = 0;
                 smp.FineTune = 0;
@@ -81,7 +81,7 @@ namespace Ray1Map
             instr.Samples = new XM_Sample[] { smp };
 
             // Volume envelope
-            instr.NumVolumePoints = gax_instr.Envelope.Value.NumPointsVolume;
+            instr.NumVolumePoints = gax_instr.Envelope.Value.NumPoints;
             for (int i = 0; i < instr.NumVolumePoints; i++) {
                 instr.PointsForVolumeEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
                 instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(gax_instr.Envelope.Value.Points[i].Y / 4);
@@ -89,33 +89,20 @@ namespace Ray1Map
                 // However for GAX they all seem to be conversions from 0-64, i.e. no values that aren't 0 when doing % 4.
                 // Excpet for 0xFF which should be treated as 64
             }
-            instr.VolumeLoopEndPoint = (byte)Math.Max(instr.NumVolumePoints - 1,0);
-            instr.VolumeLoopStartPoint = 0;
-            instr.VolumeSustainPoint = instr.VolumeLoopEndPoint;
+
             instr.VolumeType = 1;
             instr.VolumeFadeout = 0x400;
-            //if(loop) BitHelpers.SetBits(instr.VolumeType, 1, 1, 2); // Todo: find sustain point, loop start & end point, etc. Set sustain flag if necessary
-            if (gax_instr.Envelope.Value.VolumeSustainPoint.HasValue) {
-                instr.VolumeSustainPoint = gax_instr.Envelope.Value.VolumeSustainPoint.Value;
+
+            if (gax_instr.Envelope.Value.Sustain.HasValue) {
+                instr.VolumeSustainPoint = gax_instr.Envelope.Value.Sustain.Value;
                 BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
             }
-
-
-            // Panning envelope
-            /*instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
-            if (gax_instr.Envelope.Value.NumPointsPanning == 0xFF) {
-                instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsVolume;
-            } else {
-                instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
+            if (gax_instr.Envelope.Value.LoopEnd.HasValue && gax_instr.Envelope.Value.LoopStart.HasValue) {
+                instr.VolumeLoopStartPoint = gax_instr.Envelope.Value.LoopStart.Value;
+                instr.VolumeLoopEndPoint = gax_instr.Envelope.Value.LoopEnd.Value;
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
             }
-            for (int i = 0; i < instr.NumPanningPoints; i++) {
-                instr.PointsForPanningEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
-                instr.PointsForPanningEnvelope[i * 2 + 1] = 32;// gax_instr.Envelope.Value.Points[i].Short_02;
-                //UnityEngine.Debug.Log($"PP: {gax_instr.Envelope.Value.Points[i].Short_02}");
-            }
-            instr.PanningLoopEndPoint = 0;
-            instr.PanningLoopStartPoint = 0;
-            instr.PanningSustainPoint = 0;*/
+
             return instr;
         }
 

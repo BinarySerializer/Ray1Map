@@ -134,7 +134,7 @@ namespace Ray1Map.GBARRR
                     string outPath = outputPath + "/MusicSamples/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
-                        var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.Sample == i+1);
+                        var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.SampleIndices[0] == i+1);
                         ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, 2);
                     }
                 });
