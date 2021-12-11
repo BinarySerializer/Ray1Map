@@ -43,42 +43,9 @@ namespace Ray1Map
             int ind = song.InstrumentIndices[index];
             var gax_instr = song.InstrumentSet[ind].Value;
 
-            XM_Sample smp = new XM_Sample();
-            smp.SampleName = "Sample " + gax_instr.SampleIndices;
-            smp.SampleData16 = ConvertSample(song.Samples[index].Sample);
-            smp.Type = 1 << 4; // 16 bit sample data
-            smp.SampleLength = (uint)smp.SampleData16.Length * 2;
-
-            // If loop
-            bool loop = gax_instr.Samples[0].LoopStart != 0 || gax_instr.Samples[0].LoopEnd != 0;
-            if (loop) {
-                smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
-                smp.SampleLoopStart = gax_instr.Samples[0].LoopStart * 2;
-                smp.SampleLoopLength = (gax_instr.Samples[0].LoopEnd - gax_instr.Samples[0].LoopStart) * 2 - 2;
-            }
-            int instrPitch = (gax_instr.Samples[0].Pitch / 32);
-            int relNote = BitHelpers.ExtractBits(gax_instr.Keymap[0].RelativeNoteNumber, 6, 0);
-            int relativeNoteNumber =
-                instrPitch - 1 // GAX notes start at 1
-                + (gax_instr.Keymap[0].RelativeNoteNumberSign == 1 ? -1 : 1) * (relNote - 2);
-                //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
-            //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
-            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices}" +
-                $" - Pitch:{gax_instr.Samples[0].Pitch}" +
-                $" - Relative Note Number:{relativeNoteNumber}" +
-                $" - Cfg1:{gax_instr.Keymap[0].RelativeNoteNumberSign}" +
-                $" - CfgRelNote:{relNote}" +
-                $"");
-            smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
-            smp.FineTune = (sbyte)((gax_instr.Samples[0].Pitch - (instrPitch * 32)) * 4);
-            if (ind == 0) {
-                smp.RelativeNoteNumber = 0;
-                smp.FineTune = 0;
-            }
-
+            // Create instrument
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
-            instr.Samples = new XM_Sample[] { smp };
 
             // Volume envelope
             instr.NumVolumePoints = gax_instr.Envelope.Value.NumPoints;
@@ -102,6 +69,45 @@ namespace Ray1Map
                 instr.VolumeLoopEndPoint = gax_instr.Envelope.Value.LoopEnd.Value;
                 BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
             }
+
+            // Create samples
+
+            XM_Sample smp = new XM_Sample();
+            smp.SampleName = "Sample " + gax_instr.SampleIndices[0];
+            smp.SampleData16 = ConvertSample(song.Samples[index].Sample);
+            smp.Type = 1 << 4; // 16 bit sample data
+            smp.SampleLength = (uint)smp.SampleData16.Length * 2;
+
+            // If loop
+            bool loop = gax_instr.Samples[0].LoopStart != 0 || gax_instr.Samples[0].LoopEnd != 0;
+            if (loop) {
+                smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
+                smp.SampleLoopStart = gax_instr.Samples[0].LoopStart * 2;
+                smp.SampleLoopLength = (gax_instr.Samples[0].LoopEnd - gax_instr.Samples[0].LoopStart) * 2 - 2;
+            }
+            int instrPitch = (gax_instr.Samples[0].Pitch / 32);
+            int relNote = BitHelpers.ExtractBits(gax_instr.Keymap[0].RelativeNoteNumber, 6, 0);
+            int relativeNoteNumber =
+                instrPitch - 1 // GAX notes start at 1
+                + (relNote - 2);
+                //+ (gax_instr.Keymap[0].DontUseNotePitch ? -1 : 1) * (relNote - 2);
+                //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
+            //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
+            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices[0]}" +
+                $" - Pitch:{gax_instr.Samples[0].Pitch}" +
+                $" - Relative Note Number:{relativeNoteNumber}" +
+                $" - Cfg1:{gax_instr.Keymap[0].DontUseNotePitch}" +
+                $" - CfgRelNote:{relNote}" +
+                $" - NumRows:{gax_instr.NumRows}" +
+                $"");
+            smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
+            smp.FineTune = (sbyte)((gax_instr.Samples[0].Pitch - (instrPitch * 32)) * 4);
+            if (ind == 0) {
+                smp.RelativeNoteNumber = 0;
+                smp.FineTune = 0;
+            }
+
+            instr.Samples = new XM_Sample[] { smp };
 
             return instr;
         }
@@ -131,6 +137,7 @@ namespace Ray1Map
             byte? eff = null;
             byte? effParam = null;
             byte? note = null;
+            byte? instrument = null;
             int lastInstr = 0;
             if (gax.IsEmptyTrack) {
                 while (curRow < rows.Length) {
@@ -143,6 +150,7 @@ namespace Ray1Map
                 effParam = null;
                 vol = null;
                 note = null;
+                instrument = null;
 
                 void ConfigureEffect() {
                     /*eff = (row.Effect < 16 && row.Effect != 12) ? (byte?)row.Effect : null;
@@ -159,6 +167,13 @@ namespace Ray1Map
                 }
                 void ConfigureNote() {
                     if(row.Note != 0) note = row.Note;
+
+                    if (row.Instrument != 250) {
+                        instrument = (byte)(1 + Array.IndexOf(song.InstrumentIndices, row.Instrument));
+                        lastInstr = instrument.Value;
+                        var gax_instr = song.InstrumentSet[row.Instrument].Value;
+                        if (gax_instr.Keymap[0].DontUseNotePitch) note = (byte)gax_instr.Keymap[0].RelativeNoteNumber;
+                    }
                 }
 
                 switch (row.Command) {
@@ -183,9 +198,7 @@ namespace Ray1Map
                         if (row.Instrument == 250) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         } else {
-                            int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
-                            lastInstr = instr;
-                            rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
+                            rows[curRow++] = new XM_PatternRow(note: note, instrument: instrument, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         }
                         break;
                     case GAX2_PatternRow.Cmd.NoteOnly:
@@ -193,9 +206,7 @@ namespace Ray1Map
                         if (row.Instrument == 250) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97);
                         } else {
-                            int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
-                            lastInstr = instr;
-                            rows[curRow++] = new XM_PatternRow(note: note, instrument: (byte)instr);
+                            rows[curRow++] = new XM_PatternRow(note: note, instrument: instrument);
                         }
                         break;
                     case GAX2_PatternRow.Cmd.NoteOff:
