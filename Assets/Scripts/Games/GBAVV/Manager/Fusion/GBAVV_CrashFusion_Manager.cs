@@ -417,6 +417,7 @@ namespace Ray1Map.GBAVV
             [0508] = GBAVV_ScriptCommand.CommandType.Wait,
             // 0509 is a duplicate of 0510, but never used
             [0510] = GBAVV_ScriptCommand.CommandType.WaitWhileInputCheck,
+            // TODO: 11 and 12 are music related, 12 plays a a music indicated by the param (pointer to the song)
 
             [0702] = GBAVV_ScriptCommand.CommandType.Dialog,
 

@@ -7,7 +7,7 @@ namespace Ray1Map.GBAVV
         public bool SerializeData { get; set; } // Set before serializing
 
         public Pointer MapPointer { get; set; }
-        public Pointer Pointer_04 { get; set; }
+        public Pointer Pointer_04 { get; set; } // TODO: GAX2 music?
         public int Int_08 { get; set; }
         public int Int_0C { get; set; }
         public int Int_10 { get; set; }

@@ -7,7 +7,7 @@ namespace Ray1Map.GBAVV
         public bool SerializeData { get; set; } // Set before serializing
 
         public Pointer MapDataPointer { get; set; }
-        public Pointer Pointer_04 { get; set; }
+        public Pointer MusicPointer { get; set; } // TODO: Serialize a GAX2 song from here
 
         // Serialized from pointers
         public GBAVV_NitroKart_MapData MapData { get; set; }
@@ -15,7 +15,7 @@ namespace Ray1Map.GBAVV
         public override void SerializeImpl(SerializerObject s)
         {
             MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
-            Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
+            MusicPointer = s.SerializePointer(MusicPointer, name: nameof(MusicPointer));
 
             if (SerializeData)
                 MapData = s.DoAt(MapDataPointer, () => s.SerializeObject<GBAVV_NitroKart_MapData>(MapData, name: nameof(MapData)));
