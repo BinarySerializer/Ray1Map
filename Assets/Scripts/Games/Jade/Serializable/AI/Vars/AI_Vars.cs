@@ -185,7 +185,7 @@ namespace Ray1Map.Jade {
 
                 if (!save || 
                     BitHelpers.ExtractBits(v.Info.Flags, 1, 6) == 1 || // If this is 0, the values are read from the save file but not overwritten
-                    BitHelpers.ExtractBits(v.Info.Flags, 1, 4) == 0) 
+                    BitHelpers.ExtractBits(v.Info.Flags, 1, 4) == 1) 
                 {
                     string varName = v.Name;
                     
