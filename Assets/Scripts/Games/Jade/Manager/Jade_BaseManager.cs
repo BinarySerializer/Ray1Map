@@ -2044,10 +2044,10 @@ namespace Ray1Map {
 				string worldName = "Univers";
 				string name = "univers";
 				univers?.Value?.Vars?.Value?.ExportVarsOverview(worldName, $"{name}_instance");
-				univers?.Value?.Vars?.Value?.ExportIDAStruct(worldName, $"{name}_instance");
+				univers?.Value?.Vars?.Value?.ExportStruct(worldName, $"{name}_instance");
 				univers?.Value?.Model?.Value?.Vars?.ExportVarsOverview(worldName, $"{name}_model");
-				univers?.Value?.Model?.Value?.Vars?.ExportIDAStruct(worldName, $"{name}_model");
-				univers?.Value?.Model?.Value?.Vars?.ExportIDAStruct(worldName, $"{name}_save", save: true);
+				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_model");
+				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_save", save: true);
 			}
 
 			return univers;

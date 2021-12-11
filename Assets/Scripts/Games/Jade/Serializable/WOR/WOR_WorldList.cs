@@ -42,9 +42,9 @@ namespace Ray1Map.Jade {
 							if (ai != null) {
 								var name = gao.Name.Replace(".gao", "");
 								ai?.Vars?.Value?.ExportVarsOverview(w.Name, $"{name}_instance");
-								ai?.Vars?.Value?.ExportIDAStruct(w.Name, $"{name}_instance");
+								ai?.Vars?.Value?.ExportStruct(w.Name, $"{name}_instance");
 								ai?.Model?.Value?.Vars?.ExportVarsOverview(w.Name, $"{name}_model");
-								ai?.Model?.Value?.Vars?.ExportIDAStruct(w.Name, $"{name}_model");
+								ai?.Model?.Value?.Vars?.ExportStruct(w.Name, $"{name}_model");
 							}
 						}
 					}
