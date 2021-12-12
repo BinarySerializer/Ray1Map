@@ -2048,6 +2048,7 @@ namespace Ray1Map {
 				univers?.Value?.Model?.Value?.Vars?.ExportVarsOverview(worldName, $"{name}_model");
 				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_model");
 				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_save", save: true);
+				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_save_serializable", save: true, mode: AI_Vars.ExportStructMode.BinarySerializable);
 			}
 
 			return univers;

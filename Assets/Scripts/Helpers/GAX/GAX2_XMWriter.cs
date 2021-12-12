@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Ray1Map.GBARRR;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ray1Map
@@ -47,61 +48,43 @@ namespace Ray1Map
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
 
-            // Volume envelope
-            instr.NumVolumePoints = gax_instr.Envelope.Value.NumPoints;
-            for (int i = 0; i < instr.NumVolumePoints; i++) {
-                instr.PointsForVolumeEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
-                instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(gax_instr.Envelope.Value.Points[i].Y / 4);
-                // The values in gax's envelope are 0-255 - in XM's they are 0-64.
-                // However for GAX they all seem to be conversions from 0-64, i.e. no values that aren't 0 when doing % 4.
-                // Excpet for 0xFF which should be treated as 64
-            }
-
-            instr.VolumeType = 1;
-            instr.VolumeFadeout = 0x400;
-
-            if (gax_instr.Envelope.Value.Sustain.HasValue) {
-                instr.VolumeSustainPoint = gax_instr.Envelope.Value.Sustain.Value;
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
-            }
-            if (gax_instr.Envelope.Value.LoopEnd.HasValue && gax_instr.Envelope.Value.LoopStart.HasValue) {
-                instr.VolumeLoopStartPoint = gax_instr.Envelope.Value.LoopStart.Value;
-                instr.VolumeLoopEndPoint = gax_instr.Envelope.Value.LoopEnd.Value;
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
-            }
+            GetInstrument_ConfigureEnvelope(gax_instr, instr);
 
             // Create samples
+            var gax_keymap = gax_instr.Keymap[0];
+            var gax_sampleIndex = gax_keymap.SampleIndex > 0 ? gax_keymap.SampleIndex - 1 : 0;
+            var gax_smp = gax_instr.Samples[gax_sampleIndex];
 
             XM_Sample smp = new XM_Sample();
-            smp.SampleName = "Sample " + gax_instr.SampleIndices[0];
+            smp.SampleName = "Sample " + gax_instr.SampleIndices[gax_sampleIndex];
             smp.SampleData16 = ConvertSample(song.Samples[index].Sample);
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
             // If loop
-            bool loop = gax_instr.Samples[0].LoopStart != 0 || gax_instr.Samples[0].LoopEnd != 0;
+            bool loop = gax_smp.LoopStart != 0 || gax_smp.LoopEnd != 0;
             if (loop) {
                 smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
-                smp.SampleLoopStart = gax_instr.Samples[0].LoopStart * 2;
-                smp.SampleLoopLength = (gax_instr.Samples[0].LoopEnd - gax_instr.Samples[0].LoopStart) * 2 - 2;
+                smp.SampleLoopStart = gax_smp.LoopStart * 2;
+                smp.SampleLoopLength = (gax_smp.LoopEnd - gax_smp.LoopStart) * 2;
             }
-            int instrPitch = (gax_instr.Samples[0].Pitch / 32);
-            int relNote = BitHelpers.ExtractBits(gax_instr.Keymap[0].RelativeNoteNumber, 6, 0);
+            int instrPitch = (gax_smp.Pitch / 32);
+            int relNote = BitHelpers.ExtractBits(gax_keymap.RelativeNoteNumber, 6, 0);
             int relativeNoteNumber =
                 instrPitch - 1 // GAX notes start at 1
                 + (relNote - 2);
                 //+ (gax_instr.Keymap[0].DontUseNotePitch ? -1 : 1) * (relNote - 2);
                 //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
             //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
-            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices[0]}" +
-                $" - Pitch:{gax_instr.Samples[0].Pitch}" +
+            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices[gax_sampleIndex]}" +
+                $" - Pitch:{gax_smp.Pitch}" +
                 $" - Relative Note Number:{relativeNoteNumber}" +
-                $" - Cfg1:{gax_instr.Keymap[0].DontUseNotePitch}" +
+                $" - Cfg1:{gax_keymap.DontUseNotePitch}" +
                 $" - CfgRelNote:{relNote}" +
                 $" - NumRows:{gax_instr.NumRows}" +
                 $"");
             smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
-            smp.FineTune = (sbyte)((gax_instr.Samples[0].Pitch - (instrPitch * 32)) * 4);
+            smp.FineTune = (sbyte)((gax_smp.Pitch - (instrPitch * 32)) * 4);
             if (ind == 0) {
                 smp.RelativeNoteNumber = 0;
                 smp.FineTune = 0;
@@ -110,6 +93,76 @@ namespace Ray1Map
             instr.Samples = new XM_Sample[] { smp };
 
             return instr;
+        }
+
+        private void GetInstrument_ConfigureEnvelope(GAX2_Instrument gax_instr, XM_Instrument instr) {
+            var env = gax_instr.Envelope.Value;
+
+            // Volume envelope
+            instr.NumVolumePoints = env.NumPoints;
+            for (int i = 0; i < instr.NumVolumePoints; i++) {
+                instr.PointsForVolumeEnvelope[i * 2 + 0] = env.Points[i].X;
+                instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(env.Points[i].Y / 4);
+                // The values in gax's envelope are 0-255 - in XM's they are 0-64.
+                // However for GAX they all seem to be conversions from 0-64, i.e. no values that aren't 0 when doing % 4.
+                // Excpet for 0xFF which should be treated as 64
+            }
+
+            instr.VolumeType = 1;
+            //instr.VolumeFadeout = 0x400;
+
+            if (env.Sustain.HasValue) {
+                instr.VolumeSustainPoint = env.Sustain.Value;
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
+            }
+            if (env.LoopEnd.HasValue && env.LoopStart.HasValue) {
+                instr.VolumeLoopStartPoint = env.LoopStart.Value;
+                instr.VolumeLoopEndPoint = env.LoopEnd.Value;
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
+            }
+        }
+
+
+        private void GetInstrument_ConfigureEnvelope2(GAX2_Instrument gax_instr, XM_Instrument instr) {
+            var env = gax_instr.Envelope.Value;
+
+            Dictionary<int, byte> pointMapping = new Dictionary<int, byte>();
+            List<KeyValuePair<ushort, ushort>> points = new List<KeyValuePair<ushort, ushort>>();
+
+            // Volume envelope
+            for (int i = 0; i < env.NumPoints; i++) {
+                var p0 = env.Points[i];
+                pointMapping[i] = (byte)points.Count;
+                points.Add(new KeyValuePair<ushort, ushort>(p0.X, (ushort)((p0.Y + 1) / 4)));
+
+                if (i < env.NumPoints - 1 && p0.X < env.Points[i+1].X - 1 && env.Points[i + 1].Interpolation == 0) {
+                    var p1 = env.Points[i + 1];
+                    var currentX = p1.X - 1;
+                    var newX = p1.X;
+                    ushort newY = p1.Y;
+                    newY = (ushort)(((p1.Interpolation * (newX - currentX)) >> 8)  + newY);
+                    points.Add(new KeyValuePair<ushort, ushort>(newX, (ushort)((newY + 1) / 4)));
+                }
+            }
+            instr.NumVolumePoints = (byte)points.Count;
+            //UnityEngine.Debug.Log(instr.NumVolumePoints);
+            for (int i = 0; i < instr.NumVolumePoints; i++) {
+                instr.PointsForVolumeEnvelope[i * 2 + 0] = points[i].Key;
+                instr.PointsForVolumeEnvelope[i * 2 + 1] = points[i].Value;
+            }
+
+            instr.VolumeType = 1;
+            //instr.VolumeFadeout = 0x400;
+
+            if (env.Sustain.HasValue) {
+                instr.VolumeSustainPoint = pointMapping[env.Sustain.Value];
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
+            }
+            if (env.LoopEnd.HasValue && env.LoopStart.HasValue) {
+                instr.VolumeLoopStartPoint = pointMapping[env.LoopStart.Value];
+                instr.VolumeLoopEndPoint = pointMapping[env.LoopEnd.Value];
+                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
+            }
         }
 
         private XM_Pattern GetPattern(GAX2_Song song, int index) {
@@ -151,6 +204,7 @@ namespace Ray1Map
                 vol = null;
                 note = null;
                 instrument = null;
+                bool noteOff = false;
 
                 void ConfigureEffect() {
                     /*eff = (row.Effect < 16 && row.Effect != 12) ? (byte?)row.Effect : null;
@@ -168,11 +222,16 @@ namespace Ray1Map
                 void ConfigureNote() {
                     if(row.Note != 0) note = row.Note;
 
-                    if (row.Instrument != 250) {
+                    if (note != 1) {
                         instrument = (byte)(1 + Array.IndexOf(song.InstrumentIndices, row.Instrument));
                         lastInstr = instrument.Value;
                         var gax_instr = song.InstrumentSet[row.Instrument].Value;
                         if (gax_instr.Keymap[0].DontUseNotePitch) note = (byte)gax_instr.Keymap[0].RelativeNoteNumber;
+                    } else {
+                        // Note off
+                        instrument = 0;
+                        note = 97;
+                        noteOff = true;
                     }
                 }
 
@@ -195,7 +254,7 @@ namespace Ray1Map
                     case GAX2_PatternRow.Cmd.Note:
                         ConfigureEffect();
                         ConfigureNote();
-                        if (row.Instrument == 250) { // Note off
+                        if (noteOff) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         } else {
                             rows[curRow++] = new XM_PatternRow(note: note, instrument: instrument, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
@@ -203,7 +262,7 @@ namespace Ray1Map
                         break;
                     case GAX2_PatternRow.Cmd.NoteOnly:
                         ConfigureNote();
-                        if (row.Instrument == 250) { // Note off
+                        if (noteOff) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97);
                         } else {
                             rows[curRow++] = new XM_PatternRow(note: note, instrument: instrument);
