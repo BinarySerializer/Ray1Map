@@ -65,8 +65,9 @@ namespace Ray1Map
             bool loop = gax_smp.LoopStart != 0 || gax_smp.LoopEnd != 0;
             if (loop) {
                 smp.Type = (byte)BitHelpers.SetBits(smp.Type, 1, 2, 0);
+                if(gax_smp.IsBidirectional) smp.Type = (byte)BitHelpers.SetBits(smp.Type, 2, 2, 0); // Bidirectional
                 smp.SampleLoopStart = gax_smp.LoopStart * 2;
-                smp.SampleLoopLength = (gax_smp.LoopEnd - gax_smp.LoopStart) * 2;
+                smp.SampleLoopLength = (gax_smp.LoopEnd - gax_smp.LoopStart) * 2 - 2;
             }
             int instrPitch = (gax_smp.Pitch / 32);
             int relNote = BitHelpers.ExtractBits(gax_keymap.RelativeNoteNumber, 6, 0);

@@ -8,8 +8,8 @@ namespace Ray1Map.GBARRR
     public class GAX2_SampleDefinition : BinarySerializable {
         public short Pitch { get; set; }
         public byte Byte_02 { get; set; }
-        public byte Byte_03 { get; set; }
-        public int Int_04 { get; set; }
+        public bool IsBidirectional { get; set; }
+        public int StartPosition { get; set; }
         public uint LoopStart { get; set; }
         public uint LoopEnd { get; set; }
         public int Int_10 { get; set; }
@@ -20,8 +20,8 @@ namespace Ray1Map.GBARRR
         {
             Pitch = s.Serialize<short>(Pitch, name: nameof(Pitch));
 			Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-			Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-			Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
+			IsBidirectional = s.Serialize<bool>(IsBidirectional, name: nameof(IsBidirectional));
+			StartPosition = s.Serialize<int>(StartPosition, name: nameof(StartPosition));
 			LoopStart = s.Serialize<uint>(LoopStart, name: nameof(LoopStart));
 			LoopEnd = s.Serialize<uint>(LoopEnd, name: nameof(LoopEnd));
 			Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));

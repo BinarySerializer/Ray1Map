@@ -115,6 +115,10 @@ namespace Ray1Map
                 MusicCount = 24,
                 MusicOffset = 0x08060294,
             },
+            [GameModeSelection.CrashFusionGBAUS] = new GAXInfo() {
+                MusicCount = 21,
+                MusicOffset = 0x08076D54
+            },
         };
     }
 
