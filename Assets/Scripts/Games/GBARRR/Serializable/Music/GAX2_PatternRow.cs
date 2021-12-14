@@ -19,7 +19,6 @@ namespace Ray1Map.GBARRR
                 switch (Command) {
                     case Cmd.Note: return 1;
                     case Cmd.NoteOnly: return 1;
-                    case Cmd.NoteOff: return 1 + RestDuration;
                     case Cmd.Rest: return 1;
                     case Cmd.RestMulti: return RestDuration;
                     case Cmd.EffectOnly: return 1;
@@ -58,9 +57,6 @@ namespace Ray1Map.GBARRR
                     Note = (byte)BitHelpers.ExtractBits(Flags, 7, 0);
                     Instrument = s.Serialize<byte>(Instrument, name: nameof(Instrument));
                     break;
-                case Cmd.NoteOff:
-                    RestDuration = s.Serialize<byte>(RestDuration, name: nameof(RestDuration));
-                    break;
                 case Cmd.EffectOnly:
                     Effect = s.Serialize<EffectType>(Effect, name: nameof(Effect));
                     EffectParameter = s.Serialize<byte>(EffectParameter, name: nameof(EffectParameter));
@@ -76,7 +72,6 @@ namespace Ray1Map.GBARRR
             NoteOnly,
             Unknown,
             Rest = 0x80,
-            NoteOff = 0x81,
             EffectOnly = 0xFA,
             RestMulti = 0xFF,
         }
@@ -119,7 +114,6 @@ namespace Ray1Map.GBARRR
                     hasEffect = true;
                     break;
                 case Cmd.RestMulti:
-                case Cmd.NoteOff:
                     str += $"Duration: {RestDuration})";
                     return str;
                 default:

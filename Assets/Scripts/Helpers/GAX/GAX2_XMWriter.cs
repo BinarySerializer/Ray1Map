@@ -352,13 +352,10 @@ namespace Ray1Map
                         ConfigureNote();
                         if (noteOff) { // Note off
                             rows[curRow++] = new XM_PatternRow(note: 97);
+                            //rows[curRow++] = new XM_PatternRow(effectType: 0xe, effectParameter: 0xc0); // Note Cut
                         } else {
                             rows[curRow++] = new XM_PatternRow(note: note, instrument: instrument);
                         }
-                        break;
-                    case GAX2_PatternRow.Cmd.NoteOff:
-                        rows[curRow++] = new XM_PatternRow(note: 97);
-                        //rows[curRow++] = new XM_PatternRow(effectType: 0xe, effectParameter: 0xc0);
                         break;
                 }
             }
