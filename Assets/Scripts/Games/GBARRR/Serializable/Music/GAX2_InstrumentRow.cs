@@ -21,30 +21,32 @@ namespace Ray1Map.GBARRR
 		}
 
 		public class Effect : BinarySerializable {
-            public byte Type { get; set; }
+            public EffectType Type { get; set; }
             public byte Parameter { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
                 s.DoBits<ushort>(b => {
                     Parameter = b.SerializeBits<byte>(Parameter, 8, name: nameof(Parameter));
-                    Type = b.SerializeBits<byte>(Type, 8, name: nameof(Type));
+                    Type = b.SerializeBits<EffectType>(Type, 8, name: nameof(Type));
                 });
 			}
 
-            public enum EffectType : byte {
-                None = 0,
-                Type1 = 1,
-                Type2 = 2,
-                //Type3 = 3,
-                //Type4 = 4,
-                Type5 = 5,
-                Type6 = 6,
-                //Type7 = 7,
-                //Type8 = 8,
-                //Type9 = 9,
-                Type10 = 10,
-                Type11 = 11,
-                Volume = 12,
-                Speed = 15, // Set ticks per Instrument row
+            public enum EffectType : byte { // All effects that are executed every tick include the first tick, so not like XM where tone portamentos and volume slides start on tick 2
+                None               = 0,
+                PortamentoUp       = 1, // Increases current note pitch by xx units on every tick of the row
+                PortamentoDown     = 2, // Decreases current note pitch by xx units on every tick of the row
+                Unknown3           = 3,
+                Unknown4           = 4,
+                RowSwitchCheck     = 5, // Checks row switch timer. If zero, it switches to instrument row (param), else it decreases row switch timer
+                RowSwitchTimer     = 6, // Sets row switch timer
+                Unknown7           = 7,
+                Unknown8           = 8,
+                Unknown9           = 9,
+                VolumeSlideUp     = 10, // Increases instrument volume by xx units on every tick of the row (this is a volume scale factor that defaults at 0xFF)
+                VolumeSlideDown   = 11, // Decreases instrument volume by xx units on every tick of the row
+                SetVolume         = 12, // Set instrument volume directly
+                Unknown13         = 13,
+                Unknown14         = 14,
+                SetSpeed          = 15, // Sets ticks per instrument row
             }
 		}
 	}

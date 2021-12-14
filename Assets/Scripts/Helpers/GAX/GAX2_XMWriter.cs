@@ -51,7 +51,7 @@ namespace Ray1Map
             GetInstrument_ConfigureEnvelope(gax_instr, instr);
 
             // Create samples
-            var gax_keymap = gax_instr.Keymap[0];
+            var gax_keymap = gax_instr.Rows[0];
             var gax_sampleIndex = gax_keymap.SampleIndex > 0 ? gax_keymap.SampleIndex - 1 : 0;
             var gax_smp = gax_instr.Samples[gax_sampleIndex];
 
@@ -73,9 +73,7 @@ namespace Ray1Map
             int relativeNoteNumber =
                 instrPitch - 1 // GAX notes start at 1
                 + (relNote - 2);
-                //+ (gax_instr.Keymap[0].DontUseNotePitch ? -1 : 1) * (relNote - 2);
-                //- gax_instr.InstrumentConfig.Value.Byte_05 + 12;
-            //int relativeNoteNumber = instrPitch + gax_instr.InstrumentConfig.Value.Bytes[3];
+
             UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.SampleIndices[gax_sampleIndex]}" +
                 $" - Pitch:{gax_smp.Pitch}" +
                 $" - Relative Note Number:{relativeNoteNumber}" +
@@ -98,27 +96,57 @@ namespace Ray1Map
         private void GetInstrument_ConfigureEnvelope(GAX2_Instrument gax_instr, XM_Instrument instr) {
             var env = gax_instr.Envelope.Value;
 
+
+            float volumeFactor = 1f;
+
+            // Try to find a "set volume" effect in this instrument's rows
+            var volEffect = gax_instr.Rows[0].Effects.FirstOrDefault(e => e.Type == GAX2_InstrumentRow.Effect.EffectType.SetVolume);
+            if (volEffect != null) {
+                volumeFactor = volEffect.Parameter / 255f;
+            }
+
             // Volume envelope
             instr.NumVolumePoints = env.NumPoints;
             for (int i = 0; i < instr.NumVolumePoints; i++) {
+                var vol = (env.Points[i].Y / 255f) * volumeFactor;
+
                 instr.PointsForVolumeEnvelope[i * 2 + 0] = env.Points[i].X;
-                instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(env.Points[i].Y / 4);
+                instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(vol * 64);
                 // The values in gax's envelope are 0-255 - in XM's they are 0-64.
                 // However for GAX they all seem to be conversions from 0-64, i.e. no values that aren't 0 when doing % 4.
                 // Excpet for 0xFF which should be treated as 64
             }
-
             instr.VolumeType = 1;
+            if (env.Sustain.HasValue) {
+                instr.VolumeFadeout = 0;
+            } else {
+                instr.VolumeFadeout = 0xFFFF;
+            }
             //instr.VolumeFadeout = 0x400;
 
-            if (env.Sustain.HasValue) {
-                instr.VolumeSustainPoint = env.Sustain.Value;
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
+
+            bool addedPoint = false;
+            // In GAX
+            /*if (instr.NumVolumePoints > 0 && env.Points[instr.NumVolumePoints - 1].Y != 0) {
+                var i = instr.NumVolumePoints;
+                instr.PointsForVolumeEnvelope[i * 2 + 0] = (ushort)(env.Points[i-1].X+1);
+                instr.PointsForVolumeEnvelope[i * 2 + 1] = 0;
+                addedPoint = true;
+                instr.NumVolumePoints++;
+            }*/
+
+            if (env.Sustain.HasValue || addedPoint) {
+                if (env.Sustain.HasValue) {
+                    instr.VolumeSustainPoint = env.Sustain.Value;
+                } else {
+                    instr.VolumeSustainPoint = (byte)(instr.NumVolumePoints-2);
+                }
+                instr.VolumeType = (byte)BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
             }
             if (env.LoopEnd.HasValue && env.LoopStart.HasValue) {
                 instr.VolumeLoopStartPoint = env.LoopStart.Value;
                 instr.VolumeLoopEndPoint = env.LoopEnd.Value;
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
+                instr.VolumeType = (byte)BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
             }
         }
 
@@ -156,12 +184,12 @@ namespace Ray1Map
 
             if (env.Sustain.HasValue) {
                 instr.VolumeSustainPoint = pointMapping[env.Sustain.Value];
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
+                instr.VolumeType = (byte)BitHelpers.SetBits(instr.VolumeType, 1, 1, 1);
             }
             if (env.LoopEnd.HasValue && env.LoopStart.HasValue) {
                 instr.VolumeLoopStartPoint = pointMapping[env.LoopStart.Value];
                 instr.VolumeLoopEndPoint = pointMapping[env.LoopEnd.Value];
-                BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
+                instr.VolumeType = (byte)BitHelpers.SetBits(instr.VolumeType, 1, 1, 2);
             }
         }
 
@@ -210,23 +238,83 @@ namespace Ray1Map
                     /*eff = (row.Effect < 16 && row.Effect != 12) ? (byte?)row.Effect : null;
                     effParam = eff.HasValue ? (byte?)(row.EffectParameter) : null;
                     vol = (row.Effect == 12) ? (byte?)(0x10 + (row.EffectParameter >> 2)) : null;*/
-                    eff = row.Effect;
-                    if (row.Effect > 16) eff++;
-                    effParam = row.EffectParameter;
                     switch (row.Effect) {
-                        case 12: // Set volume
-                            effParam >>= 2; // Volume ranges from 0-255 in GAX, and 0-64 in XM
+                        case GAX2_PatternRow.EffectType.None:
                             break;
+                        case GAX2_PatternRow.EffectType.PortamentoUp: // TODO: Also the first tick
+                            eff = 1;
+                            effParam = row.EffectParameter;
+                            break;
+                        case GAX2_PatternRow.EffectType.PortamentoDown: // TODO: Also the first tick
+                            eff = 2;
+                            effParam = row.EffectParameter;
+                            break;
+                        case GAX2_PatternRow.EffectType.TonePortamento: // TODO: Also the first tick
+                            eff = 3;
+                            effParam = row.EffectParameter;
+                            break;
+                        case GAX2_PatternRow.EffectType.SetSpeedModulate:
+                            var param1 = BitHelpers.ExtractBits(row.EffectParameter, 4, 4);
+                            var param2 = BitHelpers.ExtractBits(row.EffectParameter, 4, 0);
+                            var param = (param1 + param2) / 2;
+                            eff = 15;
+                            effParam = (byte)param;
+                            UnityEngine.Debug.Log($"{row.Offset}: Effect {row.Effect} was used, incorrect speed!");
+                            break;
+                        case GAX2_PatternRow.EffectType.VolumeSlideUp:
+                        case GAX2_PatternRow.EffectType.VolumeSlideDown:
+                            if (row.EffectParameter >= 0x10) {
+                                UnityEngine.Debug.LogWarning($"{row.Offset}: Effect {row.Effect} was used with param {row.EffectParameter} >= 0x10!");
+                            } else {
+                                eff = 10;
+                                if (row.Effect == GAX2_PatternRow.EffectType.VolumeSlideUp) {
+                                    effParam = (byte)BitHelpers.SetBits(0, row.EffectParameter, 4, 4);
+                                    vol = (byte)BitHelpers.SetBits(0x90, row.EffectParameter, 4, 0); // Fine volume up, in volume column
+                                } else {
+                                    effParam = (byte)BitHelpers.SetBits(0, row.EffectParameter, 4, 0);
+                                    vol = (byte)BitHelpers.SetBits(0x80, row.EffectParameter, 4, 0); // Fine volume down, in volume column
+                                }
+                            }
+                            break;
+                        case GAX2_PatternRow.EffectType.SetVolume: // Set volume
+                            eff = 12;
+                            effParam = (byte)(row.EffectParameter >> 2); // Volume ranges from 0-255 in GAX, and 0-64 in XM
+                            break;
+                        case GAX2_PatternRow.EffectType.PatternBreak:
+                            eff = 13;
+                            effParam = row.EffectParameter;
+                            break;
+                        case GAX2_PatternRow.EffectType.NoteDelay:
+                            var topBits = BitHelpers.ExtractBits(row.EffectParameter, 4, 4);
+                            if (topBits == 0xD) {
+                                eff = 14;
+                                effParam = row.EffectParameter;
+                            } else {
+                                UnityEngine.Debug.LogWarning($"{row.Offset}: Effect 0xE{topBits:X1}x was used!");
+                            }
+                            break;
+                        case GAX2_PatternRow.EffectType.SetSpeed:
+                            if (row.EffectParameter < 0x20) {
+                                eff = 15;
+                                effParam = row.EffectParameter;
+                            } else {
+                                UnityEngine.Debug.LogWarning($"{row.Offset}: Effect {row.Effect} was used with param {row.EffectParameter} >= 0x20!");
+                            }
+                            break;
+                        default:
+                            UnityEngine.Debug.LogWarning($"{row.Offset}: Unknown effect {row.Effect} was used!");
+                            break;
+
                     }
                 }
                 void ConfigureNote() {
-                    if(row.Note != 0) note = row.Note;
 
-                    if (note != 1) {
+                    if (row.Note != 1) {
+                        if (row.Note != 0) note = row.Note;
                         instrument = (byte)(1 + Array.IndexOf(song.InstrumentIndices, row.Instrument));
                         lastInstr = instrument.Value;
                         var gax_instr = song.InstrumentSet[row.Instrument].Value;
-                        if (gax_instr.Keymap[0].DontUseNotePitch) note = (byte)gax_instr.Keymap[0].RelativeNoteNumber;
+                        if (gax_instr.Rows[0].DontUseNotePitch) note = (byte)gax_instr.Rows[0].RelativeNoteNumber;
                     } else {
                         // Note off
                         instrument = 0;

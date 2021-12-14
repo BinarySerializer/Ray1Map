@@ -9,7 +9,7 @@ namespace Ray1Map.GBARRR
         public byte Flags { get; set; }
         public byte Note { get; set; }
         public byte Instrument { get; set; }
-        public byte Effect { get; set; } // ? always 0xC ?
+        public EffectType Effect { get; set; }
         public byte EffectParameter { get; set; }
 
         public byte RestDuration { get; set; }
@@ -51,7 +51,7 @@ namespace Ray1Map.GBARRR
                 case Cmd.Note:
                     Note = (byte)BitHelpers.ExtractBits(Flags, 7, 0);
                     Instrument = s.Serialize<byte>(Instrument, name: nameof(Instrument));
-                    Effect = s.Serialize<byte>(Effect, name: nameof(Effect));
+                    Effect = s.Serialize<EffectType>(Effect, name: nameof(Effect));
                     EffectParameter = s.Serialize<byte>(EffectParameter, name: nameof(EffectParameter));
                     break;
                 case Cmd.NoteOnly:
@@ -62,7 +62,7 @@ namespace Ray1Map.GBARRR
                     RestDuration = s.Serialize<byte>(RestDuration, name: nameof(RestDuration));
                     break;
                 case Cmd.EffectOnly:
-                    Effect = s.Serialize<byte>(Effect, name: nameof(Effect));
+                    Effect = s.Serialize<EffectType>(Effect, name: nameof(Effect));
                     EffectParameter = s.Serialize<byte>(EffectParameter, name: nameof(EffectParameter));
                     break;
                 case Cmd.RestMulti:
@@ -79,6 +79,25 @@ namespace Ray1Map.GBARRR
             NoteOff = 0x81,
             EffectOnly = 0xFA,
             RestMulti = 0xFF,
+        }
+
+        public enum EffectType : byte { // All effects that are executed every tick include the first tick, so not like XM where tone portamentos and volume slides start on tick 2
+            None               = 0,
+            PortamentoUp       = 1, // Increases current note pitch by xx units on every tick of the row
+            PortamentoDown     = 2, // Decreases current note pitch by xx units on every tick of the row
+            TonePortamento     = 3, // Slides the pitch of the previous note towards the current note by xx units on every tick of the row
+            Unknown4           = 4,
+            Unknown5           = 5,
+            Unknown6           = 6,
+            SetSpeedModulate   = 7, // Top 4 bits are the speed for now, bottom 4 bits are the speed for next tick. Modulates between them every row
+            Unknown8           = 8,
+            Unknown9           = 9,
+            VolumeSlideUp     = 10, // Increases note volume by xx units on every tick of the row (end volume clamped between 0 and 0xFF)
+            VolumeSlideDown   = 11, // Decreases note volume by xx units on every tick of the row
+            SetVolume         = 12, // Set volume directly
+            PatternBreak      = 13, // Jumps to row xx of the next pattern in the Order List
+            NoteDelay         = 14, // (Only if MSB of Parameter == 0xD, like XM) Delays the note or instrument change in the current pattern cell by x ticks
+            SetSpeed          = 15, // Sets the module Speed (ticks per row)
         }
 
 		public override bool UseShortLog => true;
@@ -112,7 +131,7 @@ namespace Ray1Map.GBARRR
                 if (hasEffect) str += ", ";
             }
             if (hasEffect) {
-                str += $"Effect: {Effect:X2}, EffectParam: {EffectParameter:X2}";
+                str += $"Effect: {Effect}(0x{EffectParameter:X2})";
             }
             str += $")";
             return str;

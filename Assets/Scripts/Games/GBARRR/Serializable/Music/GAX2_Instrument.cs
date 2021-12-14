@@ -14,7 +14,7 @@ namespace Ray1Map.GBARRR
         public byte NumRows { get; set; }
         public ushort UShort_12 { get; set; }
         public Pointer RowsPointer { get; set; }
-        public GAX2_InstrumentRow[] Keymap { get; set; } // Actually an array
+        public GAX2_InstrumentRow[] Rows { get; set; }
         public GAX2_SampleDefinition[] Samples { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -28,9 +28,9 @@ namespace Ray1Map.GBARRR
 			UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
             RowsPointer = s.SerializePointer(RowsPointer, name: nameof(RowsPointer));
             s.DoAt(RowsPointer, () => {
-				Keymap = s.SerializeObjectArray<GAX2_InstrumentRow>(Keymap, NumRows, name: nameof(Keymap));
+				Rows = s.SerializeObjectArray<GAX2_InstrumentRow>(Rows, NumRows, name: nameof(Rows));
 			});
-            int numSamples = Math.Max(Keymap.Max(k => k.SampleIndex), (byte)1);
+            int numSamples = Math.Max(Rows.Max(k => k.SampleIndex), (byte)1);
 			Samples = s.SerializeObjectArray<GAX2_SampleDefinition>(Samples, numSamples, name: nameof(Samples));
 		}
     }
