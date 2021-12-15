@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.GBA;
+using BinarySerializer.Audio;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;

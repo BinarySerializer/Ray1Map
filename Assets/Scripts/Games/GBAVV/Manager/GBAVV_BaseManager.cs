@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.GBA;
+using BinarySerializer.GBA.Audio.GAX;
 using BinarySerializer.Image;
 using Cysharp.Threading.Tasks;
 using Ray1Map.GBARRR;

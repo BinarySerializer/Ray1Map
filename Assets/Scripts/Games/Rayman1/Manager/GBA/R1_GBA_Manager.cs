@@ -1,4 +1,6 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Audio;
+using BinarySerializer.GBA.Audio.MusyX;
 using BinarySerializer.GBA;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;

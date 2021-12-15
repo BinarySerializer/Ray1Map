@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Audio;
 using BinarySerializer.GBA;
 using UnityEngine;
 

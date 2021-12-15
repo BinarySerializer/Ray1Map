@@ -1,5 +1,7 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Audio;
 using BinarySerializer.GBA;
+using BinarySerializer.GBA.Audio.MusyX;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;

@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Cysharp.Threading.Tasks;
-using Ray1Map.GBARRR;
+using BinarySerializer.GBA.Audio.GAX;
 using UnityEngine;
 
 namespace Ray1Map {

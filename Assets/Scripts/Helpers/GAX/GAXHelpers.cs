@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
-using Ray1Map.GBARRR;
+using BinarySerializer.Audio;
+using BinarySerializer.GBA.Audio.GAX;
 using System.Collections.Generic;
 using System.IO;
 

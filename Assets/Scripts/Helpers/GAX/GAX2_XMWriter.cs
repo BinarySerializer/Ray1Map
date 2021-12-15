@@ -4,6 +4,8 @@ using Ray1Map.GBARRR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Audio;
+using BinarySerializer.GBA.Audio.GAX;
 
 namespace Ray1Map
 {
