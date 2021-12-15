@@ -19,3 +19,9 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.PS2"]
 	path = Assets/Scripts/Libraries/BinarySerializer.PS2
 	url = https://github.com/BinarySerializer/BinarySerializer.PS2
+[submodule "Assets/Scripts/Libraries/BinarySerializer.Audio"]
+	path = Assets/Scripts/Libraries/BinarySerializer.Audio
+	url = https://github.com/BinarySerializer/BinarySerializer.Audio
+[submodule "Assets/Scripts/Libraries/BinarySerializer.GBA.Audio"]
+	path = Assets/Scripts/Libraries/BinarySerializer.GBA.Audio
+	url = https://github.com/BinarySerializer/BinarySerializer.GBA.Audio
