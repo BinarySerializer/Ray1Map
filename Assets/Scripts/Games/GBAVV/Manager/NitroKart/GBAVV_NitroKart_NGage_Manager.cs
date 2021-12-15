@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using BinarySerializer;
 using BinarySerializer.Image;
-using Ray1Map.GBARRR;
 using UnityEngine;
 
 namespace Ray1Map.GBAVV
