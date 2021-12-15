@@ -936,10 +936,12 @@ Editor tutorial (Rayman 1): https://github.com/Adsolution/Ray1Map/wiki/Editor-(t
 
 If you download the repo as a zip folder the sub-modules won't be included, causing the project not to compile. To solve this, download the sub-module repos as well and place them in the specified folders:
 * [BinarySerializer](https://github.com/BinarySerializer/BinarySerializer) (Assets\Scripts\Libraries\BinarySerializer)
+* [BinarySerializer.Audio](https://github.com/BinarySerializer/BinarySerializer.Audio) (Assets\Scripts\Libraries\BinarySerializer.Audio)
 * [BinarySerializer.Image](https://github.com/BinarySerializer/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
 * [BinarySerializer.Ray1](https://github.com/BinarySerializer/BinarySerializer.Ray1) (Assets\Scripts\Libraries\BinarySerializer.Ray1)
 * [BinarySerializer.Klonoa](https://github.com/BinarySerializer/BinarySerializer.Klonoa) (Assets\Scripts\Libraries\BinarySerializer.Klonoa)
 * [BinarySerializer.GBA](https://github.com/BinarySerializer/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
+* [BinarySerializer.GBA.Audio](https://github.com/BinarySerializer/BinarySerializer.GBA.Audio) (Assets\Scripts\Libraries\BinarySerializer.GBA.Audio)
 * [BinarySerializer.PS1](https://github.com/BinarySerializer/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
 * [BinarySerializer.PS2](https://github.com/BinarySerializer/BinarySerializer.PS2) (Assets\Scripts\Libraries\BinarySerializer.PS2)
 
