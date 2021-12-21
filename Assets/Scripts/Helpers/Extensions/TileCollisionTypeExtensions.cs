@@ -1,4 +1,5 @@
 ﻿using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.Jaguar;
 using Ray1Map.Gameloft;
 using Ray1Map.GBAIsometric;
 using Ray1Map.GBARRR;

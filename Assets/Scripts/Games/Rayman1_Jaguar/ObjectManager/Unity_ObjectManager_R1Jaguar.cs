@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.Jaguar;
 
 namespace Ray1Map.Rayman1_Jaguar
 {

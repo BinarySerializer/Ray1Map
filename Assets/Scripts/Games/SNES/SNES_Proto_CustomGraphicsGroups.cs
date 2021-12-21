@@ -1,5 +1,6 @@
 ﻿using BinarySerializer.Ray1;
 using System.Linq;
+using BinarySerializer.Ray1.Jaguar;
 
 namespace Ray1Map.SNES
 {

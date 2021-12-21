@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.Jaguar;
 using Ray1Map.Rayman1;
 using UnityEngine;
 using Sprite = UnityEngine.Sprite;

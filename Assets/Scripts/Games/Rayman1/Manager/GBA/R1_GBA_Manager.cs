@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.Ray1.GBA;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -75,7 +76,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        public virtual IGBAData LoadData(Context context) => FileFactory.Read<BinarySerializer.Ray1.GBA_ROM>(GetROMFilePath, context);
+        public virtual IGBAData LoadData(Context context) => FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(GetROMFilePath, context);
 
         /// <summary>
         /// Gets the available game actions
@@ -549,7 +550,7 @@ namespace Ray1Map.Rayman1
 
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<BinarySerializer.Ray1.GBA_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(GetROMFilePath, context);
 
                 MusyX_File musyxFile = null;
                 s.DoAt(s.GetPreDefinedPointer(GBA_DefinedPointer.MusyxFile), () => {

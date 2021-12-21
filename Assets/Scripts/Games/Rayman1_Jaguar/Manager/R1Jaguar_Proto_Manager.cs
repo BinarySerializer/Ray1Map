@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.Ray1.Jaguar;
 using Ray1Map.Rayman1;
 using UnityEngine;
 

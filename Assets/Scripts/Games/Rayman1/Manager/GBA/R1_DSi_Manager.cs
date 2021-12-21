@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.GBA;
 
 namespace Ray1Map.Rayman1
 {

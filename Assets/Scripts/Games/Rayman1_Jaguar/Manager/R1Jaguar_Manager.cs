@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.Ray1.Jaguar;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 

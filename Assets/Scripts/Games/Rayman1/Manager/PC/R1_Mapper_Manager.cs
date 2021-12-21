@@ -100,7 +100,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading event data";
             await Controller.WaitIfNecessary();
 
-            var mapEvents = FileFactory.Read<JAG_MapEvents>(mapEventsPath, context);
+            var mapEvents = FileFactory.Read<MapEvents>(mapEventsPath, context);
             var saveEvents = Ray1TextFileFactory.ReadText<Mapper_SaveEvents>(saveEventsPath, context);
             var csv = Ray1TextFileFactory.ReadText<Mapper_EventManifest>(eventsCsvPath, context);
 

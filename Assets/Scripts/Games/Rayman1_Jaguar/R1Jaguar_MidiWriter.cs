@@ -14,6 +14,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.Jaguar;
 
 namespace Ray1Map.Rayman1_Jaguar {
     public class R1Jaguar_MidiWriter {
