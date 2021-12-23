@@ -6,7 +6,7 @@ namespace Ray1Map.GBAVV
 {
     public class GBAVV_Mode7_TileSetEncoder : IStreamEncoder
     {
-        public string Name => "GBAVV_Mode7_TileSetEncoding";
+        public string Name => "GBAVV_Mode7TileSetEncoding";
 
         public GBAVV_Mode7_TileSetEncoder(long decodedLength)
         {

@@ -4,10 +4,8 @@ using System.IO;
 using System.IO.Compression;
 using BinarySerializer;
 
-namespace Ray1Map {
-    /// <summary>
-    /// Compresses/decompresses data using Gzip
-    /// </summary>
+namespace Ray1Map 
+{
     public class Lzo1xEncoder : IStreamEncoder
     {
         public string Name => "Lzo1x";

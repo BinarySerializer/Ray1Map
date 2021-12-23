@@ -14,7 +14,7 @@ namespace Ray1Map.GBAKlonoa
 
         public bool IsDCT { get; }
 
-        public string Name => $"GBAKlonoa_Encoder";
+        public string Name => $"GBAKlonoa_Encoding";
 
         public Stream DecodeStream(Stream s)
         {

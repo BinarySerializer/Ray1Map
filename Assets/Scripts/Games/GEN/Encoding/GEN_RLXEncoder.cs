@@ -9,7 +9,7 @@ namespace Ray1Map.GEN
     /// Compresses/decompresses data with GEN's hybrid RLE-based sprite compression algorithm
     /// </summary>
     public class GEN_RLXEncoder : IStreamEncoder {
-        public string Name => "GEN_RLXEncoding";
+        public string Name => "GEN_RLX";
         public GEN_RLXData RLX { get; set; }
 
         public GEN_RLXEncoder() {}

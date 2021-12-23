@@ -9,7 +9,7 @@ namespace Ray1Map.GBAIsometric
     /// Compresses/decompresses data with RHR's hybrid compression algorithm
     /// </summary>
     public class RHREncoder : IStreamEncoder {
-        public string Name => "RHREncoding";
+        public string Name => "RHR_Encoding";
         public enum EncoderMode {
             Full,
             TileData
