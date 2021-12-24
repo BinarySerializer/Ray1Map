@@ -149,7 +149,7 @@ namespace Ray1Map.GBC
 
         public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
-            var pal = Util.ConvertAndSplitGBCPalette(playField.Palette, transparentIndex: null);
+            var pal = Util.ConvertAndSplitGBCPalette(level.Scene.TilePalette, transparentIndex: null);
             var tileSetTex = ToTileSetTextureMultiPalette(playField.TileKit.TileData, pal, CellSize, flipY: false);
             int numTiles = playField.TileKit.TileData.Length / 16;
             //Util.ByteArrayToFile(context.BasePath + "test.png", tileSetTex.EncodeToPNG());
@@ -217,7 +217,7 @@ namespace Ray1Map.GBC
                     } : new MapTile();
                     mapTilesFG[i] = t;
                 }
-                var palFG = Util.ConvertAndSplitGBCPalette(playField.Palette, transparentIndex: 0);
+                var palFG = Util.ConvertAndSplitGBCPalette(level.Scene.TilePalette, transparentIndex: 0);
                 var tileSetTexFG = ToTileSetTextureMultiPalette(playField.TileKit.TileData, palFG, CellSize, flipY: false, addTransparentTile: true);
                 var fgMap = new Unity_Map {
                     Width = (ushort)playField.Width,

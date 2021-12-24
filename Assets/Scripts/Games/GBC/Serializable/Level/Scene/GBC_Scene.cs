@@ -17,8 +17,11 @@ namespace Ray1Map.GBC
         public byte IndexMin_ActorModels { get; set; }
         public byte IndexMax_ActorModels { get; set; }
 
+        // In the GBC version the game loads these directly into memory for the level. These will usually match
+        // the original palettes defined in the tile kit and such, but for Dark Legacy 4 there is one color which is different
         public RGBA5551Color[] ObjPalette { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
+
         public ushort MainActor_0 { get; set; }
         public ushort MainActor_1 { get; set; }
         public ushort MainActor_2 { get; set; }
