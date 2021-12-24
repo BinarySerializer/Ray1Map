@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BinarySerializer;
-using Cysharp.Threading.Tasks;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -43,6 +41,19 @@ namespace Ray1Map.GBAIsometric
                 yield return "German";
                 yield return "Spanish";
                 yield return "Italian";
+            }
+        }
+    }
+
+    public class GBAIsometric_Spyro1JP_Manager : GBAIsometric_Spyro1_Manager
+    {
+        public override int DataTableCount => 84;
+
+        public override IEnumerable<string> GetLanguages
+        {
+            get
+            {
+                yield return "Japanese";
             }
         }
     }

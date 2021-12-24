@@ -554,6 +554,15 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.FontTileSet] = 0x08276c50,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SpyroSeasonIceJP:
+                    return new Dictionary<Spyro_DefinedPointer, uint>() {
+                        [Spyro_DefinedPointer.DataTable] = 0x081b34ac,
+
+                        [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c60,
+                        [Spyro_DefinedPointer.FontTileMap] = 0x0827c2f0,
+                        [Spyro_DefinedPointer.FontTileSet] = 0x08279c50,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroSeasonFlameEU:
                     return new Dictionary<Spyro_DefinedPointer, uint>() {
                         [Spyro_DefinedPointer.DataTable] = 0x0817ba38,
