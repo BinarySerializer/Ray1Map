@@ -530,6 +530,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
+    <td class="tg-yw4l">Spyro: Season of Ice (GBA)</td>
+    <td class="tg-yw4l">EU, US, JP</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Currently only supports localization and block exports</td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Spyro 2: Season of Flame (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
