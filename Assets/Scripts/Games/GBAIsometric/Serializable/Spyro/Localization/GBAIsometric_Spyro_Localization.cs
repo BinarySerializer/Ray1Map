@@ -11,6 +11,9 @@ namespace Ray1Map.GBAIsometric
 
         public GBAIsometric_Spyro_LocTable[] LocTables { get; set; }
 
+        public GBAIsometric_Spyro_SpriteMap FontTileMap { get; set; }
+        public byte[] FontTileSet { get; set; }
+
         // Parsed
         public GBAIsometric_Spyro_LocBlock[] LocBlocks { get; set; }
         public GBAIsometric_Spyro_LocDecompress[][] LocDecompressHelpers { get; set; }
@@ -52,8 +55,10 @@ namespace Ray1Map.GBAIsometric
             {
                 LocalizationPointers = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationPointers), () => s.SerializePointerArray(LocalizationPointers, langCount, name: nameof(LocalizationPointers)));
 
-                if (LocBlocks == null)
-                    LocBlocks = new GBAIsometric_Spyro_LocBlock[langCount];
+                if (LocalizationPointers == null)
+                    return;
+
+                LocBlocks ??= new GBAIsometric_Spyro_LocBlock[langCount];
 
                 for (int i = 0; i < LocBlocks.Length; i++)
                     LocBlocks[i] = s.DoAt(LocalizationPointers[i], () => s.SerializeObject<GBAIsometric_Spyro_LocBlock>(LocBlocks[i], name: $"{nameof(LocBlocks)}[{i}]"));
@@ -61,6 +66,12 @@ namespace Ray1Map.GBAIsometric
 
             // Store the localization tables so we can access them to get the strings
             s.Context.StoreObject("Loc", LocBlocks.Select(x => x.Strings).ToArray());
+
+            s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.FontTileMap), () =>
+                FontTileMap = s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(FontTileMap, name: nameof(FontTileMap)));
+
+            s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.FontTileSet), () =>
+                FontTileSet = s.SerializeArray<byte>(FontTileSet, (FontTileMap.MapData.Max(x => x.TileMapY) + 1) * 0x20, name: nameof(FontTileSet)));
         }
     }
 }

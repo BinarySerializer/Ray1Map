@@ -9,6 +9,9 @@
         LocalizationDecompressionBlockIndices,
         LocTables,
 
+        FontTileMap,
+        FontTileSet,
+
         ObjectTypes,
         AnimSets,
 

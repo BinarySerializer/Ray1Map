@@ -36,6 +36,8 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Data Blocks (Unused)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, true)),
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
             new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
+            new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
+            new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
         };
 
         public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks) {
@@ -161,6 +163,50 @@ namespace Ray1Map.GBAIsometric
                     langIndex++;
                 }
             }
+        }
+
+        public async UniTask ExportFont(GameSettings settings, string outputPath)
+        {
+            using var context = new Ray1MapContext(settings);
+
+            await LoadFilesAsync(context);
+
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
+            if (rom.Localization?.FontTileMap == null)
+                throw new Exception($"Font data has not been parsed!");
+
+            var map = rom.Localization.FontTileMap;
+
+            const int cellSize = 8;
+            const int tileSize = cellSize * cellSize / 2;
+
+            var tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
+            var pal = Util.ConvertGBAPalette(PaletteHelpers.CreateDummyPalette(256, wrap: 16));
+
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    var tile = map.MapData[y * map.Width + x];
+                    tex.FillInTile(rom.Localization.FontTileSet, tile.TileMapY * tileSize, pal, Util.TileEncoding.Linear_4bpp, cellSize, true, x * cellSize, y * cellSize, tile.HorizontalFlip, tile.VerticalFlip);
+                }
+            }
+
+            tex.Apply();
+
+            Util.ByteArrayToFile(Path.Combine(outputPath, "Font.png"), tex.EncodeToPNG());
+        }
+
+        public async UniTask ExportLocalization(GameSettings settings, string outputPath)
+        {
+            using var context = new Ray1MapContext(settings);
+
+            await LoadFilesAsync(context);
+
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
+            JsonHelpers.SerializeToFile(LoadLocalization(rom), Path.Combine(outputPath, "Localization.json"));
         }
 
         public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)

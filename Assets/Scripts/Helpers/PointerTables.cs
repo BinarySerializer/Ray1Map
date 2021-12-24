@@ -536,9 +536,22 @@ namespace Ray1Map
         public static Dictionary<Spyro_DefinedPointer, Pointer> GBAIsometric_Spyro_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
+                case GameModeSelection.SpyroSeasonIceEU:
+                    return new Dictionary<Spyro_DefinedPointer, uint>() {
+                        [Spyro_DefinedPointer.DataTable] = 0x081b13a8,
+
+                        [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c1c,
+                        [Spyro_DefinedPointer.FontTileMap] = 0x08298724,
+                        [Spyro_DefinedPointer.FontTileSet] = 0x08297044,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroSeasonIceUS:
                     return new Dictionary<Spyro_DefinedPointer, uint>() {
                         [Spyro_DefinedPointer.DataTable] = 0x081ADCE0,
+
+                        [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c0c,
+                        [Spyro_DefinedPointer.FontTileMap] = 0x08278330,
+                        [Spyro_DefinedPointer.FontTileSet] = 0x08276c50,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonFlameEU:
