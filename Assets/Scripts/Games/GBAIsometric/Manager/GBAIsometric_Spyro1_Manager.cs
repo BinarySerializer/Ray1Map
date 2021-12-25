@@ -38,8 +38,8 @@ namespace Ray1Map.GBAIsometric
             {
                 yield return "English";
                 yield return "French";
-                yield return "German";
                 yield return "Spanish";
+                yield return "German";
                 yield return "Italian";
             }
         }
