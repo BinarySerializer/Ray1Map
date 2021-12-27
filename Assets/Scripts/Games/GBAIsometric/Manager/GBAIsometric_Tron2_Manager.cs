@@ -15,6 +15,7 @@ namespace Ray1Map.GBAIsometric
         public override int DataTableCount => 2148;
         public override int PortraitsCount => 57 - 1;
         public override int DialogCount => 0;
+        public override int CutsceneMapsCount => 0;
         public override int PrimaryLevelCount => 0;
         public override int LevelMapsCount => 0;
         public override int TotalLevelsCount => 0;

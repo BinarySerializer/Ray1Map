@@ -25,9 +25,9 @@ namespace Ray1Map.GBAIsometric
             PaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(PaletteIndex, name: nameof(PaletteIndex));
             s.Serialize<ushort>(default, name: "Padding");
 
-            Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
-            TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
-            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Palette, size / 2, name: nameof(Palette)));
+            MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
+            TileSetIndex.DoAt(size => TileSet = s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
+            PaletteIndex.DoAt(size => Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, size / 2, name: nameof(Palette)));
         }
 
         public Texture2D ToTexture2D()

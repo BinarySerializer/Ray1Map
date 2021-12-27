@@ -106,7 +106,7 @@ namespace Ray1Map.GBAIsometric
                     LevelObjects_Spyro2_Agent9 = new GBAIsometric_Spyro2_LevelObjects2D[LevelObjectIndices_Spyro2_Agent9.Length];
 
                 for (int i = 0; i < LevelObjects_Spyro2_Agent9.Length; i++)
-                    LevelObjects_Spyro2_Agent9[i] = LevelObjectIndices_Spyro2_Agent9[i].DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro2_LevelObjects2D>(LevelObjects_Spyro2_Agent9[i], name: $"{nameof(LevelObjects_Spyro2_Agent9)}[{i}]"));
+                    LevelObjectIndices_Spyro2_Agent9[i].DoAt(size => LevelObjects_Spyro2_Agent9[i] = s.SerializeObject<GBAIsometric_Spyro2_LevelObjects2D>(LevelObjects_Spyro2_Agent9[i], name: $"{nameof(LevelObjects_Spyro2_Agent9)}[{i}]"));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
@@ -149,7 +149,7 @@ namespace Ray1Map.GBAIsometric
             DialogEntries = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.DialogEntries), () => s.SerializeObjectArray<GBAIsometric_Spyro_Dialog>(DialogEntries, manager.DialogCount, name: nameof(DialogEntries)));
 
             // Serialize cutscene maps
-            CutsceneMaps = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.CutsceneMaps), () => s.SerializeObjectArray<GBAIsometric_Spyro_CutsceneMap>(CutsceneMaps, 11, name: nameof(CutsceneMaps)));
+            CutsceneMaps = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.CutsceneMaps), () => s.SerializeObjectArray<GBAIsometric_Spyro_CutsceneMap>(CutsceneMaps, manager.CutsceneMapsCount, name: nameof(CutsceneMaps)));
 
             // Serialize level properties
             GemCounts = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.GemCounts), () => s.SerializeArray<ushort>(GemCounts, manager.PrimaryLevelCount, name: nameof(GemCounts)));
@@ -161,7 +161,8 @@ namespace Ray1Map.GBAIsometric
             // Serialize palettes for Spyro 2
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
             {
-                Spyro2_CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
+                GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).
+                    DoAt(size => Spyro2_CommonPalette = s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
 
                 var palInfo = s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? Spyro2_PalInfoUS : Spyro2_PalInfoEU;
 
@@ -179,7 +180,8 @@ namespace Ray1Map.GBAIsometric
 
                         for (int j = 0; j < p.BlockIndices.Length; j++)
                         {
-                            Spyro2_AnimSetPalettes[i][j] = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)p.BlockIndices[j]).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_AnimSetPalettes[i][j], size / 2, name: $"{nameof(Spyro2_AnimSetPalettes)}[{i}][{j}]"));
+                            GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)p.BlockIndices[j]).
+                                DoAt(size => Spyro2_AnimSetPalettes[i][j] = s.SerializeObjectArray<RGBA5551Color>(Spyro2_AnimSetPalettes[i][j], size / 2, name: $"{nameof(Spyro2_AnimSetPalettes)}[{i}][{j}]"));
                         }
                     }
                 }

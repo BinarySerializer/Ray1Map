@@ -28,15 +28,14 @@ namespace Ray1Map.GBAIsometric
             if (AnimGroupsPointer == null)
                 return;
 
-            TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
-            AnimBlock = AnimBlockIndex.DoAtBlock(size =>
+            TileSetIndex.DoAt(size => TileSet = s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
+            AnimBlockIndex.DoAt(size =>
             {
                 var startOffset = s.CurrentPointer;
-                var anim = s.SerializeObject<GBAIsometric_Spyro_AnimationBlock>(AnimBlock, name: nameof(AnimBlock));
+                AnimBlock = s.SerializeObject<GBAIsometric_Spyro_AnimationBlock>(AnimBlock, name: nameof(AnimBlock));
                 s.Goto(startOffset + size); // Go to end to avoid block reading warning
-                return anim;
             });
-            AnimFrameImages = FrameImagesIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_AnimFrameImage>(AnimFrameImages, AnimBlock.Animations.Max(a => a.Frames.Max(f => f.FrameImageIndex)) + 1, name: nameof(AnimFrameImages)));
+            FrameImagesIndex.DoAt(size => AnimFrameImages = s.SerializeObjectArray<GBAIsometric_Spyro_AnimFrameImage>(AnimFrameImages, AnimBlock.Animations.Max(a => a.Frames.Max(f => f.FrameImageIndex)) + 1, name: nameof(AnimFrameImages)));
 
             if (AnimGroups == null && AnimGroupsPointer != null && AnimBlock?.Animations.Length > 0) {
                 s.DoAt(AnimGroupsPointer, () => {

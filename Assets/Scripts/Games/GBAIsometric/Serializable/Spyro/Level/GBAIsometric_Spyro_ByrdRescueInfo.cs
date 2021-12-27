@@ -19,7 +19,7 @@ namespace Ray1Map.GBAIsometric
             LevelDataID = s.Serialize<ushort>(LevelDataID, name: nameof(LevelDataID));
             ObjectTableIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjectTableIndex, name: nameof(ObjectTableIndex));
 
-            ObjectTable = ObjectTableIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
+            ObjectTableIndex.DoAt(size => ObjectTable = s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
         }
 
         public enum GameMode : ushort

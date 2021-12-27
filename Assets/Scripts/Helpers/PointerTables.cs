@@ -533,7 +533,8 @@ namespace Ray1Map
         /// <param name="gameMode">The GBA game mode</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<Spyro_DefinedPointer, Pointer> GBAIsometric_Spyro_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+        public static Dictionary<Spyro_DefinedPointer, Pointer> GBAIsometric_Spyro_PointerTable(GameModeSelection gameMode, BinaryFile romFile) 
+        {
             switch (gameMode) 
             {
                 case GameModeSelection.SpyroSeasonIceEU:
@@ -543,6 +544,8 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c1c,
                         [Spyro_DefinedPointer.FontTileMap] = 0x08298724,
                         [Spyro_DefinedPointer.FontTileSet] = 0x08297044,
+
+                        [Spyro_DefinedPointer.CutsceneMaps] = 0x081ae594, // TODO: Set for other versions too
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceUS:

@@ -19,6 +19,7 @@ namespace Ray1Map.GBAIsometric
         public abstract int DataTableCount { get; }
         public abstract int PortraitsCount { get; }
         public abstract int DialogCount { get; }
+        public abstract int CutsceneMapsCount { get; }
         public abstract int PrimaryLevelCount { get; }
         public abstract int LevelMapsCount { get; }
         public abstract int TotalLevelsCount { get; }
@@ -40,44 +41,47 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
         };
 
-        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks) {
-            using (var context = new Ray1MapContext(settings)) {
-                var s = context.Deserializer;
-                await LoadFilesAsync(context);
+        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks)
+        {
+            using var context = new Ray1MapContext(settings);
 
-                if (ignoreUsedBlocks)
-                    GBAIsometric_Spyro_LevelData.ForceSerializeAll = true;
+            var s = context.Deserializer;
+            await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+            if (ignoreUsedBlocks)
+                GBAIsometric_Spyro_LevelData.ForceSerializeAll = true;
 
-                var palette = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                for (ushort i = 0; i < rom.DataTable.DataEntries.Length; i++)
+            var palette = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+
+            for (ushort i = 0; i < rom.DataTable.DataEntries.Length; i++)
+            {
+                if (ignoreUsedBlocks && GBAIsometric_Spyro_DataBlockIndex.UsedIndices.Contains(i))
+                    continue;
+
+                var length = rom.DataTable.DataEntries[i].DataLength;
+
+                if (categorize && length == 512)
                 {
-                    if (ignoreUsedBlocks && GBAIsometric_Spyro_DataBlockIndex.UsedIndices.Contains(i))
-                        continue;
+                    RGBA5551Color[] pal = null;
+                    rom.DataTable.DoAtBlock(context, i, size => pal = s.SerializeObjectArray<RGBA5551Color>(default, 256, name: $"Pal[{i}]"));
 
-                    var length = rom.DataTable.DataEntries[i].DataLength;
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), pal, optionalWrap: 16);
+                }
+                else
+                {
+                    byte[] data = null;
+                    rom.DataTable.DoAtBlock(context, i, size => data = s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
 
-                    if (categorize && length == 512)
+                    if (categorize && length % 32 == 0)
                     {
-                        var pal = rom.DataTable.DoAtBlock(context, i, size => s.SerializeObjectArray<RGBA5551Color>(default, 256, name: $"Pal[{i}]"));
-
-                        PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), pal, optionalWrap: 16);
+                        var tex = Util.ToTileSetTexture(data, palette, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 32);
+                        Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), tex.EncodeToPNG());
                     }
                     else
                     {
-                        var data = rom.DataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
-
-                        if (categorize && length % 32 == 0)
-                        {
-                            var tex = Util.ToTileSetTexture(data, palette, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 32);
-                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), tex.EncodeToPNG());
-                        }
-                        else
-                        {
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.dat"), data);
-                        }
+                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.dat"), data);
                     }
                 }
             }
@@ -367,8 +371,9 @@ namespace Ray1Map.GBAIsometric
                 collNameFunc = x => ((GBAIsometric_Spyro2_TileCollisionType2D)x).ToString();
             }
 
-            // Spyro 2 cutscenes
-            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 4)
+            // Spyro 1/2 cutscenes
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro1 && context.GetR1Settings().World == 4 ||
+                context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 4)
             {
                 var cutsceneMap = rom.CutsceneMaps[context.GetR1Settings().Level];
 
@@ -939,58 +944,56 @@ namespace Ray1Map.GBAIsometric
         }
         public async UniTask CreateAnimSetIndexUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {
-            using (var usContext = new Ray1MapContext(usSettings))
+            using var usContext = new Ray1MapContext(usSettings);
+            using var euContext = new Ray1MapContext(euSettings);
+            
+            // Load rom files
+            await LoadFilesAsync(usContext);
+            await LoadFilesAsync(euContext);
+
+            // Read files
+            var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
+            var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+
+            // Calculate hash for every anim set
+            var usHash = new string[usRom.AnimSets.Length];
+            var euHash = new string[euRom.AnimSets.Length];
+
+            calcHash(usHash, usRom.AnimSets);
+            calcHash(euHash, euRom.AnimSets);
+
+            void calcHash(IList<string> hash, IReadOnlyList<GBAIsometric_Spyro_AnimSet> animSets)
             {
-                using (var euContext = new Ray1MapContext(euSettings))
+                // Check the hash
+                using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
                 {
-                    // Load rom files
-                    await LoadFilesAsync(usContext);
-                    await LoadFilesAsync(euContext);
+                    var s = animSets.First().Context.Deserializer;
 
-                    // Read files
-                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
-                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
-
-                    // Calculate hash for every anim set
-                    var usHash = new string[usRom.AnimSets.Length];
-                    var euHash = new string[euRom.AnimSets.Length];
-
-                    calcHash(usHash, usRom.AnimSets);
-                    calcHash(euHash, euRom.AnimSets);
-
-                    void calcHash(IList<string> hash, IReadOnlyList<GBAIsometric_Spyro_AnimSet> animSets)
+                    for (int i = 0; i < animSets.Count; i++)
                     {
-                        // Check the hash
-                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
-                        {
-                            var s = animSets.First().Context.Deserializer;
+                        var a = animSets[i];
 
-                            for (int i = 0; i < animSets.Count; i++)
-                            {
-                                var a = animSets[i];
+                        byte[] data = null;
+                        a.AnimBlockIndex.DoAt(size => data = s.SerializeArray<byte>(default, size));
 
-                                var data = a.AnimBlockIndex.DoAtBlock(size => s.SerializeArray<byte>(default, size));
-
-                                hash[i] = Convert.ToBase64String(sha1.ComputeHash(data));
-                            }
-                        }
+                        hash[i] = Convert.ToBase64String(sha1.ComputeHash(data));
                     }
-
-                    var outputStr = String.Empty;
-
-                    for (int i = 0; i < euHash.Length; i++)
-                    {
-                        var matchingIndex = usHash.FindItemIndex(x => x == euHash[i]);
-
-                        if (matchingIndex == -1)
-                            outputStr += $"case null: return {i};{Environment.NewLine}";
-                        else
-                            outputStr += $"case {matchingIndex}: return {i};{Environment.NewLine}";
-                    }
-
-                    outputStr.CopyToClipboard();
                 }
             }
+
+            var outputStr = String.Empty;
+
+            for (int i = 0; i < euHash.Length; i++)
+            {
+                var matchingIndex = usHash.FindItemIndex(x => x == euHash[i]);
+
+                if (matchingIndex == -1)
+                    outputStr += $"case null: return {i};{Environment.NewLine}";
+                else
+                    outputStr += $"case {matchingIndex}: return {i};{Environment.NewLine}";
+            }
+
+            outputStr.CopyToClipboard();
         }
         public async UniTask CreateAnimSetPalBlockTableAsync(GameSettings settings)
         {
@@ -1097,7 +1100,8 @@ namespace Ray1Map.GBAIsometric
 
                             for (int i = 0; i < table.DataEntries.Length; i++)
                             {
-                                var data = table.DoAtBlock(table.Context, i, size => s.SerializeArray<byte>(default, size));
+                                byte[] data = null;
+                                table.DoAtBlock(table.Context, i, size => data = s.SerializeArray<byte>(default, size));
 
                                 hash[i] = Convert.ToBase64String(sha1.ComputeHash(data));
                             }

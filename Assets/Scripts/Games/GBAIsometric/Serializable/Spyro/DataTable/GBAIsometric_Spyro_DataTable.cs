@@ -2,47 +2,41 @@
 using BinarySerializer;
 using BinarySerializer.GBA;
 
-
 namespace Ray1Map.GBAIsometric
 {
     public class GBAIsometric_Spyro_DataTable : BinarySerializable
     {
         public GBAIsometric_Spyro_DataTableEntry[] DataEntries { get; set; }
 
-        public T DoAtBlock<T>(Context context, long index, Func<long, T> action)
-            where T : class
+        public static void DoAtData(SerializerObject s, GBAIsometric_Spyro_CompressionType compressionType, Action<long> action, long size = -1)
         {
-            var entry = DataEntries[index];
-            var pointer = entry.DataPointer;
-            var s = context.Deserializer;
-
-            switch (entry.Compression)
+            switch (compressionType)
             {
-                case GBAIsometric_Spyro_DataTableEntry.CompressionType.None:
-                    return s.DoAt<T>(pointer, () => action(entry.DataLength));
+                case GBAIsometric_Spyro_CompressionType.None:
+                    action(size);
+                    break;
 
-                case GBAIsometric_Spyro_DataTableEntry.CompressionType.Huffman:
-                    return s.DoAt<T>(pointer, () =>
-                    {
-                        T data = null;
-                        s.DoEncoded(new GBA_Huffman4Encoder(), () => data = action(s.CurrentLength));
-                        return data;
-                    });
+                case GBAIsometric_Spyro_CompressionType.Huffman:
+                    s.DoEncoded(new GBA_Huffman4Encoder(), () => action(s.CurrentLength)); break;
 
-                case GBAIsometric_Spyro_DataTableEntry.CompressionType.LZSS:
-                    return s.DoAt<T>(pointer, () =>
-                    {
-                        T data = null;
-                        s.DoEncoded(new GBA_LZSSEncoder(), () => data = action(s.CurrentLength));
-                        return data;
-                    });
+                case GBAIsometric_Spyro_CompressionType.LZSS:
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => action(s.CurrentLength));
+                    break;
 
-                case GBAIsometric_Spyro_DataTableEntry.CompressionType.RL:
+                // RL encoding is never used by any of the games
+                case GBAIsometric_Spyro_CompressionType.RL:
                     throw new NotImplementedException("RL encoding is not implemented");
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(entry.Compression), entry.Compression, null);
+                    throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null);
             }
+        }
+
+        public void DoAtBlock(Context context, long index, Action<long> action)
+        {
+            SerializerObject s = context.Deserializer;
+            GBAIsometric_Spyro_DataTableEntry entry = DataEntries[index];
+            s.DoAt(entry.DataPointer, () => DoAtData(s, entry.Compression, action, entry.DataLength));
         }
 
         public override void SerializeImpl(SerializerObject s)

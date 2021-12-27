@@ -6,9 +6,9 @@ namespace Ray1Map.GBAIsometric
 {
     public class GBAIsometric_Spyro_CutsceneMap : BinarySerializable
     {
-        public GBAIsometric_Spyro_DataBlockIndex[] TileSetIndices { get; set; }
-        public GBAIsometric_Spyro_DataBlockIndex MapIndex { get; set; }
-        public GBAIsometric_Spyro_DataBlockIndex PaletteIndex { get; set; }
+        public GBAIsometric_Spyro_DataRef[] TileSetIndices { get; set; }
+        public GBAIsometric_Spyro_DataRef MapIndex { get; set; }
+        public GBAIsometric_Spyro_DataRef PaletteIndex { get; set; }
 
         // Parsed
         public byte[][] TileSets { get; set; }
@@ -17,18 +17,27 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            TileSetIndices = s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(TileSetIndices, 4, name: nameof(TileSetIndices));
-            MapIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(MapIndex, name: nameof(MapIndex));
-            PaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(PaletteIndex, name: nameof(PaletteIndex));
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro1)
+            {
+                const GBAIsometric_Spyro_CompressionType c = GBAIsometric_Spyro_CompressionType.LZSS;
+                TileSetIndices = s.SerializeObjectArray((GBAIsometric_Spyro_DataPointer[])TileSetIndices, 4, x => x.Pre_CompressionType = c, name: nameof(TileSetIndices));
+                MapIndex = s.SerializeObject((GBAIsometric_Spyro_DataPointer)MapIndex, x => x.Pre_CompressionType = c, name: nameof(MapIndex));
+                PaletteIndex = s.SerializeObject((GBAIsometric_Spyro_DataPointer)PaletteIndex, name: nameof(PaletteIndex));
+            }
+            else
+            {
+                TileSetIndices = s.SerializeObjectArray((GBAIsometric_Spyro_DataBlockIndex[])TileSetIndices, 4, name: nameof(TileSetIndices));
+                MapIndex = s.SerializeObject((GBAIsometric_Spyro_DataBlockIndex)MapIndex, name: nameof(MapIndex));
+                PaletteIndex = s.SerializeObject((GBAIsometric_Spyro_DataBlockIndex)PaletteIndex, name: nameof(PaletteIndex));
+            }
 
-            if (TileSets == null)
-                TileSets = new byte[TileSetIndices.Length][];
+            TileSets ??= new byte[TileSetIndices.Length][];
 
             for (int i = 0; i < TileSets.Length; i++)
-                TileSets[i] = TileSetIndices[i].DoAtBlock(size => s.SerializeArray<byte>(TileSets[i], size, name: $"{nameof(TileSets)}[{i}]"));
+                TileSetIndices[i].DoAt(size => TileSets[i] = s.SerializeArray<byte>(TileSets[i], size, name: $"{nameof(TileSets)}[{i}]"));
 
-            Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
-            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette)));
+            MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
+            PaletteIndex.DoAt(size => Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette)));
 
             s.Log($"Min: {Map.MapData.Where(x => x.TileMapY > 1).Min(x => x.TileMapY)}");
         }

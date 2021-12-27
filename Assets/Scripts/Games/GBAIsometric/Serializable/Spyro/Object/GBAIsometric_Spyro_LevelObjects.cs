@@ -15,7 +15,7 @@ namespace Ray1Map.GBAIsometric
             LevelID = s.Serialize<ushort>(LevelID, name: nameof(LevelID));
             ObjectTableIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjectTableIndex, name: nameof(ObjectTableIndex));
 
-            ObjectTable = ObjectTableIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
+            ObjectTableIndex.DoAt(size => ObjectTable = s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
         }
     }
 }

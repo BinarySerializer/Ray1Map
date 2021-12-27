@@ -33,24 +33,24 @@ namespace Ray1Map.GBAIsometric
             if (Is2D)
             {
                 if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
-                    Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.HasPadding = true, name: nameof(Collision2DIndex));
+                    Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.Pre_HasPadding = true, name: nameof(Collision2DIndex));
 
-                TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.HasPadding = true, name: nameof(TilePaletteIndex));
+                TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.Pre_HasPadding = true, name: nameof(TilePaletteIndex));
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
-                    Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.HasPadding = true, name: nameof(Collision2DIndex));
+                    Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.Pre_HasPadding = true, name: nameof(Collision2DIndex));
 
-                ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.HasPadding = true, name: nameof(ObjPaletteIndex));
+                ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.Pre_HasPadding = true, name: nameof(ObjPaletteIndex));
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                     ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
             else
             {
-                TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.HasPadding = true, name: nameof(TilePaletteIndex));
-                Collision3DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision3DIndex, x => x.HasPadding = true, name: nameof(Collision3DIndex));
-                ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.HasPadding = true, name: nameof(ObjPaletteIndex));
-                Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.HasPadding = true, name: nameof(Index3));
+                TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.Pre_HasPadding = true, name: nameof(TilePaletteIndex));
+                Collision3DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision3DIndex, x => x.Pre_HasPadding = true, name: nameof(Collision3DIndex));
+                ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.Pre_HasPadding = true, name: nameof(ObjPaletteIndex));
+                Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.Pre_HasPadding = true, name: nameof(Index3));
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
 
@@ -62,10 +62,10 @@ namespace Ray1Map.GBAIsometric
                 for (int i = 0; i < MapLayers.Length; i++)
                     MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAIsometric_Spyro_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
 
-                TilePalette = TilePaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
-                ObjPalette = ObjPaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
-                Collision3D = Collision3DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision3DMapData>(Collision3D, name: nameof(Collision3D)));
-                Collision2D = Collision2DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision2DMapData>(Collision2D, name: nameof(Collision2D)));
+                TilePaletteIndex.DoAt(size => TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
+                ObjPaletteIndex.DoAt(size => ObjPalette = s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
+                Collision3DIndex?.DoAt(size => Collision3D = s.SerializeObject<GBAIsometric_Spyro_Collision3DMapData>(Collision3D, name: nameof(Collision3D)));
+                Collision2DIndex?.DoAt(size => Collision2D = s.SerializeObject<GBAIsometric_Spyro_Collision2DMapData>(Collision2D, name: nameof(Collision2D)));
                 //Index3Map = Index3?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Index3Map, name: nameof(Index3Map)));
             }
         }

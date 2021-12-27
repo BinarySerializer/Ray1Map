@@ -23,7 +23,7 @@ namespace Ray1Map.GBAIsometric
             Ushort_08 = s.Serialize<ushort>(Ushort_08, name: nameof(Ushort_08));
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
 
-            ObjectTable = ObjectTableIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
+            ObjectTableIndex.DoAt(size => ObjectTable = s.SerializeObject<GBAIsometric_Spyro_ObjectTable>(ObjectTable, name: nameof(ObjectTable)));
         }
     }
 }

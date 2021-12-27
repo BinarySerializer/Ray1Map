@@ -21,9 +21,9 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            MapIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(MapIndex, x => x.HasPadding = true, name: nameof(MapIndex));
-            TileAssembleIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TileAssembleIndex, x => x.HasPadding = true, name: nameof(TileAssembleIndex));
-            TilesetIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilesetIndex, x => x.HasPadding = true, name: nameof(TilesetIndex));
+            MapIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(MapIndex, x => x.Pre_HasPadding = true, name: nameof(MapIndex));
+            TileAssembleIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TileAssembleIndex, x => x.Pre_HasPadding = true, name: nameof(TileAssembleIndex));
+            TilesetIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilesetIndex, x => x.Pre_HasPadding = true, name: nameof(TilesetIndex));
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
             s.Serialize<ushort>(default, name: "Padding"); // Always 0 and not referenced by the code
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
@@ -31,9 +31,9 @@ namespace Ray1Map.GBAIsometric
             Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
 
             // Parse data
-            Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_MapData>(Map, name: nameof(Map)));
-            TileAssemble = TileAssembleIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_TileAssemble>(TileAssemble, x => x.BlockSize = size, name: nameof(TileAssemble)));
-            TileSet = TilesetIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_TileSet>(TileSet, x => x.BlockSize = size, name: nameof(TileSet)));
+            MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_Spyro_MapData>(Map, name: nameof(Map)));
+            TileAssembleIndex.DoAt(size => TileAssemble = s.SerializeObject<GBAIsometric_Spyro_TileAssemble>(TileAssemble, x => x.BlockSize = size, name: nameof(TileAssemble)));
+            TilesetIndex.DoAt(size => TileSet = s.SerializeObject<GBAIsometric_Spyro_TileSet>(TileSet, x => x.BlockSize = size, name: nameof(TileSet)));
         }
     }
 }

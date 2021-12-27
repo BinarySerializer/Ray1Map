@@ -535,7 +535,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Currently only supports localization and block exports</td>
+    <td class="tg-yw4l">Currently only supports cutscene maps, localization & block exports</td>
   </tr>
   <tr>
     <td class="tg-yw4l">Spyro 2: Season of Flame (GBA)</td>

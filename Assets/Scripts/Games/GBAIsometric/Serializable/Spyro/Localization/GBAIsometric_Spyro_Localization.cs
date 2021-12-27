@@ -27,8 +27,8 @@ namespace Ray1Map.GBAIsometric
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
                 // Parse loc tables
-                LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));
-                LocalizationDecompressionBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationDecompressionBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
+                LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.Pre_HasPadding = true, name: nameof(LocalizationBlockIndices)));
+                LocalizationDecompressionBlockIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocalizationDecompressionBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.Pre_HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
 
                 LocTables = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LocTables), () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
 
@@ -38,14 +38,14 @@ namespace Ray1Map.GBAIsometric
                     LocDecompressHelpers = new GBAIsometric_Spyro_LocDecompress[langCount][];
 
                 for (int i = 0; i < LocDecompressHelpers.Length; i++)
-                    LocDecompressHelpers[i] = LocalizationDecompressionBlockIndices[i].DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_LocDecompress>(LocDecompressHelpers[i], size / 3, name: $"{nameof(LocDecompressHelpers)}[{i}]"));
+                    LocalizationDecompressionBlockIndices[i].DoAt(size => LocDecompressHelpers[i] = s.SerializeObjectArray<GBAIsometric_Spyro_LocDecompress>(LocDecompressHelpers[i], size / 3, name: $"{nameof(LocDecompressHelpers)}[{i}]"));
 
                 if (LocBlocks == null)
                     LocBlocks = new GBAIsometric_Spyro_LocBlock[langCount];
 
                 for (int i = 0; i < LocBlocks.Length; i++)
-                    LocBlocks[i] = LocalizationBlockIndices[i].DoAtBlock(size =>
-                        s.SerializeObject<GBAIsometric_Spyro_LocBlock>(LocBlocks[i], onPreSerialize: lb =>
+                    LocalizationBlockIndices[i].DoAt(size =>
+                        LocBlocks[i] = s.SerializeObject<GBAIsometric_Spyro_LocBlock>(LocBlocks[i], onPreSerialize: lb =>
                         {
                             lb.Length = LocTables.Max(lt => lt.StartIndex + lt.NumEntries);
                             lb.DecompressHelpers = LocDecompressHelpers[i];

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ray1Map.GBAIsometric
@@ -15,6 +16,7 @@ namespace Ray1Map.GBAIsometric
 
         public override int PortraitsCount => 38;
         public override int DialogCount => 344;
+        public override int CutsceneMapsCount => throw new NotImplementedException();
         public override int PrimaryLevelCount => 14;
         public override int LevelMapsCount => 21;
         public override int TotalLevelsCount => 91;
