@@ -84,7 +84,7 @@ namespace Ray1Map
             using (var outputStream = File.Create(outputFilePath)) {
                 // Create a context
                 using (var xmContext = new Ray1MapContext(settings)) {
-                    xmContext.Log.OverrideLogPath = Path.Combine(mainDirectory, "xm", $"{h.ParsedName}.txt");
+                    ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(mainDirectory, "xm", $"{h.ParsedName}.txt");
                     // Create a key
                     string xmKey = $"{h.ParsedName}.xm";
 

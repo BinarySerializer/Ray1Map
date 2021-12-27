@@ -8,8 +8,6 @@ namespace Ray1Map
 
 		public bool IsEnabled => ParentLog.IsEnabled;
 
-		public string OverrideLogPath { get => ParentLog.OverrideLogPath; set => ParentLog.OverrideLogPath = value; }
-
 		public void Log(object obj) => ParentLog.Log(obj);
 
 		public void Dispose() { }

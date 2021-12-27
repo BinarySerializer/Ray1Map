@@ -57,7 +57,9 @@ namespace Ray1Map
 
         public class R1FileManager : IFileManager
         {
-            public bool DirectoryExists(string path) => FileSystem.DirectoryExists(path);
+			public PathSeparatorChar SeparatorCharacter => PathSeparatorChar.ForwardSlash;
+
+			public bool DirectoryExists(string path) => FileSystem.DirectoryExists(path);
 
             public bool FileExists(string path) => FileSystem.FileExists(path);
 
