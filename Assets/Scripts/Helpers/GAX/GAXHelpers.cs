@@ -3,6 +3,7 @@ using BinarySerializer.Audio;
 using BinarySerializer.GBA.Audio.GAX;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Ray1Map
 {
@@ -59,34 +60,43 @@ namespace Ray1Map
             }
         }
 
-        public static void ExportGAX(GameSettings settings, string mainDirectory, string songDirectory, GAX2_Song song, ushort channels) {
-            for (int i = 0; i < song.Samples.Length; i++) {
-                var e = song.Samples[i];
-                string outPath = Path.Combine(mainDirectory, songDirectory, "Samples");
-                ExportSample(settings, outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, channels);
+
+        public static void ExportGAX(GameSettings settings, string mainDirectory, IGAX_Song song, ushort channels) {
+            string name = $"{song.Offset.StringAbsoluteOffset}";
+            if (song.Info?.ParsedName != null) {
+                name = $"{song.Offset.StringAbsoluteOffset} - {song.Info.ParsedName}";
+            }
+
+            Directory.CreateDirectory(mainDirectory);
+            for (int i = 0; i < song.Info.Samples.Length; i++) {
+                var e = song.Info.Samples[i];
+                if (e.SampleOffset == null) continue;
+                string outPath = Path.Combine(mainDirectory, "samples", name);
+                if (song.Info.Context.GetGAXSettings().MajorVersion < 3) {
+                    ExportSample(settings, outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.SampleSigned.Select(b => (byte)(b + 128)).ToArray(), 15769, channels);
+                } else {
+                    ExportSample(settings, outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.SampleUnsigned, 15769, channels);
+                }
             }
             var h = song;
-            if (h.SampleRate == 0) return;
-            // For each entry
-            GAX2_MidiWriter w = new GAX2_MidiWriter();
-            Directory.CreateDirectory(Path.Combine(mainDirectory, "midi"));
-            w.Write(h, Path.Combine(mainDirectory, "midi", $"{h.ParsedName}.mid"));
+            if (h.Info.SampleRate == 0 && h.Info.Context.GetGAXSettings().MajorVersion >= 2) return;
 
-            GAX2_XMWriter xmw = new GAX2_XMWriter();
+
+            GAX_XMWriter xmw = new GAX_XMWriter();
             Directory.CreateDirectory(Path.Combine(mainDirectory, "xm"));
 
             XM xm = xmw.ConvertToXM(h);
 
             // Get the output path
-            var outputFilePath = Path.Combine(mainDirectory, "xm", $"{h.ParsedName}.xm");
+            var outputFilePath = Path.Combine(mainDirectory, "xm", $"{h.Info.ParsedName}.xm");
 
             // Create and open the output file
             using (var outputStream = File.Create(outputFilePath)) {
                 // Create a context
                 using (var xmContext = new Ray1MapContext(settings)) {
-                    ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(mainDirectory, "xm", $"{h.ParsedName}.txt");
+                    ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(mainDirectory, "xm", $"{h.Info.ParsedName}.txt");
                     // Create a key
-                    string xmKey = $"{h.ParsedName}.xm";
+                    string xmKey = $"{h.Info.ParsedName}.xm";
 
                     // Add the file to the context
                     xmContext.AddFile(new StreamFile(xmContext, xmKey, outputStream));
@@ -95,6 +105,11 @@ namespace Ray1Map
                     FileFactory.Write<XM>(xmKey, xm, xmContext);
                 }
             }
+
+
+            GAX_MidiWriter w = new GAX_MidiWriter();
+            Directory.CreateDirectory(Path.Combine(mainDirectory, "midi"));
+            w.Write(h, Path.Combine(mainDirectory, "midi", $"{h.Info.ParsedName}.mid"));
 
         }
 

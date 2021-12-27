@@ -53,10 +53,10 @@ namespace Ray1Map.GBAVV
 
                 // Load the rom
                 for (int i = 0; i < exe.GAX_Music.Songs.Length; i++) {
-                    GAXHelpers.ExportGAX(settings, outputPath, $"music/{i}", exe.GAX_Music.Songs[i], 2);
+                    GAXHelpers.ExportGAX(settings, $"{outputPath}/music", exe.GAX_Music.Songs[i], 2);
                 }
                 for (int i = 0; i < exe.GAX_FX.Songs.Length; i++) {
-                    GAXHelpers.ExportGAX(settings, outputPath, $"fx/{i}", exe.GAX_FX.Songs[i], 1);
+                    GAXHelpers.ExportGAX(settings, $"{outputPath}/fx", exe.GAX_FX.Songs[i], 1);
                 }
             }
         }

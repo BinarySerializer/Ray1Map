@@ -15,7 +15,7 @@ using BinarySerializer.GBA.Audio.GAX;
 using UnityEngine;
 
 namespace Ray1Map {
-	public class GAX2_MidiWriter {
+    public class GAX_MidiWriter {
         /// <summary>
         /// Export single soundfont.
         /// Advantages: 1 soundfont for all tracks
@@ -23,47 +23,48 @@ namespace Ray1Map {
         /// </summary>
         bool exportSingleSoundfont = false;
 
-        public void Write(GAX2_Song song, string outPath) {
+        public void Write(IGAX_Song song, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
-			Track t = new Track();
-            for (int i = 0; i < song.NumChannels; i++) {
+            Track t = new Track();
+            for (int i = 0; i < song.Info.NumChannels; i++) {
                 s.Add(CreateTrack(song, i));
             }
-			// This plugin doesn't overwrite files
-			if (File.Exists(outPath)) {
-				File.Delete(outPath);
-			}
-			s.Save(outPath);
+            // This plugin doesn't overwrite files
+            if (File.Exists(outPath)) {
+                File.Delete(outPath);
+            }
+            s.Save(outPath);
 #endif
         }
 
 #if ISWINDOWS
-        private Track CreateTrack(GAX2_Song song, int trackNum) {
-			Track t = new Track();
-			TempoChangeBuilder b = new TempoChangeBuilder();
-			b.Tempo = 500000;
-			b.Build();
-			t.Insert(0, b.Result);
-			ChannelMessageBuilder builder = new ChannelMessageBuilder();
+        private Track CreateTrack(IGAX_Song song, int trackNum) {
+            Track t = new Track();
+            TempoChangeBuilder b = new TempoChangeBuilder();
+            b.Tempo = 500000;
+            b.Build();
+            t.Insert(0, b.Result);
+            ChannelMessageBuilder builder = new ChannelMessageBuilder();
             int? lastNoteOn = null;
             int currentTime = 0;
             int timeScale = 5;
-            t.EndOfTrackOffset = (song.Patterns[trackNum].Length* song.NumRowsPerPattern) * timeScale;
-            for (int trackPiece = 0; trackPiece < song.Patterns[trackNum].Length; trackPiece++) {
-                GAX2_Pattern gaxTrack = song.Patterns[trackNum][trackPiece];
-                int baseTime = trackPiece * song.NumRowsPerPattern;
+            var ch = song.GetChannel(trackNum);
+            t.EndOfTrackOffset = (ch.Patterns.Length * song.Info.NumRowsPerPattern) * timeScale;
+            for (int trackPiece = 0; trackPiece < ch.Patterns.Length; trackPiece++) {
+                GAX_Pattern gaxTrack = ch.Patterns[trackPiece];
+                int baseTime = trackPiece * song.Info.NumRowsPerPattern;
                 currentTime = baseTime;
                 for (int i = 0; i < gaxTrack.Rows.Length; i++) {
-                    GAX2_PatternRow cmd = gaxTrack.Rows[i];
+                    GAX_PatternRow cmd = gaxTrack.Rows[i];
                     switch (cmd.Command) {
-                        case GAX2_PatternRow.Cmd.Note:
-                        case GAX2_PatternRow.Cmd.NoteOnly:
-                            if(cmd.Instrument == 250) continue;
+                        case GAX_PatternRow.Cmd.Note:
+                        case GAX_PatternRow.Cmd.NoteOnly:
+                            if (cmd.Instrument == 250) continue;
                             if (exportSingleSoundfont) {
-                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.SampleIndices[0] >= 128) continue;
+                                if (song.Info.InstrumentSet[cmd.Instrument]?.Value == null || song.Info.InstrumentSet[cmd.Instrument].Value.SampleIndices[0] >= 128) continue;
                             } else {
-                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || Array.IndexOf(song.InstrumentIndices, cmd.Instrument) >= 128) continue;
+                                if (song.Info.InstrumentSet[cmd.Instrument]?.Value == null || Array.IndexOf(song.Info.UsedInstrumentIndices, cmd.Instrument) >= 128) continue;
                             }
                             // Note off
                             if (lastNoteOn.HasValue) {
@@ -79,9 +80,9 @@ namespace Ray1Map {
                             {
                                 int instrument = 0;
                                 if (exportSingleSoundfont) {
-                                    instrument = song.InstrumentSet[cmd.Instrument].Value.SampleIndices[0];
+                                    instrument = song.Info.InstrumentSet[cmd.Instrument].Value.SampleIndices[0];
                                 } else {
-                                    instrument = Array.IndexOf(song.InstrumentIndices, cmd.Instrument);
+                                    instrument = Array.IndexOf(song.Info.UsedInstrumentIndices, cmd.Instrument);
                                 }
                                 builder.MidiChannel = 0;
                                 builder.Command = ChannelCommand.ProgramChange;
@@ -117,43 +118,43 @@ namespace Ray1Map {
                 lastNoteOn = null;
             }
 
-			return t;
-		}
+            return t;
+        }
 
-		private static Instrument[] GeneralMidiInstruments = new Instrument[] {
-			Instrument.AcousticBass,
-			Instrument.StringEnsemble1,
-			Instrument.TaikoDrum,
-			Instrument.Clarinet,
-			Instrument.SteelDrums,
+        private static Instrument[] GeneralMidiInstruments = new Instrument[] {
+            Instrument.AcousticBass,
+            Instrument.StringEnsemble1,
+            Instrument.TaikoDrum,
+            Instrument.Clarinet,
+            Instrument.SteelDrums,
+            Instrument.Woodblock,
+            Instrument.Celesta, // Also good: whistle
 			Instrument.Woodblock,
-			Instrument.Celesta, // Also good: whistle
-			Instrument.Woodblock,
-			Instrument.SynthBass2,
-			Instrument.AcousticGrandPiano,
-			Instrument.Woodblock,
-			Instrument.SynthDrum,
-			Instrument.DrawbarOrgan,
-			Instrument.OrchestralHarp,
-			Instrument.Vibraphone,
-			Instrument.Xylophone,
-			Instrument.Celesta,
-			Instrument.Oboe,
-			Instrument.OverdrivenGuitar,
-			Instrument.AltoSax,
-			Instrument.PizzicatoStrings,
-			Instrument.DistortionGuitar, // Actually this
+            Instrument.SynthBass2,
+            Instrument.AcousticGrandPiano,
+            Instrument.Woodblock,
+            Instrument.SynthDrum,
+            Instrument.DrawbarOrgan,
+            Instrument.OrchestralHarp,
+            Instrument.Vibraphone,
+            Instrument.Xylophone,
+            Instrument.Celesta,
+            Instrument.Oboe,
+            Instrument.OverdrivenGuitar,
+            Instrument.AltoSax,
+            Instrument.PizzicatoStrings,
+            Instrument.DistortionGuitar, // Actually this
 			Instrument.OrchestraHit,
-			Instrument.FX1Rain,
-			Instrument.Cello,
-			Instrument.Viola,
-			Instrument.Pad1NewAge,
-			Instrument.Marimba,
-			Instrument.TaikoDrum,
-			Instrument.Sitar,
-			Instrument.Sitar,
-			Instrument.Sitar,
-		};
+            Instrument.FX1Rain,
+            Instrument.Cello,
+            Instrument.Viola,
+            Instrument.Pad1NewAge,
+            Instrument.Marimba,
+            Instrument.TaikoDrum,
+            Instrument.Sitar,
+            Instrument.Sitar,
+            Instrument.Sitar,
+        };
         private static Percussion[] PercussionInstruments = new Percussion[] {
             Percussion.None,
             Percussion.None,
@@ -190,17 +191,17 @@ namespace Ray1Map {
         };
 
         private int GetMidiPitch(int freq, float tuning = 699f) {
-			// See https://anotherproducer.com/online-tools-for-musicians/frequency-to-pitch-calculator/
-			// default pitch = F5, so 699
-			return Mathf.RoundToInt(69 + 12 * Mathf.Log(freq / tuning, 2f));
+            // See https://anotherproducer.com/online-tools-for-musicians/frequency-to-pitch-calculator/
+            // default pitch = F5, so 699
+            return Mathf.RoundToInt(69 + 12 * Mathf.Log(freq / tuning, 2f));
 
-		}
+        }
         private int GetFrequency(int note) {
             return Mathf.RoundToInt(261.7f * Mathf.Pow(1.059463094359f, note));
         }
 
-		#region Instruments
-		public enum Instrument {
+        #region Instruments
+        public enum Instrument {
             None = -1,
             // Piano Family:
 

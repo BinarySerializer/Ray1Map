@@ -127,25 +127,25 @@ namespace Ray1Map.GBARRR
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
                 var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
-                Pointer<GAX2_Instrument>[] instruments = null;
+                Pointer<GAX_Instrument>[] instruments = null;
                 s.DoAt(new Pointer(0x0805C8EC, rom.Offset.File), () => {
-                    instruments = s.SerializePointerArray<GAX2_Instrument>(instruments, 156, resolve: true, name: nameof(instruments));
+                    instruments = s.SerializePointerArray<GAX_Instrument>(instruments, 156, resolve: true, name: nameof(instruments));
                 });
                 s.DoAt(pointerTable[DefinedPointer.MusicSampleTable], () => {
-                    var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
+                    var sampleTable = s.SerializeObject<GAX_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
                     string outPath = outputPath + "/MusicSamples/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
                         var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.SampleIndices[0] == i+1);
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, 2);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.SampleUnsigned, 15769, 2);
                     }
                 });
                 s.DoAt(pointerTable[DefinedPointer.SoundEffectSampleTable], () => {
-                    var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 186, name: "SampleTable2");
+                    var sampleTable = s.SerializeObject<GAX_SampleTable>(default, onPreSerialize: st => st.Length = 186, name: "SampleTable2");
                     string outPath = outputPath + "/SoundEffects/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, 1);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.SampleUnsigned, 15769, 1);
                     }
                 });
                 uint[] ptrs_eu = new uint[] {
@@ -251,25 +251,25 @@ namespace Ray1Map.GBARRR
                     s.DoAt(new Pointer(ptr, rom.Offset.File), () => {
                         GAX2_Song h = s.SerializeObject<GAX2_Song>(default, name: "SongHeader");
                         // For each entry
-                        GAX2_MidiWriter w = new GAX2_MidiWriter();
+                        GAX_MidiWriter w = new GAX_MidiWriter();
                         Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
-                        w.Write(h, Path.Combine(outputPath, "midi", $"{h.ParsedName}.mid"));
+                        w.Write(h, Path.Combine(outputPath, "midi", $"{h.Info.ParsedName}.mid"));
 
-                        GAX2_XMWriter xmw = new GAX2_XMWriter();
+                        GAX_XMWriter xmw = new GAX_XMWriter();
                         Directory.CreateDirectory(Path.Combine(outputPath, "xm"));
 
                         XM xm = xmw.ConvertToXM(h);
 
                         // Get the output path
-                        var outputFilePath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.xm");
+                        var outputFilePath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.xm");
 
                         // Create and open the output file
                         using (var outputStream = File.Create(outputFilePath)) {
                             // Create a context
                             using (var xmContext = new Ray1MapContext(settings)) {
-                                ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
+                                ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.txt");
                                 // Create a key
-                                string xmKey = $"{h.ParsedName}.xm";
+                                string xmKey = $"{h.Info.ParsedName}.xm";
 
                                 // Add the file to the context
                                 xmContext.AddFile(new StreamFile(context, xmKey, outputStream));
