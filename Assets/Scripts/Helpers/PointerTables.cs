@@ -545,7 +545,7 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.FontTileMap] = 0x08298724,
                         [Spyro_DefinedPointer.FontTileSet] = 0x08297044,
 
-                        [Spyro_DefinedPointer.CutsceneMaps] = 0x081ae594, // TODO: Set for other versions too
+                        [Spyro_DefinedPointer.CutsceneMaps] = 0x081ae594,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceUS:
@@ -555,6 +555,8 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c0c,
                         [Spyro_DefinedPointer.FontTileMap] = 0x08278330,
                         [Spyro_DefinedPointer.FontTileSet] = 0x08276c50,
+
+                        [Spyro_DefinedPointer.CutsceneMaps] = 0x081aaecc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceJP:
@@ -564,6 +566,8 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.LocalizationPointers] = 0x08002c60,
                         [Spyro_DefinedPointer.FontTileMap] = 0x0827c2f0,
                         [Spyro_DefinedPointer.FontTileSet] = 0x08279c50,
+
+                        [Spyro_DefinedPointer.CutsceneMaps] = 0x081b06e4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonFlameEU:
