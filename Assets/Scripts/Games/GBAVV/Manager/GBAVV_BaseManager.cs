@@ -26,14 +26,20 @@ namespace Ray1Map.GBAVV
         public abstract uint[] GraphicsDataPointers { get; }
 
         // Tools
-        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
-        {
-            new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
-            new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
-            new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
-            new GameAction("Force Export FLC Files", false, true, (input, output) => ForceExportFLCAsync(settings, output)),
-            new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
-        };
+        public override GameAction[] GetGameActions(GameSettings settings) {
+            var actions = new GameAction[] {
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
+                new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
+                new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
+                new GameAction("Force Export FLC Files", false, true, (input, output) => ForceExportFLCAsync(settings, output)),
+            };
+            if (GAXHelpers.Info.ContainsKey(settings.GameModeSelection)) {
+                actions = actions.Append(
+                    new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
+                ).ToArray();
+            }
+            return actions;
+        }
 
         public virtual async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
             var GAXInfo = GAXHelpers.Info.TryGetItem(settings.GameModeSelection);
