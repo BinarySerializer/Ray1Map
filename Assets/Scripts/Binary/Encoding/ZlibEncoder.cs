@@ -1,50 +1,38 @@
-﻿using Ionic.Zlib;
-using System;
-using System.IO;
+﻿using System.IO;
 using BinarySerializer;
+using Ionic.Zlib;
 
-namespace Ray1Map {
+namespace Ray1Map
+{
     /// <summary>
     /// Compresses/decompresses data using Zlib
     /// </summary>
-    public class ZlibEncoder : IStreamEncoder {
-        public string Name => "Zlib";
-        public ZlibEncoder(uint length, uint decompressedLength) {
+    public class ZlibEncoder : IStreamEncoder 
+    {
+        public ZlibEncoder(uint length, uint decompressedLength)
+        {
             Length = length;
             DecompressedLength = decompressedLength;
         }
+
+        public string Name => "Zlib";
+
         protected uint Length { get; }
         protected uint DecompressedLength { get; }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            var memStream = new MemoryStream();
-
-            Reader reader = new Reader(s, isLittleEndian: false);
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            using Reader reader = new Reader(input, isLittleEndian: false, leaveOpen: true);
             byte[] bytes = reader.ReadBytes((int)Length);
 
-            using (var zlibStream = new ZlibStream(new MemoryStream(bytes), CompressionMode.Decompress))
-                zlibStream.CopyTo(memStream);
-
-            // Set the position to the beginning
-            memStream.Position = 0;
-
-            // Return the compressed data stream
-            return memStream;
+            using var zlibStream = new ZlibStream(new MemoryStream(bytes), CompressionMode.Decompress);
+            zlibStream.CopyTo(output);
         }
 
-        public Stream EncodeStream(Stream s) {
-            var memStream = new MemoryStream();
-
-            using (var compressionStream = new ZlibStream(memStream, CompressionMode.Compress)) {
-                s.CopyTo(compressionStream);
-            }
-            memStream.Position = 0;
-            return memStream;
+        public void EncodeStream(Stream input, Stream output)
+        {
+            using var compressionStream = new ZlibStream(output, CompressionMode.Compress, leaveOpen: true);
+            input.CopyTo(compressionStream);
         }
     }
 }

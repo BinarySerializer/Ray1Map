@@ -10,20 +10,19 @@ namespace Ray1Map.Jade
     /// <summary>
     /// Compresses/decompresses data using Zlib
     /// </summary>
-    public class Jade_ZlibEncoder : IStreamEncoder {
-        public string Name => "Jade_Zlib";
-        public Jade_ZlibEncoder(uint decompressedLength) {
+    public class Jade_ZlibEncoder : IStreamEncoder 
+    {
+        public Jade_ZlibEncoder(uint decompressedLength) 
+        {
             DecompressedLength = decompressedLength;
         }
+
+        public string Name => "Jade_Zlib";
         protected uint DecompressedLength { get; }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            Reader reader = new Reader(s, isLittleEndian: true);
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
             byte decompressedChunkSizeBits = reader.ReadByte();
             uint decompressedChunkSize = (uint)1 << decompressedChunkSizeBits;
             uint chunksCount = DecompressedLength / decompressedChunkSize;
@@ -58,16 +57,10 @@ namespace Ray1Map.Jade
                 Array.Copy(d, 0, decompressedData, curPos, d.Length);
                 curPos += d.Length;
             }
-            var memStream = new MemoryStream(decompressedData);
-            // Set the position to the beginning
-            memStream.Position = 0;
 
-            // Return the compressed data stream
-            return memStream;
+            output.Write(decompressedData, 0, decompressedData.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
-            throw new NotImplementedException();
-        }
+        public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
     }
 }

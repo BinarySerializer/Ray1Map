@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using BinarySerializer;
 
@@ -8,15 +7,17 @@ namespace Ray1Map.GEN
     /// <summary>
     /// Compresses/decompresses data with GEN's hybrid RLE-based sprite compression algorithm
     /// </summary>
-    public class GEN_RLXEncoder : IStreamEncoder {
-        public string Name => "GEN_RLX";
-        public GEN_RLXData RLX { get; set; }
+    public class GEN_RLXEncoder : IStreamEncoder 
+    {
+        public GEN_RLXEncoder() { }
 
-        public GEN_RLXEncoder() {}
-
-        public GEN_RLXEncoder(GEN_RLXData rlx) {
+        public GEN_RLXEncoder(GEN_RLXData rlx)
+        {
             RLX = rlx;
         }
+
+        public string Name => "GEN_RLX";
+        public GEN_RLXData RLX { get; set; }
 
         private void Decompress_1(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             while (toDecompress > 0) {
@@ -169,26 +170,17 @@ namespace Ray1Map.GEN
             return decompressed;
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            Reader reader = new Reader(s, isLittleEndian: true);
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
             byte[] compressed = reader.ReadBytes((int)RLX.DataLength);
             byte[] decompressed = Decompress(compressed);
-            
-            var decompressedStream = new MemoryStream(decompressed);
 
-            // Set position back to 0
-            decompressedStream.Position = 0;
-
-            // Return the compressed data stream
-            return decompressedStream;
+            output.Write(decompressed, 0, decompressed.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
+        public void EncodeStream(Stream input, Stream output) 
+        {
             throw new NotImplementedException();
         }
     }

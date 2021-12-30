@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using BinarySerializer;
 using BinarySerializer.GBA;
-using UnityEngine;
 
 namespace Ray1Map.GBAKlonoa
 {
@@ -16,12 +15,12 @@ namespace Ray1Map.GBAKlonoa
 
         public string Name => $"GBAKlonoa_Encoding";
 
-        public Stream DecodeStream(Stream s)
+        public void DecodeStream(Stream input, Stream output)
         {
-            using var reader = new Reader(s, leaveOpen: true);
+            using var reader = new Reader(input, leaveOpen: true);
 
-            var lengthValue = reader.ReadInt32();
-            var length = BitHelpers.ExtractBits(lengthValue, IsDCT ? 30 : 31, 0);
+            int lengthValue = reader.ReadInt32();
+            int length = BitHelpers.ExtractBits(lengthValue, IsDCT ? 30 : 31, 0);
 
             Stream decompStream = null;
 
@@ -33,8 +32,13 @@ namespace Ray1Map.GBAKlonoa
                     var huff = new GBA_Huffman4Encoder();
                     var lzss = new GBA_LZSSEncoder();
 
-                    var decodedHuff = huff.DecodeStream(s);
-                    decompStream = lzss.DecodeStream(decodedHuff);
+                    Stream decodedHuff = new MemoryStream();
+                    huff.DecodeStream(input, decodedHuff);
+                    decodedHuff.Position = 0;
+                    
+                    decompStream = new MemoryStream();
+                    lzss.DecodeStream(decodedHuff, decompStream);
+                    decompStream.Position = 0;
                 }
                 else
                 {
@@ -43,16 +47,19 @@ namespace Ray1Map.GBAKlonoa
                     {
                         var buffer = new byte[length];
 
-                        s.Read(buffer, 0, length);
+                        input.Read(buffer, 0, length);
+                        output.Write(buffer, 0, buffer.Length);
 
-                        return new MemoryStream(buffer);
+                        return;
                     }
                     // LZSS
                     else
                     {
                         var lzss = new GBA_LZSSEncoder();
 
-                        decompStream = lzss.DecodeStream(s);
+                        decompStream = new MemoryStream();
+                        lzss.DecodeStream(input, decompStream);
+                        decompStream.Position = 0;
                     }
                 }
 
@@ -60,12 +67,8 @@ namespace Ray1Map.GBAKlonoa
                 //    Debug.LogWarning($"Incorrect size for decompressed data! {decompStream.Length} != {length}");
 
                 // First 4 bytes are irrelevant
-                var returnStream = new MemoryStream((int)decompStream.Length - 4);
-
                 decompStream.Position += 4;
-                decompStream.CopyTo(returnStream);
-
-                return returnStream;
+                decompStream.CopyTo(output);
             }
             finally
             {
@@ -73,7 +76,7 @@ namespace Ray1Map.GBAKlonoa
             }
         }
 
-        public Stream EncodeStream(Stream s)
+        public void EncodeStream(Stream input, Stream output)
         {
             throw new System.NotImplementedException();
         }

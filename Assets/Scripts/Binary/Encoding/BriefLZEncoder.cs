@@ -8,17 +8,17 @@ namespace Ray1Map
     {
         public string Name => "BriefLZ";
 
-        public Stream DecodeStream(Stream s)
+        public void DecodeStream(Stream input, Stream output)
         {
             // Create a reader for the input
-            var reader = new Reader(s, isLittleEndian: true);
+            using var reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
 
             // First four bytes have the decompressed size
             var decompressedSize = reader.ReadUInt32();
 
             // Create a buffer and stream to store the decompressed data
             var decompressedBuffer = new byte[decompressedSize];
-            var decompressedStream = new MemoryStream(decompressedBuffer);
+            using var decompressedStream = new MemoryStream(decompressedBuffer);
             
             // Create a state object
             State state = new State();
@@ -61,11 +61,11 @@ namespace Ray1Map
             // Set position back to 0
             decompressedStream.Position = 0;
 
-            // Return the compressed data stream
-            return decompressedStream;
+            // Copy the decompressed data
+            output.CopyTo(output);
         }
 
-        public Stream EncodeStream(Stream s) => throw new NotImplementedException();
+        public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
 
         protected bool GetBit(State state, Reader reader)
         {

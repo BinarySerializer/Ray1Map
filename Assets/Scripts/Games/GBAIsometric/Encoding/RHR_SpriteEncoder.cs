@@ -7,13 +7,33 @@ namespace Ray1Map.GBAIsometric
     /// <summary>
     /// Compresses/decompresses data with RHR's sprite compression algorithm
     /// </summary>
-    public class RHR_SpriteEncoder : IStreamEncoder {
-        public string Name => "RHR_SpriteEncoding";
-        public enum CombineMode {
-            UseSpriteData,
-            UseLookupBufferDirectly,
-            UseLookupBufferDirectly_SingleTile
+    public class RHR_SpriteEncoder : IStreamEncoder 
+    {
+        public RHR_SpriteEncoder(bool is8bit, GBAIsometric_RHR_SpriteInfo spriteInfo, ushort[] lookupBufferPositions, GBAIsometric_RHR_GraphicsData graphicsData)
+        {
+            Is8Bit = is8bit;
+            SpriteInfo = spriteInfo;
+            LookupBufferPositions = lookupBufferPositions;
+            GraphicsData = graphicsData;
+            Mode = CombineMode.UseSpriteData;
         }
+        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData)
+        {
+            LookupBuffer = lookupBuffer;
+            Is8Bit = is8bit;
+            Mode = CombineMode.UseLookupBufferDirectly;
+            CompressedDataPointer = compressedData;
+        }
+        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData, int tileIndex)
+        {
+            LookupBuffer = lookupBuffer;
+            Is8Bit = is8bit;
+            Mode = CombineMode.UseLookupBufferDirectly_SingleTile;
+            CompressedDataPointer = compressedData;
+            TileIndex = tileIndex;
+        }
+
+        public string Name => "RHR_SpriteEncoding";
         public CombineMode Mode { get; }
         public bool Is8Bit { get; }
 
@@ -27,26 +47,6 @@ namespace Ray1Map.GBAIsometric
         public Pointer CompressedDataPointer { get; }
         public int? TileIndex { get; set; }
 
-        public RHR_SpriteEncoder(bool is8bit, GBAIsometric_RHR_SpriteInfo spriteInfo, ushort[] lookupBufferPositions, GBAIsometric_RHR_GraphicsData graphicsData) {
-            Is8Bit = is8bit;
-            SpriteInfo = spriteInfo;
-            LookupBufferPositions = lookupBufferPositions;
-            GraphicsData = graphicsData;
-            Mode = CombineMode.UseSpriteData;
-        }
-        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData) {
-            LookupBuffer = lookupBuffer;
-            Is8Bit = is8bit;
-            Mode = CombineMode.UseLookupBufferDirectly;
-            CompressedDataPointer = compressedData;
-        }
-        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData, int tileIndex) {
-            LookupBuffer = lookupBuffer;
-            Is8Bit = is8bit;
-            Mode = CombineMode.UseLookupBufferDirectly_SingleTile;
-            CompressedDataPointer = compressedData;
-            TileIndex = tileIndex;
-        }
         private uint Rotate(uint bits, int places) {
             while(places < 0) places += 32;
             places %= 32;
@@ -98,9 +98,9 @@ namespace Ray1Map.GBAIsometric
             R3 = Rotate(R3, 9);
             R3 = Rotate(R3, -1);
             if(R3 >= 0) {
-	            R4 = ReadByte();
-	            PARAM_3 = R4 >> 4;
-	            switch to other path
+                R4 = ReadByte();
+                PARAM_3 = R4 >> 4;
+                switch to other path
             }
 
             ---- path 0: mid step
@@ -109,9 +109,9 @@ namespace Ray1Map.GBAIsometric
             R12 = PARAM_3 | Rotate(R12,4)
             R3 = Rotate(R3, -1);
             if(R3 >= 0) {
-	            R4 = ReadByte();
-	            PARAM_3 = R4 >> 4;
-	            switch to other path
+                R4 = ReadByte();
+                PARAM_3 = R4 >> 4;
+                switch to other path
             }
 
             ---- path 0: last step
@@ -132,8 +132,8 @@ namespace Ray1Map.GBAIsometric
             R12 = PARAM_3 | Rotate(R12,4)
             R3 = Rotate(R3, -1);
             if(R3 >= 0) {
-	            PARAM_3 = R4 & 0xF;
-	            switch to other path
+                PARAM_3 = R4 & 0xF;
+                switch to other path
             }
 
             ---- path 1: last step 
@@ -203,15 +203,11 @@ namespace Ray1Map.GBAIsometric
             //UnityEngine.Debug.Log(reader.BaseStream.Position);
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            long streamPos = s.Position;
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            long streamPos = input.Position;
             byte[] decompressed = null;
-            Reader reader = new Reader(s, isLittleEndian: true);
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
             int tileSize = Is8Bit ? 0x40 : 0x20;
 
             if (Mode == CombineMode.UseSpriteData) {
@@ -266,20 +262,23 @@ namespace Ray1Map.GBAIsometric
                     }
                 }
             }
+            
             // Reset stream position
             reader.BaseStream.Position = streamPos;
-            
-            var decompressedStream = new MemoryStream(decompressed);
 
-            // Set position back to 0
-            decompressedStream.Position = 0;
-
-            // Return the compressed data stream
-            return decompressedStream;
+            output.Write(decompressed, 0, decompressed.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
+        public void EncodeStream(Stream input, Stream output) 
+        {
             throw new NotImplementedException();
+        }
+
+        public enum CombineMode
+        {
+            UseSpriteData,
+            UseLookupBufferDirectly,
+            UseLookupBufferDirectly_SingleTile
         }
     }
 }

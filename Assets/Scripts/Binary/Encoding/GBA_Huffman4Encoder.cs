@@ -12,16 +12,13 @@ namespace Ray1Map
     {
         public string Name => "GBA_Huffman4";
 
-        public Stream DecodeStream(Stream s) 
+        public void DecodeStream(Stream input, Stream output) 
         {
             Huffman4 huff = new Huffman4();
-            MemoryStream outStream = new MemoryStream();
-            huff.Decompress(s, s.Length, outStream);
-            outStream.Position = 0;
-            return outStream;
+            huff.Decompress(input, input.Length, output);
         }
 
-        public Stream EncodeStream(Stream s) 
+        public void EncodeStream(Stream input, Stream output) 
         {
             throw new NotImplementedException();
         }

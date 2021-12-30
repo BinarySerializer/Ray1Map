@@ -6,47 +6,43 @@ namespace Ray1Map.GBAVV
 {
     public class GBAVV_Mode7_TileSetEncoder : IStreamEncoder
     {
-        public string Name => "GBAVV_Mode7TileSetEncoding";
-
         public GBAVV_Mode7_TileSetEncoder(long decodedLength)
         {
             DecodedLength = decodedLength;
         }
 
+        public string Name => "GBAVV_Mode7TileSetEncoding";
+
         public long DecodedLength { get; }
 
-        public Stream DecodeStream(Stream s)
+        public void DecodeStream(Stream input, Stream output)
         {
-            var decodedStream = new MemoryStream(new byte[DecodedLength]);
-            var reader = new Reader(s);
+            using var reader = new Reader(input, leaveOpen: true);
 
             var initialPaddingSize = reader.ReadUInt16();
 
             // Skip padding
-            decodedStream.Position += initialPaddingSize * 2;
+            output.Position += initialPaddingSize * 2;
 
-            while (decodedStream.Position < DecodedLength)
+            while (output.Position < DecodedLength)
             {
                 // Read the data size
                 var blockSize = reader.ReadUInt16();
 
                 // Read the data and write to the decoded stream
-                decodedStream.Write(reader.ReadBytes(blockSize * 2), 0, blockSize * 2);
+                output.Write(reader.ReadBytes(blockSize * 2), 0, blockSize * 2);
 
-                if (decodedStream.Position >= DecodedLength)
+                if (output.Position >= DecodedLength)
                     break;
 
                 // Read padding
                 var paddingSize = reader.ReadUInt16();
 
                 // Skip padding
-                decodedStream.Position += paddingSize * 2;
+                output.Position += paddingSize * 2;
             }
-
-            decodedStream.Position = 0;
-            return decodedStream;
         }
 
-        public Stream EncodeStream(Stream s) => throw new NotImplementedException();
+        public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
     }
 }

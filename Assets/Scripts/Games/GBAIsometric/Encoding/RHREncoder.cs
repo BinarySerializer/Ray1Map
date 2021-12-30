@@ -8,24 +8,24 @@ namespace Ray1Map.GBAIsometric
     /// <summary>
     /// Compresses/decompresses data with RHR's hybrid compression algorithm
     /// </summary>
-    public class RHREncoder : IStreamEncoder {
-        public string Name => "RHR_Encoding";
-        public enum EncoderMode {
-            Full,
-            TileData
-        }
-        public EncoderMode Mode { get; set; } = EncoderMode.Full;
-        public ushort TileCompressedSize { get; set; } = 0x80;
-        public ushort TileDecompressedSize { get; set; } = 0x80;
-        public ushort TileStep { get; set; } = 0x10; //00800010h
-        public RHREncoder() {}
+    public class RHREncoder : IStreamEncoder 
+    {
+        public RHREncoder() { }
 
-        public RHREncoder(EncoderMode mode, ushort comprSize = 0x80, ushort decomprSize = 0x80) {
+        public RHREncoder(EncoderMode mode, ushort comprSize = 0x80, ushort decomprSize = 0x80)
+        {
             Mode = mode;
             TileCompressedSize = comprSize;
             TileDecompressedSize = decomprSize;
         }
+
+        public string Name => "RHR_Encoding";
+        public EncoderMode Mode { get; set; } = EncoderMode.Full;
+        public ushort TileCompressedSize { get; set; } = 0x80;
+        public ushort TileDecompressedSize { get; set; } = 0x80;
+        public ushort TileStep { get; set; } = 0x10; //00800010h
         private byte[] TempBuffer { get; set; }
+
         private byte[] GetTempBuffer(int size) {
             if (TempBuffer == null || TempBuffer.Length < size) {
                 return new byte[size];
@@ -452,13 +452,8 @@ namespace Ray1Map.GBAIsometric
             return decompressed;
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            Reader reader = new Reader(s, isLittleEndian: true);
+        public void DecodeStream(Stream input, Stream output) {
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
             byte[] decompressed = null;
             if (Mode == EncoderMode.Full) {
                 uint totalSize = reader.ReadUInt32();
@@ -477,18 +472,18 @@ namespace Ray1Map.GBAIsometric
             } else if (Mode == EncoderMode.TileData) {
                 decompressed = ReadBlock(reader, TileDecompressedSize, TileStep);
             }
-            
-            var decompressedStream = new MemoryStream(decompressed);
 
-            // Set position back to 0
-            decompressedStream.Position = 0;
-
-            // Return the compressed data stream
-            return decompressedStream;
+            output.Write(decompressed, 0, decompressed.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
+        public void EncodeStream(Stream input, Stream output) {
             throw new NotImplementedException();
+        }
+
+        public enum EncoderMode
+        {
+            Full,
+            TileData
         }
     }
 }

@@ -8,41 +8,37 @@ namespace Ray1Map
 {
     public class Lzo1xEncoder : IStreamEncoder
     {
-        public string Name => "Lzo1x";
-
-        public uint CompressedSize { get; }
-        public uint DecompressedSize { get; }
-        public Lzo1xEncoder(uint compressedSize, uint decompressedSize) {
+        public Lzo1xEncoder(uint compressedSize, uint decompressedSize) 
+        {
             CompressedSize = compressedSize;
             DecompressedSize = decompressedSize;
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
+        public string Name => "Lzo1x";
 
-            Reader reader = new Reader(s, isLittleEndian: false);
+        public uint CompressedSize { get; }
+        public uint DecompressedSize { get; }
+
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            using Reader reader = new Reader(input, isLittleEndian: false, leaveOpen: true);
+
             byte[] compressedData = reader.ReadBytes((int)CompressedSize);
             byte[] decompressedData;
+
             using (var compressedStream = new MemoryStream(compressedData))
             using (var lzo = new LzoStream(compressedStream, CompressionMode.Decompress))
-            using (Reader lzoReader = new Reader(lzo, isLittleEndian: false)) {
+            using (Reader lzoReader = new Reader(lzo, isLittleEndian: false)) 
+            {
                 lzo.SetLength(DecompressedSize);
                 decompressedData = lzoReader.ReadBytes((int)DecompressedSize);
             }
 
-            var memStream = new MemoryStream(decompressedData);
-            // Set the position to the beginning
-            memStream.Position = 0;
-
-            // Return the compressed data stream
-            return memStream;
+            output.Write(decompressedData, 0, decompressedData.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
+        public void EncodeStream(Stream input, Stream output) 
+        {
             throw new NotImplementedException();
         }
     }

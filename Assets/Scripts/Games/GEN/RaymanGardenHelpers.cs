@@ -62,16 +62,18 @@ namespace Ray1Map.GEN {
                 public Entry[] Entries { get; set; }
                 public string[] Strings { get; set; }
 
-                public class Eclipse_StringEncoder : IStreamEncoder {
-                    public HuffTableEntry[] Helpers { get; set; }
-                    public Entry Entry { get; set; }
-
-					public string Name => "Eclipse_StringEncoding";
-
-					public Eclipse_StringEncoder(HuffTableEntry[] helpers, Entry entry) {
+                public class Eclipse_StringEncoder : IStreamEncoder 
+                {
+                    public Eclipse_StringEncoder(HuffTableEntry[] helpers, Entry entry)
+                    {
                         Helpers = helpers;
                         Entry = entry;
                     }
+
+                    public string Name => "Eclipse_StringEncoding";
+
+                    public HuffTableEntry[] Helpers { get; set; }
+                    public Entry Entry { get; set; }
 
                     public void DecompressString(byte[] compressed, Writer writer) {
                         byte bits = 0;
@@ -100,30 +102,25 @@ namespace Ray1Map.GEN {
                             curBit--;
                         }
                     }
-                    public Stream DecodeStream(Stream s) {
-                        long streamPos = s.Position;
-                        Reader reader = new Reader(s, isLittleEndian: true);
+                    public void DecodeStream(Stream input, Stream output) 
+                    {
+                        using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
                         byte length = Entry.Length;
                         byte[] compressed = reader.ReadBytes(length);
                         byte[] decompressed = new byte[0];
-                        if (length > 0) {
-                            using (Writer writer = new Writer(new MemoryStream())) {
-                                DecompressString(compressed, writer);
-                                writer.BaseStream.Position = 0;
-                                decompressed = (writer.BaseStream.InnerStream as MemoryStream).ToArray();
-                            }
+                        
+                        if (length > 0)
+                        {
+                            using Writer writer = new Writer(new MemoryStream());
+                            DecompressString(compressed, writer);
+                            writer.BaseStream.Position = 0;
+                            decompressed = (writer.BaseStream.InnerStream as MemoryStream).ToArray();
                         }
 
-                        var decompressedStream = new MemoryStream(decompressed);
-
-                        // Set position back to 0
-                        decompressedStream.Position = 0;
-
-                        // Return the compressed data stream
-                        return decompressedStream;
+                        output.Write(decompressed, 0, decompressed.Length);
                     }
 
-                    public Stream EncodeStream(Stream s) {
+                    public void EncodeStream(Stream input, Stream output) {
                         throw new NotImplementedException();
                     }
                 }

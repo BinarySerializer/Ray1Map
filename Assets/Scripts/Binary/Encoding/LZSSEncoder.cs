@@ -4,32 +4,28 @@ using BinarySerializer;
 
 namespace Ray1Map
 {
-
     /// <summary>
     /// Compresses/decompresses data using LZSS
     /// </summary>
     public class LZSSEncoder : IStreamEncoder
     {
-        public string Name => "LZSS";
-
-        public LZSSEncoder(uint length, bool hasHeader = true) {
+        public LZSSEncoder(uint length, bool hasHeader = true)
+        {
             Length = length;
             HasHeader = hasHeader;
         }
+     
+        public string Name => "LZSS";
+
         protected uint Length { get; }
         protected bool HasHeader { get; }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) 
+        public void DecodeStream(Stream input, Stream output) 
         {
-            var decompressedStream = new MemoryStream();
-
-            Reader reader = new Reader(s, isLittleEndian: true); // No using, because we don't want to close the stream
-            if (HasHeader) {
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
+            
+            if (HasHeader) 
+            {
                 uint magic = reader.ReadUInt32();
 
                 if (magic != 0x01234567)
@@ -38,16 +34,10 @@ namespace Ray1Map
 
             byte[] bytes = reader.ReadBytes((int)Length);
 
-            using (MemoryStream ms = new MemoryStream(bytes))
-                LzssAlgorithm.Lzss.Decode(ms, decompressedStream);
-
-            // Set position back to 0
-            decompressedStream.Position = 0;
-
-            // Return the compressed data stream
-            return decompressedStream;
+            using MemoryStream ms = new MemoryStream(bytes);
+            LzssAlgorithm.Lzss.Decode(ms, output);
         }
 
-        public Stream EncodeStream(Stream s) => throw new NotImplementedException();
+        public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
     }
 }

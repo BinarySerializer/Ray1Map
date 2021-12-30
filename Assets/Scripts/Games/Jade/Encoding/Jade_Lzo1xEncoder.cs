@@ -13,25 +13,22 @@ namespace Ray1Map.Jade {
     /// </summary>
     public class Jade_Lzo1xEncoder : IStreamEncoder
     {
-        public string Name => "Jade_Lzo1x";
-
-        public uint TotalCompressedSize { get; }
-        public bool Xbox360Version { get; }
-        public Endian Endianness { get; }
-        public Jade_Lzo1xEncoder(uint compressedSize, bool xbox360Version, Endian endianness = Endian.Little) {
+        public Jade_Lzo1xEncoder(uint compressedSize, bool xbox360Version, Endian endianness = Endian.Little)
+        {
             TotalCompressedSize = compressedSize;
             Xbox360Version = xbox360Version;
             Endianness = endianness;
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
+        public string Name => "Jade_Lzo1x";
 
-            Reader reader = new Reader(s, isLittleEndian: Endianness == Endian.Little);
+        public uint TotalCompressedSize { get; }
+        public bool Xbox360Version { get; }
+        public Endian Endianness { get; }
+
+        public void DecodeStream(Stream input, Stream output) 
+        {
+            using Reader reader = new Reader(input, isLittleEndian: Endianness == Endian.Little, leaveOpen: true);
             var currentPos = reader.BaseStream.Position;
             var lastSizeRead = 0xFFFFFFFF;
             List<byte[]> decompressedBlocks = new List<byte[]>();
@@ -61,20 +58,16 @@ namespace Ray1Map.Jade {
 
             byte[] decompressedData = new byte[decompressedBlocks.Sum(d => d.Length)];
             int curPos = 0;
-            foreach (var d in decompressedBlocks) {
+
+            foreach (var d in decompressedBlocks) 
+            {
                 Array.Copy(d, 0, decompressedData, curPos, d.Length);
                 curPos += d.Length;
             }
-            var memStream = new MemoryStream(decompressedData);
-            // Set the position to the beginning
-            memStream.Position = 0;
 
-            // Return the compressed data stream
-            return memStream;
+            output.Write(decompressedData, 0, decompressedData.Length);
         }
 
-        public Stream EncodeStream(Stream s) {
-            throw new NotImplementedException();
-        }
+        public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
     }
 }

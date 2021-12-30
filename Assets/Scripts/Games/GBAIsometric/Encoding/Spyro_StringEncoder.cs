@@ -7,35 +7,52 @@ namespace Ray1Map.GBAIsometric
     /// <summary>
     /// Compresses/decompresses data with Spyro's string compression algorithm
     /// </summary>
-    public class Spyro_StringEncoder : IStreamEncoder {
-        public string Name => "Spyro_StringEncoding";
-        public GBAIsometric_Spyro_LocDecompress[] Helpers { get; set; }
-        public Spyro_StringEncoder(GBAIsometric_Spyro_LocDecompress[] helpers) {
+    public class Spyro_StringEncoder : IStreamEncoder
+    {
+        public Spyro_StringEncoder(GBAIsometric_Spyro_LocDecompress[] helpers)
+        {
             Helpers = helpers;
         }
 
-        public void DecompressString(Reader reader, byte[] outBuffer) {
+        public string Name => "Spyro_StringEncoding";
+        public GBAIsometric_Spyro_LocDecompress[] Helpers { get; }
+
+        public void DecompressString(Reader reader, byte[] outBuffer)
+        {
             byte bits = 0;
             int curBit = -1;
             int curHelper = 0;
             int outPos = 0;
-            while (outPos < outBuffer.Length) {
-                if (curBit < 0) {
+
+            while (outPos < outBuffer.Length)
+            {
+                if (curBit < 0)
+                {
                     bits = reader.ReadByte();
                     curBit += 8;
                 }
-                if (BitHelpers.ExtractBits(bits, 1, curBit) == 0) {
-                    if (BitHelpers.ExtractBits(Helpers[curHelper].b0, 1, 0) == 1) {
+
+                if (BitHelpers.ExtractBits(bits, 1, curBit) == 0)
+                {
+                    if (BitHelpers.ExtractBits(Helpers[curHelper].b0, 1, 0) == 1)
+                    {
                         outBuffer[outPos++] = (byte)(Helpers[curHelper].b1);
                         curHelper = 0;
-                    } else {
+                    }
+                    else
+                    {
                         curHelper = Helpers[curHelper].b1;
                     }
-                } else {
-                    if (BitHelpers.ExtractBits(Helpers[curHelper].b0, 1, 1) == 1) {
+                }
+                else
+                {
+                    if (BitHelpers.ExtractBits(Helpers[curHelper].b0, 1, 1) == 1)
+                    {
                         outBuffer[outPos++] = (byte)(Helpers[curHelper].b2);
                         curHelper = 0;
-                    } else {
+                    }
+                    else
+                    {
                         curHelper = Helpers[curHelper].b2;
                     }
                 }
@@ -43,32 +60,21 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        /// <summary>
-        /// Decodes the data and returns it in a stream
-        /// </summary>
-        /// <param name="s">The encoded stream</param>
-        /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
-            long streamPos = s.Position;
-            Reader reader = new Reader(s, isLittleEndian: true);
+        public void DecodeStream(Stream input, Stream output)
+        {
+            using Reader reader = new Reader(input, isLittleEndian: true, leaveOpen: true);
             byte length = reader.ReadByte();
             byte[] decompressed = new byte[length];
 
-            if (length > 0) {
+            if (length > 0)
                 DecompressString(reader, decompressed);
-            }
-            
-            var decompressedStream = new MemoryStream(decompressed);
 
-            // Set position back to 0
-            decompressedStream.Position = 0;
-
-            // Return the compressed data stream
-            return decompressedStream;
+            output.Write(decompressed, 0, decompressed.Length);
         }
 
-		public Stream EncodeStream(Stream s) {
-			throw new NotImplementedException();
-		}
-	}
+        public void EncodeStream(Stream input, Stream output)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
