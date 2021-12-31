@@ -62,7 +62,7 @@ namespace Ray1Map
             decompressedStream.Position = 0;
 
             // Copy the decompressed data
-            output.CopyTo(output);
+            decompressedStream.CopyTo(output);
         }
 
         public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
