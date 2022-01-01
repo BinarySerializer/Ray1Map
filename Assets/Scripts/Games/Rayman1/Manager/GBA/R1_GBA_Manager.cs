@@ -564,8 +564,8 @@ namespace Ray1Map.Rayman1
                 }
                 outPath = outputPath + "/SongData/";
                 for (int i = 0; i < musyxFile.SongTable.Value.Length; i++) {
-                    var songBytes = musyxFile.SongTable.Value.SongBytes[i];
-                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.SongTable.Value.Songs[i].SerializedOffset:X8}.son", songBytes);
+                    var songBytes = musyxFile.SongTable.Value.Songs[i].SongBytes;
+                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.SongTable.Value.SongPointers[i].SerializedOffset:X8}.son", songBytes);
                 }
                 outPath = outputPath + "/InstrumentData/";
                 for (int i = 0; i < musyxFile.InstrumentTable.Value.Instruments.Length; i++) {
