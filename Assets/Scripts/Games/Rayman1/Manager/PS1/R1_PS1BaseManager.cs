@@ -437,6 +437,8 @@ namespace Ray1Map.Rayman1
                     // Create the context
                     using (var context = new Ray1MapContext(baseGameSettings))
                     {
+                        await LoadFilesAsync(context);
+
                         // Load the editor manager
                         var level = await LoadAsync(context);
                         level.Init();
@@ -520,6 +522,8 @@ namespace Ray1Map.Rayman1
                     // Create the context
                     using (var context = new Ray1MapContext(baseGameSettings))
                     {
+                        await LoadFilesAsync(context);
+
                         // Load the level
                         var level = await LoadAsync(context);
                         level.Init();
