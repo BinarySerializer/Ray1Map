@@ -206,9 +206,9 @@ namespace Ray1Map.Rayman1
             if (path == GetAllfixFilePath(settings))
                 return $"Allfix/";
             else if (path == GetWorldFilePath(settings))
-                return $"{settings.World}/{settings.World} - ";
+                return $"{(World)settings.World}/{(World)settings.World} - ";
             else if (path == GetLevelFilePath(settings))
-                return $"{settings.World}/{settings.World}{settings.Level} - ";
+                return $"{(World)settings.World}/{(World)settings.World}{settings.Level} - ";
 
             return $"Unknown/";
         }

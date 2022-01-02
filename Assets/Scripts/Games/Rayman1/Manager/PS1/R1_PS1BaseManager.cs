@@ -555,7 +555,7 @@ namespace Ray1Map.Rayman1
                             }
 
                             // Get the export dir name
-                            var exportDirName = GetExportDirName(baseGameSettings, des.Data.Graphics);
+                            string exportDirName = GetExportDirName(baseGameSettings, des.Data.Graphics);
 
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
@@ -572,11 +572,11 @@ namespace Ray1Map.Rayman1
                             ExportAnimationFrames(textures, des.Data.Graphics.Animations.ToArray(),
                                 Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"), matchingStates);
 
-                            // Unload textures
-                            await Resources.UnloadUnusedAssets();
-
                             desIndexes[exportDirName]++;
                         }
+
+                        // Unload textures
+                        await Resources.UnloadUnusedAssets();
                     }
                 }
             }
