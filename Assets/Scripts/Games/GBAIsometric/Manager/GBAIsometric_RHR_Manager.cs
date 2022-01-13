@@ -325,21 +325,21 @@ namespace Ray1Map.GBAIsometric
                 s.DoAt(pointerTable[RHR_DefinedPointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
                 });
-                string outPath = outputPath + "/Sounds/";
-                for (int i = 0; i < musyxFile.SampleTable.Value.Samples.Length; i++) {
+                string outPath = Path.Combine(outputPath, "Sounds");
+                for (int i = 0; i < (musyxFile.SampleTable?.Value?.Samples?.Length ?? 0); i++) {
                     var e = musyxFile.SampleTable.Value.Samples[i].Value;
                     //Util.ByteArrayToFile(outPath + $"{i}_{e.Offset.AbsoluteOffset:X8}.bin", e.SampleData);
                     ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].PointerValue.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
                 }
-                outPath = outputPath + "/SongData/";
-                for (int i = 0; i < musyxFile.SongTable.Value.Length; i++) {
+                outPath = Path.Combine(outputPath, "SongData");
+                for (int i = 0; i < (musyxFile.SongTable?.Value?.Length ?? 0); i++) {
                     var songBytes = musyxFile.SongTable.Value.Songs[i].SongBytes;
-                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.SongTable.Value.SongPointers[i].SerializedOffset:X8}.son", songBytes);
+                    Util.ByteArrayToFile(Path.Combine(outPath, $"{i}_{musyxFile.SongTable.Value.SongPointers[i].SerializedOffset:X8}.son"), songBytes);
                 }
-                outPath = outputPath + "/InstrumentData/";
-                for (int i = 0; i < musyxFile.InstrumentTable.Value.Instruments.Length; i++) {
-                    var instrumentBytes = musyxFile.InstrumentTable.Value.InstrumentBytes[i];
-                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.InstrumentTable.Value.Instruments[i].SerializedOffset:X8}.bin", instrumentBytes);
+                outPath = Path.Combine(outputPath, "InstrumentData");
+                for (int i = 0; i < (musyxFile.InstrumentTable?.Value?.Macros?.Length ?? 0); i++) {
+                    var instrumentBytes = musyxFile.InstrumentTable.Value.Macros[i]?.Value?.InstrumentBytes;
+                    Util.ByteArrayToFile(Path.Combine(outPath, $"{i}_{musyxFile.InstrumentTable.Value.Macros[i].PointerValue.SerializedOffset:X8}.bin"), instrumentBytes);
                 }
             }
         }
