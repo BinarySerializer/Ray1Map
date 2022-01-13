@@ -36,8 +36,8 @@ namespace Ray1Map {
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
 			GameAction[] actions = new GameAction[] {
-				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false, true)),
-				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true, true)),
+				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false, true, true)),
+				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true, true, true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
@@ -71,11 +71,12 @@ namespace Ray1Map {
 		}
 
 		#region Extract assets
-		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false) {
+		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false, bool exportTimeline = false) {
             using (var context = new Ray1MapContext(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
 				Dictionary<uint, string> fileKeys = new Dictionary<uint, string>();
+				List<KeyValuePair<DateTime, string>> timelineList = new List<KeyValuePair<DateTime, string>>();
 				foreach (var bfPath in BFFiles) {
 					var bf = await LoadBF(context, bfPath);
 					List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
@@ -133,6 +134,7 @@ namespace Ray1Map {
 									if (fi.ParentDirectory >= 0) {
 										Util.ByteArrayToFile(Path.Combine(outputDir, directories[fi.ParentDirectory], fileName), fileBytes);
 										if(exportKeyList) fileKeys[f.Key.Key] = Path.Combine(directories[fi.ParentDirectory], fileName);
+										if(exportTimeline) timelineList.Add(new KeyValuePair<DateTime, string>(fi.DateLastModified, Path.Combine(directories[fi.ParentDirectory], fileName)));
 									}
 								} else {
 									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
@@ -196,6 +198,14 @@ namespace Ray1Map {
 						b.AppendLine($"{kv.Key:X8},{kv.Value}");
 					}
 					File.WriteAllText(Path.Combine(outputDir, "keylist.txt"), b.ToString());
+				}
+				if (exportTimeline) {
+					StringBuilder b = new StringBuilder();
+					timelineList.Sort((x, y) => x.Key.CompareTo(y.Key));
+					foreach (var kv in timelineList) {
+						b.AppendLine($"{kv.Key:ddd, dd/MM/yyyy - HH:mm:ss}\t{kv.Value}");
+					}
+					File.WriteAllText(Path.Combine(outputDir, "timeline.txt"), b.ToString());
 				}
             }
         }

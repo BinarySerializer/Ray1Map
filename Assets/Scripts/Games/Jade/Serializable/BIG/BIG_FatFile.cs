@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace Ray1Map.Jade {
 	public class BIG_FatFile : BinarySerializable {
@@ -70,11 +71,13 @@ namespace Ray1Map.Jade {
 			public int NextFile { get; set; }
 			public int PreviousFile { get; set; }
 			public int ParentDirectory { get; set; }
-			public uint UInt_10 { get; set; }
+			public uint DateLastModifiedUInt { get; set; }
 			public uint UInt_14 { get; set; }
 			public uint UInt_54 { get; set; }
 			public string Hash { get; set; }
 			public uint V43_UInt { get; set; }
+
+			public DateTime DateLastModified => new System.DateTime(1970,1,1).AddSeconds(DateLastModifiedUInt);
 
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;
@@ -91,7 +94,8 @@ namespace Ray1Map.Jade {
 					NextFile = s.Serialize<int>(NextFile, name: nameof(NextFile));
 					PreviousFile = s.Serialize<int>(PreviousFile, name: nameof(PreviousFile));
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
-					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+					DateLastModifiedUInt = s.Serialize<uint>(DateLastModifiedUInt, name: nameof(DateLastModifiedUInt));
+					if(s.IsLogEnabled) s.Log($"Date: {DateLastModified:ddd, dd/MM/yyyy - HH:mm:ss}");
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
