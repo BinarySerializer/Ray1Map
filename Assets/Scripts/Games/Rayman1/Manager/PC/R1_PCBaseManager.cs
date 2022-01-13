@@ -963,33 +963,16 @@ namespace Ray1Map.Rayman1
                     // Handle every sound file entry
                     foreach (var soundGroupEntry in soundGroup.Entries)
                     {
-                        // Create WAV data
-                        var formatChunk = new WAVFormatChunk()
-                        {
-                            ChunkHeader = "fmt ",
-                            FormatType = 1,
-                            ChannelCount = 1,
-                            SampleRate = 11025,
-                            BitsPerSample = (ushort)soundGroup.BitsPerSample,
-                        };
+                        var wav = new WAV();
+                        var fmt = wav.Format;
+                        fmt.FormatType = 1;
+                        fmt.ChannelCount = 1;
+                        fmt.SampleRate = 11025;
+                        fmt.BitsPerSample = (ushort)soundGroup.BitsPerSample;
+                        wav.Data.Data = soundGroupEntry.RawSoundData;
 
-                        var wav = new WAV
-                        {
-                            Magic = "RIFF",
-                            FileTypeHeader = "WAVE",
-                            Chunks = new WAVChunk[]
-                            {
-                                formatChunk,
-                                new WAVChunk()
-                                {
-                                    ChunkHeader = "data",
-                                    Data = soundGroupEntry.RawSoundData
-                                }
-                            }
-                        };
-
-                        formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
-                        formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
+                        fmt.ByteRate = (fmt.SampleRate * fmt.BitsPerSample * fmt.ChannelCount) / 8;
+                        fmt.BlockAlign = (ushort)((fmt.BitsPerSample * fmt.ChannelCount) / 8);
 
                         // Get the output path
                         var outputFilePath = Path.Combine(groupOutputDir, soundGroupEntry.FileName + ".wav");

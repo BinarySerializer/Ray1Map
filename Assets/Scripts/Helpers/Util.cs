@@ -1,6 +1,5 @@
 ﻿using BinarySerializer;
 using BinarySerializer.GBA;
-using BinarySerializer.Audio;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using BinarySerializer.Audio.RIFF;
 
 namespace Ray1Map
 {
@@ -173,20 +173,20 @@ namespace Ray1Map
             Debug.Log($"Matching encodings for all: {String.Join(", ", matches.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
         }
 
-        public static void ExportWAVChunks(Context context, WAVChunk[] chunks, string outputDir)
+        public static void ExportWAVChunks(Context context, RIFF_Chunk[] chunks, string outputDir)
         {
             var index = 0;
 
             foreach (var chunk in chunks)
             {
-                if (chunk.ChunkHeader == "LIST")
+                if (chunk.Identifier == "LIST")
                 {
-                    var list = chunk.SerializeTo<WAVListChunk>(context);
-                    ExportWAVChunks(context, list.Chunks, Path.Combine(outputDir, $"{index}_{list.ListHeader}"));
+                    var list = (RIFF_Chunk_List)(chunk?.Data);
+                    ExportWAVChunks(context, list.Chunks, Path.Combine(outputDir, $"{index}_{list.Type}"));
                 }
-                else
+                else if(chunk.Data is RIFF_Chunk_Data d) // "data" or unparsed
                 {
-                    ByteArrayToFile(Path.Combine(outputDir, $"{index}_{chunk.ChunkHeader}"), chunk.Data);
+                    ByteArrayToFile(Path.Combine(outputDir, $"{index}_{chunk.Identifier}"), d.Data);
                 }
 
                 index++;

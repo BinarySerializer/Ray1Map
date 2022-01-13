@@ -287,30 +287,16 @@ namespace Ray1Map.GBAIsometric
                     byte[] unsignedData = data.Select(b => (byte)(b + 128)).ToArray();
 
                     // Create WAV data
-                    var formatChunk = new WAVFormatChunk() {
-                        ChunkHeader = "fmt ",
-                        FormatType = 1,
-                        ChannelCount = channels,
-                        SampleRate = sampleRate,
-                        BitsPerSample = 8,
-                    };
+                    var wav = new WAV();
+                    var fmt = wav.Format;
+                    fmt.FormatType = 1;
+                    fmt.ChannelCount = channels;
+                    fmt.SampleRate = sampleRate;
+                    fmt.BitsPerSample = 8;
+                    wav.Data.Data = unsignedData;
 
-                    var wav = new WAV {
-                        Magic = "RIFF",
-                        FileTypeHeader = "WAVE",
-                        Chunks = new WAVChunk[]
-                        {
-                            formatChunk,
-                            new WAVChunk()
-                            {
-                                ChunkHeader = "data",
-                                Data = unsignedData
-                            }
-                        }
-                    };
-
-                    formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
-                    formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
+                    fmt.ByteRate = (fmt.SampleRate * fmt.BitsPerSample * fmt.ChannelCount) / 8;
+                    fmt.BlockAlign = (ushort)((fmt.BitsPerSample * fmt.ChannelCount) / 8);
 
                     // Get the output path
                     var outputFilePath = Path.Combine(directory, filename + ".wav");
