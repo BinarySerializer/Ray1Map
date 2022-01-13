@@ -183,8 +183,8 @@ namespace Ray1Map.Rayman1
                 ed.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // TODO: Get from DESData in obj manager instead?
-                ed.SpriteCollection = FileFactory.Read<SpriteCollection>(ed.SpritesPointer, context, (s, o) => o.Pre_SpritesCount = ed.SpritesCount);
-                ed.AnimationCollection = FileFactory.Read<AnimationCollection>(ed.AnimationsPointer, context, (s, o) => o.Pre_AnimationsCount = ed.AnimationsCount);
+                ed.SpriteCollection = FileFactory.Read<SpriteCollection>(context, ed.SpritesPointer, (s, o) => o.Pre_SpritesCount = ed.SpritesCount);
+                ed.AnimationCollection = FileFactory.Read<AnimationCollection>(context, ed.AnimationsPointer, (s, o) => o.Pre_AnimationsCount = ed.AnimationsCount);
                 ed.ETA = context.Cache.FromOffset<BinarySerializer.Ray1.ETA>(ed.ETAPointer);
                 
                 // TODO: Update this
@@ -200,7 +200,7 @@ namespace Ray1Map.Rayman1
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
-            FileFactory.Write<PS1_LevFile>(lvlPath, context);
+            FileFactory.Write<PS1_LevFile>(context, lvlPath);
 
             // Create ISO for the modified data
             CreateISO(context);
@@ -334,7 +334,7 @@ namespace Ray1Map.Rayman1
                         }
 
                         // Write the game exe
-                        FileFactory.Write<PS1_Executable>(ExeFilePath, context);
+                        FileFactory.Write<PS1_Executable>(context, ExeFilePath);
                     }
                 }
             }

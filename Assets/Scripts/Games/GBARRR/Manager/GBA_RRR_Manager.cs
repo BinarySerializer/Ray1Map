@@ -103,7 +103,7 @@ namespace Ray1Map.GBARRR
                             wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
                             // Write the data
-                            FileFactory.Write<WAV>(wavKey, wav, wavContext);
+                            FileFactory.Write<WAV>(wavContext, wavKey, wav);
                         }
                     }
                 }
@@ -261,7 +261,7 @@ namespace Ray1Map.GBARRR
                                 xmContext.AddFile(new StreamFile(context, xmKey, outputStream));
 
                                 // Write the data
-                                FileFactory.Write<XM>(xmKey, xm, xmContext);
+                                FileFactory.Write<XM>(xmContext, xmKey, xm);
                             }
                         }
                     });

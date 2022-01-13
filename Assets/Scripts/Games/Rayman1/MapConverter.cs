@@ -121,7 +121,7 @@ namespace Ray1Map
             };
 
             // Write the changes to the file
-            FileFactory.Write<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+            FileFactory.Write<PC_LevFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
         }
     }
 }

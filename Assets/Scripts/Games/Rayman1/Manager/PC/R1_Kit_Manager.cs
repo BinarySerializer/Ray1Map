@@ -349,7 +349,7 @@ namespace Ray1Map.Rayman1
                         wld.Eta = newEtaItems.ToArray();
 
                         // Save the WLD
-                        FileFactory.Write<PC_WorldFile>(wldPath, context);
+                        FileFactory.Write<PC_WorldFile>(context, wldPath);
                     }
                 }
             }

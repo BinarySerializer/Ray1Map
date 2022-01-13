@@ -990,7 +990,7 @@ namespace Ray1Map.Rayman1
                                 wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
                                 // Write the data
-                                FileFactory.Write<WAV>(wavKey, wav, wavContext);
+                                FileFactory.Write<WAV>(wavContext, wavKey, wav);
                             }
                         }
                     }
@@ -1583,7 +1583,7 @@ namespace Ray1Map.Rayman1
             lvlData.ObjData.ObjCommands = eventCommands.ToArray();
 
             // Save the file
-            FileFactory.Write<PC_LevFile>(lvlPath, context);
+            FileFactory.Write<PC_LevFile>(context, lvlPath);
 
             return UniTask.CompletedTask;
         }

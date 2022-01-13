@@ -81,7 +81,7 @@ namespace Ray1Map.GBA
                     using (var outputStream = File.Create(outputFilePath)) {
                         using (var xmContext = new Ray1MapContext(outputPath, settings)) {
                             xmContext.AddFile(new StreamFile(context, name, outputStream));
-                            FileFactory.Write<XM>(name, xm, xmContext);
+                            FileFactory.Write<XM>(xmContext, name, xm);
                         }
                     }
                 }

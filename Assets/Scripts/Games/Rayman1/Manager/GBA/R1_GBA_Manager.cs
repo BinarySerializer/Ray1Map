@@ -187,7 +187,7 @@ namespace Ray1Map.Rayman1
                 var imgIndex = 0;
 
                 // Get the graphic data
-                var g = FileFactory.Read<GBA_EventGraphicsData>(gp.Key, context);
+                var g = FileFactory.Read<GBA_EventGraphicsData>(context, gp.Key);
 
                 // Get the world name
                 var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
@@ -531,12 +531,12 @@ namespace Ray1Map.Rayman1
                     wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
                     // Write the data
-                    FileFactory.Write<WAV>(wavKey, wav, wavContext);
+                    FileFactory.Write<WAV>(wavContext, wavKey, wav);
                 }
 
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(context, GetROMFilePath);
 
                 MusyX_File musyxFile = null;
                 s.DoAt(s.GetPreDefinedPointer(GBA_DefinedPointer.MusyxFile), () => {
