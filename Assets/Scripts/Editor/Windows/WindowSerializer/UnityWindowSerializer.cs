@@ -269,4 +269,17 @@ public class UnityWindowSerializer : SerializerObject
     {
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
     }
+
+	public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null) {
+
+        T[] array = obj;
+
+        return SerializeArray<T>(array, array.Length, name: name);
+    }
+
+	public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T> onPreSerialize = null, string name = null) {
+        T[] array = obj;
+
+        return SerializeObjectArray<T>(array, array.Length, onPreSerialize: onPreSerialize, name: name);
+    }
 }

@@ -61,7 +61,7 @@ namespace Ray1Map.Jade {
 
 		public void XORIfNecessary(SerializerObject s, Action action) {
 			if (BIG_gst == "BUG") {
-				s.DoXOR(new XORArrayCalculator(XORKey, currentByte: (int)(s.CurrentPointer.AbsoluteOffset % 4)), action);
+				s.DoXOR(new XORArrayCalculator(XORKey, byteIndex: (int)(s.CurrentPointer.AbsoluteOffset % 4)), action);
 			} else {
 				action();
 			}
