@@ -37,7 +37,7 @@ namespace Ray1Map.Rayman1_Jaguar
 
         protected override Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
-            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
             Pointer baseOff = rom.EventDefinitions[0].Offset;
             return new Dictionary<SpecialEventType, Pointer>() {
                 [SpecialEventType.RayPos] = baseOff + 0x1BF8,

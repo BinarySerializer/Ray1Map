@@ -1487,7 +1487,7 @@ namespace Ray1Map {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
 			await s.FillCacheForReadAsync((int)BIG_BigFile.HeaderLength);
-			var bfFile = FileFactory.Read<BIG_BigFile>(bfPath, context);
+			var bfFile = FileFactory.Read<BIG_BigFile>(context, bfPath);
 			await s.FillCacheForReadAsync((int)bfFile.TotalFatFilesLength);
 			bfFile.SerializeFatFiles(s);
 			return bfFile;
@@ -1496,7 +1496,7 @@ namespace Ray1Map {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
 			await s.FillCacheForReadAsync(GEAR_BigFile.HeaderSize);
-			var bfFile = FileFactory.Read<GEAR_BigFile>(bfPath, context);
+			var bfFile = FileFactory.Read<GEAR_BigFile>(context, bfPath);
 			await s.FillCacheForReadAsync((int)bfFile.ArraysSize);
 			bfFile.SerializeArrays(s);
 			return bfFile;
@@ -1506,7 +1506,7 @@ namespace Ray1Map {
 			if(JadeSpePath == null) return;
 			var s = context.Deserializer;
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
-			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(JadeSpePath, context);
+			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(context, JadeSpePath);
 		}
 		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false, bool isEditor = false, bool isPrefabs = false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);

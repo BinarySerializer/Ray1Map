@@ -52,7 +52,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
                 var usedNames = new List<string>();
                 // Helper method to get the name for a pointer
@@ -342,7 +342,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
                 // Export
                 PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), rom.SpritePalette, optionalWrap: 256);
@@ -358,7 +358,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 await LoadFilesAsync(context);
 
                 // Parse the rom
-                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
                 // Get and order all references
                 var refs = rom.References.Where(x => x.DataPointer != null).OrderBy(x => x.DataPointer.FileOffset).ToArray();
@@ -381,7 +381,7 @@ namespace Ray1Map.Rayman1_Jaguar
             }
         }
 
-        public Pointer GetDataPointer(Context context, JAG_Proto_References reference) => FileFactory.Read<JAG_ROM>(GetROMFilePath, context).GetProtoDataPointer(reference);
+        public Pointer GetDataPointer(Context context, JAG_Proto_References reference) => FileFactory.Read<JAG_ROM>(context, GetROMFilePath).GetProtoDataPointer(reference);
 
         public override void AddContextPointers(Context context)
         {

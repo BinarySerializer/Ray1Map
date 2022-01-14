@@ -78,7 +78,7 @@ namespace Ray1Map.Gameloft
 				"Portuguese"
 			};
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(LocalizationResourceFile.ToString(), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, LocalizationResourceFile.ToString());
 			Gameloft_RK_LocalizationTable[] tables = new Gameloft_RK_LocalizationTable[resf.ResourcesCount];
 			for (int i = 0; i < tables.Length; i++) {
 				tables[i] = resf.SerializeResource<Gameloft_RK_LocalizationTable>(s, default, i, name: $"Localization[{i}]");
@@ -125,7 +125,7 @@ namespace Ray1Map.Gameloft
 			for (int i = 0; i < refs.Length; i++) {
 				int fileIndex = refs[i].FileIndex;
 				int resIndex = refs[i].ResourceIndex;
-				var resf = FileFactory.Read<Gameloft_ResourceFile>(fileIndex.ToString(), context);
+				var resf = FileFactory.Read<Gameloft_ResourceFile>(context, fileIndex.ToString());
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, resIndex, name: $"Puppets[{i}]");
 				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, puppets[i], GetCommonDesign(puppets[i]));
 			}
@@ -139,7 +139,7 @@ namespace Ray1Map.Gameloft
 			for (int i = 0; i < level?.BackgroundLayers?.Length; i++) {
 				var bgl = level.BackgroundLayers[i];
 				if (resf == null) {
-					resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundsPath(context.GetR1Settings()), context);
+					resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetBackgroundsPath(context.GetR1Settings()));
 				}
 				var rawData = resf.SerializeResource<Gameloft_DummyResource>(s,default,bgl.ImageResourceIndex, name: $"Backgrounds[{bgl.ImageResourceIndex}]");
 				Texture2D tex = TextureHelpers.CreateTexture2D(1,1);
@@ -183,7 +183,7 @@ namespace Ray1Map.Gameloft
 				maxY = Mathf.Max(maxY, verts.Max(v => v.z));
 			}
 			// Load road textures
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.GetR1Settings()), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetRoadTexturesPath(context.GetR1Settings()));
 			var roads = new MeshInProgress[level.Types.Length][];
 			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
 			Dictionary<int, bool> textureIsTransparent = new Dictionary<int, bool>();
@@ -1008,7 +1008,7 @@ namespace Ray1Map.Gameloft
 		public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
 			await UniTask.CompletedTask;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetLevelPath(context.GetR1Settings()));
 			var ind = GetLevelResourceIndex(context.GetR1Settings());
 			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 

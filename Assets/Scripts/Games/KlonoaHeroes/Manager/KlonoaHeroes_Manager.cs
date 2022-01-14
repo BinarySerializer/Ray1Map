@@ -259,7 +259,7 @@ namespace Ray1Map.KlonoaHeroes
                                                                          KlonoaHeroesROM.SerializeDataFlags.EnemyObjectDefinitions;
 
             // Read the ROM
-            var rom = FileFactory.Read<KlonoaHeroesROM>(GetROMFilePath, context, onPreSerialize: (s, x) => x.Pre_SerializeFlags = romSerializeFlags);
+            var rom = FileFactory.Read<KlonoaHeroesROM>(context, GetROMFilePath, onPreSerialize: (s, x) => x.Pre_SerializeFlags = romSerializeFlags);
 
             // Get the map
             var map = rom.MapsPack.GetMap(lvlEntry.ID1, lvlEntry.ID2, lvlEntry.ID3);

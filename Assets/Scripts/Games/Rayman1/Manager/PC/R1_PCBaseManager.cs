@@ -167,7 +167,7 @@ namespace Ray1Map.Rayman1
                 context.AddFile(new LinearFile(context, vigPath));
 
                 // Read the archive
-                var archive = FileFactory.Read<PC_FileArchive>(vigPath, context);
+                var archive = FileFactory.Read<PC_FileArchive>(context, vigPath);
 
                 // Extract every .pcx file
                 for (int i = 0; i < archive.Entries.Length; i++)
@@ -225,7 +225,7 @@ namespace Ray1Map.Rayman1
                         using (var stream = new MemoryStream(buffer.Skip(j).ToArray())) {
                             using (Context c = new Ray1MapContext(Settings.GetGameSettings)) {
                                 c.AddFile(new StreamFile(c, "pcx", stream));
-                                var pcx = FileFactory.Read<PCX>("pcx", c);
+                                var pcx = FileFactory.Read<PCX>(c, "pcx");
 
                                 // Convert to a texture
                                 var tex = pcx.ToTexture(true);
@@ -287,7 +287,7 @@ namespace Ray1Map.Rayman1
                         return null;
 
                     // TODO: Update this to not include extensions
-                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).DESFileNames?.Skip(1).ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(context, worldPath).DESFileNames?.Skip(1).ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
@@ -304,7 +304,7 @@ namespace Ray1Map.Rayman1
                     if (!FileSystem.FileExists(context.GetAbsoluteFilePath(worldPath)))
                         return null;
 
-                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).ETAFileNames?.ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(context, worldPath).ETAFileNames?.ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
@@ -320,7 +320,7 @@ namespace Ray1Map.Rayman1
                     where Wld : PC_BaseWorldFile, new()
                 {
                     // Read the file
-                    var file = FileFactory.Read<Wld>(filePath, context);
+                    var file = FileFactory.Read<Wld>(context, filePath);
 
                     if (rayAnim == null && file is PC_AllfixFile)
                         // Rayman is always the first DES
@@ -391,7 +391,7 @@ namespace Ray1Map.Rayman1
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
+                levels.Add(FileFactory.Read<PC_LevFile>(context, lvlPath));
             }
 
             // Enumerate each sprite group
@@ -488,7 +488,7 @@ namespace Ray1Map.Rayman1
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
+                levels.Add(FileFactory.Read<PC_LevFile>(context, lvlPath));
             }
 
             // Get special DES
@@ -837,8 +837,8 @@ namespace Ray1Map.Rayman1
             await AddFile(context, soundManifestFile);
 
             // Extract the archives
-            var soundArchive = FileFactory.Read<PC_FileArchive>(soundFile, context);
-            var soundManifestArchive = FileFactory.Read<PC_FileArchive>(soundManifestFile, context);
+            var soundArchive = FileFactory.Read<PC_FileArchive>(context, soundFile);
+            var soundManifestArchive = FileFactory.Read<PC_FileArchive>(context, soundManifestFile);
 
             var index = 0;
 
@@ -901,7 +901,7 @@ namespace Ray1Map.Rayman1
                 await AddFile(context, archiveData.ArchiveFile);
 
                 // Extract the archive
-                var archive = FileFactory.Read<PC_FileArchive>(archiveData.ArchiveFile, context);
+                var archive = FileFactory.Read<PC_FileArchive>(context, archiveData.ArchiveFile);
 
                 // Create and add the group
                 output.Add(new SoundGroup()
@@ -1016,7 +1016,7 @@ namespace Ray1Map.Rayman1
                     var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
 
                     // Read archive
-                    var archive = FileFactory.Read<PC_FileArchive>(archiveFile.FilePath, context);
+                    var archive = FileFactory.Read<PC_FileArchive>(context, archiveFile.FilePath);
 
                     // Extract every file
                     for (int i = 0; i < archive.Entries.Length; i++)
@@ -1051,7 +1051,7 @@ namespace Ray1Map.Rayman1
                         context.AddFile(new LinearFile(context, path));
 
                         // Read the level
-                        var lvlData = FileFactory.Read<PC_LevFile>(path, context);
+                        var lvlData = FileFactory.Read<PC_LevFile>(context, path);
 
                         // Add the palettes
                         foreach (var mapPal in lvlData.MapData.ColorPalettes)
@@ -1073,7 +1073,7 @@ namespace Ray1Map.Rayman1
                 {
                     await context.AddLinearFileAsync(moviePath);
 
-                    var flc = FileFactory.Read<FLIC>(moviePath, context);
+                    var flc = FileFactory.Read<FLIC>(context, moviePath);
 
                     flc.Speed = 83;
 
@@ -1147,7 +1147,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading allfix";
 
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
 
             await Controller.WaitIfNecessary();
 
@@ -1159,7 +1159,7 @@ namespace Ray1Map.Rayman1
                 Controller.DetailedState = $"Loading world";
 
                 // Read the world data
-                var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
                 await Controller.WaitIfNecessary();
 
@@ -1167,7 +1167,7 @@ namespace Ray1Map.Rayman1
 
                 // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
                 // Read the big ray data
-                var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+                var bigRayData = FileFactory.Read<PC_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings()));
 
                 // Get the big ray palette
                 bigRayPalette = GetBigRayPalette(context);
@@ -1233,10 +1233,10 @@ namespace Ray1Map.Rayman1
             if (context.GetR1Settings().R1_World != World.Menu)
             {
                 // Read the level data
-                var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var levelData = FileFactory.Read<PC_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 // Read the world data
-                var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
                 mapData = levelData.MapData;
                 objData = levelData.ObjData;
@@ -1301,7 +1301,7 @@ namespace Ray1Map.Rayman1
             ObjTypeFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<ObjTypeFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
 
             // Read the world data
-            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
 
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(context, des, eta, objData.ObjLinkingTable, 
@@ -1404,7 +1404,7 @@ namespace Ray1Map.Rayman1
             if (context.GetR1Settings().R1_World != World.Menu)
             {
                 // Read the 3 tile sets (one for each palette)
-                var tileSets = ReadTileSets(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context));
+                var tileSets = ReadTileSets(FileFactory.Read<PC_LevFile>(context, GetLevelFilePath(context.GetR1Settings())));
 
                 // Set the tile sets
                 for (int i = 0; i < level.Maps[0].TileSet.Length; i++)
@@ -1676,16 +1676,16 @@ namespace Ray1Map.Rayman1
         public virtual IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
 
             if (context.GetR1Settings().R1_World == World.Menu)
                 return allfix.Eta;
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+            var bigRayData = FileFactory.Read<PC_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings()));
 
             // Get the eta items
             return allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
@@ -1703,7 +1703,7 @@ namespace Ray1Map.Rayman1
                         context.AddFile(new LinearFile(context, archive.FilePath));
                         return new
                         {
-                            Archive = FileFactory.Read<PC_FileArchive>(archive.FilePath, context),
+                            Archive = FileFactory.Read<PC_FileArchive>(context, archive.FilePath),
                             Volume = archive.Volume
                         };
                     }).
@@ -1808,7 +1808,7 @@ namespace Ray1Map.Rayman1
             if (context.MemoryMap.Files.All(x => x.FilePath != archivePath))
                 return null;
 
-            return FileFactory.Read<PC_FileArchive>(archivePath, context).ReadFile<T>(context, fileName);
+            return FileFactory.Read<PC_FileArchive>(context, archivePath).ReadFile<T>(context, fileName);
         }
 
         public T LoadArchiveFile<T>(Context context, string archivePath, R1_PC_ArchiveFileName fileName)
@@ -1819,7 +1819,7 @@ namespace Ray1Map.Rayman1
             if (context.MemoryMap.Files.All(x => x.FilePath != archivePath))
                 return null;
 
-            return FileFactory.Read<PC_FileArchive>(archivePath, context).ReadFile<T>(context, fileIndex);
+            return FileFactory.Read<PC_FileArchive>(context, archivePath).ReadFile<T>(context, fileIndex);
         }
 
         public abstract UniTask<PCX> GetWorldMapVigAsync(Context context);

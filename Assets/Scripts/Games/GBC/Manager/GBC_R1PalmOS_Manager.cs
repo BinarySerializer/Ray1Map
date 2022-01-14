@@ -131,10 +131,10 @@ namespace Ray1Map.GBC
                     await context.AddLinearFileAsync(relPath, Endian.Big);
 
                     if (type == Palm_Database.DatabaseType.PDB) {
-                        var dataFile = FileFactory.Read<LUDI_PalmOS_DataFile>(relPath, context);
+                        var dataFile = FileFactory.Read<LUDI_PalmOS_DataFile>(context, relPath);
                         ExportLUDIDataFile(dataFile, s, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath)));
                     } else {
-                        var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
+                        var dataBase = FileFactory.Read<Palm_Database>(context, relPath, (so, pd) => pd.Type = type.Value);
 
                         for (int i = 0; i < dataBase.RecordsCount; i++) {
                             var record = dataBase.Records[i];
@@ -155,7 +155,7 @@ namespace Ray1Map.GBC
 
             var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
 
-            var dataBase = FileFactory.Read<Palm_Database>(path + ".pdb", context, (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+            var dataBase = FileFactory.Read<Palm_Database>(context, path + ".pdb", (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
 
             for (int i = 0; i < dataBase.RecordsCount; i++)
             {
@@ -188,7 +188,7 @@ namespace Ray1Map.GBC
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.pdb";
                 if (await context.AddLinearFileAsync(fullPath, Endian.Big) != null)
-                    dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
+                    dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(context, fullPath));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
@@ -196,7 +196,7 @@ namespace Ray1Map.GBC
 
         public override GBC_LevelList GetLevelList(Context context)
         {
-            var allfix = FileFactory.Read<LUDI_PalmOS_DataFile>(AllfixFilePath, context);
+            var allfix = FileFactory.Read<LUDI_PalmOS_DataFile>(context, AllfixFilePath);
             var s = context.Deserializer;
             return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_LevelManifest>(default, name: "LevelManifest")).LevelList;
         }

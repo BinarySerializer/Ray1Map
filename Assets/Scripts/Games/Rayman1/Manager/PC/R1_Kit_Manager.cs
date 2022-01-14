@@ -77,7 +77,7 @@ namespace Ray1Map.Rayman1
         public string GetDESFileName(Context context, int desIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             // Get file names
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -95,7 +95,7 @@ namespace Ray1Map.Rayman1
         public string GetETAFileName(Context context, int etaIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             // Get file names
             var etaNames = worldData.ETAFileNames ?? new string[0];
@@ -131,9 +131,9 @@ namespace Ray1Map.Rayman1
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
         public override byte[] GetTypeZDCBytes => PC_ZDCTables.KitPC_Type_ZDC;
         public override byte[] GetZDCTableBytes => PC_ZDCTables.KitPC_ZDCTable;
@@ -204,7 +204,7 @@ namespace Ray1Map.Rayman1
                         continue;
 
                     // Read the file
-                    var evLoc = FileFactory.Read<Mapper_EventLocFile>(evLocPath, context);
+                    var evLoc = FileFactory.Read<Mapper_EventLocFile>(context, evLocPath);
 
                     // Add the localization
                     if (FileSystem.mode == FileSystem.Mode.Web) {
@@ -288,8 +288,8 @@ namespace Ray1Map.Rayman1
                         await otherGame.LoadFilesAsync(otherContext);
 
                         // Load our WLD file and the other game's.
-                        var wld = FileFactory.Read<PC_WorldFile>(wldPath, context);
-                        var otherWld = FileFactory.Read<PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.GetR1Settings()), otherContext);
+                        var wld = FileFactory.Read<PC_WorldFile>(context, wldPath);
+                        var otherWld = FileFactory.Read<PC_WorldFile>(otherContext, otherGame.GetWorldFilePath(otherContext.GetR1Settings()));
 
                         // Get the list of existing ETA and DES files so we know what's missing.
                         var desNames = wld.DESFileNames.ToArray();
@@ -366,7 +366,7 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 Debug.Log("Opening version file...");
-                var commonDat = FileFactory.Read<PC_FileArchive>(GetCommonArchiveFilePath(), context);
+                var commonDat = FileFactory.Read<PC_FileArchive>(context, GetCommonArchiveFilePath());
                 var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
                 var versionFile = commonDat.ReadFile<PC_VersionFile>(context, versionFileName);
 

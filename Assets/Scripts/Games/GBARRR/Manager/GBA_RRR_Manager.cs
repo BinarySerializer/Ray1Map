@@ -111,7 +111,7 @@ namespace Ray1Map.GBARRR
                 await LoadFilesAsync(context);
 
                 // Load the rom
-                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBARRR_ROM>(context, GetROMFilePath);
                 var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
                 Pointer<GAX_Instrument>[] instruments = null;
                 s.DoAt(new Pointer(0x0805C8EC, rom.Offset.File), () => {
@@ -305,7 +305,7 @@ namespace Ray1Map.GBARRR
                 await LoadFilesAsync(context);
 
                 // Load the rom
-                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBARRR_ROM>(context, GetROMFilePath);
 
 
                 var lvlBlocks = rom.LevelInfo.SelectMany(x => new uint[]
@@ -974,7 +974,7 @@ namespace Ray1Map.GBARRR
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
-            var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBARRR_ROM>(context, GetROMFilePath);
             var gameMode = GetCurrentGameMode(context.GetR1Settings());
 
             var lvl = context.GetR1Settings().Level;

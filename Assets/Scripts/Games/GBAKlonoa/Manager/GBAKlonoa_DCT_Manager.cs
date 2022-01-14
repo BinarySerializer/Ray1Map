@@ -25,7 +25,7 @@ namespace Ray1Map.GBAKlonoa
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Read the ROM
-            var rom = FileFactory.Read<GBAKlonoa_DCT_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAKlonoa_DCT_ROM>(context, GetROMFilePath);
             
             // Get settings
             var settings = context.GetR1Settings();

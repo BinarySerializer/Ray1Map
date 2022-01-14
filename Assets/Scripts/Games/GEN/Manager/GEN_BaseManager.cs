@@ -39,7 +39,7 @@ namespace Ray1Map.GEN
             GEN_Palette paletteFile = null;
             if (File.Exists(context.BasePath + palettePath)) {
                 await context.AddLinearFileAsync(palettePath, Endian.Little);
-                paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
+                paletteFile = FileFactory.Read<GEN_Palette>(context, palettePath);
                 hasMainPal = true;
             }
             BaseColor[] dibPalette = null;
@@ -230,7 +230,7 @@ namespace Ray1Map.GEN
             }
             GEN_UBI ubi = null;
             try {
-                ubi = FileFactory.Read<GEN_UBI>(fileName, context);
+                ubi = FileFactory.Read<GEN_UBI>(context, fileName);
             } catch (Exception) {
                 return;
             }
@@ -251,7 +251,7 @@ namespace Ray1Map.GEN
                         await context.AddLinearFileAsync(rlxfileName, Endian.Little);
                     }
                     try {
-                        rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
+                        rlxFile = FileFactory.Read<GEN_RLX>(context, rlxfileName);
                         firstFrame = rlxFile.Data;
                     } catch (Exception) {
                     }
@@ -269,7 +269,7 @@ namespace Ray1Map.GEN
                             await context.AddLinearFileAsync(rlxfileName, Endian.Little);
                         }
                         try {
-                            rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
+                            rlxFile = FileFactory.Read<GEN_RLX>(context, rlxfileName);
                             firstFrame = rlxFile.Data;
                         } catch (Exception) {
                         }
@@ -342,7 +342,7 @@ namespace Ray1Map.GEN
             }
             GEN_RLX rlxFile = null;
             try {
-                rlxFile = FileFactory.Read<GEN_RLX>(fileName, context);
+                rlxFile = FileFactory.Read<GEN_RLX>(context, fileName);
             } catch (Exception) {
                 return;
             }

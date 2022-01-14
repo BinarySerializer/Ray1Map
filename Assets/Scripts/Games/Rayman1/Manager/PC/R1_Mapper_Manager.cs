@@ -95,19 +95,19 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading map data";
             await Controller.WaitIfNecessary();
 
-            var mapData = FileFactory.Read<Mapper_MapData>(mapPath, context);
+            var mapData = FileFactory.Read<Mapper_MapData>(context, mapPath);
 
             Controller.DetailedState = $"Loading event data";
             await Controller.WaitIfNecessary();
 
-            var mapEvents = FileFactory.Read<MapEvents>(mapEventsPath, context);
+            var mapEvents = FileFactory.Read<MapEvents>(context, mapEventsPath);
             var saveEvents = Ray1TextFileFactory.ReadText<Mapper_SaveEvents>(saveEventsPath, context);
             var csv = Ray1TextFileFactory.ReadText<Mapper_EventManifest>(eventsCsvPath, context);
 
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();
 
-            var pcx = FileFactory.Read<PCX>(pcxPath, context);
+            var pcx = FileFactory.Read<PCX>(context, pcxPath);
 
             // Get the palette from the PCX file
             var vgaPalette = pcx.VGAPalette;
@@ -116,7 +116,7 @@ namespace Ray1Map.Rayman1
             var eventDesigns = await LoadSpritesAsync(context, vgaPalette);
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             var maps = new Unity_Map[]
             {

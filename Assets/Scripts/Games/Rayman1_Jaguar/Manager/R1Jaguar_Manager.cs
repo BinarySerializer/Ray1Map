@@ -107,7 +107,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     await LoadFilesAsync(context);
 
                     // Serialize the rom
-                    var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+                    var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
                     var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
 
@@ -736,7 +736,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
                 // Get a deserializer
                 var s = context.Deserializer;
@@ -786,7 +786,7 @@ namespace Ray1Map.Rayman1_Jaguar
             if (ed == null)
                 return null;
 
-            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, c);
+            var rom = FileFactory.Read<JAG_ROM>(c, GetROMFilePath);
 
             var usedNames = new List<string>();
 
@@ -1108,7 +1108,7 @@ namespace Ray1Map.Rayman1_Jaguar
         }
         protected virtual Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
-            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
             Pointer baseOff = rom.EventDefinitions[0].Offset;
             return new Dictionary<SpecialEventType, Pointer>() {
                 [SpecialEventType.RayPos] = baseOff + 0x000023C8,
@@ -1140,7 +1140,7 @@ namespace Ray1Map.Rayman1_Jaguar
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
             // Get the map
             var map = rom.MapData;

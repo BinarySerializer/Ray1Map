@@ -16,7 +16,7 @@ namespace Ray1Map.GBAVV
         public virtual bool HasAssignedObjTypeGraphics => false;
 
         // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_MapArray>(GetROMFilePath, context);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_MapArray>(context, GetROMFilePath);
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
@@ -31,7 +31,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_MapArray>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAVV_ROM_MapArray>(context, GetROMFilePath);
 
             return await LoadMap2DAsync(context, rom, rom.CurrentMap, HasAssignedObjTypeGraphics);
         }

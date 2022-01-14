@@ -26,7 +26,7 @@ namespace Ray1Map.GBAVV
             "Spanish",
         };
 
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_NitroKart>(context, GetROMFilePath);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Ray1MapContext(settings))
@@ -34,7 +34,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context, (s, d) => d.SerializeFLC = true);
+                var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(context, GetROMFilePath, (s, d) => d.SerializeFLC = true);
 
                 ExportCutscenesFromScripts(rom.GetAllScripts, outputDir);
             }
@@ -50,7 +50,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(context, GetROMFilePath);
 
             return await LoadNitroKartAsync(context, rom);
         }
@@ -202,7 +202,7 @@ namespace Ray1Map.GBAVV
 
         public virtual void FindObjTypeData(Context context)
         {
-            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(context, GetROMFilePath);
             var s = context.Deserializer;
 
             var str = new StringBuilder();

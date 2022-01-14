@@ -76,7 +76,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        public virtual IGBAData LoadData(Context context) => FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(GetROMFilePath, context);
+        public virtual IGBAData LoadData(Context context) => FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(context, GetROMFilePath);
 
         /// <summary>
         /// Gets the available game actions

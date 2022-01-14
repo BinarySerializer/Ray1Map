@@ -14,7 +14,7 @@ namespace Ray1Map.GBAVV
         });
 
         // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Default>(GetROMFilePath, context);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Default>(context, GetROMFilePath);
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Graphics

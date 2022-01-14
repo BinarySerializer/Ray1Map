@@ -46,10 +46,10 @@ namespace Ray1Map.GBAVV
 
                 await LoadFilesAsync(context);
                 // Load the data file
-                var dataFile = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
+                var dataFile = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(context, DataFilePath);
 
                 // Load the exe
-                var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context, onPreSerialize: (_,e) => e.SerializeGAX = true);
+                var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath, onPreSerialize: (_, e) => e.SerializeGAX = true);
 
                 // Load the rom
                 for (int i = 0; i < exe.GAX_Music.Songs.Length; i++) {
@@ -113,7 +113,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Load the exe
-                var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context, onPreSerialize: (s, o) => o.SerializeAllData = true);
+                var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath, onPreSerialize: (s, o) => o.SerializeAllData = true);
 
                 // Get the blend mode for each referenced texture
                 var blendModes = new Dictionary<uint, byte>();
@@ -352,7 +352,7 @@ namespace Ray1Map.GBAVV
         {
             var s = context.Deserializer;
             // Load the data file
-            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
+            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(context, DataFilePath);
 
             // Enumerate every block in the offset table
             for (int i = 0; i < data.BlocksCount; i++)
@@ -368,10 +368,10 @@ namespace Ray1Map.GBAVV
         public T DoAtBlock<T>(Context context, string filePath, Func<T> func)
         {
             // Load the polynomial data from the exe
-            var polynomialData = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context).CRCPolynomialData;
+            var polynomialData = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath).CRCPolynomialData;
 
             // Load the data file
-            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
+            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(context, DataFilePath);
 
             var crc = CalculateCRC(filePath, polynomialData);
 
@@ -388,7 +388,7 @@ namespace Ray1Map.GBAVV
         public T DoAtBlock<T>(Context context, int i, Func<T> func)
         {
             // Load the data file
-            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
+            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(context, DataFilePath);
 
             var s = context.Deserializer;
 
@@ -521,7 +521,7 @@ namespace Ray1Map.GBAVV
         }
         public Dictionary<uint, string> GetStringCRCs(Context context) 
         {
-            var polynomialData = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context).CRCPolynomialData;
+            var polynomialData = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath).CRCPolynomialData;
 
             const string id = "StringCRCs";
 
@@ -904,10 +904,10 @@ namespace Ray1Map.GBAVV
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Load the data file
-            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
+            var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(context, DataFilePath);
 
             // Load the exe
-            var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context);
+            var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath);
 
             var level = exe.LevelInfos[context.GetR1Settings().Level];
             var pop = level.POP;

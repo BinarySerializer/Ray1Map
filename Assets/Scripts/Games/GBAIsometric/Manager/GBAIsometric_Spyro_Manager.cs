@@ -51,7 +51,7 @@ namespace Ray1Map.GBAIsometric
             if (ignoreUsedBlocks)
                 GBAIsometric_Spyro_LevelData.ForceSerializeAll = true;
 
-            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
             var palette = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
@@ -93,7 +93,7 @@ namespace Ray1Map.GBAIsometric
             {
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
                 var langIndex = 0;
 
@@ -175,7 +175,7 @@ namespace Ray1Map.GBAIsometric
 
             await LoadFilesAsync(context);
 
-            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
             if (rom.Localization?.FontTileMap == null)
                 throw new Exception($"Font data has not been parsed!");
@@ -208,7 +208,7 @@ namespace Ray1Map.GBAIsometric
 
             await LoadFilesAsync(context);
 
-            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
             JsonHelpers.SerializeToFile(LoadLocalization(rom), Path.Combine(outputPath, "Localization.json"));
         }
@@ -219,7 +219,7 @@ namespace Ray1Map.GBAIsometric
             {
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
                 foreach (var portrait in rom.PortraitSprites ?? new GBAIsometric_Spyro_PortraitSprite[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Portraits", $"{portrait.ID}.png"), portrait.ToTexture2D().EncodeToPNG());
@@ -362,7 +362,7 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
             Func<ushort, Unity_MapCollisionTypeGraphic> collGraphicFunc = x => ((GBAIsometric_Spyro3_TileCollisionType2D)x).GetCollisionTypeGraphic();
             Func<ushort, string> collNameFunc = x => ((GBAIsometric_Spyro3_TileCollisionType2D)x).ToString();
@@ -915,8 +915,8 @@ namespace Ray1Map.GBAIsometric
                     await LoadFilesAsync(euContext);
 
                     // Read files
-                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
-                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(usContext, GetROMFilePath);
+                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(euContext, GetROMFilePath);
 
                     var outputStr = String.Empty;
 
@@ -952,8 +952,8 @@ namespace Ray1Map.GBAIsometric
             await LoadFilesAsync(euContext);
 
             // Read files
-            var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
-            var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+            var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(usContext, GetROMFilePath);
+            var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(euContext, GetROMFilePath);
 
             // Calculate hash for every anim set
             var usHash = new string[usRom.AnimSets.Length];
@@ -1021,7 +1021,7 @@ namespace Ray1Map.GBAIsometric
                         level.ObjManager.InitObjects(level);
 
                         // Get the pal block index
-                        var palBlockIndex = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context).GetLevelData(levSettings).ObjPaletteIndex.Index;
+                        var palBlockIndex = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath).GetLevelData(levSettings).ObjPaletteIndex.Index;
 
                         // Enumerate every object
                         foreach (var obj in level.EventData.OfType<Unity_Object_GBAIsometricSpyro>().Where(x => x.AnimSetIndex != -1))
@@ -1051,7 +1051,7 @@ namespace Ray1Map.GBAIsometric
                 await LoadFilesAsync(context);
 
                 // Load the rom
-                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(context, GetROMFilePath);
 
                 // Enumerate every level
                 foreach (var world in GetLevels(settings).First().Worlds)
@@ -1081,8 +1081,8 @@ namespace Ray1Map.GBAIsometric
                     await LoadFilesAsync(euContext);
 
                     // Read files
-                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
-                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(usContext, GetROMFilePath);
+                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(euContext, GetROMFilePath);
 
                     // Calculate hash for every table entry
                     var usHash = new string[usRom.DataTable.DataEntries.Length];

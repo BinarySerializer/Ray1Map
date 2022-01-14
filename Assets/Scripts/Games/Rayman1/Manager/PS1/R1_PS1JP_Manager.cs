@@ -32,7 +32,7 @@ namespace Ray1Map.Rayman1
 
             if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelTileSetFileName)))
             {
-                ObjectArray<RGBA5551Color> cols = FileFactory.Read<ObjectArray<RGBA5551Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
+                ObjectArray<RGBA5551Color> cols = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, levelTileSetFileName, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
                 return cols.Value;
             }
 
@@ -40,7 +40,7 @@ namespace Ray1Map.Rayman1
             var filename = GetWorldFilePath(context.GetR1Settings());
 
             // Read the file
-            var worldJPFile = FileFactory.Read<PS1_WorldFile>(filename, context);
+            var worldJPFile = FileFactory.Read<PS1_WorldFile>(context, filename);
 
             // Return the tile set
             return worldJPFile.RawTiles;
@@ -74,11 +74,11 @@ namespace Ray1Map.Rayman1
             // TODO: Support BigRay + font
 
             // Read the files
-            var allFix = mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
-            var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
-            var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context) : null;
-            var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
-            var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
+            var allFix = mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings())) : null;
+            var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())) : null;
+            var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(context, GetLevelFilePath(context.GetR1Settings())) : null;
+            var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings())) : null;
+            var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(context, GetFontFilePath(context.GetR1Settings()), (s, o) => o.Length = s.CurrentLength) : null;
 
             var vram = PS1VramHelpers.PS1_JP_FillVRAM(mode, allFix, world, bigRay, lev, font?.Value, mode == PS1VramHelpers.VRAMMode.Level ? GetTileSetColors(context).Count : 0);
 
@@ -96,7 +96,7 @@ namespace Ray1Map.Rayman1
 
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-            FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
 
             PS1_ObjBlock objBlock = null;
             MapData mapData;
@@ -109,13 +109,13 @@ namespace Ray1Map.Rayman1
 
                 // Read the world file
                 await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
                 Controller.DetailedState = $"Loading map data";
 
                 // Read the level data
                 await LoadExtraFile(context, GetLevelFilePath(context.GetR1Settings()), true);
-                var level = FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 objBlock = level.ObjData;
                 mapData = level.MapData;

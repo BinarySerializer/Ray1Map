@@ -15,7 +15,7 @@ namespace Ray1Map.GBAVV
         });
 
         // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_PowerpuffGirls>(GetROMFilePath, context);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_PowerpuffGirls>(context, GetROMFilePath);
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
@@ -24,7 +24,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_PowerpuffGirls>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAVV_ROM_PowerpuffGirls>(context, GetROMFilePath);
 
             return await LoadMap2DAsync(context, rom, rom.CurrentMap, false);
         }

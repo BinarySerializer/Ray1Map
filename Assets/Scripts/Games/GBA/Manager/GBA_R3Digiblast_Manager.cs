@@ -12,8 +12,8 @@ namespace Ray1Map.GBA
         public override int DLCLevelCount => 0;
         public override bool HasR3SinglePakLevel => false;
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
-        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context).Localization;
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(context, GetROMFilePath(context));
+        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_Data>(context, GetROMFilePath(context)).Localization;
 
         public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath(context), 0x8000);
 
@@ -44,7 +44,7 @@ namespace Ray1Map.GBA
                     } else {
                         file = context.GetFile(fileName);
                     }
-                    Array<short> sample = FileFactory.Read<Array<short>>(fileName, context, onPreSerialize: (s, f) => f.Length = s.CurrentLength / 2);
+                    Array<short> sample = FileFactory.Read<Array<short>>(context, fileName, onPreSerialize: (s, f) => f.Length = s.CurrentLength / 2);
                     return sample.Value;
                 }
 
@@ -56,7 +56,7 @@ namespace Ray1Map.GBA
                     } else {
                         file = context.GetFile(fileName);
                     }
-                    XM xm = FileFactory.Read<XM>(fileName, context);
+                    XM xm = FileFactory.Read<XM>(context, fileName);
                     foreach (var inst in xm.Instruments) {
                         if (inst.NumSamples == 0) {
                             inst.InstrumentSize = 29;

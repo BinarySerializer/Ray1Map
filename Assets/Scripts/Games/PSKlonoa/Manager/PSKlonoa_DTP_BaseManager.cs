@@ -69,7 +69,7 @@ namespace Ray1Map.PSKlonoa
 
         public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
         {
-            return FileFactory.Read<IDX>(settings.FilePath_IDX, context);
+            return FileFactory.Read<IDX>(context, settings.FilePath_IDX);
         }
 
         #endregion

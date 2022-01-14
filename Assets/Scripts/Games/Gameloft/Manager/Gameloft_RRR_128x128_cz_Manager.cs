@@ -56,12 +56,12 @@ namespace Ray1Map.Gameloft
 
 		public override Unity_Map[] LoadMaps(Context context, Gameloft_RRR_LevelList levelList) {
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetLevelPath(context.GetR1Settings()));
 			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
 			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
 			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 2, onPreSerialize: o => o.Header = lh1, name: "Layer1");
 			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh2, name: "Layer2");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.GetR1Settings(), levelList), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetForegroundTileSetPath(context.GetR1Settings(), levelList));
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
 			var tileSet_f = GetPuppetImages(ts_f, flipY: false, allowTransparent: false);
 

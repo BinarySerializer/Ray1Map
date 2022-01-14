@@ -708,7 +708,7 @@ namespace Ray1Map.Rayman1
                     if (fileInfo.FileType == VignetteFileType.Raw16)
                     {
                         // Read the raw data
-                        var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
+                        var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, fileInfo.FilePath, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
                         // Create the texture
                         textures.Add(TextureHelpers.CreateTexture2D(fileInfo.Width, (int)(rawData.Pre_Length / fileInfo.Width)));
@@ -727,7 +727,7 @@ namespace Ray1Map.Rayman1
                     else if (fileInfo.FileType == VignetteFileType.MultiXXX)
                     {
                         // Read the data
-                        var multiData = FileFactory.Read<PS1_MultiVignetteFile>(fileInfo.FilePath, context);
+                        var multiData = FileFactory.Read<PS1_MultiVignetteFile>(context, fileInfo.FilePath);
 
                         // Get the textures
                         for (int i = 0; i < multiData.ImageBlocks.Length; i++)
@@ -756,9 +756,9 @@ namespace Ray1Map.Rayman1
 
                         // Get the block
                         if (fileInfo.FileType == VignetteFileType.BlockedXXX)
-                            imageBlock = FileFactory.Read<PS1_BackgroundVignetteFile>(fileInfo.FilePath, context).ImageBlock;
+                            imageBlock = FileFactory.Read<PS1_BackgroundVignetteFile>(context, fileInfo.FilePath).ImageBlock;
                         else
-                            imageBlock = FileFactory.Read<PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+                            imageBlock = FileFactory.Read<PS1_VignetteBlockGroup>(context, fileInfo.FilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
                         // Create the texture
                         textures.Add(imageBlock.ToTexture(context));
@@ -1008,7 +1008,7 @@ namespace Ray1Map.Rayman1
             })) ?? new ETA[0]);
         }
 
-        public PS1_Executable LoadEXE(Context context) => FileFactory.Read<PS1_Executable>(ExeFilePath, context, onPreSerialize: (s, o) => o.Pre_PS1_Config = GetExecutableConfig);
+        public PS1_Executable LoadEXE(Context context) => FileFactory.Read<PS1_Executable>(context, ExeFilePath, onPreSerialize: (s, o) => o.Pre_PS1_Config = GetExecutableConfig);
 
         protected abstract PS1_ExecutableConfig GetExecutableConfig { get; }
 

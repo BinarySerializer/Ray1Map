@@ -217,7 +217,7 @@ namespace Ray1Map.GBAIsometric
 
                 // Read the rom
                 var s = context.Deserializer;
-                var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(context, GetROMFilePath);
 
                 var pal_4 = PaletteHelpers.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
                 var pal_8 = PaletteHelpers.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
@@ -447,7 +447,7 @@ namespace Ray1Map.GBAIsometric
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(context, GetROMFilePath);
 
             var isMenu = context.GetR1Settings().World == 1;
 

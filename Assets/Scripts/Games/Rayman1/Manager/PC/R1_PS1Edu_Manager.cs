@@ -272,9 +272,9 @@ namespace Ray1Map.Rayman1
             await Controller.WaitIfNecessary();
 
             // Load the world files
-            var allfix = FileFactory.Read<PS1EDU_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
-            var level = FileFactory.Read<PS1EDU_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PS1EDU_WorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var level = FileFactory.Read<PS1EDU_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             // Load the .grx bundles
             var grx = new List<PS1EDU_GRX>();
@@ -480,7 +480,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading map data";
 
             // Load the level
-            var levelData = FileFactory.Read<PS1EDU_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var levelData = FileFactory.Read<PS1EDU_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             await Controller.WaitIfNecessary();
 
@@ -531,7 +531,7 @@ namespace Ray1Map.Rayman1
             // Load Rayman
             var rayman = new Unity_Object_R1(ObjData.GetRayman(context, levelData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
-            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
             var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.FNDIndex])?.ToTexture(true);
 
@@ -596,8 +596,8 @@ namespace Ray1Map.Rayman1
         public override IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Load the world files
-            var allfix = FileFactory.Read<PS1EDU_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var allfix = FileFactory.Read<PS1EDU_WorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
             // Return the ETA
             return allfix.ETA.Concat(world.ETA).Select(x => new PC_ETA()

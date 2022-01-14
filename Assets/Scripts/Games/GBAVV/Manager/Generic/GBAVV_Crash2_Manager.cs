@@ -21,8 +21,8 @@ namespace Ray1Map.GBAVV
         }
 
         // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = LevInfos.First());
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
 
         public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
@@ -36,7 +36,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
 
                 var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
@@ -69,11 +69,10 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) =>
-                {
-                    d.CurrentLevInfo = LevInfos.First();
-                    d.SerializeFLC = true;
-                });
+                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, d) => {
+					d.CurrentLevInfo = LevInfos.First();
+					d.SerializeFLC = true;
+				});
 
                 var index = 0;
 
@@ -93,7 +92,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
 
                 var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
@@ -113,7 +112,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Crash2>(context, GetROMFilePath, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
             var levInfo = rom.CurrentLevInfo;
             var map = rom.CurrentMapInfo;
 

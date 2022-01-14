@@ -72,7 +72,7 @@ namespace Ray1Map.Gameloft
 
 		public Gameloft_RRR_LevelList LoadLevelList(Context context) {
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, FixFilePath);
 			return resf.SerializeResource<Gameloft_RRR_LevelList>(s, default, LevelListResourceIndex, name: "LevelList");
 		}
 
@@ -104,7 +104,7 @@ namespace Ray1Map.Gameloft
 				"English"
 			};
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, FixFilePath);
 			var loc = resf.SerializeResource<Gameloft_RRR_LocalizationTable>(s, default, LocalizationResourceIndex, name: "Localization");
 
 			return loc.LanguageTables.Select((x, i) => new KeyValuePair<string, string[]>(langages[i], x.Strings)).ToArray();
@@ -112,14 +112,14 @@ namespace Ray1Map.Gameloft
 
 		public Unity_ObjectManager_GameloftRRR.PuppetData[] LoadPuppets(Context context) {
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, FixFilePath);
 			var modl = resf.SerializeResource<Gameloft_RRR_ObjectModelList>(s, default, ObjectModelListResourceIndex, name: "ObjectModelList");
 			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, ResourceListResourceIndex, name: "ResourceList");
 
 			Gameloft_Puppet[] puppets = new Gameloft_Puppet[resl.ResourceList.Length];
 			for (int i = 0; i < puppets.Length; i++) {
 				var rref = resl.ResourceList[i];
-				resf = FileFactory.Read<Gameloft_ResourceFile>(GetPuppetPath(rref.FileID), context);
+				resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetPuppetPath(rref.FileID));
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, onPreSerialize: p => p.UseOtherPuppetImageData = rref.Byte3 < 0, name: $"Puppets[{i}]");
 			}
 			var hardcodedIndices = HardcodedPuppetImageBufferIndices;
@@ -145,16 +145,16 @@ namespace Ray1Map.Gameloft
 
 		public virtual Unity_Map[] LoadMaps(Context context, Gameloft_RRR_LevelList levelList) {
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetLevelPath(context.GetR1Settings()));
 			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
 			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
 			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
 			var l0 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
 			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
 			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.GetR1Settings(), levelList), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetForegroundTileSetPath(context.GetR1Settings(), levelList));
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.GetR1Settings(), levelList), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(context, GetBackgroundTileSetPath(context.GetR1Settings(), levelList));
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
 			var tileSet_f = GetPuppetImages(ts_f, flipY: false, allowTransparent: true);
 			var tileSet_b = GetPuppetImages(ts_b, flipY: false, allowTransparent: false);
@@ -224,7 +224,7 @@ namespace Ray1Map.Gameloft
 
 			var maps = LoadMaps(context, levelList);
 			
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(context, ObjectsFilePath);
 			var objs = resf.SerializeResource<Gameloft_RRR_Objects>(s, default, context.GetR1Settings().Level * 2, name: "Objects");
 
 			// Load objects

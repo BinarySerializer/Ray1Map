@@ -45,8 +45,8 @@ namespace Ray1Map.GBAVV
         });
 
         // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(GetROMFilePath, context);
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(GetROMFilePath, context, (_, x) => x.ForceMode7 = true);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(context, GetROMFilePath);
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(context, GetROMFilePath, (_, x) => x.ForceMode7 = true);
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
@@ -55,7 +55,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(context, GetROMFilePath);
 
             if (rom.CurrentMapInfo.SpongeBob_IsMode7)
                 return await LoadMode7Async(context, rom, rom.Mode7_LevelInfos[rom.CurrentMapInfo.Index3D]);

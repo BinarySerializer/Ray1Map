@@ -57,7 +57,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        public override IGBAData LoadData(Context context) => FileFactory.Read<DSi_DataFile>(GetROMFilePath, context);
+        public override IGBAData LoadData(Context context) => FileFactory.Read<DSi_DataFile>(context, GetROMFilePath);
 
         public override KeyValuePair<string, string[]>[] LoadLocalization(IGBAData data)
         {

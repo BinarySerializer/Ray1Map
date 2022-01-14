@@ -116,8 +116,8 @@ namespace Ray1Map.Rayman1
         public Unity_TileSet GetTileSet(Context context, int map) {
             var tileSetPath = GetSubMapTilesetPath(map);
             var palettePath = GetSubMapPalettePath(map);
-            var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
-            var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(palettePath, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<Array<byte>>(context, tileSetPath, (s, x) => x.Length = s.CurrentLength);
+            var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, palettePath, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             return new Unity_TileSet(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, Settings.CellSize);
         }
@@ -138,13 +138,13 @@ namespace Ray1Map.Rayman1
         protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // Read the files
-            var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
-            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
+            var fixGraphics = FileFactory.Read<Array<byte>>(context, FixGraphicsPath, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(context, GetLevelGraphicsPath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, SpritePalettesPath, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
 
             var tilePalettes = new RGBA5551Color[4][];
             for (int i = 0; i < MapCount; i++)
-                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2).Value;
+                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetSubMapPalettePath(i), onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2).Value;
 
             var vram = PS1VramHelpers.PS1_R2_FillVRAM(fixGraphics.Value, lvlGraphics.Value, palettes.Value, tilePalettes);
 
@@ -210,10 +210,10 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading level data";
 
             // Read the level data
-            var lvlData = FileFactory.Read<R2_LevDataFile>(levelDTAPath, context);
+            var lvlData = FileFactory.Read<R2_LevDataFile>(context, levelDTAPath);
 
             // Read the map blocks
-            var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(GetSubMapPath(x), context)).ToArray();
+            var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(context, GetSubMapPath(x))).ToArray();
 
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading sprite data";
@@ -226,7 +226,7 @@ namespace Ray1Map.Rayman1
 
             // Create the global design list
 
-            var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
+            var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(context, levelSPRPath, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
 
             var imgDescriptors = lvlData.FixSpriteCollection.Sprites.Concat(lvlImgDescriptors).ToArray();
 

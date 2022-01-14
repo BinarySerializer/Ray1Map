@@ -96,7 +96,7 @@ namespace Ray1Map.Rayman1
         public async UniTask TestBinRead(GameSettings settings) {
             using (var context = new Ray1MapContext(settings)) {
                 await context.AddLinearFileAsync("disc.bin");
-                var binFile = FileFactory.Read<ISO9960_BinFile>("disc.bin", context);
+                var binFile = FileFactory.Read<ISO9960_BinFile>(context, "disc.bin");
             }
         }
 
@@ -234,11 +234,11 @@ namespace Ray1Map.Rayman1
                 {
                     // Read the allfix file
                     await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-                    var allfix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+                    var allfix = FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
 
                     // Read the BigRay file
                     await LoadExtraFile(context, GetBigRayFilePath(context.GetR1Settings()), false);
-                    var br = FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+                    var br = FileFactory.Read<PS1_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings()));
 
                     Add(spritePals, allfix.Palette1);
                     Add(spritePals, allfix.Palette2);
@@ -251,7 +251,7 @@ namespace Ray1Map.Rayman1
 
                     // Read the world file
                     await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                    var wld = FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                    var wld = FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
                     Add(spritePals, wld.ObjPalette1);
                     Add(spritePals, wld.ObjPalette2);
@@ -276,7 +276,7 @@ namespace Ray1Map.Rayman1
 
                     // Read the allfix & font files for the menu
                     await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()), false);
-                    var fix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(menuContext.GetR1Settings()), menuContext);
+                    var fix = FileFactory.Read<PS1_AllfixFile>(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()));
                     await LoadExtraFile(menuContext, GetFontFilePath(menuContext.GetR1Settings()), false);
 
                     // Correct font palette
@@ -303,7 +303,7 @@ namespace Ray1Map.Rayman1
 
                     // Read the BigRay file
                     await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings()), false);
-                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.GetR1Settings()), bigRayContext) : null;
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayFile>(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings())) : null;
 
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.WldObj, br?.BigRayData);
@@ -330,7 +330,7 @@ namespace Ray1Map.Rayman1
 
                 await LoadExtraFile(context, bgFilePath, true);
 
-                var bg = FileFactory.Read<PS1_BackgroundVignetteFile>(bgFilePath, context);
+                var bg = FileFactory.Read<PS1_BackgroundVignetteFile>(context, bgFilePath);
 
                 return bg.ImageBlock.ToTexture(context);
             }
@@ -339,13 +339,13 @@ namespace Ray1Map.Rayman1
                 string bgFilePath = exe.PS1_FileTable[exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
-                return FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
+                return FileFactory.Read<PS1_VignetteBlockGroup>(context, bgFilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
             }
         }
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context).AllfixData;
+            var allfix = FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings())).AllfixData;
             var wldObj = allfix.WldObj;
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()

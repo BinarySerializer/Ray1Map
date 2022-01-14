@@ -142,13 +142,12 @@ namespace Ray1Map.Rayman1
                 return new Unity_TileSet(Settings.CellSize);
 
             // Read the files
-            var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
-            var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(GetTileSetPaletteIndexTableFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength);
-            var tileSet = FileFactory.Read<BIT>(GetTileSetFilePath(context), context, onPreSerialize: (s, b) =>
-            {
-                b.PAL = tileSetPalette;
-                b.PLT = tileSetPaletteIndexTable;
-            });
+            var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetTileSetPaletteFilePath(context), onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
+            var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(context, GetTileSetPaletteIndexTableFilePath(context), onPreSerialize: (s, x) => x.Length = s.CurrentLength);
+            var tileSet = FileFactory.Read<BIT>(context, GetTileSetFilePath(context), onPreSerialize: (s, b) => {
+				b.PAL = tileSetPalette;
+				b.PLT = tileSetPaletteIndexTable;
+			});
 
             // Get the tile-set texture
             var tex = tileSet.ToTexture(Settings.CellSize * TileSetWidth);
@@ -212,10 +211,10 @@ namespace Ray1Map.Rayman1
             string fixPath = GetFixImageFilePath();
             string bigRayPath = GetBigRayImageFilePath();
 
-            var fixImg = context.FileExists(fixPath) && mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
-            var worldImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var bigRayImg = context.FileExists(bigRayPath) && mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(bigRayPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var fixImg = context.FileExists(fixPath) && mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, fixPath, (y, x) => x.Length = y.CurrentLength) : null;
+            var worldImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetWorldImageFilePath(context), (y, x) => x.Length = y.CurrentLength) : null;
+            var levelImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetLevelImageFilePath(context), (y, x) => x.Length = y.CurrentLength) : null;
+            var bigRayImg = context.FileExists(bigRayPath) && mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, bigRayPath, (y, x) => x.Length = y.CurrentLength) : null;
 
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);
@@ -349,11 +348,11 @@ namespace Ray1Map.Rayman1
                 }
 
                 // Read the map block
-                mapData = FileFactory.Read<MapData>(mapFilePath, context);
+                mapData = FileFactory.Read<MapData>(context, mapFilePath);
 
                 if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelFilePath)))
                     // Read the event block
-                    objBlock = FileFactory.Read<PS1_ObjBlock>(levelFilePath, context);
+                    objBlock = FileFactory.Read<PS1_ObjBlock>(context, levelFilePath);
             }
             else
             {
@@ -389,7 +388,7 @@ namespace Ray1Map.Rayman1
                     context.AddFile(new LinearFile(context, file, Endian.Big));
 
                     // Read the file
-                    BIT bit = FileFactory.Read<BIT>(file, context);
+                    BIT bit = FileFactory.Read<BIT>(context, file);
 
                     // Get the texture
                     var tex = bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight, invertYAxis: true);
@@ -435,7 +434,7 @@ namespace Ray1Map.Rayman1
                     context.AddFile(new LinearFile(context, file, Endian.Big));
 
                     // Read the raw data
-                    var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
+                    var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, file, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
                     // Create the texture
                     var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Pre_Length / width));
@@ -519,7 +518,7 @@ namespace Ray1Map.Rayman1
                 {
                     // Load allfix
                     await LoadFile(menuContext, GetAllfixFilePath(), BaseAddress);
-                    var fix = FileFactory.Read<PS1_AllfixBlock>(GetAllfixFilePath(), menuContext, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+                    var fix = FileFactory.Read<PS1_AllfixBlock>(menuContext, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
@@ -532,7 +531,7 @@ namespace Ray1Map.Rayman1
                     // Read the BigRay file
                     await LoadFile(bigRayContext, GetBigRayFilePath(), 0x00280000);
                     await LoadFile(bigRayContext, GetBigRayImageFilePath());
-                    var br = FileFactory.Read<PS1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+                    var br = FileFactory.Read<PS1_BigRayBlock>(bigRayContext, GetBigRayFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
 
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.FontData, fix.WldObj, br);
@@ -542,7 +541,7 @@ namespace Ray1Map.Rayman1
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+            var allfix = FileFactory.Read<PS1_AllfixBlock>(context, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
             var wldObj = allfix.WldObj;
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
@@ -583,7 +582,7 @@ namespace Ray1Map.Rayman1
 
             await LoadFile(context, bgFilePath);
 
-            var bit = FileFactory.Read<BIT>(bgFilePath, context);
+            var bit = FileFactory.Read<BIT>(context, bgFilePath);
 
             return bit.ToTexture(VigWidths[bgFilePath], invertYAxis: true);
         }

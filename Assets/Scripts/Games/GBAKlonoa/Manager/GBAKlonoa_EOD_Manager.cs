@@ -27,7 +27,7 @@ namespace Ray1Map.GBAKlonoa
         {
             //await GenerateLevelObjPalettesAsync(context.GetR1Settings());
             //return null;
-            var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(context, GetROMFilePath);
             var settings = context.GetR1Settings();
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
@@ -276,7 +276,7 @@ namespace Ray1Map.GBAKlonoa
 
                         await LoadFilesAsync(context);
 
-                        var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
+                        var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(context, GetROMFilePath);
 
                         if (settings.Level == 0)
                             continue;

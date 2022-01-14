@@ -23,7 +23,7 @@ namespace Ray1Map.GBC
 
         public override GBC_LevelList GetLevelList(Context context)
         {
-            return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).LevelList;
+            return FileFactory.Read<GBC_ROM>(context, GetROMFilePath).LevelList;
         }
 
         public async UniTask ExportRootTileKitsAsync(GameSettings settings, string outputDir)
@@ -33,7 +33,7 @@ namespace Ray1Map.GBC
                 await LoadFilesAsync(context);
 
                 var s = context.Deserializer;
-                var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBC_ROM>(context, GetROMFilePath);
 
                 for (int i = 0; i < rom.ReferencesCount; i++)
                 {
@@ -58,7 +58,7 @@ namespace Ray1Map.GBC
             {
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBC_ROM>(context, GetROMFilePath);
 
                 for (int i = 0; i < rom.ReferencesCount; i++) {
                     var ptr = rom.References[i].Pointer.GetPointer();
@@ -78,7 +78,7 @@ namespace Ray1Map.GBC
         public override void ExportVignette(Context context, string outputDir)
         {
             var s = context.Deserializer;
-            var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBC_ROM>(context, GetROMFilePath);
 
             // Enumerate every reference
             for (int i = 0; i < rom.References.Length; i++)

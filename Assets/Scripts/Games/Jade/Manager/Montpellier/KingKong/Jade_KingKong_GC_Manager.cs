@@ -100,7 +100,7 @@ namespace Ray1Map
 				StreamFile sf = context.AddStreamFile(key, ms, endianness: Endian.Big, allowLocalPointers: true);
 
 				DWARF_Segment Segment = null;
-				Segment = FileFactory.Read<DWARF_Segment>(key, context);
+				Segment = FileFactory.Read<DWARF_Segment>(context, key);
 			}
 		}
 

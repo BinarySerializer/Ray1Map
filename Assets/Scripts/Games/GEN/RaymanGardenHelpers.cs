@@ -160,7 +160,7 @@ namespace Ray1Map.GEN {
                     FileInfo fi = new FileInfo(file);
                     string name = "loc/" + fi.Name;
                     await context.AddLinearFileAsync(name);
-                    locs.Add(FileFactory.Read<Loc>(name, context));
+                    locs.Add(FileFactory.Read<Loc>(context, name));
                 }
                 var dict = locs.ToDictionary(l => l.Name, l => l.Tables[6].Strings);
                 TextEditor te = new TextEditor {

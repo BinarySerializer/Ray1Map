@@ -39,7 +39,7 @@ namespace Ray1Map.SNES
             {
                 // Load rom
                 await LoadFilesAsync(context);
-                var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<SNES_ROM>(context, GetROMFilePath);
 
                 var graphicsGroups = GetGraphicsGroups(rom);
 
@@ -87,7 +87,7 @@ namespace Ray1Map.SNES
             {
                 // Load rom
                 await LoadFilesAsync(context);
-                var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<SNES_ROM>(context, GetROMFilePath);
 
                 foreach (var graphicsGroup in GetGraphicsGroups(rom))
                 {
@@ -208,7 +208,7 @@ namespace Ray1Map.SNES
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<SNES_ROM>(context, GetROMFilePath);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();

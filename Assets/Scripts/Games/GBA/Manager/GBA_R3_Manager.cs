@@ -57,7 +57,7 @@ namespace Ray1Map.GBA
             await Controller.WaitIfNecessary();
 
             // Get the rom
-            var rom = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context);
+            var rom = FileFactory.Read<GBA_ROM>(context, GetROMFilePath(context));
 
             Controller.DetailedState = $"Loading background";
             await Controller.WaitIfNecessary();

@@ -67,7 +67,7 @@ namespace Ray1Map
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 var manager = (R1_PS1BaseXXXManager)s.GetR1Settings().GetGameManager;
-                var lvl = FileFactory.Read<PS1_LevFile>(manager.GetLevelFilePath(s.GetR1Settings()), LevelEditorData.MainContext);
+                var lvl = FileFactory.Read<PS1_LevFile>(LevelEditorData.MainContext, manager.GetLevelFilePath(s.GetR1Settings()));
                 EventArrayOffset = gameMemoryOffset + lvl.ObjData.ObjectsPointer.AbsoluteOffset;
 
                 // US
@@ -90,8 +90,8 @@ namespace Ray1Map
                     ? ((R1_PS1JPDemoVol3_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()) 
                     : ((R1_PS1JPDemoVol6_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()));
 
-                var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(lvlPath, LevelEditorData.MainContext);
-                var map = FileFactory.Read<MapData>(mapPath, LevelEditorData.MainContext);
+                var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(LevelEditorData.MainContext, lvlPath);
+                var map = FileFactory.Read<MapData>(LevelEditorData.MainContext, mapPath);
 
                 EventArrayOffset = gameMemoryOffset + lvl.ObjectsPointer.AbsoluteOffset;
 
@@ -108,7 +108,7 @@ namespace Ray1Map
             {
                 var manager = (R1_PS1R2_Manager)s.GetR1Settings().GetGameManager;
 
-                EventArrayOffset = gameMemoryOffset + FileFactory.Read<R2_LevDataFile>(manager.GetLevelDataPath(s.GetR1Settings()), LevelEditorData.MainContext).LoadedObjectsPointer.AbsoluteOffset;
+                EventArrayOffset = gameMemoryOffset + FileFactory.Read<R2_LevDataFile>(LevelEditorData.MainContext, manager.GetLevelDataPath(s.GetR1Settings())).LoadedObjectsPointer.AbsoluteOffset;
                 RayEventOffset = gameMemoryOffset + 0x80178df0;
 
                 // TODO: Find tile offsets

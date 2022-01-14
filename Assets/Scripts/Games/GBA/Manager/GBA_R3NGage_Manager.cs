@@ -98,8 +98,8 @@ namespace Ray1Map.GBA
             }
         }
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context, (_, x) => x.Pre_SerializeLocalization = false);
-        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_R3Ngage_ExeFile>(ExeFilePath, context).Localization;
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(context, GetROMFilePath(context), (_, x) => x.Pre_SerializeLocalization = false);
+        public override GBA_Localization LoadLocalizationTable(Context context) => FileFactory.Read<GBA_R3Ngage_ExeFile>(context, ExeFilePath).Localization;
 
         public override async UniTask LoadFilesAsync(Context context)
         {

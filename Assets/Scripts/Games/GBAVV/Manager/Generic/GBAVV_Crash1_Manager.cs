@@ -20,8 +20,8 @@ namespace Ray1Map.GBAVV
             }).ToArray();
         }
 
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash1>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = LevInfos.First());
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
 
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
@@ -30,7 +30,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
+                var rom = FileFactory.Read<GBAVV_ROM_Crash1>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = LevInfos.First());
 
                 for (int cutsceneIndex = 0; cutsceneIndex < rom.CutsceneTable.Length; cutsceneIndex++)
                 {
@@ -71,7 +71,7 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(null, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM_Crash1>(context, GetROMFilePath, (s, d) => d.CurrentLevInfo = new CrashLevInfo(null, 0, null));
 
                 // Enumerate every level icon
                 for (int i = 0; i < rom.WorldMapLevelIcons.Length; i++)
@@ -88,7 +88,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Crash1>(context, GetROMFilePath, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
             var map = rom.CurrentMapInfo;
 
             if (map.Crash_MapType == GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7)

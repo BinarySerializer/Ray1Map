@@ -31,7 +31,7 @@ namespace Ray1Map
             var outputObjManager = (Unity_ObjectManager_R1)outData.ObjManager;
 
             // Load a dummy PC level as a base
-            var outLev = FileFactory.Read<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+            var outLev = FileFactory.Read<PC_LevFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
 
             // TODO: Set background data
 
@@ -56,8 +56,8 @@ namespace Ray1Map
             //outLev.TileTextureData = null;
 
             // Get the file tables
-            var outputDesNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
-            var outputEtaNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
+            var outputDesNames = FileFactory.Read<PC_WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).DESFileNames;
+            var outputEtaNames = FileFactory.Read<PC_WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).ETAFileNames;
 
             // Set event data
             outLev.ObjData.ObjCount = (ushort)inputLev.EventData.Count;

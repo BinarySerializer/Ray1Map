@@ -86,7 +86,7 @@ namespace Ray1Map.Rayman1
             var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, filename, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_TileSet(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -101,14 +101,14 @@ namespace Ray1Map.Rayman1
         protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // Read palettes
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
-            var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetFontPalettePath(), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetPalettePath(context.GetR1Settings(), 4), (y, x) => x.Pre_Length = y.CurrentLength / 2);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetPalettePath(context.GetR1Settings(), 8), (y, x) => x.Pre_Length = y.CurrentLength / 2);
+            var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetFontPalettePath(), (y, x) => x.Pre_Length = y.CurrentLength / 2);
 
             // Read the files
-            var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var wldGraphics = FileFactory.Read<Array<byte>>(GetWorldSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var fixGraphics = FileFactory.Read<Array<byte>>(context, GetAllfixSpritePath(), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var wldGraphics = FileFactory.Read<Array<byte>>(context, GetWorldSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(context, GetLevelSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
 
             var vram = PS1VramHelpers.PS1_JPDemoVol6_FillVRAM(pal4.Value, pal8.Value, palLettre.Value, fixGraphics.Value, wldGraphics.Value, lvlGraphics.Value);
 
@@ -127,8 +127,8 @@ namespace Ray1Map.Rayman1
             var levelPath = GetLevelFilePath(context.GetR1Settings());
 
             // Read the files
-            var map = FileFactory.Read<MapData>(mapPath, context);
-            var level = FileFactory.Read<PS1_JPDemo_LevFile>(levelPath, context);
+            var map = FileFactory.Read<MapData>(context, mapPath);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, levelPath);
 
             // Load the level
             return await LoadAsync(context, map, level.Objects, level.ObjectLinkTable.Select(x => (ushort)x).ToArray());
@@ -205,7 +205,7 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 // Export
                 await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
@@ -220,7 +220,7 @@ namespace Ray1Map.Rayman1
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
@@ -234,7 +234,7 @@ namespace Ray1Map.Rayman1
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(context, bgFilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
             return bg.ToTexture(context);
         }

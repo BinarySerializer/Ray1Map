@@ -87,7 +87,7 @@ namespace Ray1Map.Rayman1
             var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, filename, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_TileSet(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -126,8 +126,8 @@ namespace Ray1Map.Rayman1
             var height = s.Height;
             var offset = s.ImageBufferOffset;
 
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Pre_Length = 256);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Pre_Length = 256);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetPalettePath(context.GetR1Settings(), 4), (y, x) => x.Pre_Length = 256);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetPalettePath(context.GetR1Settings(), 8), (y, x) => x.Pre_Length = 256);
 
             // Select correct palette
             var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
@@ -191,8 +191,8 @@ namespace Ray1Map.Rayman1
             await LoadFilesAsync(context);
 
             // Read the files
-            var map = FileFactory.Read<MapData>(mapPath, context);
-            var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(levelPath, context);
+            var map = FileFactory.Read<MapData>(context, mapPath);
+            var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(context, levelPath);
 
             // Load the level
             return await LoadAsync(context, map, lvl.Objects, lvl.ObjectLinkTable.Select(x => (ushort)x).ToArray());
@@ -268,7 +268,7 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 // Export
                 await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
@@ -283,7 +283,7 @@ namespace Ray1Map.Rayman1
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
@@ -305,7 +305,7 @@ namespace Ray1Map.Rayman1
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(context, bgFilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
             return bg.ToTexture(context);
         }

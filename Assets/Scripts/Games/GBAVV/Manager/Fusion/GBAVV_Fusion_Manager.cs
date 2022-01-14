@@ -17,7 +17,7 @@ namespace Ray1Map.GBAVV
             new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
         });
 
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Fusion>(context, GetROMFilePath, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Ray1MapContext(settings))
@@ -25,11 +25,10 @@ namespace Ray1Map.GBAVV
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) =>
-                {
-                    r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level];
-                    r.SerializeFLC = true;
-                });
+                var rom = FileFactory.Read<GBAVV_ROM_Fusion>(context, GetROMFilePath, (s, r) => {
+					r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level];
+					r.SerializeFLC = true;
+				});
 
                 ExportCutscenesFromScripts(rom.GetAllScripts, outputDir);
             }
@@ -48,7 +47,7 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Fusion>(context, GetROMFilePath, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
 
             return await LoadMap2DAsync(context, rom, rom.CurrentMap);
         }
@@ -154,7 +153,7 @@ namespace Ray1Map.GBAVV
                 {
                     await LoadFilesAsync(context);
 
-                    var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
+                    var rom = FileFactory.Read<GBAVV_ROM_Fusion>(context, GetROMFilePath, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
                     var objects = rom.CurrentMap.ObjData?.GetObjects;
 
                     if (objects == null)
