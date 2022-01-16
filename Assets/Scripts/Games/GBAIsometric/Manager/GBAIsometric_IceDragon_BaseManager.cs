@@ -20,14 +20,17 @@ namespace Ray1Map.GBAIsometric
 
         #region Public Methods
 
-        public async UniTask DoGameActionAsync<ROM>(GameSettings settings, Action<ROM, Context> action)
+        public UniTask DoGameActionAsync<ROM>(GameSettings settings, Action<ROM, Context> action) 
+            where ROM : BinarySerializable, new() => DoGameActionAsync(settings, null, action);
+
+        public async UniTask DoGameActionAsync<ROM>(GameSettings settings, Action<ROM> onPreSerialize, Action<ROM, Context> action)
             where ROM : BinarySerializable, new()
         {
             using var context = new Ray1MapContext(settings);
 
             await LoadFilesAsync(context);
 
-            ROM rom = FileFactory.Read<ROM>(context, GetROMFilePath);
+            ROM rom = FileFactory.Read<ROM>(context, GetROMFilePath, (_, r) => onPreSerialize?.Invoke(r));
 
             action(rom, context);
         }

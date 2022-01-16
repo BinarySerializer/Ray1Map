@@ -29,6 +29,7 @@ namespace Ray1Map.GBAIsometric
                         GBAIsometricRegion.JP => 84,
                         _ => throw new ArgumentOutOfRangeException(nameof(region), region, null)
                     };
+                    PortraitsCount = 24;
                     CutsceneMapsCount = 21;
                     Languages = region switch
                     {

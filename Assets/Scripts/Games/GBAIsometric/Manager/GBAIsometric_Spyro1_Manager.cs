@@ -26,6 +26,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Resources (categorized)", false, true, (input, output) => ExportResourcesAsync(settings, output, true)),
             new GameAction("Export Cutscene Maps", false, true, (input, output) => ExportCutsceneMapsAsync(settings, output)),
             new GameAction("Export Sprites (full, no pal)", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+            new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
         };
@@ -87,6 +88,34 @@ namespace Ray1Map.GBAIsometric
                     Debug.LogWarning($"{s.CurrentPointer}: {ex}");
                 }
             }
+        }
+
+        public async UniTask ExportPortraitsAsync(GameSettings settings, string outputPath)
+        {
+            await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, x => x.Pre_SerializePortraits = true, (rom, _) =>
+            {
+                for (int i = 0; i < rom.PortraitTileMaps.Length; i++)
+                {
+                    Color[] pal = Util.ConvertGBAPalette(rom.PortraitPalettes[i].Colors);
+                    BinarySerializer.GBA.MapTile[] map = rom.PortraitTileMaps[i];
+                    byte[] tileSet = rom.PortraitTileSets[i];
+
+                    Texture2D tex = TextureHelpers.CreateTexture2D(GBAConstants.TileSize * 4, GBAConstants.TileSize * 4);
+
+                    for (int y = 0; y < 4; y++)
+                    {
+                        for (int x = 0; x < 4; x++)
+                        {
+                            int tile = map[y * 4 + x].TileIndex;
+                            tex.FillInTile(tileSet, tile * 0x20, pal, Util.TileEncoding.Linear_4bpp, GBAConstants.TileSize, true, x * GBAConstants.TileSize, y * GBAConstants.TileSize);
+                        }
+                    }
+
+                    tex.Apply();
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}.png"), tex.EncodeToPNG());
+                }
+            });
         }
 
         public async UniTask ExportFont(GameSettings settings, string outputPath)
@@ -168,6 +197,8 @@ namespace Ray1Map.GBAIsometric
                     tileIndex++;
                 }
             }
+
+            tex.Apply();
 
             return tex;
         }
