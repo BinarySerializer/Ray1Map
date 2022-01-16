@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Ray1Map.GBAIsometric
 {
-    public abstract class GBAIsometric_Spyro2_Manager : GBAIsometric_Spyro_Manager
+    public class GBAIsometric_Spyro2_Manager : GBAIsometric_Dragon_BaseManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -12,46 +10,5 @@ namespace Ray1Map.GBAIsometric
             new GameInfo_World(1, ValueRange.EnumerateRanges(new ValueRange(0, 3)).ToArray()), // Agent 9
             new GameInfo_World(4, ValueRange.EnumerateRanges(new ValueRange(0, 10)).ToArray()), // Cutscenes
         });
-
-        public override int PortraitsCount => 31;
-        public override int DialogCount => 300;
-        public override int CutsceneMapsCount => 11;
-        public override int PrimaryLevelCount => throw new NotImplementedException();
-        public override int LevelMapsCount => 14;
-        public override int TotalLevelsCount => 25;
-        public override int ObjectTypesCount => 509;
-        public override int AnimSetsCount => 162;
-        public override int LevelDataCount => 39;
-        public override int MenuPageCount => throw new NotImplementedException();
-    }
-
-    public class GBAIsometric_Spyro2US_Manager : GBAIsometric_Spyro2_Manager
-    {
-        public override int DataTableCount => 1509;
-
-        public override IEnumerable<string> GetLanguages
-        {
-            get
-            {
-                yield return "English";
-            }
-        }
-    }
-    public class GBAIsometric_Spyro2EU_Manager : GBAIsometric_Spyro2_Manager
-    {
-        public override int DataTableCount => 1514;
-
-        public override IEnumerable<string> GetLanguages
-        {
-            get
-            {
-                yield return "English";
-                yield return "French";
-                yield return "Spanish";
-                yield return "German";
-                yield return "Italian";
-                //yield return "Dutch";
-            }
-        }
     }
 }

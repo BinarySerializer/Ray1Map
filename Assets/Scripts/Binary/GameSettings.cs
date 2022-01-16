@@ -1,5 +1,6 @@
 ﻿using System;
 using BinarySerializer.Ray1;
+using Ray1Map.GBAIsometric;
 
 namespace Ray1Map
 {
@@ -159,6 +160,24 @@ namespace Ray1Map
                 level: Level, 
                 pcVersion: pcVersion,
                 volume: EduVolume);
+        }
+        public GBAIsometricSettings GetGBAIsometricSettings()
+        {
+            return GameModeSelection switch
+            {
+                GameModeSelection.SpyroSeasonIceEU => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro1, GBAIsometricRegion.EU),
+                GameModeSelection.SpyroSeasonIceUS => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro1, GBAIsometricRegion.US),
+                GameModeSelection.SpyroSeasonIceJP => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro1, GBAIsometricRegion.JP),
+                GameModeSelection.SpyroSeasonFlameEU => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro2, GBAIsometricRegion.EU),
+                GameModeSelection.SpyroSeasonFlameUS => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro2, GBAIsometricRegion.US),
+                GameModeSelection.SpyroAdventureEU => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro3, GBAIsometricRegion.EU),
+                GameModeSelection.SpyroAdventureUS => new GBAIsometricSettings(GBAIsometricEngineVersion.Spyro3, GBAIsometricRegion.US),
+                GameModeSelection.Tron2KillerAppEU => new GBAIsometricSettings(GBAIsometricEngineVersion.Tron, GBAIsometricRegion.EU),
+                GameModeSelection.Tron2KillerAppUS => new GBAIsometricSettings(GBAIsometricEngineVersion.Tron, GBAIsometricRegion.US),
+                GameModeSelection.RaymanHoodlumsRevengeEU => new GBAIsometricSettings(GBAIsometricEngineVersion.Rayman, GBAIsometricRegion.EU),
+                GameModeSelection.RaymanHoodlumsRevengeUS => new GBAIsometricSettings(GBAIsometricEngineVersion.Rayman, GBAIsometricRegion.US),
+                _ => throw new ArgumentOutOfRangeException(nameof(GameModeSelection), GameModeSelection, null)
+            };
         }
     }
 }

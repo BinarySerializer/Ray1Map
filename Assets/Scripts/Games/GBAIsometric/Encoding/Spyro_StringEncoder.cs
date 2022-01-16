@@ -9,13 +9,13 @@ namespace Ray1Map.GBAIsometric
     /// </summary>
     public class Spyro_StringEncoder : IStreamEncoder
     {
-        public Spyro_StringEncoder(GBAIsometric_Spyro_LocDecompress[] helpers)
+        public Spyro_StringEncoder(GBAIsometric_IceDragon_LocDecompress[] helpers)
         {
             Helpers = helpers;
         }
 
         public string Name => "Spyro_StringEncoding";
-        public GBAIsometric_Spyro_LocDecompress[] Helpers { get; }
+        public GBAIsometric_IceDragon_LocDecompress[] Helpers { get; }
 
         public void DecompressString(Reader reader, byte[] outBuffer)
         {

@@ -889,5 +889,11 @@ namespace Ray1Map.GBAIsometric
         }
 
         public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+
+        public override void AddContextSettings(Context context)
+        {
+            // Add settings
+            context.AddSettings(context.GetR1Settings().GetGBAIsometricSettings());
+        }
     }
 }
