@@ -655,19 +655,6 @@ namespace Ray1Map.GBAIsometric
             return new Unity_TileSet(tileSetTex, CellSize);
         }
 
-        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
-        {
-            var palettes = Util.ConvertGBAPalette(tilePal).Split(16, 16).ToArray();
-
-            int[] paletteIndices = new int[tileSet.Length];
-            foreach (MapTile mt in mapTiles)
-                paletteIndices[mt.TileMapY] = mt.PaletteIndex;
-
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
-
-            return new Unity_TileSet(tileSetTex, CellSize);
-        }
-
         public Vector2Int[] GetFramePositions(GBAIsometric_Spyro_Animation anim) {
             Vector2Int[] pos = new Vector2Int[anim.Frames.Length + (anim.PingPong ? (anim.Frames.Length - 2) : 0)];
             for (int i = 0; i < anim.Frames.Length; i++) {

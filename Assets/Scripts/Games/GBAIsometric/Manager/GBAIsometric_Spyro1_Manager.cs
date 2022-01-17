@@ -10,14 +10,15 @@ namespace Ray1Map.GBAIsometric
 {
     public class GBAIsometric_Spyro1_Manager : GBAIsometric_IceDragon_BaseManager
     {
+        private const int World_Levels3D = 0;
         private const int World_Cutscenes = 1;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            // TODO: Isometric levels
+            new GameInfo_World(World_Levels3D, Enumerable.Range(0, 17).ToArray()), // Levels 3D
             // TODO: Mode7 levels
             // TODO: Sparx levels
-            new GameInfo_World(World_Cutscenes, ValueRange.EnumerateRanges(new ValueRange(0, 20)).ToArray()), // Cutscenes
+            new GameInfo_World(World_Cutscenes, Enumerable.Range(0, 21).ToArray()), // Cutscenes
         });
 
         public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -46,7 +47,7 @@ namespace Ray1Map.GBAIsometric
                 for (var i = 0; i < rom.CutsceneMaps.Length; i++)
                 {
                     GBAIsometric_IceDragon_CutsceneMap cutscene = rom.CutsceneMaps[i];
-                    Util.ByteArrayToFile(Path.Combine(outputPath, "Cutscenes", $"{i}.png"), cutscene.ToTexture2D().EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}.png"), cutscene.ToTexture2D().EncodeToPNG());
                 }
             });
         }
@@ -96,9 +97,9 @@ namespace Ray1Map.GBAIsometric
             {
                 for (int i = 0; i < rom.PortraitTileMaps.Length; i++)
                 {
-                    Color[] pal = Util.ConvertGBAPalette(rom.PortraitPalettes[i].Colors);
-                    BinarySerializer.GBA.MapTile[] map = rom.PortraitTileMaps[i];
-                    byte[] tileSet = rom.PortraitTileSets[i];
+                    Color[] pal = Util.ConvertGBAPalette(rom.PortraitPalettes[i].Value.Colors);
+                    BinarySerializer.GBA.MapTile[] map = rom.PortraitTileMaps[i].Value;
+                    byte[] tileSet = rom.PortraitTileSets[i].Value;
 
                     Texture2D tex = TextureHelpers.CreateTexture2D(GBAConstants.TileSize * 4, GBAConstants.TileSize * 4);
 
@@ -139,10 +140,77 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
-            GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath);
+            GameSettings settings = context.GetR1Settings();
+            int world = settings.World;
+            int level = settings.Level;
 
-            if (context.GetR1Settings().World == World_Cutscenes)
+            if (world == World_Levels3D)
             {
+                // Read the ROM
+                GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath, (s, r) =>
+                {
+                    r.Pre_SerializeLevel3D = true;
+                    r.Pre_Level3D = level;
+                });
+
+                // Get the level data
+                GBAIsometric_Ice_Level3D_MapLayers mapLayers = rom.Level3D_MapLayers[level];
+                MapTile[][] mapTiles = mapLayers.Layers.Select(x => x.Value.GetFullMap().Select(m => new MapTile
+                {
+                    TileMapY = (ushort)(m.TileIndex + x.Value.CharacterBaseBlock * 512),
+                    HorizontalFlip = m.FlipX,
+                    VerticalFlip = m.FlipY,
+                    PaletteIndex = (byte)m.PaletteIndex,
+                }).ToArray()).ToArray();
+                byte[] tileSetData = rom.Level3D_TileSets[level].Value;
+                Palette pal = rom.Level3D_Palettes[level];
+
+                // Create the level
+                var lev = new Unity_Level();
+
+                Controller.DetailedState = $"Loading tileset";
+                await Controller.WaitIfNecessary();
+
+                Unity_TileSet tileSet = LoadTileSet(pal.Colors, tileSetData, mapTiles.SelectMany(x => x));
+
+                Controller.DetailedState = $"Loading collision";
+                await Controller.WaitIfNecessary();
+
+                // TODO: Implement
+
+                Controller.DetailedState = $"Loading maps";
+                await Controller.WaitIfNecessary();
+
+                lev.Maps = mapLayers.Layers.Select((map, i) =>
+                {
+                    return new Unity_Map()
+                    {
+                        Type = Unity_Map.MapType.Graphics,
+                        Width = map.Value.Width,
+                        Height = map.Value.Height,
+                        TileSet = new Unity_TileSet[] { tileSet },
+                        MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
+                    };
+                }).Reverse().ToArray();
+                lev.CellSize = GBAConstants.TileSize;
+
+                Controller.DetailedState = $"Loading objects";
+                await Controller.WaitIfNecessary();
+
+                // TODO: Implement
+
+                lev.ObjManager = new Unity_ObjectManager(context);
+
+                Controller.DetailedState = $"Loading localization";
+                await Controller.WaitIfNecessary();
+
+                lev.Localization = LoadLocalization(context, rom.Localization);
+
+                return lev;
+            }
+            else if (world == World_Cutscenes)
+            {
+                GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath);
                 return await LoadCutsceneMapAsync(context, rom);
             }
             else

@@ -108,6 +108,19 @@ namespace Ray1Map.GBAIsometric
             return new Unity_TileSet(tileSetTex, CellSize);
         }
 
+        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet, IEnumerable<MapTile> mapTiles)
+        {
+            var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
+
+            int[] paletteIndices = new int[tileSet.Length];
+            foreach (MapTile mt in mapTiles)
+                paletteIndices[mt.TileMapY] = mt.PaletteIndex;
+
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
+
+            return new Unity_TileSet(tileSetTex, CellSize);
+        }
+
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
         {
             GBAIsometric_IceDragon_CutsceneMap cutsceneMap = rom.CutsceneMaps[context.GetR1Settings().Level];
