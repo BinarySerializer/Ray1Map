@@ -26,6 +26,7 @@ namespace Ray1Map.GBAIsometric
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
         public Pointer<ObjectArray<BinarySerializer.GBA.MapTile>>[] PortraitTileMaps { get; set; }
+        public ushort[] PortraitTileSetLengths { get; set; }
         public Pointer<Array<byte>>[] PortraitTileSets { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -93,11 +94,12 @@ namespace Ray1Map.GBAIsometric
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileMaps], () =>
                 PortraitTileMaps = s.SerializePointerArray<ObjectArray<BinarySerializer.GBA.MapTile>>(PortraitTileMaps, count, resolve: true, onPreSerialize: (x, _) => x.Pre_Length = 4 * 4, name: nameof(PortraitTileMaps)));
 
+            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileSetLengths], () =>
+                PortraitTileSetLengths = s.SerializeArray<ushort>(PortraitTileSetLengths, count, name: nameof(PortraitTileSetLengths)));
+
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileSets], () =>
-                PortraitTileSets = s.SerializePointerArray<Array<byte>>(PortraitTileSets, count, resolve: true, onPreSerialize: (x, i) =>
-                {
-                    x.Pre_Length = (PortraitTileMaps[i].Value.Value.Max(x => x.TileIndex) + 1) * 0x20;
-                }, name: nameof(PortraitTileSets)));
+                PortraitTileSets = s.SerializePointerArray<Array<byte>>(PortraitTileSets, count, resolve: true, 
+                    onPreSerialize: (x, i) => x.Pre_Length = PortraitTileSetLengths[i], name: nameof(PortraitTileSets)));
         }
     }
 }

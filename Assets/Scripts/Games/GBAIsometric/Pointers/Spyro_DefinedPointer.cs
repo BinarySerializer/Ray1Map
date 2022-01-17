@@ -47,6 +47,7 @@
 
         Ice_PortraitPalettes,
         Ice_PortraitTileMaps,
+        Ice_PortraitTileSetLengths,
         Ice_PortraitTileSets,
 
         Ice_Level3D_Palettes,

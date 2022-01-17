@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
@@ -269,6 +270,88 @@ namespace Ray1Map.GBAIsometric
             tex.Apply();
 
             return tex;
+        }
+
+        public void PatchJPROM(string baseDir, string jpName, string euName, uint startOffset)
+        {
+            // Changes made:
+
+            // Text:
+            // 0x08279c50 - Replaced font tiles (<)
+            // 0x0827c2f0 - Replaced font map (<)
+            // 0x8275C00 -> 0x087F14A0 - Text (remapped)
+
+            // Portraits (excluding 6, 8, 23):
+            // 0x081b0b58 - Replaced palettes (16)
+            // 0x081b0bb8 - Replaced maps (4x4)
+            // 0x08063614 - Replaced tile set lengths (24)
+            // 0x081b0af8 - Replaced tile sets (some have been remapped)
+
+            // TODO:
+            // Replace cutscenes
+            // Replace logo
+
+            using var euContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceEU, baseDir, 0, 0));
+            using var jpContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
+
+            euContext.AddFile(new GBAMemoryMappedFile(euContext, euName, GBAConstants.Address_ROM));
+            jpContext.AddFile(new GBAMemoryMappedFile(jpContext, jpName, GBAConstants.Address_ROM)
+            {
+                RecreateOnWrite = false
+            });
+
+            GBAIsometric_Ice_ROM euRom = FileFactory.Read<GBAIsometric_Ice_ROM>(euContext, euName, 
+                (_, x) => x.Pre_SerializePortraits = true);
+            GBAIsometric_Ice_ROM jpRom = FileFactory.Read<GBAIsometric_Ice_ROM>(jpContext, jpName, 
+                (_, x) => x.Pre_SerializePortraits = true);
+
+            var s = jpContext.Serializer;
+
+            Pointer remapOffset = new Pointer(startOffset, jpContext.GetFile(jpName));
+            Dictionary<Spyro_DefinedPointer, Pointer> jpPointers = PointerTables.GBAIsometric_Spyro_PointerTable(
+                jpContext.GetR1Settings().GameModeSelection, jpContext.GetFile(jpName));
+
+            // Replace portraits
+            for (int i = 0; i < 24; i++)
+            {
+                if (i == 6 || i == 8 || i == 23)
+                    continue;
+
+                // Replace palette
+                s.Goto(jpRom.PortraitPalettes[i]);
+                s.SerializeObject<Palette>(euRom.PortraitPalettes[i]);
+
+                // Replace map
+                s.Goto(jpRom.PortraitTileMaps[i]);
+                s.SerializeObject<ObjectArray<BinarySerializer.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
+
+                // Replace tile set
+                if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])
+                {
+                    s.Goto(jpRom.PortraitTileSets[i]);
+                    s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+                }
+                else
+                {
+                    // Update pointer
+                    s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSets] + 4 * i);
+                    s.SerializePointer(remapOffset);
+
+                    s.Goto(remapOffset);
+                    s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+
+                    Debug.Log($"Remapped portrait {i} to 0x{remapOffset.StringAbsoluteOffset}");
+
+                    s.Align();
+                    remapOffset = s.CurrentPointer;
+                }
+
+                // Replace tile set length
+                s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSetLengths] + 2 * i);
+                s.Serialize<ushort>(euRom.PortraitTileSetLengths[i]);
+            }
+
+            Debug.Log($"Remap end is 0x{remapOffset.StringAbsoluteOffset}");
         }
     }
 }

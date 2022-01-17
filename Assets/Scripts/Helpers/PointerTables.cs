@@ -549,6 +549,7 @@ namespace Ray1Map
 
                         [Spyro_DefinedPointer.Ice_PortraitPalettes] = 0x081aeaa4,
                         [Spyro_DefinedPointer.Ice_PortraitTileMaps] = 0x081aeb04,
+                        [Spyro_DefinedPointer.Ice_PortraitTileSetLengths] = 0x08061974,
                         [Spyro_DefinedPointer.Ice_PortraitTileSets] = 0x081aea44,
 
                         [Spyro_DefinedPointer.Ice_Level3D_Palettes] = 0x081aed48,
@@ -569,6 +570,7 @@ namespace Ray1Map
 
                         [Spyro_DefinedPointer.Ice_PortraitPalettes] = 0x081ab3dc,
                         [Spyro_DefinedPointer.Ice_PortraitTileMaps] = 0x081ab43c,
+                        [Spyro_DefinedPointer.Ice_PortraitTileSetLengths] = 0x080618b0,
                         [Spyro_DefinedPointer.Ice_PortraitTileSets] = 0x081ab37c,
 
                         //[Spyro_DefinedPointer.Ice_Level3D_Palettes] = ,
@@ -589,6 +591,7 @@ namespace Ray1Map
 
                         [Spyro_DefinedPointer.Ice_PortraitPalettes] = 0x081b0b58,
                         [Spyro_DefinedPointer.Ice_PortraitTileMaps] = 0x081b0bb8,
+                        [Spyro_DefinedPointer.Ice_PortraitTileSetLengths] = 0x08063614,
                         [Spyro_DefinedPointer.Ice_PortraitTileSets] = 0x081b0af8,
 
                         //[Spyro_DefinedPointer.Ice_Level3D_Palettes] = ,
