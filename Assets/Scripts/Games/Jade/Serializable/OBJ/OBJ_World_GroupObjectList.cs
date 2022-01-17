@@ -11,7 +11,7 @@ namespace Ray1Map.Jade
         protected override void SerializeFile(SerializerObject s) 
         {
 			var fileEnd = Offset + FileSize;
-			GroupObjects = s.SerializeObjectArrayUntil(GroupObjects, x => s.CurrentAbsoluteOffset >= fileEnd.AbsoluteOffset, onPreSerialize: go => go.List = this, name: nameof(GroupObjects));
+			GroupObjects = s.SerializeObjectArrayUntil(GroupObjects, x => s.CurrentAbsoluteOffset >= fileEnd.AbsoluteOffset, onPreSerialize: (go, _) => go.List = this, name: nameof(GroupObjects));
 		}
 
         public class GroupObject : BinarySerializable

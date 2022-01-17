@@ -1298,7 +1298,7 @@ namespace Ray1Map.Rayman1
 
             ZDCEntry[] typeZDC = context.Deserializer.SerializeFromBytes<ObjectArray<ZDCEntry>>(typeZDCBytes, "TypeZDC", x => x.Pre_Length = (uint)(typeZDCBytes.Length / 2), name: "TypeZDC").Value;
             ZDCData[] zdcData = context.Deserializer.SerializeFromBytes<ObjectArray<ZDCData>>(zdcTableBytes, "ZDCTable", x => x.Pre_Length = (uint)(zdcTableBytes.Length / 8), name: "ZDCTable").Value;
-            ObjTypeFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<ObjTypeFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
+            ObjTypeFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<ObjTypeFlags>>(eventFlagsBytes, "EventFlags", x => x.Pre_Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
 
             // Read the world data
             var allfix = FileFactory.Read<PC_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));

@@ -79,7 +79,7 @@ namespace Ray1Map.Rayman1
             var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())) : null;
             var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(context, GetLevelFilePath(context.GetR1Settings())) : null;
             var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings())) : null;
-            var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(context, GetFontFilePath(context.GetR1Settings()), (s, o) => o.Length = s.CurrentLength) : null;
+            var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(context, GetFontFilePath(context.GetR1Settings()), (s, o) => o.Pre_Length = s.CurrentLength) : null;
 
             var vram = PS1VramHelpers.PS1_FillVRAM(mode, allFix, world, bigRay, lev, font?.Value, context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US);
 

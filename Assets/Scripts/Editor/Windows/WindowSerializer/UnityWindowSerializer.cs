@@ -197,15 +197,15 @@ public class UnityWindowSerializer : SerializerObject
         if (obj == null) obj = new T[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
         for (int i = 0; i < obj.Length; i++)
-			Serialize(obj[i], name: $"{name}[{i}]");
+            Serialize(obj[i], name: $"{name}[{i}]");
         return obj;
     }
 
-    public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) {
+    public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T, int> onPreSerialize = null, string name = null) {
         if (obj == null) obj = new T[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
         for (int i = 0; i < obj.Length; i++)
-			SerializeObject(obj[i], name: $"{name}[{i}]");
+            SerializeObject(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
@@ -214,19 +214,19 @@ public class UnityWindowSerializer : SerializerObject
         string name = null) {
         if (obj == null) obj = new Pointer[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
-		for (int i = 0; i < obj.Length; i++)
-			SerializePointer(obj[i], size: size, anchor: anchor, allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
+        for (int i = 0; i < obj.Length; i++)
+            SerializePointer(obj[i], size: size, anchor: anchor, allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
 
         return obj;
     }
 
     public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool resolve = false,
-        Action<T> onPreSerialize = null, bool allowInvalid = false, long? nullValue = null, string name = null)
+        Action<T, int> onPreSerialize = null, bool allowInvalid = false, long? nullValue = null, string name = null)
     {
         if (obj == null) obj = new Pointer<T>[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
-		for (int i = 0; i < obj.Length; i++)
-			SerializePointer(obj[i], size: size, anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
+        for (int i = 0; i < obj.Length; i++)
+            SerializePointer(obj[i], size: size, anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize == null ? (Action<T>)null : x => onPreSerialize(x, i), allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
 
         return obj;
     }
@@ -242,8 +242,8 @@ public class UnityWindowSerializer : SerializerObject
     {
         if (obj == null) obj = new string[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
-		for (int i = 0; i < obj.Length; i++)
-			SerializeString(obj[i], name: $"{name}[{i}]");
+        for (int i = 0; i < obj.Length; i++)
+            SerializeString(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
@@ -260,24 +260,24 @@ public class UnityWindowSerializer : SerializerObject
         });
     }
 
-	public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) 
+    public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) 
     {
         serializeFunc(new UnityWindowBitSerializer(this, CurrentPointer, null, 0));
-	}
+    }
 
-	public override void Log(string logString)
+    public override void Log(string logString)
     {
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
     }
 
-	public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null) {
+    public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null) {
 
         T[] array = obj;
 
         return SerializeArray<T>(array, array.Length, name: name);
     }
 
-	public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T> onPreSerialize = null, string name = null) {
+    public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T, int> onPreSerialize = null, string name = null) {
         T[] array = obj;
 
         return SerializeObjectArray<T>(array, array.Length, onPreSerialize: onPreSerialize, name: name);

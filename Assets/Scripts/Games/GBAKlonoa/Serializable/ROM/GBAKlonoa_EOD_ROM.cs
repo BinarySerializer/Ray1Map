@@ -159,7 +159,7 @@ namespace Ray1Map.GBAKlonoa
                     obj: LevelObjectGraphics[globalLevelIndex], 
                     conditionCheckFunc: x => x.AnimationsPointerValue == 0, 
                     getLastObjFunc: () => new GBAKlonoa_ObjectGraphics(),
-                    onPreSerialize: x => x.Pre_LevelObjects = LevelObjectCollection,
+                    onPreSerialize: (x, _) => x.Pre_LevelObjects = LevelObjectCollection,
                     name: $"{nameof(LevelObjectGraphics)}[{globalLevelIndex}]");
             });
 

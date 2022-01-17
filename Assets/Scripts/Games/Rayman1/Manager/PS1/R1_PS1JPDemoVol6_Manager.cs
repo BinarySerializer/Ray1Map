@@ -106,9 +106,9 @@ namespace Ray1Map.Rayman1
             var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetFontPalettePath(), (y, x) => x.Pre_Length = y.CurrentLength / 2);
 
             // Read the files
-            var fixGraphics = FileFactory.Read<Array<byte>>(context, GetAllfixSpritePath(), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var wldGraphics = FileFactory.Read<Array<byte>>(context, GetWorldSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var lvlGraphics = FileFactory.Read<Array<byte>>(context, GetLevelSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var fixGraphics = FileFactory.Read<Array<byte>>(context, GetAllfixSpritePath(), onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength);
+            var wldGraphics = FileFactory.Read<Array<byte>>(context, GetWorldSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(context, GetLevelSpritePath(context.GetR1Settings()), onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength);
 
             var vram = PS1VramHelpers.PS1_JPDemoVol6_FillVRAM(pal4.Value, pal8.Value, palLettre.Value, fixGraphics.Value, wldGraphics.Value, lvlGraphics.Value);
 

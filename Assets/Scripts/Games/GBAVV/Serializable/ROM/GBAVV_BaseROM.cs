@@ -36,7 +36,7 @@ namespace Ray1Map.GBAVV
                     }, name: $"{nameof(Scripts)}[{i}]"));
 
                 if (s.GetR1Settings().GBAVV_IsFusion && HardCodedScripts == null)
-                    HardCodedScripts = s.DoAtBytes(((GBAVV_Fusion_Manager)s.GetR1Settings().GetGameManager).HardCodedScripts, nameof(HardCodedScripts), () => s.SerializeObjectArrayUntil<GBAVV_Script>(HardCodedScripts, x => s.CurrentFileOffset >= s.CurrentLength, onPreSerialize: x =>
+                    HardCodedScripts = s.DoAtBytes(((GBAVV_Fusion_Manager)s.GetR1Settings().GetGameManager).HardCodedScripts, nameof(HardCodedScripts), () => s.SerializeObjectArrayUntil<GBAVV_Script>(HardCodedScripts, x => s.CurrentFileOffset >= s.CurrentLength, onPreSerialize: (x, _) =>
                     {
                         x.SerializeFLC = SerializeFLC;
                         x.BaseFile = Offset.File;

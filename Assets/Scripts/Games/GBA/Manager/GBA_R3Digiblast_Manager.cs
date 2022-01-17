@@ -44,7 +44,7 @@ namespace Ray1Map.GBA
                     } else {
                         file = context.GetFile(fileName);
                     }
-                    Array<short> sample = FileFactory.Read<Array<short>>(context, fileName, onPreSerialize: (s, f) => f.Length = s.CurrentLength / 2);
+                    Array<short> sample = FileFactory.Read<Array<short>>(context, fileName, onPreSerialize: (s, f) => f.Pre_Length = s.CurrentLength / 2);
                     return sample.Value;
                 }
 

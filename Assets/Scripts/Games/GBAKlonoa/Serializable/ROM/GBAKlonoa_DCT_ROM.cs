@@ -180,7 +180,7 @@ namespace Ray1Map.GBAKlonoa
                     obj: MapGraphics[globalLevelIndex],
                     conditionCheckFunc: x => x.AnimationsPointer == null,
                     getLastObjFunc: () => new GBAKlonoa_ObjectGraphics(),
-                    onPreSerialize: x => x.Pre_IsMapAnimations = true,
+                    onPreSerialize: (x, _) => x.Pre_IsMapAnimations = true,
                     name: $"{nameof(MapGraphics)}[{globalLevelIndex}]");
             });
 

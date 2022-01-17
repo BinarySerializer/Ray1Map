@@ -13,16 +13,16 @@ namespace Ray1Map.GBAIsometric
         public override void SerializeImpl(SerializerObject s)
         {
             Cutscenes = s.SerializePointerArray<GBAIsometric_RHR_Cutscene>(Cutscenes, 194, name: nameof(Cutscenes));
-            Offsets = s.SerializePointerArray<Array<ushort>>(Offsets, 6, resolve: true, onPreSerialize: x => x.Length = 690, name: nameof(Offsets));
+            Offsets = s.SerializePointerArray<Array<ushort>>(Offsets, 6, resolve: true, onPreSerialize: (x, _) => x.Pre_Length = 690, name: nameof(Offsets));
             LocTables = s.SerializePointerArray(LocTables, 6, name: nameof(LocTables));
             if (Localization == null) {
                 Localization = new string[Offsets.Length][];
                 for (int i = 0; i < Localization.Length; i++) {
-                    Localization[i] = new string[Offsets[i].Value.Length];
+                    Localization[i] = new string[Offsets[i].Value.Pre_Length];
                     s.DoAt(LocTables[i], () => {
                         s.DoEncoded(new RHREncoder(), () => {
                             Pointer basePtr = s.CurrentPointer;
-                            for (int j = 0; j < Offsets[i].Value.Length; j++) {
+                            for (int j = 0; j < Offsets[i].Value.Pre_Length; j++) {
                                 s.DoAt(basePtr + Offsets[i].Value.Value[j], () => {
                                     Localization[i][j] = s.SerializeString(Localization[i][j], encoding: Encoding.GetEncoding(1252), name: $"{nameof(Localization)}[{i}][{j}]");
                                 });

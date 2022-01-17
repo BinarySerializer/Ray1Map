@@ -69,7 +69,7 @@ namespace Ray1Map.Jade {
 
 			if (FirstLevelPointer != 0) {
 				Levels = s.SerializeObjectArrayUntil<MAT_MTT_Level>(Levels, t => t.TextureID == 0, 
-					onPreSerialize: t => {
+					onPreSerialize: (t, _) => {
 						t.Material = this;
 					}, name: nameof(Levels));
 			}

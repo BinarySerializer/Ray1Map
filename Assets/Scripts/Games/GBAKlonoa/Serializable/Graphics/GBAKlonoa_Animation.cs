@@ -14,7 +14,7 @@ namespace Ray1Map.GBAKlonoa
 
         public override void SerializeImpl(SerializerObject s)
         {
-            SerializedFrames = s.SerializeObjectArrayUntil(SerializedFrames, x => x.ImgDataPointer == null, onPreSerialize: x =>
+            SerializedFrames = s.SerializeObjectArrayUntil(SerializedFrames, x => x.ImgDataPointer == null, onPreSerialize: (x, _) =>
             {
                 x.Pre_ImgDataLength = Pre_ImgDataLength;
                 x.Pre_IsReferencedInLevel = Pre_IsReferencedInLevel;

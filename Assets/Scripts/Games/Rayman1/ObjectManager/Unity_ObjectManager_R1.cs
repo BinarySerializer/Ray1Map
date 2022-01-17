@@ -36,7 +36,7 @@ namespace Ray1Map.Rayman1
                 ETALookup[ETA[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
 
             // Parse random array
-            RandomArray = context.Deserializer.SerializeFromBytes<Array<ushort>>(RandomArrayData, "RandomArrayData", onPreSerialize: x => x.Length = 256, name: nameof(RandomArray)).Value;
+            RandomArray = context.Deserializer.SerializeFromBytes<Array<ushort>>(RandomArrayData, "RandomArrayData", onPreSerialize: x => x.Pre_Length = 256, name: nameof(RandomArray)).Value;
         }
 
         public DataContainer<DESData>[] DES { get; }

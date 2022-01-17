@@ -143,7 +143,7 @@ namespace Ray1Map.Rayman1
 
             // Read the files
             var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetTileSetPaletteFilePath(context), onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
-            var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(context, GetTileSetPaletteIndexTableFilePath(context), onPreSerialize: (s, x) => x.Length = s.CurrentLength);
+            var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(context, GetTileSetPaletteIndexTableFilePath(context), onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength);
             var tileSet = FileFactory.Read<BIT>(context, GetTileSetFilePath(context), onPreSerialize: (s, b) => {
 				b.PAL = tileSetPalette;
 				b.PLT = tileSetPaletteIndexTable;
@@ -211,10 +211,10 @@ namespace Ray1Map.Rayman1
             string fixPath = GetFixImageFilePath();
             string bigRayPath = GetBigRayImageFilePath();
 
-            var fixImg = context.FileExists(fixPath) && mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, fixPath, (y, x) => x.Length = y.CurrentLength) : null;
-            var worldImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetWorldImageFilePath(context), (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetLevelImageFilePath(context), (y, x) => x.Length = y.CurrentLength) : null;
-            var bigRayImg = context.FileExists(bigRayPath) && mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, bigRayPath, (y, x) => x.Length = y.CurrentLength) : null;
+            var fixImg = context.FileExists(fixPath) && mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, fixPath, (y, x) => x.Pre_Length = y.CurrentLength) : null;
+            var worldImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetWorldImageFilePath(context), (y, x) => x.Pre_Length = y.CurrentLength) : null;
+            var levelImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(context, GetLevelImageFilePath(context), (y, x) => x.Pre_Length = y.CurrentLength) : null;
+            var bigRayImg = context.FileExists(bigRayPath) && mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(context, bigRayPath, (y, x) => x.Pre_Length = y.CurrentLength) : null;
 
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);
