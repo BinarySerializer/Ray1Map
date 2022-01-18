@@ -272,20 +272,25 @@ namespace Ray1Map.GBAIsometric
             return tex;
         }
 
-        public void PatchJPROM(string baseDir, string jpName, string euName, uint startOffset)
+        public void PatchJPROM(
+            string baseDir, string jpName, string euName, uint startOffset, 
+            bool replacePortraits, bool replaceCutscenes)
         {
             // Changes made:
 
             // Text:
             // 0x08279c50 - Replaced font tiles (<)
             // 0x0827c2f0 - Replaced font map (<)
-            // 0x8275C00 -> 0x087F14A0 - Text (remapped)
+            // 0x8275C00 -> 0x08831D0C - Text (remapped, pointer at 0x08002c60)
 
-            // Portraits (excluding 6, 8, 23):
+            // Portraits (excluding 8 & 23):
             // 0x081b0b58 - Replaced palettes (16)
             // 0x081b0bb8 - Replaced maps (4x4)
             // 0x08063614 - Replaced tile set lengths (24)
             // 0x081b0af8 - Replaced tile sets (some have been remapped)
+
+            // Cutscenes
+            // Replaced palettes, remapped tile sets and maps
 
             // TODO:
             // Replace cutscenes
@@ -305,6 +310,7 @@ namespace Ray1Map.GBAIsometric
             GBAIsometric_Ice_ROM jpRom = FileFactory.Read<GBAIsometric_Ice_ROM>(jpContext, jpName, 
                 (_, x) => x.Pre_SerializePortraits = true);
 
+            var d = euContext.Deserializer;
             var s = jpContext.Serializer;
 
             Pointer remapOffset = new Pointer(startOffset, jpContext.GetFile(jpName));
@@ -312,43 +318,112 @@ namespace Ray1Map.GBAIsometric
                 jpContext.GetR1Settings().GameModeSelection, jpContext.GetFile(jpName));
 
             // Replace portraits
-            for (int i = 0; i < 24; i++)
+            if (replacePortraits)
             {
-                if (i == 6 || i == 8 || i == 23)
-                    continue;
-
-                // Replace palette
-                s.Goto(jpRom.PortraitPalettes[i]);
-                s.SerializeObject<Palette>(euRom.PortraitPalettes[i]);
-
-                // Replace map
-                s.Goto(jpRom.PortraitTileMaps[i]);
-                s.SerializeObject<ObjectArray<BinarySerializer.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
-
-                // Replace tile set
-                if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])
+                for (int i = 0; i < 24; i++)
                 {
-                    s.Goto(jpRom.PortraitTileSets[i]);
-                    s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+                    // Replace palette
+                    s.Goto(jpRom.PortraitPalettes[i]);
+                    s.SerializeObject<Palette>(euRom.PortraitPalettes[i]);
+
+                    // Replace map
+                    s.Goto(jpRom.PortraitTileMaps[i]);
+                    s.SerializeObject<ObjectArray<BinarySerializer.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
+
+                    // Replace tile set
+                    if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])
+                    {
+                        s.Goto(jpRom.PortraitTileSets[i]);
+                        s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+                    }
+                    else
+                    {
+                        // Update pointer
+                        s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSets] + 4 * i);
+                        s.SerializePointer(remapOffset);
+
+                        s.Goto(remapOffset);
+                        s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+
+                        Debug.Log($"Remapped portrait {i} to 0x{remapOffset.StringAbsoluteOffset}");
+
+                        s.Align();
+                        remapOffset = s.CurrentPointer;
+                    }
+
+                    // Replace tile set length
+                    s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSetLengths] + 2 * i);
+                    s.Serialize<ushort>(euRom.PortraitTileSetLengths[i]);
                 }
-                else
+            }
+
+            // Replace cutscenes
+            if (replaceCutscenes)
+            {
+                for (int i = 0; i < euRom.CutsceneMaps.Length; i++)
                 {
+                    GBAIsometric_IceDragon_CutsceneMap euCutscene = euRom.CutsceneMaps[i];
+                    GBAIsometric_IceDragon_CutsceneMap jpCutscene = jpRom.CutsceneMaps[i];
+
+                    // Replace tile sets
+                    for (int j = 0; j < 4; j++)
+                    {
+                        Pointer euPointer = ((GBAIsometric_IceDragon_DataPointer)euCutscene.TileSetIndices[j]).DataPointer;
+
+                        // Get the length of the encoded data
+                        long encodedLength = d.DoAt(euPointer, () =>
+                        {
+                            d.DoEncoded(new GBA_LZSSEncoder(), () => { });
+                            d.Align();
+                            return d.CurrentPointer - euPointer;
+                        });
+
+                        // Read the encoded bytes
+                        byte[] encodedBytes = d.DoAt(euPointer, () => d.SerializeArray<byte>(default, encodedLength));
+
+                        // Update pointer
+                        s.Goto(jpCutscene.TileSetIndices[j].Offset);
+                        s.SerializePointer(remapOffset);
+
+                        s.Goto(remapOffset);
+                        s.SerializeArray<byte>(encodedBytes, encodedBytes.Length);
+
+                        Debug.Log($"Remapped cutscene tile set {i}-{j} to 0x{remapOffset.StringAbsoluteOffset}");
+
+                        s.Align();
+                        remapOffset = s.CurrentPointer;
+                    }
+
+                    // Replace map
+                    Pointer euMapPointer = ((GBAIsometric_IceDragon_DataPointer)euCutscene.MapIndex).DataPointer;
+
+                    // Get the length of the encoded data
+                    long encodedMapLength = d.DoAt(euMapPointer, () =>
+                    {
+                        d.DoEncoded(new GBA_LZSSEncoder(), () => { });
+                        d.Align();
+                        return d.CurrentPointer - euMapPointer;
+                    });
+
+                    // Read the encoded bytes
+                    byte[] encodedMapBytes = d.DoAt(euMapPointer, () => d.SerializeArray<byte>(default, encodedMapLength));
+
                     // Update pointer
-                    s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSets] + 4 * i);
+                    s.Goto(jpCutscene.MapIndex.Offset);
                     s.SerializePointer(remapOffset);
 
                     s.Goto(remapOffset);
-                    s.SerializeObject<Array<byte>>(euRom.PortraitTileSets[i]);
+                    s.SerializeArray<byte>(encodedMapBytes, encodedMapBytes.Length);
 
-                    Debug.Log($"Remapped portrait {i} to 0x{remapOffset.StringAbsoluteOffset}");
+                    Debug.Log($"Remapped cutscene map {i} to 0x{remapOffset.StringAbsoluteOffset}");
 
                     s.Align();
                     remapOffset = s.CurrentPointer;
-                }
 
-                // Replace tile set length
-                s.Goto(jpPointers[Spyro_DefinedPointer.Ice_PortraitTileSetLengths] + 2 * i);
-                s.Serialize<ushort>(euRom.PortraitTileSetLengths[i]);
+                    // Replace palette
+                    s.Goto(jpCutscene.Palette.First().Offset);
+                    s.SerializeObjectArray<RGBA5551Color>(euCutscene.Palette, euCutscene.Palette.Length);
+                }
             }
 
             Debug.Log($"Remap end is 0x{remapOffset.StringAbsoluteOffset}");
