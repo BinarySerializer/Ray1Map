@@ -99,6 +99,61 @@ namespace Ray1Map.GBAIsometric
             Util.ByteArrayToFile(Path.Combine(outputPath, "Font.png"), tex.EncodeToPNG());
         }
 
+        public void ExportStrings(Context context, GBAIsometric_IceDragon_Localization loc, string outputPath)
+        {
+            if (loc?.FontTileMap == null)
+                throw new Exception($"Font data has not been parsed!");
+
+            GBAIsometric_IceDragon_SpriteMap map = loc.FontTileMap;
+
+            const int cellSize = GBAConstants.TileSize;
+            const int tileSize = 0x20;
+
+            Color[] pal = Util.ConvertGBAPalette(PaletteHelpers.CreateDummyPalette(256, wrap: 16));
+            string[] langs = context.GetSettings<GBAIsometricSettings>().Languages;
+
+            for (int lang = 0; lang < loc.LocBlocks.Length; lang++)
+            {
+                for (int i = 0; i < loc.LocBlocks[lang].StringTileIndices.Length; i++)
+                {
+                    byte[] indices = loc.LocBlocks[lang].StringTileIndices[i];
+
+                    var tex = TextureHelpers.CreateTexture2D(2 * cellSize * indices.Length, 2 * cellSize, clear: true);
+
+                    for (int c = 0; c < indices.Length; c++)
+                    {
+                        byte charIndex = indices[c];
+
+                        if (charIndex == 0xFF)
+                            continue;
+
+                        for (int y = 0; y < 2; y++)
+                        {
+                            for (int x = 0; x < 2; x++)
+                            {
+                                MapTile tile = map.MapData[(charIndex * 4) + (y * 2 + x)];
+                                tex.FillInTile(
+                                    imgData: loc.FontTileSet, 
+                                    imgDataOffset: tile.TileMapY * tileSize, 
+                                    pal: pal, 
+                                    encoding: Util.TileEncoding.Linear_4bpp, 
+                                    tileWidth: cellSize, 
+                                    flipTextureY: true, 
+                                    tileX: c * 2 * cellSize + x * cellSize, 
+                                    tileY: y * cellSize, 
+                                    flipTileX: tile.HorizontalFlip, 
+                                    flipTileY: tile.VerticalFlip);
+                            }
+                        }
+                    }
+
+                    tex.Apply();
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, langs[lang], $"{i}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
         public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet)
         {
             Color[] pal = Util.ConvertGBAPalette(tilePal);

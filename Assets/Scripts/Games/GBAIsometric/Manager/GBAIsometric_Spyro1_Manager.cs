@@ -30,6 +30,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Sprites (full, no pal)", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
             new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
+            new GameAction("Export Strings", false, true, (input, output) => ExportStrings(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
         };
 
@@ -125,6 +126,14 @@ namespace Ray1Map.GBAIsometric
             await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, (rom, _) =>
             {
                 ExportFont(rom.Localization, outputPath);
+            });
+        }
+
+        public async UniTask ExportStrings(GameSettings settings, string outputPath)
+        {
+            await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, (rom, context) =>
+            {
+                ExportStrings(context, rom.Localization, outputPath);
             });
         }
 

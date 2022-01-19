@@ -20,6 +20,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
             new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
+            new GameAction("Export Strings", false, true, (input, output) => ExportStrings(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
         };
 
@@ -121,6 +122,14 @@ namespace Ray1Map.GBAIsometric
             await DoGameActionAsync<GBAIsometric_Dragon_ROM>(settings, (rom, _) =>
             {
                 ExportFont(rom.Localization, outputPath);
+            });
+        }
+
+        public async UniTask ExportStrings(GameSettings settings, string outputPath)
+        {
+            await DoGameActionAsync<GBAIsometric_Dragon_ROM>(settings, (rom, context) =>
+            {
+                ExportStrings(context, rom.Localization, outputPath);
             });
         }
 
