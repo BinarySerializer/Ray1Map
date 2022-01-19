@@ -231,11 +231,11 @@ namespace Ray1Map.GBAVV
                 CellSize = CellSize,
                 IsometricData = new Unity_IsometricData()
                 {
-                    CollisionWidth = mapData.CollisionHeight,
-                    CollisionHeight = mapData.CollisionWidth,
+                    CollisionMapWidth = mapData.CollisionHeight,
+                    CollisionMapHeight = mapData.CollisionWidth,
                     TilesWidth = mapData.MapWidth,
                     TilesHeight = mapData.MapHeight,
-                    Collision = mirroredCollision,
+                    CollisionMap = mirroredCollision,
                     Scale = new Vector3(tileWidth, heightScale, tileWidth),
                     // Multiply X & Y displacement by 2 as it is divided by 2 later
                     CalculateXDisplacement = () => w - 16 * mapData.XPosition * 2,

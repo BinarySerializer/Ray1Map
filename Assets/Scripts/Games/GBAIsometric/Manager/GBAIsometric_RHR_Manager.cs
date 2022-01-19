@@ -432,11 +432,11 @@ namespace Ray1Map.GBAIsometric
             float tileDiagonal = 8 / 2f; // 8 Tiles, divide by 2 as 1 tile = half unit
             float tileWidth = Mathf.Sqrt(tileDiagonal * tileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
             return new Unity_IsometricData() {
-                CollisionWidth = levelData.CollisionWidth,
-                CollisionHeight = levelData.CollisionHeight,
+                CollisionMapWidth = levelData.CollisionWidth,
+                CollisionMapHeight = levelData.CollisionHeight,
                 TilesWidth = levelData.MapLayers[0].DataPointer.Value.Width * 8,
                 TilesHeight = levelData.MapLayers[0].DataPointer.Value.Height * 8,
-                Collision = levelData.CollisionData.Select(c => GetCollisionTile(context, c)).ToArray(),
+                CollisionMap = levelData.CollisionData.Select(c => GetCollisionTile(context, c)).ToArray(),
                 Scale = new Vector3(tileWidth, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), tileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };
         }

@@ -802,11 +802,11 @@ namespace Ray1Map.PSKlonoa
                 FramesPerSecond = 60,
                 IsometricData = new Unity_IsometricData
                 {
-                    CollisionWidth = 0,
-                    CollisionHeight = 0,
+                    CollisionMapWidth = 0,
+                    CollisionMapHeight = 0,
                     TilesWidth = 0,
                     TilesHeight = 0,
-                    Collision = null,
+                    CollisionMap = null,
                     Scale = Vector3.one,
                     ViewAngle = Quaternion.Euler(90, 0, 0),
                     CalculateYDisplacement = () => 0,

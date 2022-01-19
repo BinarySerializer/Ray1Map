@@ -80,11 +80,10 @@ namespace Ray1Map
             mesh.RecalculateBounds();
             return mesh;
         }
-        public static Mesh CreateBoxDifferentHeights(float sz, float h0, float h1, float h2, float h3, Color? color = null) {
+        public static Mesh CreateBoxDifferentHeights(float sz, float h0, float h1, float h2, float h3, Color? color = null) =>
+            CreateBoxDifferentHeights(sz, sz, h0, h1, h2, h3, color);
+        public static Mesh CreateBoxDifferentHeights(float xSize, float zSize, float h0, float h1, float h2, float h3, Color? color = null) {
             Mesh mesh = new Mesh();
-
-            float xSize = sz;
-            float zSize = sz;
 
             Vector3 p0 = new Vector3(-xSize * .5f, 0,  zSize * .5f);
             Vector3 p1 = new Vector3(xSize * .5f,  0,  zSize * .5f);

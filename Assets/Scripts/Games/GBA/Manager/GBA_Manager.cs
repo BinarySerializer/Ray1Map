@@ -916,15 +916,15 @@ namespace Ray1Map.GBA
                 {
                     isometricData = new Unity_IsometricData()
                     {
-                        CollisionWidth = map.Width,
-                        CollisionHeight = map.Height,
+                        CollisionMapWidth = map.Width,
+                        CollisionMapHeight = map.Height,
                         TilesWidth = map.Width,
                         TilesHeight = map.Height,
-                        Collision = map.CollisionData3D.Select(c => c.ToIsometricCollisionTile()).ToArray(),
+                        CollisionMap = map.CollisionData3D.Select(c => c.ToIsometricCollisionTile()).ToArray(),
                         Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
                         ViewAngle = Quaternion.Euler(45f, 0f, 0f),
-                        CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
-                        CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f,
+                        CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionMapHeight / 2f,
+                        CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionMapWidth / 2f,
                         ObjectScale = new Vector3(8,24,8)
                     };
                 }

@@ -195,7 +195,28 @@ namespace Ray1Map.GBAIsometric
                 Controller.DetailedState = $"Loading collision";
                 await Controller.WaitIfNecessary();
 
-                // TODO: Implement
+                // TODO: Fix pos and scale
+                lev.IsometricData = new Unity_IsometricData
+                {
+                    TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
+                    TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
+                    CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.
+                        // TODO: Include ones with the "shape data" (what is that? add types?)
+                        Where(x => x.ShapeLength == 0).Select(x =>
+                    {
+                        int w = x.MaxX - x.MinX;
+                        int h = x.MaxY - x.MinY;
+
+                        return new Unity_IsometricCollisionObject
+                        {
+                            Position = new Vector2(x.MinX + w / 2f, x.MinY + h / 2f),
+                            Dimensions = new Vector2Int(w, h),
+                            Height = (float)x.Height / (1 << 14),
+                        };
+                    }).ToArray(),
+                    // TODO: Fix
+                    Scale = new Vector3(GBAConstants.TileSize, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), GBAConstants.TileSize) * 0.02f
+                };
 
                 Controller.DetailedState = $"Loading maps";
                 await Controller.WaitIfNecessary();

@@ -620,11 +620,11 @@ namespace Ray1Map.GBAVV
                 EventData = new List<Unity_SpriteObject>(objects),
                 IsometricData = new Unity_IsometricData
                 {
-                    CollisionWidth = 0,
-                    CollisionHeight = 0,
+                    CollisionMapWidth = 0,
+                    CollisionMapHeight = 0,
                     TilesWidth = 38,
                     TilesHeight = 24,
-                    Collision = null,
+                    CollisionMap = null,
                     Scale = Vector3.one / 2,
                     ViewAngle = Quaternion.identity,
                     CalculateYDisplacement = () => 0,

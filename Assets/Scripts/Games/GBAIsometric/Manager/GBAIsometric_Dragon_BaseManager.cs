@@ -201,11 +201,11 @@ namespace Ray1Map.GBAIsometric
             float tileWidth = Mathf.Sqrt(tileDiagonal * tileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
             return new Unity_IsometricData()
             {
-                CollisionWidth = collisionData.Width,
-                CollisionHeight = collisionData.Height,
+                CollisionMapWidth = collisionData.Width,
+                CollisionMapHeight = collisionData.Height,
                 TilesWidth = width * groupWidth,
                 TilesHeight = height * groupHeight,
-                Collision = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
+                CollisionMap = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
                 Scale = new Vector3(tileWidth, 1f/Mathf.Cos(Mathf.Deg2Rad * 30f), tileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };
         }
@@ -343,9 +343,9 @@ namespace Ray1Map.GBAIsometric
                 foreach (var obj in objects.OfType<Unity_Object_GBAIsometricSpyro>().Where(x => !x.IsWaypoint)) {
                     var objX = obj.XPosition / 16f;
                     var objY = obj.YPosition / 16f;
-                    if (objX < 0 || objX >= isometricData.CollisionWidth ||
-                        objY < 0 || objY >= isometricData.CollisionHeight) continue;
-                    var col = isometricData.Collision[Mathf.FloorToInt(objY) * isometricData.CollisionWidth + Mathf.FloorToInt(objX)];
+                    if (objX < 0 || objX >= isometricData.CollisionMapWidth ||
+                        objY < 0 || objY >= isometricData.CollisionMapHeight) continue;
+                    var col = isometricData.CollisionMap[Mathf.FloorToInt(objY) * isometricData.CollisionMapWidth + Mathf.FloorToInt(objX)];
 
                     ((Unity_Object_GBAIsometricSpyro)obj).Object.Height = (short)(col.Height * 16);
                 }

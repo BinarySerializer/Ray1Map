@@ -9,17 +9,13 @@ namespace Ray1Map
     {
         #region Public Properties
 
-        /// <summary>
-        /// The level width
-        /// </summary>
-        public int CollisionWidth { get; set; }
+        // Map
+        public int CollisionMapWidth { get; set; }
+        public int CollisionMapHeight { get; set; }
+        public Unity_IsometricCollisionTile[] CollisionMap { get; set; }
 
-        /// <summary>
-        /// The level height
-        /// </summary>
-        public int CollisionHeight { get; set; }
-
-        public Unity_IsometricCollisionTile[] Collision { get; set; }
+        // Generic
+        public Unity_IsometricCollisionObject[] CollisionObjects { get; set; }
 
         public Vector3 Scale { get; set; } = Vector3.one;
 
@@ -27,7 +23,7 @@ namespace Ray1Map
         public int TilesHeight { get; set; }
 
         public Quaternion ViewAngle { get; set; } = Quaternion.Euler(30f, -45, 0);
-        public Func<float> CalculateYDisplacement { get; set; } = () => LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight;
+        public Func<float> CalculateYDisplacement { get; set; } = () => LevelEditorData.Level.IsometricData.CollisionMapWidth + LevelEditorData.Level.IsometricData.CollisionMapHeight;
         public Func<float> CalculateXDisplacement { get; set; } = () => 0;
         public Vector3 ObjectScale { get; set; } = Vector3.one * 16;
         public Vector3 AbsoluteObjectScale => new Vector3(Scale.x / ObjectScale.x, Scale.y / ObjectScale.y, Scale.z / ObjectScale.z);
@@ -35,19 +31,37 @@ namespace Ray1Map
         #endregion
 
         #region Helper Methods
-        public GameObject GetCollisionVisualGameObject(Material mat) {
+        public GameObject GetCollisionVisualGameObject(Material mat) 
+        {
             GameObject parent = new GameObject("3D Collision - Visual");
             parent.layer = LayerMask.NameToLayer("3D Collision");
             List<MeshFilter> mfs = new List<MeshFilter>();
             List<MeshFilter> addMfs = new List<MeshFilter>();
-            for (int y = 0; y < CollisionHeight; y++) {
-                for (int x = 0; x < CollisionWidth; x++) {
-                    int ind = y * CollisionWidth + x;
-                    var block = Collision[ind];
-                    mfs.Add(block.GetGameObject(parent,x,y,mat,Collision,CollisionWidth, CollisionHeight, addMfs));
-                }
+            int[] trianglesCount;
+
+            if (CollisionObjects != null)
+            {
+                foreach (Unity_IsometricCollisionObject c in CollisionObjects)
+                    mfs.Add(c.GetGameObject(parent));
+
+                trianglesCount = Enumerable.Repeat(12, CollisionObjects.Length).ToArray();
             }
-            CombineVisualMeshes(parent, mfs.ToArray(), addMfs.ToArray(), mat, Collision?.Select(c => c.GetMeshTriangleCount()).ToArray());
+            else
+            {
+                for (int y = 0; y < CollisionMapHeight; y++)
+                {
+                    for (int x = 0; x < CollisionMapWidth; x++)
+                    {
+                        int ind = y * CollisionMapWidth + x;
+                        var block = CollisionMap[ind];
+                        mfs.Add(block.GetGameObject(parent, x, y, mat, CollisionMap, CollisionMapWidth, CollisionMapHeight, addMfs));
+                    }
+                }
+
+                trianglesCount = CollisionMap?.Select(c => c.GetMeshTriangleCount()).ToArray();
+            }
+
+            CombineVisualMeshes(parent, mfs.ToArray(), addMfs.ToArray(), mat, trianglesCount);
             parent.transform.localScale = Scale;
             return parent;
         }
@@ -99,25 +113,38 @@ namespace Ray1Map
                 mr.sharedMaterial = mat;
             }
         }
-        public GameObject GetCollisionCollidersGameObject() {
+        public GameObject GetCollisionCollidersGameObject() 
+        {
             GameObject parent = new GameObject("3D Collision - Colliders");
             parent.transform.localScale = Scale;
 
-            for (int y = 0; y < CollisionHeight; y++) {
-                for (int x = 0; x < CollisionWidth; x++) {
-                    int ind = y * CollisionWidth + x;
-                    var block = Collision[ind];
-                    block.GetGameObjectCollider(parent, x, y);
+            if (CollisionObjects != null)
+            {
+                foreach (Unity_IsometricCollisionObject c in CollisionObjects)
+                {
+                    c.GetGameObjectCollider(parent);
+                }
+            }
+            else
+            {
+                for (int y = 0; y < CollisionMapHeight; y++)
+                {
+                    for (int x = 0; x < CollisionMapWidth; x++)
+                    {
+                        int ind = y * CollisionMapWidth + x;
+                        var block = CollisionMap[ind];
+                        block.GetGameObjectCollider(parent, x, y);
+                    }
                 }
             }
             return parent;
         }
 
         public Unity_IsometricCollisionTile GetCollisionTile(int x, int y) {
-            int ind = y * CollisionWidth + x;
-            if(Collision == null) return null;
-            if(ind >= Collision.Length) return null;
-            return Collision[ind];
+            int ind = y * CollisionMapWidth + x;
+            if(CollisionMap == null) return null;
+            if(ind >= CollisionMap.Length) return null;
+            return CollisionMap[ind];
         }
         #endregion
 
@@ -125,11 +152,11 @@ namespace Ray1Map
 
         public static Unity_IsometricData Mode7(int cellSize) => new Unity_IsometricData()
         {
-            CollisionWidth = 0,
-            CollisionHeight = 0,
+            CollisionMapWidth = 0,
+            CollisionMapHeight = 0,
             TilesWidth = 0,
             TilesHeight = 0,
-            Collision = null,
+            CollisionMap = null,
             Scale = Vector3.one / 2,
             ViewAngle = Quaternion.Euler(90, 0, 0),
             CalculateYDisplacement = () => 0,
