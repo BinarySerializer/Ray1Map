@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using BinarySerializer;
 using BinarySerializer.GBA;
 
@@ -11,8 +10,6 @@ namespace Ray1Map.GBAIsometric
         public int Pre_Level3D { get; set; } = -1;
         public bool Pre_SerializePortraits { get; set; }
 
-        // TODO: Title screen map
-        // TODO: Isometric levels
         // TODO: Sparx levels
         // TODO: Mode7 levels
         // TODO: Level maps (JP only)
@@ -22,6 +19,7 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_Ice_Level3D_MapLayers[] Level3D_MapLayers { get; set; }
         public uint[] Level3D_TileSetLengths { get; set; }
         public Pointer<Array<byte>>[] Level3D_TileSets { get; set; }
+        public Pointer<GBAIsometric_Ice_MapCollision>[] Level3D_MapCollision { get; set; }
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
@@ -34,8 +32,8 @@ namespace Ray1Map.GBAIsometric
             // Serialize ROM header and base data
             base.SerializeImpl(s);
 
-            GBAIsometricSettings settings = s.GetSettings<GBAIsometricSettings>();
-            Dictionary<Spyro_DefinedPointer, Pointer> pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
+            Dictionary<Spyro_DefinedPointer, Pointer> pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(
+                s.GetR1Settings().GameModeSelection, Offset.File);
 
             if (Pre_SerializeLevel3D)
                 SerializeLevel3D(s, pointerTable);
@@ -80,6 +78,16 @@ namespace Ray1Map.GBAIsometric
 
             if (Pre_Level3D != -1)
                 Level3D_TileSets[Pre_Level3D].Resolve(s, x => x.Pre_Length = Level3D_TileSetLengths[Pre_Level3D]);
+
+            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Level3D_MapCollision], () =>
+                Level3D_MapCollision = s.SerializePointerArray<GBAIsometric_Ice_MapCollision>(
+                    obj: Level3D_MapCollision,
+                    count: count,
+                    resolve: Pre_Level3D == -1,
+                    name: nameof(Level3D_MapCollision)));
+
+            if (Pre_Level3D != -1)
+                Level3D_MapCollision[Pre_Level3D].Resolve(s);
         }
 
         private void SerializePortraits(
