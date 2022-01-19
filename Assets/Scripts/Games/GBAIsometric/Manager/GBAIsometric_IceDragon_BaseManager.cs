@@ -72,6 +72,82 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
+        public void ExportScripts(Context context, GBAIsometric_Spyro_Dialog[] dialogEntries, GBAIsometric_IceDragon_MenuPage[] menuPages, string outputPath)
+        {
+            var langIndex = 0;
+
+            foreach (var lang in context.GetSettings<GBAIsometricSettings>().Languages)
+            {
+                if (dialogEntries != null)
+                {
+                    using var w = new StreamWriter(Path.Combine(outputPath, $"Cutscenes_{lang}.txt"));
+
+                    foreach (var d in dialogEntries.OrderBy(x => x.ID))
+                    {
+                        var data = d.DialogData;
+
+                        w.WriteLine($"# Cutscene {d.ID} (0x{d.Offset.StringAbsoluteOffset})");
+
+                        foreach (var e in data.Entries)
+                        {
+                            switch (e.Values.First().Instruction)
+                            {
+                                case GBAIsometric_Spyro_DialogData.Instruction.DrawPortrait:
+                                    w.WriteLine($"[Draw portrait {e.PortraitIndex}]");
+                                    break;
+
+                                case GBAIsometric_Spyro_DialogData.Instruction.DrawText:
+                                case GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText:
+                                    w.WriteLine($"{String.Join(" ", e.LocIndices.Select(x => x.GetString(langIndex)))}");
+                                    break;
+
+                                case GBAIsometric_Spyro_DialogData.Instruction.MoveCamera:
+                                    w.WriteLine("[Move camera]");
+                                    break;
+                            }
+
+                            if (e.Values.First().Instruction == GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText)
+                            {
+                                w.WriteLine($"  > {e.MultiChoiceLocIndices[0].GetString(langIndex)} > {e.MultiChoiceLocIndices[2].GetString(langIndex)}");
+                                w.WriteLine($"  > {e.MultiChoiceLocIndices[1].GetString(langIndex)} > {e.MultiChoiceLocIndices[3].GetString(langIndex)}");
+                            }
+                        }
+
+                        w.WriteLine();
+                    }
+                }
+
+                if (menuPages != null)
+                {
+                    using var w = new StreamWriter(Path.Combine(outputPath, $"Menus_{lang}.txt"));
+
+                    var menuIndex = 0;
+
+                    foreach (var d in menuPages)
+                    {
+                        w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.StringAbsoluteOffset})");
+
+                        var header = d.Header.GetString(langIndex);
+                        var subHeader = d.SubHeader.GetString(langIndex);
+
+                        if (header != null)
+                            w.WriteLine($"{header}");
+                        if (subHeader != null)
+                            w.WriteLine($"{subHeader}");
+
+                        foreach (var o in d.Options ?? Array.Empty<GBAIsometric_IceDragon_MenuOption>())
+                            w.WriteLine($"> {o.LocIndex.GetString(langIndex)}");
+
+                        w.WriteLine();
+
+                        menuIndex++;
+                    }
+                }
+
+                langIndex++;
+            }
+        }
+
         public void ExportFont(GBAIsometric_IceDragon_Localization loc, string outputPath)
         {
             if (loc?.FontTileMap == null)

@@ -9,6 +9,7 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_IceDragon_Resources Resources { get; set; }
         public GBAIsometric_IceDragon_Localization Localization { get; set; }
         public GBAIsometric_IceDragon_CutsceneMap[] CutsceneMaps { get; set; }
+        public GBAIsometric_IceDragon_MenuPage[] MenuPages { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -29,7 +30,12 @@ namespace Ray1Map.GBAIsometric
                 Localization = s.SerializeObject<GBAIsometric_IceDragon_Localization>(Localization, name: nameof(Localization));
 
             // Serialize cutscene maps
-            CutsceneMaps = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.CutsceneMaps), () => s.SerializeObjectArray<GBAIsometric_IceDragon_CutsceneMap>(CutsceneMaps, settings.CutsceneMapsCount, name: nameof(CutsceneMaps)));
+            CutsceneMaps = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.CutsceneMaps), () =>
+                s.SerializeObjectArray<GBAIsometric_IceDragon_CutsceneMap>(CutsceneMaps, settings.CutsceneMapsCount, name: nameof(CutsceneMaps)));
+
+            // Serialize menu pages
+            MenuPages = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.MenuPages), () => 
+                s.SerializeObjectArray<GBAIsometric_IceDragon_MenuPage>(MenuPages, settings.MenuPageCount, name: nameof(MenuPages)));
         }
     }
 }

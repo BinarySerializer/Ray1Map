@@ -108,7 +108,7 @@ namespace Ray1Map.GBAIsometric
                 }
 
                 if (Values.First().Instruction == Instruction.DrawMultiChoiceText)
-                    MultiChoiceLocIndices = s.SerializeObjectArray<GBAIsometric_LocIndex>(MultiChoiceLocIndices, 4, x => x.ParseIndexFunc = i => i == 0 ? -1 : i, name: nameof(MultiChoiceLocIndices));
+                    MultiChoiceLocIndices = s.SerializeObjectArray<GBAIsometric_LocIndex>(MultiChoiceLocIndices, 4, x => x.Pre_ParseIndexFunc = i => i == 0 ? -1 : i, name: nameof(MultiChoiceLocIndices));
             }
 
         }

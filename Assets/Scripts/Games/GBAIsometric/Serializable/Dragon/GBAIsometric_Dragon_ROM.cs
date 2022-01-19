@@ -29,7 +29,6 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_LocIndex[] LevelNames { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
         public ushort[] GemCounts { get; set; } // The gem count for every level
-        public GBAIsometric_Spyro_MenuPage[] MenuPages { get; set; }
 
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
 
@@ -136,7 +135,6 @@ namespace Ray1Map.GBAIsometric
             LevelIndices = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LevelIndices), () => s.SerializeArray<byte>(LevelIndices, settings.TotalLevelsCount, name: nameof(LevelIndices)));
             LevelNameInfos = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LevelNameInfos), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, settings.TotalLevelsCount, name: nameof(LevelNameInfos)));
             LevelNames = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LevelNames), () => s.SerializeObjectArray<GBAIsometric_LocIndex>(LevelNames, settings.TotalLevelsCount, name: nameof(LevelNames)));
-            MenuPages = s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, settings.MenuPageCount, name: nameof(MenuPages)));
 
             // Serialize palettes for Spyro 2
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)

@@ -30,6 +30,7 @@ namespace Ray1Map.GBAIsometric
                         _ => throw new ArgumentOutOfRangeException(nameof(region), region, null)
                     };
                     CutsceneMapsCount = 21;
+                    MenuPageCount = 10;
                     Languages = region switch
                     {
                         GBAIsometricRegion.EU => new[] { "English", "French", "Spanish", "German", "Italian" },

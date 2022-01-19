@@ -1,11 +1,10 @@
-﻿using BinarySerializer;
-using BinarySerializer.GBA;
-using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using BinarySerializer;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Ray1Map.GBAIsometric
@@ -18,7 +17,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Resources (categorized)", false, true, (input, output) => ExportResourcesAsync(settings, output, true, false)),
             new GameAction("Export Resources (Unused)", false, true, (input, output) => ExportResourcesAsync(settings, output, false, true)),
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
-            new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
+            new GameAction("Export Scripts", false, true, (input, output) => ExportScriptsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
             new GameAction("Export Strings", false, true, (input, output) => ExportStrings(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
@@ -35,86 +34,12 @@ namespace Ray1Map.GBAIsometric
             });
         }
 
-        public async UniTask ExportCutscenes(GameSettings settings, string outputPath)
+        public async UniTask ExportScriptsAsync(GameSettings settings, string outputPath)
         {
-            using (var context = new Ray1MapContext(settings))
+            await DoGameActionAsync<GBAIsometric_Dragon_ROM>(settings, (rom, context) =>
             {
-                await LoadFilesAsync(context);
-
-                var rom = FileFactory.Read<GBAIsometric_Dragon_ROM>(context, GetROMFilePath);
-
-                var langIndex = 0;
-
-                foreach (var lang in context.GetSettings<GBAIsometricSettings>().Languages)
-                {
-                    using (var w = new StreamWriter(Path.Combine(outputPath, $"Cutscenes_{lang}.txt")))
-                    {
-                        foreach (var d in rom.DialogEntries.OrderBy(x => x.ID))
-                        {
-                            var data = d.DialogData;
-
-                            w.WriteLine($"# Cutscene {d.ID} (0x{d.Offset.StringAbsoluteOffset})");
-
-                            foreach (var e in data.Entries)
-                            {
-                                switch (e.Values.First().Instruction)
-                                {
-                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawPortrait:
-                                        w.WriteLine($"[Draw portrait {e.PortraitIndex}]");
-                                        break;
-
-                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawText:
-                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText:
-                                        w.WriteLine($"{String.Join(" ", e.LocIndices.Select(x => x.GetString(langIndex)))}");
-                                        break;
-
-                                    case GBAIsometric_Spyro_DialogData.Instruction.MoveCamera:
-                                        w.WriteLine("[Move camera]");
-                                        break;
-                                }
-
-                                if (e.Values.First().Instruction == GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText)
-                                {
-                                    w.WriteLine($"  > {e.MultiChoiceLocIndices[0].GetString(langIndex)} > {e.MultiChoiceLocIndices[2].GetString(langIndex)}");
-                                    w.WriteLine($"  > {e.MultiChoiceLocIndices[1].GetString(langIndex)} > {e.MultiChoiceLocIndices[3].GetString(langIndex)}");
-                                }
-                            }
-
-                            w.WriteLine();
-                        }
-                    }
-
-                    if (rom.MenuPages != null)
-                    {
-                        using (var w = new StreamWriter(Path.Combine(outputPath, $"Menus_{lang}.txt")))
-                        {
-                            var menuIndex = 0;
-
-                            foreach (var d in rom.MenuPages)
-                            {
-                                w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.StringAbsoluteOffset})");
-
-                                var header = d.Header.GetString(langIndex);
-                                var subHeader = d.SubHeader.GetString(langIndex);
-
-                                if (header != null)
-                                    w.WriteLine($"{header}");
-                                if (subHeader != null)
-                                    w.WriteLine($"{subHeader}");
-
-                                foreach (var o in d.Options ?? new GBAIsometric_Spyro_MenuOption[0])
-                                    w.WriteLine($"> {o.LocIndex.GetString(langIndex)}");
-
-                                w.WriteLine();
-
-                                menuIndex++;
-                            }
-                        }
-                    }
-
-                    langIndex++;
-                }
-            }
+                ExportScripts(context, rom.DialogEntries, rom.MenuPages, outputPath);
+            });
         }
 
         public async UniTask ExportFont(GameSettings settings, string outputPath)

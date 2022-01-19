@@ -29,6 +29,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Cutscene Maps", false, true, (input, output) => ExportCutsceneMapsAsync(settings, output)),
             new GameAction("Export Sprites (full, no pal)", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
             new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
+            new GameAction("Export Scripts", false, true, (input, output) => ExportScriptsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
             new GameAction("Export Strings", false, true, (input, output) => ExportStrings(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
@@ -118,6 +119,14 @@ namespace Ray1Map.GBAIsometric
 
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}.png"), tex.EncodeToPNG());
                 }
+            });
+        }
+
+        public async UniTask ExportScriptsAsync(GameSettings settings, string outputPath)
+        {
+            await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, (rom, context) =>
+            {
+                ExportScripts(context, null, rom.MenuPages, outputPath);
             });
         }
 
