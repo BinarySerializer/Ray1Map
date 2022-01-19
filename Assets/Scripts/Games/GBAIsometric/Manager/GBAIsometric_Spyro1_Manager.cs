@@ -299,7 +299,7 @@ namespace Ray1Map.GBAIsometric
             // Text:
             // 0x08279c50 - Replaced font tiles (<)
             // 0x0827c2f0 - Replaced font map (<)
-            // 0x8275C00 -> 0x08831D0C - Text (remapped, pointer at 0x08002c60)
+            // 0x8275C00 -> 0x08835D28 - Replaced text (remapped, pointer at 0x08002c60)
 
             // Portraits (excluding 8 & 23):
             // 0x081b0b58 - Replaced palettes (16)
@@ -310,9 +310,10 @@ namespace Ray1Map.GBAIsometric
             // Cutscenes
             // Replaced palettes, remapped tile sets and maps
 
-            // TODO:
-            // Replace cutscenes
-            // Replace logo
+            // Logo
+            // 0x082de200 - Replaced tile map
+            // 0x082de05c - Replaced palette
+            // 0x082da5b8 -> 0x08831D0C - Replaced tile set (remapped, pointer at 0x0800e59c)
 
             using var euContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceEU, baseDir, 0, 0));
             using var jpContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
