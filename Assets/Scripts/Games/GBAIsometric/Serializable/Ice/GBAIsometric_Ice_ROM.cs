@@ -81,6 +81,7 @@ namespace Ray1Map.GBAIsometric
             if (Pre_Level3D != -1)
                 Level3D_TileSets[Pre_Level3D].Resolve(s, x => x.Pre_Length = Level3D_TileSetLengths[Pre_Level3D]);
 
+            // Serialize collision
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Level3D_MapCollision], () =>
                 Level3D_MapCollision = s.SerializePointerArray<GBAIsometric_Ice_Level3D_MapCollision>(
                     obj: Level3D_MapCollision,

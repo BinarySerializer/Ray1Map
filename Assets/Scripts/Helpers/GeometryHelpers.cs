@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ray1Map
@@ -83,24 +84,33 @@ namespace Ray1Map
         public static Mesh CreateBoxDifferentHeights(float sz, float h0, float h1, float h2, float h3, Color? color = null) =>
             CreateBoxDifferentHeights(sz, sz, h0, h1, h2, h3, color);
         public static Mesh CreateBoxDifferentHeights(float xSize, float zSize, float h0, float h1, float h2, float h3, Color? color = null) {
+            return CreateBoxDifferentHeights(new Vector3[]
+            {
+                new Vector3(-xSize * .5f, 0,  zSize * .5f),
+                new Vector3(xSize * .5f,  0,  zSize * .5f),
+                new Vector3(xSize * .5f,  0,  -zSize * .5f),
+                new Vector3(-xSize * .5f, 0,  -zSize * .5f),
+                new Vector3(-xSize * .5f, h0, zSize * .5f),
+                new Vector3(xSize * .5f,  h1, zSize * .5f),
+                new Vector3(xSize * .5f,  h2, -zSize * .5f),
+                new Vector3(-xSize * .5f, h3, -zSize * .5f),
+            }, color);
+        }
+
+        public static Mesh CreateBoxDifferentHeights(Vector3[] points, Color? color = null) 
+        {
             Mesh mesh = new Mesh();
 
-            Vector3 p0 = new Vector3(-xSize * .5f, 0,  zSize * .5f);
-            Vector3 p1 = new Vector3(xSize * .5f,  0,  zSize * .5f);
-            Vector3 p2 = new Vector3(xSize * .5f,  0,  -zSize * .5f);
-            Vector3 p3 = new Vector3(-xSize * .5f, 0,  -zSize * .5f);
-            Vector3 p4 = new Vector3(-xSize * .5f, h0, zSize * .5f);
-            Vector3 p5 = new Vector3(xSize * .5f,  h1, zSize * .5f);
-            Vector3 p6 = new Vector3(xSize * .5f,  h2, -zSize * .5f);
-            Vector3 p7 = new Vector3(-xSize * .5f, h3, -zSize * .5f);
+            if (points.Length != 8)
+                throw new Exception($"Invalid points count of {points.Length}, should be 8");
 
-            Vector3[] vertices = new Vector3[] {
-                p0, p1, p2, p3,
-                p7, p4, p0, p3,
-                p4, p5, p1, p0,
-                p6, p7, p3, p2,
-                p5, p6, p2, p1,
-                p7, p6, p5, p4
+            Vector3[] vertices = {
+                points[0], points[1], points[2], points[3],
+                points[7], points[4], points[0], points[3],
+                points[4], points[5], points[1], points[0],
+                points[6], points[7], points[3], points[2],
+                points[5], points[6], points[2], points[1],
+                points[7], points[6], points[5], points[4]
             };
 
             Vector3 up = Vector3.up;

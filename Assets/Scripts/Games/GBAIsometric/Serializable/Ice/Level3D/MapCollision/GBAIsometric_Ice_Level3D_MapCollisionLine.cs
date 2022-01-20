@@ -2,8 +2,9 @@
 
 namespace Ray1Map.GBAIsometric
 {
-    public class GBAIsometric_Ice_Level3D_MapCollisionAdditionalDataItem : BinarySerializable
+    public class GBAIsometric_Ice_Level3D_MapCollisionLine : BinarySerializable
     {
+        // Normal?
         public short UnkX { get; set; }
         public short UnkY { get; set; }
         public FixedPointInt32 Int_04 { get; set; }

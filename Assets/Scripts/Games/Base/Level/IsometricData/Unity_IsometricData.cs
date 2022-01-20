@@ -120,10 +120,10 @@ namespace Ray1Map
 
             if (CollisionObjects != null)
             {
-                foreach (Unity_IsometricCollisionObject c in CollisionObjects)
-                {
-                    c.GetGameObjectCollider(parent);
-                }
+                //foreach (Unity_IsometricCollisionObject c in CollisionObjects)
+                //{
+                //    c.GetGameObjectCollider(parent);
+                //}
             }
             else
             {
