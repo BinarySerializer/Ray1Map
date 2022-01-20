@@ -221,7 +221,7 @@ namespace Ray1Map.GBAIsometric
                 Controller.DetailedState = $"Loading maps";
                 await Controller.WaitIfNecessary();
 
-                lev.Maps = mapLayers.Layers.Select((map, i) =>
+                IEnumerable<Unity_Map> maps = mapLayers.Layers.Select((map, i) =>
                 {
                     return new Unity_Map()
                     {
@@ -231,8 +231,38 @@ namespace Ray1Map.GBAIsometric
                         TileSet = new Unity_TileSet[] { tileSet },
                         MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
                     };
-                }).Reverse().ToArray();
+                }).Reverse();
                 lev.CellSize = GBAConstants.TileSize;
+
+                // Add the level map if available
+                if (rom.Level3D_LevelMaps != null && rom.Level3D_LevelMaps.Length > level && Settings.LoadIsometricMapLayer)
+                {
+                    GBAIsometric_Ice_Level3D_LevelMap lvlMap = rom.Level3D_LevelMaps[level];
+
+                    Texture2D tileSetTex = Util.ToTileSetTexture(
+                        imgData: lvlMap.ImgData, 
+                        pal: Util.ConvertGBAPalette(lvlMap.Palette.Colors), 
+                        encoding: Util.TileEncoding.Linear_4bpp, 
+                        tileWidth: GBAConstants.TileSize, 
+                        flipY: false);
+
+                    maps = maps.Append(new Unity_Map()
+                    {
+                        Type = Unity_Map.MapType.Graphics,
+                        Width = 30,
+                        Height = 20,
+                        TileSet = new Unity_TileSet[]
+                        {
+                            new Unity_TileSet(tileSetTex, CellSize)
+                        },
+                        MapTiles = Enumerable.Range(0, 30 * 20).Select(x => new Unity_Tile(new MapTile()
+                        {
+                            TileMapY = (ushort)x
+                        })).ToArray()
+                    });
+                }
+
+                lev.Maps = maps.ToArray();
 
                 Controller.DetailedState = $"Loading objects";
                 await Controller.WaitIfNecessary();

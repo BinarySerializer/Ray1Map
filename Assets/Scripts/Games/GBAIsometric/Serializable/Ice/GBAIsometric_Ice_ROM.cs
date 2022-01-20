@@ -12,7 +12,6 @@ namespace Ray1Map.GBAIsometric
 
         // TODO: Sparx levels
         // TODO: Mode7 levels
-        // TODO: Level maps (JP only)
 
         // Levels 3D
         public Pointer<Palette>[] Level3D_Palettes { get; set; }
@@ -20,6 +19,7 @@ namespace Ray1Map.GBAIsometric
         public uint[] Level3D_TileSetLengths { get; set; }
         public Pointer<Array<byte>>[] Level3D_TileSets { get; set; }
         public Pointer<GBAIsometric_Ice_Level3D_MapCollision>[] Level3D_MapCollision { get; set; }
+        public GBAIsometric_Ice_Level3D_LevelMap[] Level3D_LevelMaps { get; set; } // JP only
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
@@ -88,6 +88,11 @@ namespace Ray1Map.GBAIsometric
 
             if (Pre_Level3D != -1)
                 Level3D_MapCollision[Pre_Level3D].Resolve(s);
+
+            // Although these are all directly referenced from the load function it is easier parsing it as an array as they're
+            // stored one after another in the correct order. These are only in the JP version.
+            s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LevelMaps), () =>
+                Level3D_LevelMaps = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_LevelMap>(Level3D_LevelMaps, 15, name: nameof(Level3D_LevelMaps)));
         }
 
         private void SerializePortraits(

@@ -580,7 +580,7 @@ namespace Ray1Map
                         //[Spyro_DefinedPointer.Ice_Level3D_MapLayers] = ,
                         //[Spyro_DefinedPointer.Ice_Level3D_TileSets] = ,
                         //[Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = ,
-                        //[Spyro_DefinedPointer.Ice_Level3D_Collision] = ,
+                        //[Spyro_DefinedPointer.Ice_Level3D_MapCollision] = ,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceJP:
@@ -594,16 +594,18 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.CutsceneMaps] = 0x081b06e4,
                         [Spyro_DefinedPointer.MenuPages] = 0x081b038c,
 
+                        [Spyro_DefinedPointer.LevelMaps] = 0x082edaa0,
+
                         [Spyro_DefinedPointer.Ice_PortraitPalettes] = 0x081b0b58,
                         [Spyro_DefinedPointer.Ice_PortraitTileMaps] = 0x081b0bb8,
                         [Spyro_DefinedPointer.Ice_PortraitTileSetLengths] = 0x08063614,
                         [Spyro_DefinedPointer.Ice_PortraitTileSets] = 0x081b0af8,
 
-                        //[Spyro_DefinedPointer.Ice_Level3D_Palettes] = ,
-                        //[Spyro_DefinedPointer.Ice_Level3D_MapLayers] = ,
-                        //[Spyro_DefinedPointer.Ice_Level3D_TileSets] = ,
-                        //[Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = ,
-                        //[Spyro_DefinedPointer.Ice_Level3D_Collision] = ,
+                        [Spyro_DefinedPointer.Ice_Level3D_Palettes] = 0x081b0dfc,
+                        [Spyro_DefinedPointer.Ice_Level3D_MapLayers] = 0x081b0cec,
+                        [Spyro_DefinedPointer.Ice_Level3D_TileSets] = 0x081b0e40,
+                        [Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = 0x08063888,
+                        [Spyro_DefinedPointer.Ice_Level3D_MapCollision] = 0x081b0c18,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonFlameEU:
