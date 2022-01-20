@@ -19,7 +19,7 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_Ice_Level3D_MapLayers[] Level3D_MapLayers { get; set; }
         public uint[] Level3D_TileSetLengths { get; set; }
         public Pointer<Array<byte>>[] Level3D_TileSets { get; set; }
-        public Pointer<GBAIsometric_Ice_MapCollision>[] Level3D_MapCollision { get; set; }
+        public Pointer<GBAIsometric_Ice_Level3D_MapCollision>[] Level3D_MapCollision { get; set; }
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
@@ -80,7 +80,7 @@ namespace Ray1Map.GBAIsometric
                 Level3D_TileSets[Pre_Level3D].Resolve(s, x => x.Pre_Length = Level3D_TileSetLengths[Pre_Level3D]);
 
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Level3D_MapCollision], () =>
-                Level3D_MapCollision = s.SerializePointerArray<GBAIsometric_Ice_MapCollision>(
+                Level3D_MapCollision = s.SerializePointerArray<GBAIsometric_Ice_Level3D_MapCollision>(
                     obj: Level3D_MapCollision,
                     count: count,
                     resolve: Pre_Level3D == -1,

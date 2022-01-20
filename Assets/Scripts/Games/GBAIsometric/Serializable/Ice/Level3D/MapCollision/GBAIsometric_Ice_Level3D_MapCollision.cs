@@ -3,11 +3,11 @@ using BinarySerializer;
 
 namespace Ray1Map.GBAIsometric
 {
-    public class GBAIsometric_Ice_MapCollision : BinarySerializable
+    public class GBAIsometric_Ice_Level3D_MapCollision : BinarySerializable
     {
         public uint ItemsCount { get; set; }
         public uint TotalAdditionalDataCount { get; set; }
-        public GBAIsometric_Ice_MapCollisionItem[] Items { get; set; }
+        public GBAIsometric_Ice_Level3D_MapCollisionItem[] Items { get; set; }
 
         // Below data isn't needed to reconstruct the collision as it's mainly lookup data for the game
         public uint UnkWidth { get; set; } // Fixed point?
@@ -21,10 +21,10 @@ namespace Ray1Map.GBAIsometric
         {
             ItemsCount = s.Serialize<uint>(ItemsCount, name: nameof(ItemsCount));
             TotalAdditionalDataCount = s.Serialize<uint>(TotalAdditionalDataCount, name: nameof(TotalAdditionalDataCount));
-            Items = s.SerializeObjectArray<GBAIsometric_Ice_MapCollisionItem>(Items, ItemsCount, name: nameof(Items));
+            Items = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_MapCollisionItem>(Items, ItemsCount, name: nameof(Items));
 
-            foreach (GBAIsometric_Ice_MapCollisionItem d in Items)
-                d.Shape = s.SerializeObjectArray<GBAIsometric_Ice_MapCollisionShapeItem>(d.Shape, d.ShapeLength / 8, name: nameof(d.Shape));
+            foreach (GBAIsometric_Ice_Level3D_MapCollisionItem d in Items)
+                d.Shape = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_MapCollisionShapeItem>(d.Shape, d.ShapeLength / 8, name: nameof(d.Shape));
 
             UnkWidth = s.Serialize<uint>(UnkWidth, name: nameof(UnkWidth));
             UnkHeight = s.Serialize<uint>(UnkHeight, name: nameof(UnkHeight));

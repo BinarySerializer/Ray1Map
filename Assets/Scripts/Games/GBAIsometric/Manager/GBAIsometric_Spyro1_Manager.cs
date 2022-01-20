@@ -78,12 +78,12 @@ namespace Ray1Map.GBAIsometric
                 {
                     s.DoAt(s.CurrentPointer - 7, () =>
                     {
-                        GBAIsometric_Ice_AnimSet animSet = s.SerializeObject<GBAIsometric_Ice_AnimSet>(default);
+                        GBAIsometric_Ice_SpriteSet spriteSet = s.SerializeObject<GBAIsometric_Ice_SpriteSet>(default);
 
-                        for (int i = 0; i < animSet.Sprites.Length; i++)
+                        for (int i = 0; i < spriteSet.Sprites.Length; i++)
                         {
-                            Texture2D tex = GetSpriteTexture(animSet, i, pal4);
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"0x{animSet.Offset.StringAbsoluteOffset}", $"{i}.png"), tex.EncodeToPNG());
+                            Texture2D tex = GetSpriteTexture(spriteSet, i, pal4);
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"0x{spriteSet.Offset.StringAbsoluteOffset}", $"{i}.png"), tex.EncodeToPNG());
                         }
                     });
                 }
@@ -259,13 +259,13 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Texture2D GetSpriteTexture(GBAIsometric_Ice_AnimSet animSet, int spriteIndex, Color[] pal)
+        public Texture2D GetSpriteTexture(GBAIsometric_Ice_SpriteSet spriteSet, int spriteIndex, Color[] pal)
         {
             // 8-bit sprites are never used
-            if (animSet.Is8Bit)
+            if (spriteSet.Is8Bit)
                 throw new InvalidOperationException("8-bit sprites are currently not supported");
 
-            GBAIsometric_Ice_Sprite sprite = animSet.Sprites[spriteIndex];
+            GBAIsometric_Ice_Sprite sprite = spriteSet.Sprites[spriteIndex];
             int shape = 0;
 
             if (sprite.Height < sprite.Width)
@@ -277,21 +277,21 @@ namespace Ray1Map.GBAIsometric
 
             Texture2D tex = TextureHelpers.CreateTexture2D(size.Width, size.Height, clear: true);
 
-            int imgDataOffset = sprite.TileIndex * (animSet.Is8Bit ? 0x40 : 0x20);
-            int tileIndex = animSet.SpriteMapLength * spriteIndex;
+            int imgDataOffset = sprite.TileIndex * (spriteSet.Is8Bit ? 0x40 : 0x20);
+            int tileIndex = spriteSet.SpriteMapLength * spriteIndex;
 
             for (int y = 0; y < size.Height / GBAConstants.TileSize; y++)
             {
                 for (int x = 0; x < size.Width / GBAConstants.TileSize; x++)
                 {
-                    if (!animSet.SpriteMaps[tileIndex])
+                    if (!spriteSet.SpriteMaps[tileIndex])
                     {
                         tileIndex++;
                         continue;
                     }
 
                     tex.FillInTile(
-                        imgData: animSet.ImgData,
+                        imgData: spriteSet.ImgData,
                         imgDataOffset: imgDataOffset,
                         pal: pal,
                         encoding: Util.TileEncoding.Linear_4bpp,
@@ -300,7 +300,7 @@ namespace Ray1Map.GBAIsometric
                         tileX: x * GBAConstants.TileSize,
                         tileY: y * GBAConstants.TileSize);
 
-                    imgDataOffset += animSet.Is8Bit ? 0x40 : 0x20;
+                    imgDataOffset += spriteSet.Is8Bit ? 0x40 : 0x20;
 
                     tileIndex++;
                 }

@@ -3,7 +3,7 @@
 namespace Ray1Map.GBAIsometric
 {
     // A line, except for the first 3 values?
-    public class GBAIsometric_Ice_MapCollisionItem : BinarySerializable
+    public class GBAIsometric_Ice_Level3D_MapCollisionItem : BinarySerializable
     {
         public UInt24 Height { get; set; } // Shift by 14
         public byte ShapeLength { get; set; }
@@ -13,7 +13,7 @@ namespace Ray1Map.GBAIsometric
         public short MaxY { get; set; }
 
         // Parsed later
-        public GBAIsometric_Ice_MapCollisionShapeItem[] Shape { get; set; } // Optional 4 lines
+        public GBAIsometric_Ice_Level3D_MapCollisionShapeItem[] Shape { get; set; } // Optional 4 lines
 
         public override void SerializeImpl(SerializerObject s)
         {

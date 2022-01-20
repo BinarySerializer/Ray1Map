@@ -3,7 +3,7 @@ using BinarySerializer.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
-    public class GBAIsometric_Ice_AnimSet : BinarySerializable
+    public class GBAIsometric_Ice_SpriteSet : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
