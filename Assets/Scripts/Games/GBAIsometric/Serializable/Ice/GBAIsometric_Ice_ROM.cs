@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BinarySerializer;
 using BinarySerializer.GBA;
 
@@ -20,6 +21,7 @@ namespace Ray1Map.GBAIsometric
         public Pointer<Array<byte>>[] Level3D_TileSets { get; set; }
         public Pointer<GBAIsometric_Ice_Level3D_MapCollision>[] Level3D_MapCollision { get; set; }
         public GBAIsometric_Ice_Level3D_LevelMap[] Level3D_LevelMaps { get; set; } // JP only
+        public Pointer<GBAIsometric_Ice_Level3D_Objects>[] Level3D_Objects { get; set; }
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
@@ -93,6 +95,17 @@ namespace Ray1Map.GBAIsometric
             // stored one after another in the correct order. These are only in the JP version.
             s.DoAt(pointerTable.TryGetItem(Spyro_DefinedPointer.LevelMaps), () =>
                 Level3D_LevelMaps = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_LevelMap>(Level3D_LevelMaps, 15, name: nameof(Level3D_LevelMaps)));
+
+            // Serialize objects
+            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Level3D_Objects], () =>
+                Level3D_Objects = s.SerializePointerArray<GBAIsometric_Ice_Level3D_Objects>(
+                    obj: Level3D_Objects,
+                    count: count,
+                    resolve: Pre_Level3D == -1,
+                    name: nameof(Level3D_Objects)));
+
+            if (Pre_Level3D != -1)
+                Level3D_Objects[Pre_Level3D].Resolve(s);
         }
 
         private void SerializePortraits(

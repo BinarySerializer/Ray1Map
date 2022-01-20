@@ -276,6 +276,10 @@ namespace Ray1Map.GBAIsometric
                 await Controller.WaitIfNecessary();
 
                 // TODO: Implement
+                foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)
+                {
+                    lev.EventData.Add(new Unity_Object_Dummy(obj, Unity_ObjectType.Object, position: new Vector3(obj.XPosition, obj.YPosition, obj.Height)));
+                }
 
                 lev.ObjManager = new Unity_ObjectManager(context);
 

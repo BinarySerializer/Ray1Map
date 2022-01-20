@@ -558,6 +558,7 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.Ice_Level3D_TileSets] = 0x081aed8c,
                         [Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = 0x08061be8,
                         [Spyro_DefinedPointer.Ice_Level3D_MapCollision] = 0x081aeb64,
+                        [Spyro_DefinedPointer.Ice_Level3D_Objects] = 0x081aee14,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceUS:
@@ -581,6 +582,7 @@ namespace Ray1Map
                         //[Spyro_DefinedPointer.Ice_Level3D_TileSets] = ,
                         //[Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = ,
                         //[Spyro_DefinedPointer.Ice_Level3D_MapCollision] = ,
+                        //[Spyro_DefinedPointer.Ice_Level3D_Objects] = ,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonIceJP:
@@ -606,6 +608,7 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.Ice_Level3D_TileSets] = 0x081b0e40,
                         [Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = 0x08063888,
                         [Spyro_DefinedPointer.Ice_Level3D_MapCollision] = 0x081b0c18,
+                        [Spyro_DefinedPointer.Ice_Level3D_Objects] = 0x081b0ec8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonFlameEU:
