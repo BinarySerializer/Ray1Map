@@ -5,14 +5,15 @@ namespace Ray1Map.GBAIsometric
     public class GBAIsometric_Ice_Level3D_MapCollisionBox : BinarySerializable
     {
         public UInt24 Height { get; set; } // Shift by 14
-        public byte LinesDataLength { get; set; } // If 0 then it's a square
+        public byte LinesDataLength { get; set; }
         public short MinX { get; set; }
         public short MinY { get; set; }
         public short MaxX { get; set; }
         public short MaxY { get; set; }
 
-        // Parsed later
-        public GBAIsometric_Ice_Level3D_MapCollisionLine[] Lines { get; set; } // Optional, always 4 ones
+        // Parsed later and is only used if the data length is not 0. Always has 4 lines. If the box has this
+        // then it seems it defined the layering rather than solid collision?
+        public GBAIsometric_Ice_Level3D_MapCollisionLine[] Lines { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {

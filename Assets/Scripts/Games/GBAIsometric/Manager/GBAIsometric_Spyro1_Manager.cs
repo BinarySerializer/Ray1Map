@@ -202,28 +202,22 @@ namespace Ray1Map.GBAIsometric
                 {
                     //TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
                     //TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
-                    CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.Select(x =>
+                    CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.
+                        // Ignore boxes with lines as they seem to just be for layering?
+                        Where(x => x.Lines.Length == 0).Select(x =>
                     {
                         float factor = lev.PixelsPerUnit;
                         float height = (float)x.Height / (1 << 14);
                         
                         return new Unity_IsometricCollisionObject
                         {
-                            Points = x.Lines.Length == 0 
-                                ? new Vector3[]
-                                {
-                                    new Vector3(x.MinX, x.MinY, height) / factor,
-                                    new Vector3(x.MaxX, x.MinY, height) / factor,
-                                    new Vector3(x.MaxX, x.MaxY, height) / factor,
-                                    new Vector3(x.MinX, x.MaxY, height) / factor,
-                                }
-                                : new Vector3[]
-                                {
-                                    new Vector3(x.Lines[0].X1, x.Lines[0].Y1, height) / factor,
-                                    new Vector3(x.Lines[1].X1, x.Lines[1].Y1, height) / factor,
-                                    new Vector3(x.Lines[2].X1, x.Lines[2].Y1, height) / factor,
-                                    new Vector3(x.Lines[3].X1, x.Lines[3].Y1, height) / factor,
-                                }
+                            Points = new Vector3[]
+                            {
+                                new Vector3(x.MinX, x.MinY, height) / factor,
+                                new Vector3(x.MaxX, x.MinY, height) / factor,
+                                new Vector3(x.MaxX, x.MaxY, height) / factor,
+                                new Vector3(x.MinX, x.MaxY, height) / factor,
+                            }
                         };
                     }).ToArray(),
                     Scale = new Vector3(isoTileWidth, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), isoTileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
