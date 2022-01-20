@@ -195,27 +195,35 @@ namespace Ray1Map.GBAIsometric
                 Controller.DetailedState = $"Loading collision";
                 await Controller.WaitIfNecessary();
 
-                // TODO: Fix pos and scale
+                const float isoTileDiagonal = 8 / 2f; // 8 tiles, divide by 2 as 1 tile = half unit
+                float isoTileWidth = Mathf.Sqrt(isoTileDiagonal * isoTileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
+
                 lev.IsometricData = new Unity_IsometricData
                 {
-                    TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
-                    TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
+                    //TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
+                    //TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
                     CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.
-                        // TODO: Include ones with the "shape data" (what is that? add types?)
-                        Where(x => x.ShapeLength == 0).Select(x =>
+                        // TODO: Include ones with the additional data. Seems to mostly define pits?
+                        Where(x => x.AdditionalDataLength == 0).Select(x =>
                     {
-                        int w = x.MaxX - x.MinX;
-                        int h = x.MaxY - x.MinY;
+                        float factor = lev.PixelsPerUnit;
+                        float minX = x.MinX / factor;
+                        float minY = x.MinY / factor;
+                        float maxX = x.MaxX / factor;
+                        float maxY = x.MaxY / factor;
+                        float height = ((float)x.Height / (1 << 14)) / factor;
+
+                        float w = maxX - minX;
+                        float h = maxY - minY;
 
                         return new Unity_IsometricCollisionObject
                         {
-                            Position = new Vector2(x.MinX + w / 2f, x.MinY + h / 2f),
-                            Dimensions = new Vector2Int(w, h),
-                            Height = (float)x.Height / (1 << 14),
+                            Position = new Vector2(minX + w / 2f, minY + h / 2f),
+                            Dimensions = new Vector2(w, h),
+                            Height = height,
                         };
                     }).ToArray(),
-                    // TODO: Fix
-                    Scale = new Vector3(GBAConstants.TileSize, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), GBAConstants.TileSize) * 0.02f
+                    Scale = new Vector3(isoTileWidth, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), isoTileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
                 };
 
                 Controller.DetailedState = $"Loading maps";

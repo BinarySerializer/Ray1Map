@@ -24,7 +24,7 @@ namespace Ray1Map.GBAIsometric
             Items = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_MapCollisionItem>(Items, ItemsCount, name: nameof(Items));
 
             foreach (GBAIsometric_Ice_Level3D_MapCollisionItem d in Items)
-                d.Shape = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_MapCollisionShapeItem>(d.Shape, d.ShapeLength / 8, name: nameof(d.Shape));
+                d.AdditionalData = s.SerializeObjectArray<GBAIsometric_Ice_Level3D_MapCollisionAdditionalDataItem>(d.AdditionalData, d.AdditionalDataLength / 8, name: nameof(d.AdditionalData));
 
             UnkWidth = s.Serialize<uint>(UnkWidth, name: nameof(UnkWidth));
             UnkHeight = s.Serialize<uint>(UnkHeight, name: nameof(UnkHeight));

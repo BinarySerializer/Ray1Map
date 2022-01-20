@@ -2,7 +2,7 @@
 
 namespace Ray1Map.GBAIsometric
 {
-    public class GBAIsometric_Ice_Level3D_MapCollisionShapeItem : BinarySerializable
+    public class GBAIsometric_Ice_Level3D_MapCollisionAdditionalDataItem : BinarySerializable
     {
         public short UnkX { get; set; }
         public short UnkY { get; set; }
