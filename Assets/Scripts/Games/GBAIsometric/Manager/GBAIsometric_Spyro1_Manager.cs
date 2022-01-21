@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using BinarySerializer;
 using BinarySerializer.GBA;
 using Cysharp.Threading.Tasks;
@@ -170,6 +171,7 @@ namespace Ray1Map.GBAIsometric
                 {
                     r.Pre_SerializeLevel3D = true;
                     r.Pre_Level3D = level;
+                    r.Pre_SerializeSprites = true;
                 });
 
                 // Get the level data
@@ -272,13 +274,30 @@ namespace Ray1Map.GBAIsometric
                 Controller.DetailedState = $"Loading objects";
                 await Controller.WaitIfNecessary();
 
-                // TODO: Implement
-                foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)
-                {
-                    lev.EventData.Add(new Unity_Object_Dummy(obj, Unity_ObjectType.Object, position: new Vector3(obj.XPosition, obj.YPosition, obj.Height)));
-                }
+                Color[] dummyPal = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
-                lev.ObjManager = new Unity_ObjectManager(context);
+                var objManager = new Unity_ObjectManager_GBAIsometricSpyro1(
+                    context: context, 
+                    spriteSets: rom.SpriteSets.
+                        Select((x, spriteSetIndex) => new Unity_ObjectManager_GBAIsometricSpyro1.SpriteSet(
+                            spriteSetObj: x, 
+                            animFramesFunc: () => x.Value.Sprites.
+                                Select((s, spriteIndex) => GetSpriteTexture(x, spriteIndex, 
+                                        rom.SpriteSetPalettes[spriteSetIndex] == null 
+                                                ? dummyPal 
+                                                : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors)).
+                                        CreateSprite()).ToArray())).ToArray());
+
+                lev.ObjManager = objManager;
+
+                // Load fixed objects
+                GBAIsometric_Ice_Vector startPos = rom.Level3D_StartPositions[level];
+                foreach (GBAIsometric_Ice_Level3D_Object obj in GBAIsometric_Ice_Level3D_Object.GetFixedObjects(startPos))
+                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Level3D(obj, objManager));
+
+                // Load level objects
+                foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)
+                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Level3D(obj, objManager));
 
                 Controller.DetailedState = $"Loading localization";
                 await Controller.WaitIfNecessary();
@@ -506,6 +525,31 @@ namespace Ray1Map.GBAIsometric
             }
 
             Debug.Log($"Remap end is 0x{remapOffset.StringAbsoluteOffset}");
+        }
+
+        public void CopySpriteSetOffsets(Context context)
+        {
+            var str = new StringBuilder();
+
+            BinaryDeserializer s = context.Deserializer;
+
+            s.Goto(context.FilePointer(GetROMFilePath) + 3);
+
+            int index = 0;
+            while (s.CurrentFileOffset < s.CurrentLength - 4)
+            {
+                string magic = s.SerializeString(default, 3);
+                s.Goto(s.CurrentPointer + 1);
+
+                if (magic != "CRS")
+                    continue;
+
+                str.AppendLine($"(0x{(s.CurrentPointer - 7).StringAbsoluteOffset}, 0x00), // {index}");
+
+                index++;
+            }
+
+            str.ToString().CopyToClipboard();
         }
     }
 }

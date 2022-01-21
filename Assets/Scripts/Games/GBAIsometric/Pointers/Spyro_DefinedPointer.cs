@@ -56,5 +56,6 @@
         Ice_Level3D_TileSets,
         Ice_Level3D_MapCollision,
         Ice_Level3D_Objects,
+        Ice_Level3D_StartPositions,
     }
 }
