@@ -1900,6 +1900,9 @@ namespace Ray1Map {
 					g_gao.transform.localScale = gao.Matrix.GetScale(convertAxes: true);
 					var gro = gao.Base?.Visual?.GeometricObject?.Value;
 					if (gro != null) {
+						if (gro.RenderObject.Type == GRO_Type.GEO_StaticLOD) {
+							gro = (gro.RenderObject?.Value as GEO_StaticLOD).LODLevels[0]?.Value;
+						}
 						if (gro.RenderObject.Type == GRO_Type.GEO) {
 							Texture2D[] tex = null;
 							var gro_m = gao.Base.Visual.Material?.Value;

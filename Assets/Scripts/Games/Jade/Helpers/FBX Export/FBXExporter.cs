@@ -416,6 +416,9 @@ namespace Ray1Map.Jade {
 			StringBuilder tempConnectionsSb = new StringBuilder();
 
 			GRO_GraphicRenderObject gro = gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Value;
+			if (gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Type == GRO_Type.GEO_StaticLOD) {
+				gro = (gro as GEO_StaticLOD)?.LODLevels[0]?.Value?.RenderObject?.Value;
+			}
 			GEO_GeometricObject geo = gro != null ? gro as GEO_GeometricObject : null;
 
 			string meshName = gao.Export_FileBasename;
@@ -877,6 +880,9 @@ namespace Ray1Map.Jade {
 				gameObjectID = (objectGroup << 8) ^ gameObjectID;
 			}
 			GRO_GraphicRenderObject gro = gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Value;
+			if (gao?.Base?.Visual?.GeometricObject?.Value?.RenderObject?.Type == GRO_Type.GEO_StaticLOD) {
+				gro = (gro as GEO_StaticLOD)?.LODLevels[0]?.Value?.RenderObject?.Value;
+			}
 			GEO_GeometricObject geo = gro != null ? gro as GEO_GeometricObject : null;
 
 			if (geo?.ObjectPonderation?.PonderationLists != null) {
