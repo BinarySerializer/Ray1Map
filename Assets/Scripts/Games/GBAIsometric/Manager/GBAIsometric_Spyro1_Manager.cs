@@ -290,10 +290,11 @@ namespace Ray1Map.GBAIsometric
 
                 lev.ObjManager = objManager;
 
-                // Load fixed objects
+                // Load Spyro object
                 GBAIsometric_Ice_Vector startPos = rom.Level3D_StartPositions[level];
-                foreach (GBAIsometric_Ice_Level3D_Object obj in GBAIsometric_Ice_Level3D_Object.GetFixedObjects(startPos))
-                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Level3D(obj, objManager));
+                lev.Rayman = new Unity_Object_GBAIsometricSpyro1_Level3D(new GBAIsometric_Ice_Level3D_Object(1, startPos), objManager);
+
+                // NOTE: Missing objects include mission objects, fairies and NPCs. They are all sadly hard-coded per level.
 
                 // Load level objects
                 foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)

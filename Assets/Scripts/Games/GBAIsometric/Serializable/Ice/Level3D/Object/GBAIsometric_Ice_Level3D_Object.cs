@@ -19,8 +19,8 @@ namespace Ray1Map.GBAIsometric
 
         public static IEnumerable<GBAIsometric_Ice_Level3D_Object> GetFixedObjects(GBAIsometric_Ice_Vector startPos)
         {
-            yield return new GBAIsometric_Ice_Level3D_Object(15, new GBAIsometric_Ice_Vector(0, 0, 0)); // HUD gem
-            yield return new GBAIsometric_Ice_Level3D_Object(21, new GBAIsometric_Ice_Vector(0, 0, 0)); // HUD fairy
+            yield return new GBAIsometric_Ice_Level3D_Object(15, new GBAIsometric_Ice_Vector(0x4000, -0x4000, 0)); // HUD gem
+            yield return new GBAIsometric_Ice_Level3D_Object(21, new GBAIsometric_Ice_Vector(0, -0x4000, 0)); // HUD fairy
             yield return new GBAIsometric_Ice_Level3D_Object(1, startPos); // Spyro
 
             // TODO: What are these? Sparx?

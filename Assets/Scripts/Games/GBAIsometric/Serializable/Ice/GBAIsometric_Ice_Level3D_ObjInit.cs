@@ -18,6 +18,9 @@ namespace Ray1Map.GBAIsometric
             _animSetFixIndices.Concat(new int[] { 64, 65, 67, 68, 69, 70 }).ToArray(), // 0
             _animSetFixIndices.Concat(new int[] { 71, 72, 67, 68, 69, 70 }).ToArray(), // 1
             _animSetFixIndices.Concat(new int[] { 73, 66, 67, 68, 69, 70 }).ToArray(), // 2
+            _animSetFixIndices.Concat(new int[] { 74, 75, 67, 68, 69, 70 }).ToArray(), // 3
+            _animSetFixIndices.Concat(new int[] { 73, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85 }).ToArray(), // 4
+            _animSetFixIndices.Concat(new int[] { 71, 86, 87, 88, 89, 90, 91, 92, 93 }).ToArray(), // 5
             // TODO: Fill out the rest
         };
 
@@ -44,6 +47,10 @@ namespace Ray1Map.GBAIsometric
 
                 // Sheep
                 case 10:
+                    return new SpriteInfo(35);
+
+                // Frog
+                case 11:
                     return new SpriteInfo(35);
 
                 // HUD gem
@@ -136,6 +143,42 @@ namespace Ray1Map.GBAIsometric
                 case 138:
                 case 139:
                     return new SpriteInfo(18, 0);
+
+                // Enemy
+                case 140:
+                case 141:
+                case 142:
+                case 143:
+                case 144:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 145:
+                case 146:
+                case 147:
+                case 148:
+                case 149:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 150:
+                case 151:
+                case 152:
+                case 153:
+                case 154:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 155:
+                case 156:
+                case 157:
+                case 158:
+                case 159:
+                    return new SpriteInfo(38);
+
+                // Ice fodder
+                case 245:
+                    return new SpriteInfo(35);
 
                 default:
                     return new SpriteInfo();
