@@ -25,13 +25,14 @@ namespace Ray1Map.GBAIsometric
             _spriteSetFixIndices.Concat(new int[] { 064, 101, 102, 103, 104, 105, 092, 092, 106, 107 }).ToArray(), // 7
             _spriteSetFixIndices.Concat(new int[] { 064, 108, 095, 109, 110, 111, 112, 113, 114, 115 }).ToArray(), // 8
             _spriteSetFixIndices.Concat(new int[] { 073, 116, 117, 118, 119, 120, 121, 099 }).ToArray(), // 9
+            _spriteSetFixIndices.Concat(new int[] { 073, 131, 132, 133, 134, 135, 136, 099 }).ToArray(), // 10
+            _spriteSetFixIndices.Concat(new int[] { 074, 137, 138, 139, 140, 141, 142, 143, 083, 084, 085, 144, 145 }).ToArray(), // 11
             // TODO: Fill out
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 10
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 11
             _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 12
             _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 13
             _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 14
             _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 15
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 16
         };
 
         public static SpriteInfo GetSprite(int level, int objType)
@@ -230,6 +231,38 @@ namespace Ray1Map.GBAIsometric
                 case 197:
                 case 198:
                 case 199:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 200:
+                case 201:
+                case 202:
+                case 203:
+                case 204:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 205:
+                case 206:
+                case 207:
+                case 208:
+                case 209:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 225:
+                case 226:
+                case 227:
+                case 228:
+                case 229:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 230:
+                case 231:
+                case 232:
+                case 233:
+                case 234:
                     return new SpriteInfo(38);
 
                 // Ice fodder

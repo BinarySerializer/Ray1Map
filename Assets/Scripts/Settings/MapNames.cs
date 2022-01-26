@@ -616,8 +616,8 @@ namespace Ray1Map
                 [8] = "Hummingbird Fort",
                 [9] = "Panda Gardens",
 
-                [10] = "",
-                [11] = "",
+                [10] = "Dusty Trails",
+                [11] = "Star Park",
                 [12] = "",
                 [13] = "",
                 [14] = "",
