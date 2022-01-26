@@ -12,8 +12,8 @@ namespace Ray1Map.GBAIsometric
 {
     public class GBAIsometric_Spyro1_Manager : GBAIsometric_IceDragon_BaseManager
     {
-        private const int World_Levels3D = 0;
-        private const int World_Cutscenes = 1;
+        public const int World_Levels3D = 0;
+        public const int World_Cutscenes = 1;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {

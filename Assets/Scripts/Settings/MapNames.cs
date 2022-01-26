@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Ray1Map.GBAIsometric;
 using Ray1Map.GBAVV;
 
 namespace Ray1Map
@@ -32,6 +33,9 @@ namespace Ray1Map
 
                 case Game.GBAIsometric_RHR:
                     return HoodlumsRevengeNames;
+
+                case Game.GBAIsometric_Spyro1:
+                    return Spyro1Names;
 
                 case Game.GBAIsometric_Spyro2:
                     return Spyro2Names;
@@ -179,6 +183,12 @@ namespace Ray1Map
                     };
 
                 case Game.GBAIsometric_Spyro1:
+                    return new Dictionary<int, string>()
+                    {
+                        [GBAIsometric_Spyro1_Manager.World_Levels3D] = "3D",
+                        [GBAIsometric_Spyro1_Manager.World_Cutscenes] = "Cutscenes",
+                    };
+
                 case Game.GBAIsometric_Spyro2:
                 case Game.GBAIsometric_Spyro3:
                     return new Dictionary<int, string>()
@@ -589,6 +599,56 @@ namespace Ray1Map
                 [3] = "Score Screen",
                 [4] = "Splash Screens",
             },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> Spyro1Names { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [GBAIsometric_Spyro1_Manager.World_Levels3D] = new Dictionary<int, string>() {
+                [0] = "Spring Fairy Home",
+                [1] = "Summer Fairy Home",
+                [2] = "Autumn Fairy Home",
+                [3] = "Winter Fairy Home",
+
+                [4] = "Lava Prairie",
+                [5] = "Mermaid Coast",
+                [6] = "Market Mesa",
+
+                [7] = "Honey Marsh",
+                [8] = "Hummingbird Fort",
+                [9] = "Panda Gardens",
+
+                [10] = "",
+                [11] = "",
+                [12] = "",
+                [13] = "",
+                [14] = "",
+
+                [15] = "Grendor's Lair 1",
+                [16] = "Grendor's Lair 2",
+            },
+            [GBAIsometric_Spyro1_Manager.World_Cutscenes] = new Dictionary<int, string>()
+            {
+                [0] = "Cutscene 0",
+                [1] = "Cutscene 1",
+                [2] = "Cutscene 2",
+                [3] = "Cutscene 3",
+                [4] = "Cutscene 4",
+                [5] = "Cutscene 5",
+                [6] = "Cutscene 6",
+                [7] = "Cutscene 7",
+                [8] = "Cutscene 8",
+                [9] = "Cutscene 9",
+                [10] = "Cutscene 10",
+                [11] = "Cutscene 11",
+                [12] = "Cutscene 12",
+                [13] = "Cutscene 13",
+                [14] = "Cutscene 14",
+                [15] = "Cutscene 15",
+                [16] = "Cutscene 16",
+                [17] = "Cutscene 17",
+                [18] = "Cutscene 18",
+                [19] = "Cutscene 19",
+                [20] = "Cutscene 20",
+            }
         };
 
         private static Dictionary<int, Dictionary<int, string>> Spyro2Names { get; } = new Dictionary<int, Dictionary<int, string>>() {

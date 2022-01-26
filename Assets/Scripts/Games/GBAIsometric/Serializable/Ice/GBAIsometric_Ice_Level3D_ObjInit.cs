@@ -11,17 +11,27 @@ namespace Ray1Map.GBAIsometric
             0x41, 0x43, 0x44, 0x46, 0x47, 0x4a, 0x4f, 0x50, 0x51,
         };
 
-        private static readonly int[] _animSetFixIndices = Enumerable.Range(29, 35).ToArray();
+        private static readonly int[] _spriteSetFixIndices = Enumerable.Range(29, 35).ToArray();
 
-        public static readonly int[][] AnimSetLevelIndices = 
+        public static readonly int[][] SpriteSetLevelIndices = 
         {
-            _animSetFixIndices.Concat(new int[] { 64, 65, 67, 68, 69, 70 }).ToArray(), // 0
-            _animSetFixIndices.Concat(new int[] { 71, 72, 67, 68, 69, 70 }).ToArray(), // 1
-            _animSetFixIndices.Concat(new int[] { 73, 66, 67, 68, 69, 70 }).ToArray(), // 2
-            _animSetFixIndices.Concat(new int[] { 74, 75, 67, 68, 69, 70 }).ToArray(), // 3
-            _animSetFixIndices.Concat(new int[] { 73, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85 }).ToArray(), // 4
-            _animSetFixIndices.Concat(new int[] { 71, 86, 87, 88, 89, 90, 91, 92, 93 }).ToArray(), // 5
-            // TODO: Fill out the rest
+            _spriteSetFixIndices.Concat(new int[] { 064, 065, 067, 068, 069, 070 }).ToArray(), // 0
+            _spriteSetFixIndices.Concat(new int[] { 071, 072, 067, 068, 069, 070 }).ToArray(), // 1
+            _spriteSetFixIndices.Concat(new int[] { 073, 066, 067, 068, 069, 070 }).ToArray(), // 2
+            _spriteSetFixIndices.Concat(new int[] { 074, 075, 067, 068, 069, 070 }).ToArray(), // 3
+            _spriteSetFixIndices.Concat(new int[] { 073, 076, 077, 078, 079, 080, 081, 082, 083, 084, 085 }).ToArray(), // 4
+            _spriteSetFixIndices.Concat(new int[] { 071, 086, 087, 088, 089, 090, 091, 092, 093 }).ToArray(), // 5
+            _spriteSetFixIndices.Concat(new int[] { 064, 094, 095, 096, 097, 098, 099, 100 }).ToArray(), // 6
+            _spriteSetFixIndices.Concat(new int[] { 064, 101, 102, 103, 104, 105, 092, 092, 106, 107 }).ToArray(), // 7
+            _spriteSetFixIndices.Concat(new int[] { 064, 108, 095, 109, 110, 111, 112, 113, 114, 115 }).ToArray(), // 8
+            _spriteSetFixIndices.Concat(new int[] { 073, 116, 117, 118, 119, 120, 121, 099 }).ToArray(), // 9
+            // TODO: Fill out
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 10
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 11
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 12
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 13
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 14
+            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 15
         };
 
         public static SpriteInfo GetSprite(int level, int objType)
@@ -29,7 +39,7 @@ namespace Ray1Map.GBAIsometric
             SpriteInfo s = GetLevelSprite(objType);
 
             if (s.SpriteSet != -1)
-                s.SpriteSet = AnimSetLevelIndices[level][s.SpriteSet];
+                s.SpriteSet = SpriteSetLevelIndices[level][s.SpriteSet];
             else
                 Debug.LogWarning($"No sprite defined for type {objType}");
 
@@ -174,6 +184,52 @@ namespace Ray1Map.GBAIsometric
                 case 157:
                 case 158:
                 case 159:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 160:
+                case 161:
+                case 162:
+                case 163:
+                case 164:
+
+                case 180:
+                case 181:
+                case 182:
+                case 183:
+                case 184:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 165:
+                case 166:
+                case 167:
+                case 168:
+                case 169:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 185:
+                case 186:
+                case 187:
+                case 188:
+                case 189:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 190:
+                case 191:
+                case 192:
+                case 193:
+                case 194:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 195:
+                case 196:
+                case 197:
+                case 198:
+                case 199:
                     return new SpriteInfo(38);
 
                 // Ice fodder
