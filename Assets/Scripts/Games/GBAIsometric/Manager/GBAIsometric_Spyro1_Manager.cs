@@ -379,7 +379,7 @@ namespace Ray1Map.GBAIsometric
             // Text:
             // 0x08279c50 - Replaced font tiles (<)
             // 0x0827c2f0 - Replaced font map (<)
-            // 0x8275C00 -> 0x08835D28 - Replaced text (remapped, pointer at 0x08002c60)
+            // 0x8275C00 -> 0x08835D28 (0x0884C550 for the maps edit patch) - Replaced text (remapped, pointer at 0x08002c60)
 
             // Portraits (excluding 8 & 23):
             // 0x081b0b58 - Replaced palettes (16)
@@ -394,6 +394,9 @@ namespace Ray1Map.GBAIsometric
             // 0x082de200 - Replaced tile map
             // 0x082de05c - Replaced palette
             // 0x082da5b8 -> 0x08831D0C - Replaced tile set (remapped, pointer at 0x0800e59c)
+
+            // Level maps (maps edit patch only)
+            // Remapped all level maps to 0x08835D28
 
             using var euContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceEU, baseDir, 0, 0));
             using var jpContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
@@ -526,6 +529,65 @@ namespace Ray1Map.GBAIsometric
             }
 
             Debug.Log($"Remap end is 0x{remapOffset.StringAbsoluteOffset}");
+        }
+
+        public void ImportLevelMaps(string baseDir, string romName, uint startOffset, string mapsDir, string compressFilePath)
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                string mapFilePath = Path.Combine(mapsDir, $"{i}.gba");
+
+                // Trim away palette
+                using (var f = File.OpenWrite(mapFilePath))
+                    f.SetLength(19200);
+
+                // Compress
+                ProcessHelpers.RunProcess(compressFilePath, new string[]
+                {
+                    "-evf", // VRAM fast
+                    $"\"{mapFilePath}\""
+                }, waitForExit: true);
+            }
+
+            using var context = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
+
+            context.AddFile(new GBAMemoryMappedFile(context, romName, GBAConstants.Address_ROM)
+            {
+                RecreateOnWrite = false
+            });
+
+            GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, romName, (s, x) => x.Pre_SerializeLevel3D = true);
+
+            var s = context.Serializer;
+
+            var pointerOffsets = new uint[]
+            {
+                0x08011f7c, 0x08011f84, 0x08011f8c, 0x08011f94, 0x08011f9c,
+                0x08011fa4, 0x08011fac, 0x08011fb4, 0x08011fbc, 0x08011fc4,
+                0x08011fcc, 0x08011fd4, 0x08011fdc, 0x08011fe4, 0x08012088,
+            };
+
+            s.Goto(new Pointer(startOffset, context.GetFile(romName)));
+
+            for (int i = 0; i < 15; i++)
+            {
+                byte[] bytes = File.ReadAllBytes(Path.Combine(mapsDir, $"{i}.gba"));
+
+                Pointer remapPointer = s.CurrentPointer;
+
+                // Update the pointer
+                s.DoAt(new Pointer(pointerOffsets[i], context.GetFile(romName)), () => s.SerializePointer(remapPointer));
+
+                // Write the palette
+                s.SerializeObject<Palette>(rom.Level3D_LevelMaps[i].Palette);
+
+                // Write the compressed level map
+                s.SerializeArray<byte>(bytes, bytes.Length);
+
+                s.Align();
+            }
+
+            Debug.Log($"Remap end is 0x{s.CurrentPointer.StringAbsoluteOffset}");
         }
 
         public void CopySpriteSetOffsets(Context context)
