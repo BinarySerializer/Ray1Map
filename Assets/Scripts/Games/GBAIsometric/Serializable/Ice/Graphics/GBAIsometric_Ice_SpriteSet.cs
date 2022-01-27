@@ -5,8 +5,10 @@ namespace Ray1Map.GBAIsometric
 {
     public class GBAIsometric_Ice_SpriteSet : BinarySerializable
     {
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
+        // Unused by game. Probably for the canvas in their editor.
+        public byte Width { get; set; }
+        public byte Height { get; set; }
+        public byte Byte_01 { get; set; } // Always 0
         public bool IsInitialized { get; set; } // Only used for when loaded in memory
         public bool Is8Bit { get; set; } // Never used by the game
         public bool IsMulti { get; set; }
@@ -21,7 +23,12 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+            s.DoBits<byte>(b =>
+            {
+                Width = b.SerializeBits<byte>(Width, 3, name: nameof(Width));
+                Height = b.SerializeBits<byte>(Height, 3, name: nameof(Height));
+                b.SerializePadding(2, logIfNotNull: true);
+            });
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             s.DoBits<byte>(b =>
             {
