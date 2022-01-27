@@ -15,6 +15,11 @@ namespace Ray1Map.GBAIsometric
 
         public static readonly int[][] SpriteSetLevelIndices = 
         {
+            // 0 - Fodder
+            // 1 - ?
+            // 2 - Small enemy
+            // 3 - Big enemy
+            // ...
             _spriteSetFixIndices.Concat(new int[] { 064, 065, 067, 068, 069, 070 }).ToArray(), // 0
             _spriteSetFixIndices.Concat(new int[] { 071, 072, 067, 068, 069, 070 }).ToArray(), // 1
             _spriteSetFixIndices.Concat(new int[] { 073, 066, 067, 068, 069, 070 }).ToArray(), // 2
@@ -27,12 +32,11 @@ namespace Ray1Map.GBAIsometric
             _spriteSetFixIndices.Concat(new int[] { 073, 116, 117, 118, 119, 120, 121, 099 }).ToArray(), // 9
             _spriteSetFixIndices.Concat(new int[] { 073, 131, 132, 133, 134, 135, 136, 099 }).ToArray(), // 10
             _spriteSetFixIndices.Concat(new int[] { 074, 137, 138, 139, 140, 141, 142, 143, 083, 084, 085, 144, 145 }).ToArray(), // 11
-            // TODO: Fill out
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 12
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 13
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 14
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 15
-            _spriteSetFixIndices.Concat(new int[] {  }).ToArray(), // 16
+            _spriteSetFixIndices.Concat(new int[] { 064, 146, 147, 124, 104, 126, 127, 148, 107, 107 }).ToArray(), // 12
+            _spriteSetFixIndices.Concat(new int[] { 073, 122, 123, 124, 125, 126, 127, 128, 129, 130 }).ToArray(), // 13
+            _spriteSetFixIndices.Concat(new int[] { 071, 149, 095, 150, 151, 152, 153, 115, 120, 099 }).ToArray(), // 14
+            _spriteSetFixIndices.Concat(new int[] { 073, 154, 155 }).ToArray(), // 15
+            _spriteSetFixIndices.Concat(new int[] { 074, 154, 155  }).ToArray(), // 16
         };
 
         public static SpriteInfo GetSprite(int level, int objType)
@@ -124,6 +128,11 @@ namespace Ray1Map.GBAIsometric
                 // Life
                 case 90:
                     return new SpriteInfo(31); // TODO: Display child object for cork with index 32
+
+                // Grendor
+                case 115:
+                case 116:
+                    return new SpriteInfo(37);
 
                 // Gem
                 case 117:
@@ -250,6 +259,30 @@ namespace Ray1Map.GBAIsometric
                     return new SpriteInfo(38);
 
                 // Enemy
+                case 210:
+                case 211:
+                case 212:
+                case 213:
+                case 214:
+                    return new SpriteInfo(38);
+
+                // Enemy
+                case 215:
+                case 216:
+                case 217:
+                case 218:
+                case 219:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 220:
+                case 221:
+                case 222:
+                case 223:
+                case 224:
+                    return new SpriteInfo(38);
+
+                // Enemy
                 case 225:
                 case 226:
                 case 227:
@@ -264,6 +297,14 @@ namespace Ray1Map.GBAIsometric
                 case 233:
                 case 234:
                     return new SpriteInfo(38);
+
+                // Enemy
+                case 240:
+                case 241:
+                case 242:
+                case 243:
+                case 244:
+                    return new SpriteInfo(37);
 
                 // Ice fodder
                 case 245:

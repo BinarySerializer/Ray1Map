@@ -618,9 +618,10 @@ namespace Ray1Map
 
                 [10] = "Dusty Trails",
                 [11] = "Star Park",
-                [12] = "",
-                [13] = "",
-                [14] = "",
+
+                [12] = "Time Machine Lab",
+                [13] = "Twilight Bulb Factory",
+                [14] = "Roman City",
 
                 [15] = "Grendor's Lair 1",
                 [16] = "Grendor's Lair 2",

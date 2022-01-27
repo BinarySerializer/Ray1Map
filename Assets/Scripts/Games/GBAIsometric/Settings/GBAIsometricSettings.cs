@@ -75,8 +75,8 @@ namespace Ray1Map.GBAIsometric
                             (0x085C2E2C, 0x00), // 44
                             (0x085C34BC, 0x084aff98), // 45 (HUD gem)
                             (0x085C3A34, 0x00), // 46
-                            (0x085C404C, 0x084b0018), // 47
-                            (0x085C73E8, 0x084afff8), // 48
+                            (0x085C404C, 0x084b0018), // 47 (gem container flame)
+                            (0x085C73E8, 0x084afff8), // 48 (gem container charge)
                             (0x085CA784, 0x00), // 49
                             (0x085CCC60, 0x00), // 50
                             (0x085D9974, 0x084b0038), // 51 (portal) // TODO: Four OAM sprites combined into one
@@ -141,7 +141,7 @@ namespace Ray1Map.GBAIsometric
                             (0x086BC07C, 0x00), // 104
                             (0x086C0CA4, 0x00), // 105
                             (0x086C35F0, 0x00), // 106
-                            (0x086C3774, 0x00), // 107
+                            (0x086C3774, 0x00), // 107 // TODO: Four OAM sprites combined into one
 
                             (0x086C53EC, 0x00), // 108
                             (0x086C643C, 0x084b04b8), // 109 (enemy)
@@ -160,8 +160,8 @@ namespace Ray1Map.GBAIsometric
                             (0x086E41A8, 0x00), // 121
 
                             (0x086E42C8, 0x00), // 122
-                            (0x086E4F00, 0x00), // 123
-                            (0x086EC9F8, 0x00), // 124
+                            (0x086E4F00, 0x084b05d8), // 123 (enemy)
+                            (0x086EC9F8, 0x084b05f8), // 124 (enemy)
                             (0x086F8850, 0x00), // 125
                             (0x086FF2D4, 0x00), // 126
                             (0x087001EC, 0x00), // 127
@@ -183,19 +183,21 @@ namespace Ray1Map.GBAIsometric
                             (0x087380A4, 0x00), // 141
                             (0x0873864C, 0x00), // 142
                             (0x08739520, 0x00), // 143
-
                             (0x08739618, 0x00), // 144
                             (0x0873A278, 0x00), // 145
+
                             (0x0873A79C, 0x00), // 146
-                            (0x0873B320, 0x00), // 147
+                            (0x0873B320, 0x084b0798), // 147 (enemy)
                             (0x087466B8, 0x00), // 148
+
                             (0x08746F8C, 0x00), // 149
-                            (0x08747FD0, 0x00), // 150
+                            (0x08747FD0, 0x084b0818), // 150 (enemy)
                             (0x0874DE1C, 0x00), // 151
                             (0x08753430, 0x00), // 152
                             (0x08753548, 0x00), // 153
+
                             (0x08753B38, 0x00), // 154
-                            (0x08754B34, 0x00), // 155
+                            (0x08754B34, 0x084b0878), // 155 (Grendor) // TODO: Four OAM sprites combined into one
                         },
                         // TODO: Fill out
                         GBAIsometricRegion.US => new (uint SpriteSetOffset, uint PaletteOffset)[0],
