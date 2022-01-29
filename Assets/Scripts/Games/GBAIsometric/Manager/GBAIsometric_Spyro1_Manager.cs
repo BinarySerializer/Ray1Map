@@ -28,7 +28,8 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Resources", false, true, (input, output) => ExportResourcesAsync(settings, output, false)),
             new GameAction("Export Resources (categorized)", false, true, (input, output) => ExportResourcesAsync(settings, output, true)),
             new GameAction("Export Cutscene Maps", false, true, (input, output) => ExportCutsceneMapsAsync(settings, output)),
-            new GameAction("Export Sprites (full, no pal)", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+            new GameAction("Find and Export Sprites (no pal)", false, true, (input, output) => FindAndExportAllSpritesAsync(settings, output)),
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)),
             new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
             new GameAction("Export Scripts", false, true, (input, output) => ExportScriptsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
@@ -56,7 +57,7 @@ namespace Ray1Map.GBAIsometric
             });
         }
 
-        public async UniTask ExportAllSpritesAsync(GameSettings settings, string outputPath)
+        public async UniTask FindAndExportAllSpritesAsync(GameSettings settings, string outputPath)
         {
             using var context = new Ray1MapContext(settings);
 
@@ -93,6 +94,28 @@ namespace Ray1Map.GBAIsometric
                     Debug.LogWarning($"{s.CurrentPointer}: {ex}");
                 }
             }
+        }
+
+        public async UniTask ExportSpritesAsync(GameSettings settings, string outputPath)
+        {
+            await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, rom => rom.Pre_SerializeSprites = true, (rom, context) =>
+            {
+                Color[] pal4 = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+
+                for (int spriteSetIndex = 0; spriteSetIndex < rom.SpriteSets.Length; spriteSetIndex++)
+                {
+                    GBAIsometric_Ice_SpriteSet spriteSet = rom.SpriteSets[spriteSetIndex];
+
+                    for (int spriteIndex = 0; spriteIndex < spriteSet.Sprites.Length; spriteIndex++)
+                    {
+                        Color[] pal = rom.SpriteSetPalettes[spriteSetIndex] == null
+                            ? pal4
+                            : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors);
+                        Texture2D tex = GetSpriteTexture(spriteSet, spriteIndex, pal);
+                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{spriteSetIndex}", $"{spriteIndex}.png"), tex.EncodeToPNG());
+                    }
+                }
+            });
         }
 
         public async UniTask ExportPortraitsAsync(GameSettings settings, string outputPath)
@@ -337,15 +360,15 @@ namespace Ray1Map.GBAIsometric
             Texture2D tex = TextureHelpers.CreateTexture2D(size.Width, size.Height, clear: true);
 
             int imgDataOffset = sprite.TileIndex * (spriteSet.Is8Bit ? 0x40 : 0x20);
-            int tileIndex = spriteSet.SpriteMapLength * spriteIndex;
+            int mapIndex = spriteSet.SpriteMapLength * spriteIndex;
 
             for (int y = 0; y < size.Height / GBAConstants.TileSize; y++)
             {
                 for (int x = 0; x < size.Width / GBAConstants.TileSize; x++)
                 {
-                    if (!spriteSet.SpriteMaps[tileIndex])
+                    if (!spriteSet.SpriteMaps[mapIndex])
                     {
-                        tileIndex++;
+                        mapIndex++;
                         continue;
                     }
 
@@ -361,7 +384,7 @@ namespace Ray1Map.GBAIsometric
 
                     imgDataOffset += spriteSet.Is8Bit ? 0x40 : 0x20;
 
-                    tileIndex++;
+                    mapIndex++;
                 }
             }
 
