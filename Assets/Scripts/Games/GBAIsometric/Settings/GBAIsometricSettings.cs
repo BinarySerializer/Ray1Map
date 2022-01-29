@@ -66,22 +66,22 @@ namespace Ray1Map.GBAIsometric
                             (0x085BE9A0, 0x00), // 35
                             (0x085BF5D8, 0x00), // 36
                             (0x085BF7D4, 0x084aff98), // 37 (red gem)
-                            (0x085C0038, 0x00), // 38
+                            (0x085C0038, 0x084aff98), // 38 (red gem effect)
                             (0x085C06C8, 0x084aff98), // 39 (green gem)
-                            (0x085C0F2C, 0x00), // 40
+                            (0x085C0F2C, 0x084aff98), // 40 (green gem effect)
                             (0x085C15BC, 0x084affb8), // 41 (blue gem)
-                            (0x085C1FF8, 0x00), // 42
+                            (0x085C1FF8, 0x084affb8), // 42 (blue gem effect)
                             (0x085C2688, 0x084affb8), // 43 (yellow gem)
-                            (0x085C2E2C, 0x00), // 44
+                            (0x085C2E2C, 0x084affb8), // 44 (yellow gem effect)
                             (0x085C34BC, 0x084aff98), // 45 (HUD gem)
-                            (0x085C3A34, 0x00), // 46
+                            (0x085C3A34, 0x084affb8), // 46 (HUD digits)
                             (0x085C404C, 0x084b0018), // 47 (gem container flame)
                             (0x085C73E8, 0x084afff8), // 48 (gem container charge)
                             (0x085CA784, 0x00), // 49
-                            (0x085CCC60, 0x00), // 50
+                            (0x085CCC60, 0x084affd8), // 50 (fairy) // TODO: Different palettes per sprites
                             (0x085D9974, 0x084b0038), // 51 (portal) (combined sprites)
-                            (0x085DA448, 0x00), // 52
-                            (0x085DDF90, 0x084affd8), // 53 (HUD fairy) // TODO: Different palettes per sprites?
+                            (0x085DA448, 0x084b0058), // 52 (frozen fairy)
+                            (0x085DDF90, 0x084affd8), // 53 (HUD fairy) // TODO: Different palettes per sprites
                             (0x085DE1B4, 0x00), // 54
                             (0x085DE38C, 0x00), // 55
                             (0x085DE6C8, 0x00), // 56

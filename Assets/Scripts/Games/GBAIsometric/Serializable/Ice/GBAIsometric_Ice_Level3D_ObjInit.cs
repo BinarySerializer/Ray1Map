@@ -53,7 +53,6 @@ namespace Ray1Map.GBAIsometric
 
         private static SpriteInfo GetLevelSprite(int objType)
         {
-            // TODO: Fill out the rest
             switch (objType)
             {
                 // Spyro
