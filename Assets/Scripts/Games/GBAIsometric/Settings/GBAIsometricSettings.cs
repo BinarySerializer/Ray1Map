@@ -79,7 +79,7 @@ namespace Ray1Map.GBAIsometric
                             (0x085C73E8, 0x084afff8), // 48 (gem container charge)
                             (0x085CA784, 0x00), // 49
                             (0x085CCC60, 0x00), // 50
-                            (0x085D9974, 0x084b0038), // 51 (portal) // TODO: Four OAM sprites combined into one
+                            (0x085D9974, 0x084b0038), // 51 (portal) (combined sprites)
                             (0x085DA448, 0x00), // 52
                             (0x085DDF90, 0x084affd8), // 53 (HUD fairy) // TODO: Different palettes per sprites?
                             (0x085DE1B4, 0x00), // 54
@@ -141,7 +141,7 @@ namespace Ray1Map.GBAIsometric
                             (0x086BC07C, 0x00), // 104
                             (0x086C0CA4, 0x00), // 105
                             (0x086C35F0, 0x00), // 106
-                            (0x086C3774, 0x00), // 107 // TODO: Four OAM sprites combined into one
+                            (0x086C3774, 0x00), // 107 (machine) (combined sprites)
 
                             (0x086C53EC, 0x00), // 108
                             (0x086C643C, 0x084b04b8), // 109 (enemy)
@@ -197,7 +197,7 @@ namespace Ray1Map.GBAIsometric
                             (0x08753548, 0x00), // 153
 
                             (0x08753B38, 0x00), // 154
-                            (0x08754B34, 0x084b0878), // 155 (Grendor) // TODO: Four OAM sprites combined into one
+                            (0x08754B34, 0x084b0878), // 155 (Grendor) (combined sprites)
                         },
                         // TODO: Fill out
                         GBAIsometricRegion.US => new (uint SpriteSetOffset, uint PaletteOffset)[0],

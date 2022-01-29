@@ -357,34 +357,66 @@ namespace Ray1Map.GBAIsometric
 
             GBAConstants.Size size = GBAConstants.GetSpriteShape(shape, sprite.SpriteSize);
 
-            Texture2D tex = TextureHelpers.CreateTexture2D(size.Width, size.Height, clear: true);
+            int spritesWidth = 1;
+            int spritesHeight = 1;
+
+            // The 3 sprite sets with the map length of 256 consist of 4 OAM sprites for a single frame as a 2x2 image.
+            // This is a hacky fix for it as I'm unsure how the game handles it. Appears to be hard-coded?
+            if (spriteSet.SpriteMapLength == 256)
+            {
+                if (sprite.Height < sprite.Width)
+                {
+                    spritesWidth = 2;
+                    spritesHeight = 1;
+                }
+                else if (sprite.Width < sprite.Height)
+                {
+                    spritesWidth = 1;
+                    spritesHeight = 2;
+                }
+                else
+                {
+                    spritesWidth = 2;
+                    spritesHeight = 2;
+                }
+
+                size = new GBAConstants.Size(64, 64);
+            }
+
+            Texture2D tex = TextureHelpers.CreateTexture2D(size.Width * spritesWidth, size.Height * spritesHeight, clear: true);
 
             int imgDataOffset = sprite.TileIndex * (spriteSet.Is8Bit ? 0x40 : 0x20);
             int mapIndex = spriteSet.SpriteMapLength * spriteIndex;
 
-            for (int y = 0; y < size.Height / GBAConstants.TileSize; y++)
+            for (int spriteY = 0; spriteY < spritesHeight; spriteY++)
             {
-                for (int x = 0; x < size.Width / GBAConstants.TileSize; x++)
+                for (int spriteX = 0; spriteX < spritesWidth; spriteX++)
                 {
-                    if (!spriteSet.SpriteMaps[mapIndex])
+                    for (int y = 0; y < size.Height / GBAConstants.TileSize; y++)
                     {
-                        mapIndex++;
-                        continue;
+                        for (int x = 0; x < size.Width / GBAConstants.TileSize; x++)
+                        {
+                            if (!spriteSet.SpriteMaps[mapIndex])
+                            {
+                                mapIndex++;
+                                continue;
+                            }
+
+                            tex.FillInTile(
+                                imgData: spriteSet.ImgData,
+                                imgDataOffset: imgDataOffset,
+                                pal: pal,
+                                encoding: Util.TileEncoding.Linear_4bpp,
+                                tileWidth: GBAConstants.TileSize,
+                                flipTextureY: true,
+                                tileX: spriteX * size.Width + x * GBAConstants.TileSize,
+                                tileY: spriteY * size.Height + y * GBAConstants.TileSize);
+
+                            imgDataOffset += spriteSet.Is8Bit ? 0x40 : 0x20;
+
+                            mapIndex++;
+                        }
                     }
-
-                    tex.FillInTile(
-                        imgData: spriteSet.ImgData,
-                        imgDataOffset: imgDataOffset,
-                        pal: pal,
-                        encoding: Util.TileEncoding.Linear_4bpp,
-                        tileWidth: GBAConstants.TileSize,
-                        flipTextureY: true,
-                        tileX: x * GBAConstants.TileSize,
-                        tileY: y * GBAConstants.TileSize);
-
-                    imgDataOffset += spriteSet.Is8Bit ? 0x40 : 0x20;
-
-                    mapIndex++;
                 }
             }
 
