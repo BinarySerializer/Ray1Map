@@ -119,7 +119,7 @@ namespace Ray1Map.GBAIsometric
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_GBAIsometricSpyro1_Level3D)obj).SpriteIndex = (byte)AnimIndex;
+                ((Unity_Object_GBAIsometricSpyro1_Level3D)obj).SpriteIndex = AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)

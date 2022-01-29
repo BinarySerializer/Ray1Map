@@ -68,7 +68,7 @@ namespace Ray1Map
             }
 
             // Update the frame
-            AnimationFrame = (byte)Mathf.FloorToInt(AnimationFrameFloat);
+            AnimationFrame = Mathf.FloorToInt(AnimationFrameFloat);
 
             // Trigger animation finished event
             if (isFinished || AnimSpeed == 0)
