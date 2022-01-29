@@ -39,6 +39,7 @@ namespace Ray1Map.GBAIsometric
                             (0x0822266C, 0x00), // 9
                             (0x08224F48, 0x00), // 10
                             (0x08227B34, 0x00), // 11
+
                             (0x0822ACF8, 0x00), // 12
                             (0x0822B708, 0x00), // 13
                             (0x0822E388, 0x00), // 14
@@ -58,13 +59,13 @@ namespace Ray1Map.GBAIsometric
                             (0x0826534C, 0x00), // 28
 
                             (0x084B08D8, 0x084aff38), // 29 (Spyro)
-                            (0x08560C64, 0x00), // 30
-                            (0x0858699C, 0x00), // 31
-                            (0x08586F98, 0x00), // 32
-                            (0x08587594, 0x00), // 33
+                            (0x08560C64, 0x084aff58), // 30 (flame)
+                            (0x0858699C, 0x084aff78), // 31 (Sparx)
+                            (0x08586F98, 0x084aff78), // 32 (Sparx, duplicate of 31)
+                            (0x08587594, 0x084aff38), // 33 (shadow)
                             (0x085BDB1C, 0x00), // 34
-                            (0x085BE9A0, 0x00), // 35
-                            (0x085BF5D8, 0x00), // 36
+                            (0x085BE9A0, 0x084aff38), // 35 (HUD Spyro)
+                            (0x085BF5D8, 0x084aff78), // 36 (menu Sparx)
                             (0x085BF7D4, 0x084aff98), // 37 (red gem)
                             (0x085C0038, 0x084aff98), // 38 (red gem effect)
                             (0x085C06C8, 0x084aff98), // 39 (green gem)
@@ -84,19 +85,19 @@ namespace Ray1Map.GBAIsometric
                             (0x085DDF90, 0x084affd8), // 53 (HUD fairy) // TODO: Different palettes per sprites
                             (0x085DE1B4, 0x00), // 54
                             (0x085DE38C, 0x00), // 55
-                            (0x085DE6C8, 0x00), // 56
-                            (0x085E18F8, 0x00), // 57
-                            (0x085E1EF4, 0x00), // 58
+                            (0x085DE6C8, 0x00), // 56 (locked chest)
+                            (0x085E18F8, 0x00), // 57 (chest key)
+                            (0x085E1EF4, 0x00), // 58 (HUD chest key)
                             (0x085E1FAC, 0x00), // 59
                             (0x085E6020, 0x084b0058), // 60 (life)
                             (0x085E6198, 0x084aff58), // 61 (life cork)
                             (0x085E61F0, 0x00), // 62
-                            (0x085E65A8, 0x00), // 63
+                            (0x085E65A8, 0x00), // 63 (gem digits)
                             (0x085E6E24, 0x084b0098), // 64 (rabbit)
                             (0x085EB484, 0x00), // 65
-                            (0x085EC154, 0x00), // 66
+                            (0x085EC154, 0x00), // 66 (pumpkin)
 
-                            (0x085ECB48, 0x00), // 67
+                            (0x085ECB48, 0x00), // 67 (Hunter)
                             (0x085FA724, 0x00), // 68 (Bianca)
                             (0x0860AF50, 0x00), // 69 (Moneybags)
                             (0x086171BC, 0x00), // 70
