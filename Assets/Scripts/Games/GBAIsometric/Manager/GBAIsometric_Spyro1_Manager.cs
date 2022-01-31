@@ -529,7 +529,7 @@ namespace Ray1Map.GBAIsometric
             // Text:
             // 0x08279c50 - Replaced font tiles (<)
             // 0x0827c2f0 - Replaced font map (<)
-            // 0x8275C00 -> 0x08835D28 (0x0884C550 for the maps edit patch) - Replaced text (remapped, pointer at 0x08002c60)
+            // 0x8275C00 -> 0x08835D28 (0x0884DB04 for the maps edit patch) - Replaced text (remapped, pointer at 0x08002c60)
 
             // Portraits (excluding 8 & 23):
             // 0x081b0b58 - Replaced palettes (16)
