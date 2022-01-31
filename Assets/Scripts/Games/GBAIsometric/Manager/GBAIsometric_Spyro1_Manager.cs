@@ -32,6 +32,8 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Cutscene Maps", false, true, (input, output) => ExportCutsceneMapsAsync(settings, output)),
             new GameAction("Find and Export Sprites (no pal)", false, true, (input, output) => FindAndExportAllSpritesAsync(settings, output)),
             new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)),
+            new GameAction("Export Sparx Animation Frames", false, true, (input, output) => ExportSparxAnimSets(settings, output, false)),
+            new GameAction("Export Sparx Animations as GIF", false, true, (input, output) => ExportSparxAnimSets(settings, output, true)),
             new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
             new GameAction("Export Scripts", false, true, (input, output) => ExportScriptsAsync(settings, output)),
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
@@ -115,6 +117,43 @@ namespace Ray1Map.GBAIsometric
                             : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors);
                         Texture2D tex = GetSpriteTexture(spriteSet, spriteIndex, pal);
                         Util.ByteArrayToFile(Path.Combine(outputPath, $"{spriteSetIndex}", $"{spriteIndex}.png"), tex.EncodeToPNG());
+                    }
+                }
+            });
+        }
+
+        public async UniTask ExportSparxAnimSets(GameSettings settings, string outputPath, bool saveAsGif)
+        {
+            await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, rom =>
+            {
+                rom.Pre_SerializeSparx = true;
+                rom.Pre_SparxIndex = -2; // Don't serialize any levels
+            }, (rom, context) =>
+            {
+                for (int animSetIndex = 0; animSetIndex < rom.Sparx_ObjectTypes.Length; animSetIndex++)
+                {
+                    Sparx_AnimSet animSet = rom.Sparx_ObjectTypes[animSetIndex].AnimSet;
+
+                    if (animSet == null)
+                        continue;
+
+                    for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                    {
+                        Sparx_Animation anim = animSet.Animations[animIndex];
+
+                        Texture2D[] frames = GetAnimFrames(anim);
+
+                        if (frames == null)
+                            continue;
+
+                        Util.ExportAnim(
+                            frames: frames,
+                            speed: 1, // TODO: Is this correct?
+                            center: false,
+                            saveAsGif: saveAsGif,
+                            outputDir: outputPath,
+                            primaryName: $"{animSetIndex}",
+                            secondaryName: $"{animIndex}");
                     }
                 }
             });
@@ -518,6 +557,82 @@ namespace Ray1Map.GBAIsometric
             tex.Apply();
 
             return tex;
+        }
+
+        public Texture2D[] GetAnimFrames(Sparx_Animation anim)
+        {
+            // Get the frames
+            Sparx_Frame[] frames = anim.Frames.TakeWhile(x => x.Sprites != null).ToArray();
+
+            if (!frames.Any())
+                return null;
+
+            var output = new Texture2D[frames.Length];
+
+            int minX = frames.SelectMany(x => x.Sprites).
+                Select(x => x.GraphicsPointer.Value).
+                SelectMany(x => x.Parts.Select(p => p.XPos - x.XPos)).
+                Min();
+            int minY = frames.SelectMany(x => x.Sprites).
+                Select(x => x.GraphicsPointer.Value).
+                SelectMany(x => x.Parts.Select(p => p.YPos - x.YPos)).
+                Min();
+            int maxX = frames.SelectMany(x => x.Sprites).
+                Select(x => x.GraphicsPointer.Value).
+                SelectMany(x => x.Parts.Select(p => p.XPos - x.XPos + p.Attribute.GetSpriteShape().Width)).
+                Max();
+            int maxY = frames.SelectMany(x => x.Sprites).
+                Select(x => x.GraphicsPointer.Value).
+                SelectMany(x => x.Parts.Select(p => p.YPos - x.YPos + p.Attribute.GetSpriteShape().Height)).
+                Max();
+
+            int width = maxX - minX;
+            int height = maxY - minY;
+
+            for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
+            {
+                Sparx_Frame frame = frames[frameIndex];
+
+                Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+
+                foreach (Sparx_Sprite sprite in frame.Sprites)
+                {
+                    Sparx_SpriteGraphics spriteGraphics = sprite.GraphicsPointer;
+
+                    Color[] pal = Util.ConvertGBAPalette(spriteGraphics.Palette.Value.Colors);
+
+                    foreach (Sparx_SpriteGraphicsPart part in spriteGraphics.Parts)
+                    {
+                        int offset = (int)part.TileSetOffset;
+
+                        var size = part.Attribute.GetSpriteShape();
+
+                        for (int y = 0; y < size.Height; y += 8)
+                        {
+                            for (int x = 0; x < size.Width; x += 8)
+                            {
+                                tex.FillInTile(
+                                    imgData: spriteGraphics.TileSet,
+                                    imgDataOffset: offset,
+                                    pal: pal,
+                                    encoding: Util.TileEncoding.Linear_4bpp,
+                                    tileWidth: GBAConstants.TileSize,
+                                    flipTextureY: true,
+                                    tileX: part.XPos - spriteGraphics.XPos + x - minX,
+                                    tileY: part.YPos - spriteGraphics.YPos + y - minY);
+
+                                offset += 0x20;
+                            }
+                        }
+                    }
+                }
+
+                tex.Apply();
+
+                output[frameIndex] = tex;
+            }
+
+            return output;
         }
 
         public void PatchJPROM(
