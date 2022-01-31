@@ -21,7 +21,7 @@ namespace Ray1Map.GBAIsometric
         {
             new GameInfo_World(World_Levels3D, Enumerable.Range(0, 17).ToArray()), // Levels 3D
             new GameInfo_World(World_Mode7, Enumerable.Range(0, 4).ToArray()), // Mode7
-            new GameInfo_World(World_Sparx, Enumerable.Range(0, 4).ToArray()), // Sparx
+            new GameInfo_World(World_Sparx, Enumerable.Range(0, 5).ToArray()), // Sparx
             new GameInfo_World(World_Cutscenes, Enumerable.Range(0, 21).ToArray()), // Cutscenes
         });
 
@@ -353,7 +353,7 @@ namespace Ray1Map.GBAIsometric
             });
 
             // Get the level data
-            GBAIsometric_Ice_Sparx_LevelData levelData = rom.Sparx_Levels[level];
+            GBAIsometric_Ice_Sparx_LevelData levelData = level == 4 ? rom.Sparx_MenuMap : rom.Sparx_Levels[level];
 
             // Create the level
             var lev = new Unity_Level();
@@ -394,17 +394,20 @@ namespace Ray1Map.GBAIsometric
             });
 
             // Add collision map
-            maps = maps.Append(new Unity_Map()
+            if (levelData.ObjectMap != null)
             {
-                Type = Unity_Map.MapType.Collision,
-                Width = levelData.ObjectMap.Value.Width,
-                Height = levelData.ObjectMap.Value.Height,
-                TileSet = Array.Empty<Unity_TileSet>(),
-                MapTiles = levelData.ObjectMap.Value.MapData.Select(x => new Unity_Tile(new MapTile()
+                maps = maps.Append(new Unity_Map()
                 {
-                    CollisionType = (ushort)(x < 0x40 ? x : 0)
-                })).ToArray(),
-            });
+                    Type = Unity_Map.MapType.Collision,
+                    Width = levelData.ObjectMap.Value.Width,
+                    Height = levelData.ObjectMap.Value.Height,
+                    TileSet = Array.Empty<Unity_TileSet>(),
+                    MapTiles = levelData.ObjectMap.Value.MapData.Select(x => new Unity_Tile(new MapTile()
+                    {
+                        CollisionType = (ushort)(x < 0x40 ? x : 0)
+                    })).ToArray(),
+                });
+            }
 
             lev.CellSize = GBAConstants.TileSize;
             lev.CellSizeOverrideCollision = GBAConstants.TileSize * 2;

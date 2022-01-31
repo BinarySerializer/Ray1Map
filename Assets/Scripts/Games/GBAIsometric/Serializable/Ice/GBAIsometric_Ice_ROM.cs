@@ -29,6 +29,7 @@ namespace Ray1Map.GBAIsometric
 
         // Sparx
         public GBAIsometric_Ice_Sparx_LevelData[] Sparx_Levels { get; set; }
+        public GBAIsometric_Ice_Sparx_LevelData Sparx_MenuMap { get; set; } // Unused
         // TODO: Sparx obj type defs
 
         // Portraits
@@ -135,6 +136,26 @@ namespace Ray1Map.GBAIsometric
             SerializerObject s,
             Dictionary<Spyro_DefinedPointer, Pointer> pointerTable)
         {
+            // Serialize unused MENU map as index 4
+            if (Pre_SparxIndex == 4 || Pre_SparxIndex == -1)
+            {
+                s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Sparx_MenuMap], () =>
+                {
+                    Sparx_MenuMap ??= new GBAIsometric_Ice_Sparx_LevelData();
+
+                    Sparx_MenuMap.Maps = new Pointer<GBAIsometric_Ice_Sparx_MapLayer>[]
+                    {
+                        s.SerializeObject<GBAIsometric_Ice_Sparx_MapLayer>(Sparx_MenuMap.Maps?.FirstOrDefault(), name: nameof(Sparx_MenuMap.Maps))
+                    };
+                    s.Align();
+                    Sparx_MenuMap.Palette = s.SerializeObject<Palette>(Sparx_MenuMap.Palette,
+                        x => x.Pre_Is8Bit = true, name: nameof(Sparx_MenuMap.Palette));
+                    Sparx_MenuMap.TileSetMap = s.SerializeObject<GBAIsometric_Ice_Sparx_TileSetMap>(Sparx_MenuMap.TileSetMap,
+                        x => x.Pre_TilesCount = 150, name: nameof(Sparx_MenuMap.TileSetMap));
+                    Sparx_MenuMap.TileSet = s.SerializeObject<GBAIsometric_Ice_Sparx_TileSet>(Sparx_MenuMap.TileSet, name: nameof(Sparx_MenuMap.TileSet));
+                });
+            }
+
             // Serialize levels
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Sparx_Levels], () =>
                 Sparx_Levels = s.SerializeObjectArray<GBAIsometric_Ice_Sparx_LevelData>(Sparx_Levels, 4, 
