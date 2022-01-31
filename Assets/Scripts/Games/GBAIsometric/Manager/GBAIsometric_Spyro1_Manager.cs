@@ -13,13 +13,15 @@ namespace Ray1Map.GBAIsometric
     public class GBAIsometric_Spyro1_Manager : GBAIsometric_IceDragon_BaseManager
     {
         public const int World_Levels3D = 0;
-        public const int World_Cutscenes = 1;
+        public const int World_Mode7 = 1;
+        public const int World_Sparx = 2;
+        public const int World_Cutscenes = 3;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(World_Levels3D, Enumerable.Range(0, 17).ToArray()), // Levels 3D
-            // TODO: Mode7 levels
-            // TODO: Sparx levels
+            new GameInfo_World(World_Mode7, Enumerable.Range(0, 4).ToArray()), // Mode7
+            new GameInfo_World(World_Sparx, Enumerable.Range(0, 4).ToArray()), // Sparx
             new GameInfo_World(World_Cutscenes, Enumerable.Range(0, 21).ToArray()), // Cutscenes
         });
 
@@ -187,158 +189,248 @@ namespace Ray1Map.GBAIsometric
             int world = settings.World;
             int level = settings.Level;
 
-            if (world == World_Levels3D)
+            return world switch
             {
-                // Read the ROM
-                GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath, (s, r) =>
-                {
-                    r.Pre_SerializeLevel3D = true;
-                    r.Pre_Level3D = level;
-                    r.Pre_SerializeSprites = true;
-                });
+                World_Levels3D => await LoadLevel3DAsync(context, level),
+                World_Mode7 => throw new NotImplementedException("Mode7 levels are currently not supported"),
+                World_Sparx => await LoadSparxAsync(context, level),
+                World_Cutscenes => await LoadCutsceneMapAsync(context, FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath)),
+                _ => throw new InvalidOperationException("Invalid world")
+            };
+        }
 
-                // Get the level data
-                GBAIsometric_Ice_Level3D_MapLayers mapLayers = rom.Level3D_MapLayers[level];
-                MapTile[][] mapTiles = mapLayers.Layers.Select(x => x.Value.GetFullMap().Select(m => new MapTile
-                {
-                    TileMapY = (ushort)(m.TileIndex + x.Value.CharacterBaseBlock * 512),
-                    HorizontalFlip = m.FlipX,
-                    VerticalFlip = m.FlipY,
-                    PaletteIndex = (byte)m.PaletteIndex,
-                }).ToArray()).ToArray();
-                byte[] tileSetData = rom.Level3D_TileSets[level].Value;
-                Palette pal = rom.Level3D_Palettes[level];
+        public async UniTask<Unity_Level> LoadLevel3DAsync(Context context, int level)
+        {
+            // Read the ROM
+            GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath, (s, r) =>
+            {
+                r.Pre_SerializeLevel3D = true;
+                r.Pre_Level3DIndex = level;
+                r.Pre_SerializeSprites = true;
+            });
 
-                // Create the level
-                var lev = new Unity_Level();
+            // Get the level data
+            GBAIsometric_Ice_Level3D_MapLayers mapLayers = rom.Level3D_MapLayers[level];
+            MapTile[][] mapTiles = mapLayers.Layers.Select(x => x.Value.GetFullMap().Select(m => new MapTile
+            {
+                TileMapY = (ushort)(m.TileIndex + x.Value.CharacterBaseBlock * 512),
+                HorizontalFlip = m.FlipX,
+                VerticalFlip = m.FlipY,
+                PaletteIndex = (byte)m.PaletteIndex,
+            }).ToArray()).ToArray();
+            byte[] tileSetData = rom.Level3D_TileSets[level].Value;
+            Palette pal = rom.Level3D_Palettes[level];
 
-                Controller.DetailedState = $"Loading tileset";
-                await Controller.WaitIfNecessary();
+            // Create the level
+            var lev = new Unity_Level();
 
-                Unity_TileSet tileSet = LoadTileSet(pal.Colors, tileSetData, mapTiles.SelectMany(x => x));
+            Controller.DetailedState = $"Loading tileset";
+            await Controller.WaitIfNecessary();
 
-                Controller.DetailedState = $"Loading collision";
-                await Controller.WaitIfNecessary();
+            Unity_TileSet tileSet = LoadTileSet(pal.Colors, tileSetData, mapTiles.SelectMany(x => x));
 
-                const float isoTileDiagonal = 8 / 2f; // 8 tiles, divide by 2 as 1 tile = half unit
-                float isoTileWidth = Mathf.Sqrt(isoTileDiagonal * isoTileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
+            Controller.DetailedState = $"Loading collision";
+            await Controller.WaitIfNecessary();
 
-                lev.IsometricData = new Unity_IsometricData
-                {
-                    //TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
-                    //TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
-                    CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.
-                        // Ignore boxes with lines as they seem to just be for layering?
-                        Where(x => x.Lines.Length == 0).Select(x =>
+            const float isoTileDiagonal = 8 / 2f; // 8 tiles, divide by 2 as 1 tile = half unit
+            float isoTileWidth = Mathf.Sqrt(isoTileDiagonal * isoTileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
+
+            lev.IsometricData = new Unity_IsometricData
+            {
+                //TilesWidth = mapLayers.Layers.Max(x => x.Value.Width),
+                //TilesHeight = mapLayers.Layers.Max(x => x.Value.Height),
+                CollisionObjects = rom.Level3D_MapCollision[level].Value.Items.
+                    // Ignore boxes with lines as they seem to just be for layering?
+                    Where(x => x.Lines.Length == 0).Select(x =>
                     {
                         float factor = lev.PixelsPerUnit;
                         float height = (float)x.Height / (1 << 14);
-                        
+
                         return new Unity_IsometricCollisionObject
                         {
                             Points = new Vector3[]
-                            {
+                                {
                                 new Vector3(x.MinX, x.MinY, height) / factor,
                                 new Vector3(x.MaxX, x.MinY, height) / factor,
                                 new Vector3(x.MaxX, x.MaxY, height) / factor,
                                 new Vector3(x.MinX, x.MaxY, height) / factor,
-                            }
+                        }
                         };
                     }).ToArray(),
-                    Scale = new Vector3(isoTileWidth, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), isoTileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+                Scale = new Vector3(isoTileWidth, 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), isoTileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+            };
+
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
+
+            IEnumerable<Unity_Map> maps = mapLayers.Layers.Select((map, i) =>
+            {
+                return new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = map.Value.Width,
+                    Height = map.Value.Height,
+                    TileSet = new Unity_TileSet[] { tileSet },
+                    MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
                 };
+            }).Reverse();
+            lev.CellSize = GBAConstants.TileSize;
 
-                Controller.DetailedState = $"Loading maps";
-                await Controller.WaitIfNecessary();
+            // Add the level map if available
+            if (rom.Level3D_LevelMaps != null && rom.Level3D_LevelMaps.Length > level && Settings.LoadIsometricMapLayer)
+            {
+                GBAIsometric_Ice_Level3D_LevelMap lvlMap = rom.Level3D_LevelMaps[level];
 
-                IEnumerable<Unity_Map> maps = mapLayers.Layers.Select((map, i) =>
+                Texture2D tileSetTex = Util.ToTileSetTexture(
+                    imgData: lvlMap.ImgData,
+                    pal: Util.ConvertGBAPalette(lvlMap.Palette.Colors),
+                    encoding: Util.TileEncoding.Linear_4bpp,
+                    tileWidth: GBAConstants.TileSize,
+                    flipY: false);
+
+                maps = maps.Append(new Unity_Map()
                 {
-                    return new Unity_Map()
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = 30,
+                    Height = 20,
+                    TileSet = new Unity_TileSet[]
                     {
-                        Type = Unity_Map.MapType.Graphics,
-                        Width = map.Value.Width,
-                        Height = map.Value.Height,
-                        TileSet = new Unity_TileSet[] { tileSet },
-                        MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
-                    };
-                }).Reverse();
-                lev.CellSize = GBAConstants.TileSize;
-
-                // Add the level map if available
-                if (rom.Level3D_LevelMaps != null && rom.Level3D_LevelMaps.Length > level && Settings.LoadIsometricMapLayer)
-                {
-                    GBAIsometric_Ice_Level3D_LevelMap lvlMap = rom.Level3D_LevelMaps[level];
-
-                    Texture2D tileSetTex = Util.ToTileSetTexture(
-                        imgData: lvlMap.ImgData, 
-                        pal: Util.ConvertGBAPalette(lvlMap.Palette.Colors), 
-                        encoding: Util.TileEncoding.Linear_4bpp, 
-                        tileWidth: GBAConstants.TileSize, 
-                        flipY: false);
-
-                    maps = maps.Append(new Unity_Map()
-                    {
-                        Type = Unity_Map.MapType.Graphics,
-                        Width = 30,
-                        Height = 20,
-                        TileSet = new Unity_TileSet[]
-                        {
                             new Unity_TileSet(tileSetTex, CellSize)
-                        },
-                        MapTiles = Enumerable.Range(0, 30 * 20).Select(x => new Unity_Tile(new MapTile()
-                        {
-                            TileMapY = (ushort)x
-                        })).ToArray()
-                    });
-                }
-
-                lev.Maps = maps.ToArray();
-
-                Controller.DetailedState = $"Loading objects";
-                await Controller.WaitIfNecessary();
-
-                Color[] dummyPal = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
-
-                var objManager = new Unity_ObjectManager_GBAIsometricSpyro1(
-                    context: context, 
-                    spriteSets: rom.SpriteSets.
-                        Select((x, spriteSetIndex) => new Unity_ObjectManager_GBAIsometricSpyro1.SpriteSet(
-                            spriteSetObj: x, 
-                            animFramesFunc: () => x.Value.Sprites.
-                                Select((s, spriteIndex) => GetSpriteTexture(x, spriteIndex, 
-                                        rom.SpriteSetPalettes[spriteSetIndex] == null 
-                                                ? dummyPal 
-                                                : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors)).
-                                        CreateSprite()).ToArray())).ToArray());
-
-                lev.ObjManager = objManager;
-
-                // Load Spyro object
-                GBAIsometric_Ice_Vector startPos = rom.Level3D_StartPositions[level];
-                lev.Rayman = new Unity_Object_GBAIsometricSpyro1_Level3D(new GBAIsometric_Ice_Level3D_Object(1, startPos), objManager);
-
-                // NOTE: Missing objects include mission objects, fairies and NPCs. They are all sadly hard-coded per level.
-
-                // Load level objects
-                foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)
-                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Level3D(obj, objManager));
-
-                Controller.DetailedState = $"Loading localization";
-                await Controller.WaitIfNecessary();
-
-                lev.Localization = LoadLocalization(context, rom.Localization);
-
-                return lev;
+                    },
+                    MapTiles = Enumerable.Range(0, 30 * 20).Select(x => new Unity_Tile(new MapTile()
+                    {
+                        TileMapY = (ushort)x
+                    })).ToArray()
+                });
             }
-            else if (world == World_Cutscenes)
+
+            lev.Maps = maps.ToArray();
+
+            Controller.DetailedState = $"Loading objects";
+            await Controller.WaitIfNecessary();
+
+            Color[] dummyPal = PaletteHelpers.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+
+            var objManager = new Unity_ObjectManager_GBAIsometricSpyro1(
+                context: context,
+                spriteSets: rom.SpriteSets.
+                    Select((x, spriteSetIndex) => new Unity_ObjectManager_GBAIsometricSpyro1.SpriteSet(
+                        spriteSetObj: x,
+                        animFramesFunc: () => x.Value.Sprites.
+                            Select((s, spriteIndex) => GetSpriteTexture(x, spriteIndex,
+                                    rom.SpriteSetPalettes[spriteSetIndex] == null
+                                            ? dummyPal
+                                            : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors)).
+                                    CreateSprite()).ToArray())).ToArray());
+
+            lev.ObjManager = objManager;
+
+            // Load Spyro object
+            GBAIsometric_Ice_Vector startPos = rom.Level3D_StartPositions[level];
+            lev.Rayman = new Unity_Object_GBAIsometricSpyro1_Level3D(new GBAIsometric_Ice_Level3D_Object(1, startPos), objManager);
+
+            // NOTE: Missing objects include mission objects, fairies and NPCs. They are all sadly hard-coded per level.
+
+            // Load level objects
+            foreach (GBAIsometric_Ice_Level3D_Object obj in rom.Level3D_Objects[level].Value.Objects)
+                lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Level3D(obj, objManager));
+
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            lev.Localization = LoadLocalization(context, rom.Localization);
+
+            return lev;
+        }
+
+        public async UniTask<Unity_Level> LoadSparxAsync(Context context, int level)
+        {
+            // Read the ROM
+            GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath, (s, r) =>
             {
-                GBAIsometric_Ice_ROM rom = FileFactory.Read<GBAIsometric_Ice_ROM>(context, GetROMFilePath);
-                return await LoadCutsceneMapAsync(context, rom);
-            }
-            else
+                r.Pre_SerializeSparx = true;
+                r.Pre_SparxIndex = level;
+            });
+
+            // Get the level data
+            GBAIsometric_Ice_Sparx_LevelData levelData = rom.Sparx_Levels[level];
+
+            // Create the level
+            var lev = new Unity_Level();
+
+            var mapLayers = levelData.Maps.Select((map, i) => new
             {
-                throw new NotImplementedException();
-            }
+                Width = map.Value.Width * 2,
+                Height = map.Value.Height * 2,
+                Index = i,
+                TileMap = map.Value.GetMap(levelData.TileSetMap).Select(x => new MapTile
+                {
+                    TileMapY = (ushort)x.TileIndex,
+                    HorizontalFlip = x.FlipX,
+                    VerticalFlip = x.FlipY,
+                    PaletteIndex = (byte)x.PaletteIndex,
+                }).ToArray()
+            }).ToArray();
+
+            Controller.DetailedState = $"Loading tileset";
+            await Controller.WaitIfNecessary();
+
+            Unity_TileSet tileSet = LoadTileSet(levelData.Palette.Value.Colors, levelData.TileSet.Value.ImgData, mapLayers.SelectMany(x => x.TileMap));
+
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
+
+            // Add maps
+            IEnumerable<Unity_Map> maps = mapLayers.Select(map =>
+            {
+                return new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = (ushort)map.Width,
+                    Height = (ushort)map.Height,
+                    TileSet = new Unity_TileSet[] { tileSet },
+                    MapTiles = map.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+                };
+            });
+
+            // Add collision map
+            maps = maps.Append(new Unity_Map()
+            {
+                Type = Unity_Map.MapType.Collision,
+                Width = levelData.ObjectMap.Value.Width,
+                Height = levelData.ObjectMap.Value.Height,
+                TileSet = Array.Empty<Unity_TileSet>(),
+                MapTiles = levelData.ObjectMap.Value.MapData.Select(x => new Unity_Tile(new MapTile()
+                {
+                    CollisionType = (ushort)(x < 0x40 ? x : 0)
+                })).ToArray(),
+            });
+
+            lev.CellSize = GBAConstants.TileSize;
+            lev.CellSizeOverrideCollision = GBAConstants.TileSize * 2;
+            lev.GetCollisionTypeGraphicFunc = x => (GBAIsometric_Ice_Sparx_CollisionType)x switch
+            {
+                GBAIsometric_Ice_Sparx_CollisionType.None => Unity_MapCollisionTypeGraphic.None,
+                GBAIsometric_Ice_Sparx_CollisionType.Solid => Unity_MapCollisionTypeGraphic.Solid,
+                GBAIsometric_Ice_Sparx_CollisionType.Wall => Unity_MapCollisionTypeGraphic.Passthrough,
+                GBAIsometric_Ice_Sparx_CollisionType.BossTrigger => Unity_MapCollisionTypeGraphic.Reactionary,
+                _ => Unity_MapCollisionTypeGraphic.Unknown0
+            };
+            lev.GetCollisionTypeNameFunc = x => ((GBAIsometric_Ice_Sparx_CollisionType)x).ToString();
+            lev.Maps = maps.ToArray();
+
+            Controller.DetailedState = $"Loading objects";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Implement
+            lev.ObjManager = new Unity_ObjectManager(context);
+
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            lev.Localization = LoadLocalization(context, rom.Localization);
+
+            return lev;
         }
 
         public Texture2D GetSpriteTexture(GBAIsometric_Ice_SpriteSet spriteSet, int spriteIndex, Color[] pal)

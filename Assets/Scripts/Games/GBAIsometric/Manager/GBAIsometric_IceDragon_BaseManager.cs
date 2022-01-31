@@ -230,11 +230,11 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet)
+        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet, Util.TileEncoding encoding = Util.TileEncoding.Linear_8bpp)
         {
             Color[] pal = Util.ConvertGBAPalette(tilePal);
 
-            Texture2D tileSetTex = Util.ToTileSetTexture(tileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+            Texture2D tileSetTex = Util.ToTileSetTexture(tileSet, pal, encoding, CellSize, false);
 
             return new Unity_TileSet(tileSetTex, CellSize);
         }

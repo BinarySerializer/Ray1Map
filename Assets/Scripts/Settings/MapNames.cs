@@ -186,6 +186,8 @@ namespace Ray1Map
                     return new Dictionary<int, string>()
                     {
                         [GBAIsometric_Spyro1_Manager.World_Levels3D] = "3D",
+                        [GBAIsometric_Spyro1_Manager.World_Mode7] = "Mode7",
+                        [GBAIsometric_Spyro1_Manager.World_Sparx] = "Sparx",
                         [GBAIsometric_Spyro1_Manager.World_Cutscenes] = "Cutscenes",
                     };
 
