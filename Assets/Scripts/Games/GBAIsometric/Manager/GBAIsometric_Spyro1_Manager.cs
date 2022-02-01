@@ -975,5 +975,51 @@ namespace Ray1Map.GBAIsometric
 
             str.ToString().CopyToClipboard();
         }
+
+        public async UniTask CopySpriteSetOffsetsFromEUBaseAsync(Context context)
+        {
+            using var euContext = new Ray1MapContext(new GameSettings(GameModeSelection.SpyroSeasonIceEU, Settings.GameDirectories[GameModeSelection.SpyroSeasonIceEU], 0, 0));
+            await LoadFilesAsync(euContext);
+            GBAIsometric_Ice_ROM euRom = FileFactory.Read<GBAIsometric_Ice_ROM>(euContext, GetROMFilePath, (s, r) =>
+            {
+                r.Pre_SerializeSprites = true;
+            });
+
+            var spriteSetPointers = Enumerable.Repeat((Pointer)null, euRom.SpriteSets.Length).ToList();
+
+            BinaryDeserializer s = context.Deserializer;
+
+            s.Goto(context.FilePointer(GetROMFilePath) + 3);
+
+            while (s.CurrentFileOffset < s.CurrentLength - 4)
+            {
+                string magic = s.SerializeString(default, 3);
+                s.Goto(s.CurrentPointer + 1);
+
+                if (magic != "CRS")
+                    continue;
+
+                s.Goto(s.CurrentPointer - 7);
+
+                var set = s.SerializeObject<GBAIsometric_Ice_SpriteSet>(default);
+
+                var index = euRom.SpriteSets.FindItemIndex(x => x.Value.ImgData.SequenceEqual(set.ImgData));
+
+                if (index != -1 && spriteSetPointers[index] == null)
+                    spriteSetPointers[index] = set.Offset;
+                else
+                    spriteSetPointers.Add(set.Offset);
+
+                s.Align();
+                s.Goto(s.CurrentPointer - 1);
+            }
+
+            var str = new StringBuilder();
+
+            for (int i = 0; i < spriteSetPointers.Count; i++)
+                str.AppendLine($"(0x{spriteSetPointers[i]?.StringAbsoluteOffset ?? "00"}, 0x00), // {i}");
+
+            str.ToString().CopyToClipboard();
+        }
     }
 }

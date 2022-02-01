@@ -621,7 +621,7 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.Ice_Level3D_TileSetLengths] = 0x08063888,
                         [Spyro_DefinedPointer.Ice_Level3D_MapCollision] = 0x081b0c18,
                         [Spyro_DefinedPointer.Ice_Level3D_Objects] = 0x081b0ec8,
-                        //[Spyro_DefinedPointer.Ice_Level3D_StartPositions] = ,
+                        [Spyro_DefinedPointer.Ice_Level3D_StartPositions] = 0x080638cc,
 
                         //[Spyro_DefinedPointer.Ice_Sparx_Levels] = ,
                         //[Spyro_DefinedPointer.Ice_Sparx_MenuMap] = ,
