@@ -14,6 +14,8 @@ namespace Ray1Map
             ObjLinks = objLinks;
             PrimaryName = name;
             Position = position;
+            XPosition = (short)position.x;
+            YPosition = (short)position.y;
             IsEditor = isEditor;
         }
 

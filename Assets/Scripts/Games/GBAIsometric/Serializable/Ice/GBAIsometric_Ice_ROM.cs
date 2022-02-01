@@ -14,7 +14,6 @@ namespace Ray1Map.GBAIsometric
         public bool Pre_SerializePortraits { get; set; }
         public bool Pre_SerializeSprites { get; set; }
 
-        // TODO: Sparx levels
         // TODO: Mode7 levels
 
         // Levels 3D
@@ -31,6 +30,7 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_Ice_Sparx_LevelData[] Sparx_Levels { get; set; }
         public GBAIsometric_Ice_Sparx_LevelData Sparx_MenuMap { get; set; } // Unused
         public Sparx_ObjectType[] Sparx_ObjectTypes { get; set; }
+        public Palette Sparx_ObjPalette { get; set; }
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
@@ -164,6 +164,10 @@ namespace Ray1Map.GBAIsometric
             // Serialize object types
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Sparx_ObjectTypes], () =>
                 Sparx_ObjectTypes = s.SerializeObjectArray<Sparx_ObjectType>(Sparx_ObjectTypes, 49, name: nameof(Sparx_ObjectTypes)));
+
+            // Serialize object palette
+            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Sparx_ObjectPalette], () =>
+                Sparx_ObjPalette = s.SerializeObject<Palette>(Sparx_ObjPalette, x => x.Pre_Is8Bit = true, name: nameof(Sparx_ObjPalette)));
         }
 
         private void SerializePortraits(

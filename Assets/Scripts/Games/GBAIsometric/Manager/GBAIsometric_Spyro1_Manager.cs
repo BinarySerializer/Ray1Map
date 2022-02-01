@@ -130,9 +130,12 @@ namespace Ray1Map.GBAIsometric
                 rom.Pre_SparxIndex = -2; // Don't serialize any levels
             }, (rom, context) =>
             {
+                Color[][] objPal = Util.ConvertAndSplitGBAPalette(rom.Sparx_ObjPalette.Colors);
+
                 for (int animSetIndex = 0; animSetIndex < rom.Sparx_ObjectTypes.Length; animSetIndex++)
                 {
-                    Sparx_AnimSet animSet = rom.Sparx_ObjectTypes[animSetIndex].AnimSet;
+                    Sparx_ObjectType objType = rom.Sparx_ObjectTypes[animSetIndex];
+                    Sparx_AnimSet animSet = objType.AnimSet;
 
                     if (animSet == null)
                         continue;
@@ -140,18 +143,30 @@ namespace Ray1Map.GBAIsometric
                     for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
                     {
                         Sparx_Animation anim = animSet.Animations[animIndex];
+                        Texture2D[] frames;
 
-                        Texture2D[] frames = GetAnimFrames(anim);
+                        (frames, _) = GetAnimFrames(anim, objPal[objType.PaletteIndex]);
 
                         if (frames == null)
                             continue;
 
                         Util.ExportAnim(
                             frames: frames,
-                            speed: 1, // TODO: Is this correct?
+                            speed: 4,
                             center: false,
                             saveAsGif: saveAsGif,
-                            outputDir: outputPath,
+                            outputDir: Path.Combine(outputPath, "Final"),
+                            primaryName: $"{animSetIndex}",
+                            secondaryName: $"{animIndex}");
+
+                        (frames, _) = GetAnimFrames(anim);
+
+                        Util.ExportAnim(
+                            frames: frames,
+                            speed: 4,
+                            center: false,
+                            saveAsGif: saveAsGif,
+                            outputDir: Path.Combine(outputPath, "Source"),
                             primaryName: $"{animSetIndex}",
                             secondaryName: $"{animIndex}");
                     }
@@ -425,6 +440,7 @@ namespace Ray1Map.GBAIsometric
                 return new Unity_Map()
                 {
                     Type = Unity_Map.MapType.Graphics,
+                    Layer = map.Index > 0 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                     Width = (ushort)map.Width,
                     Height = (ushort)map.Height,
                     TileSet = new Unity_TileSet[] { tileSet },
@@ -464,8 +480,84 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading objects";
             await Controller.WaitIfNecessary();
 
-            // TODO: Implement
-            lev.ObjManager = new Unity_ObjectManager(context);
+            // Add object graphics
+            var animSets = new List<Unity_ObjectManager_GBAIsometricSpyro1_Sparx.AnimSet>();
+
+            Color[][] objPal = Util.ConvertAndSplitGBAPalette(rom.Sparx_ObjPalette.Colors);
+
+            foreach (Sparx_ObjectType objType in rom.Sparx_ObjectTypes)
+            {
+                Sparx_Animation[] anims = objType.AnimSet.Value?.Animations;
+
+                animSets.Add(new Unity_ObjectManager_GBAIsometricSpyro1_Sparx.AnimSet(anims?.
+                    Select(anim =>
+                    {
+                        Texture2D[] frames;
+                        Vector2Int offset;
+
+                        (frames, offset) = GetAnimFrames(anim, objPal[objType.PaletteIndex]);
+
+                        return new Unity_ObjectManager_GBAIsometricSpyro1_Sparx.AnimSet.Animation(
+                            frames: frames?.Select(t => t.CreateSprite()).ToArray() ?? Array.Empty<Sprite>(),
+                            offset: offset);
+                    }).
+                    ToArray() ?? Array.Empty<Unity_ObjectManager_GBAIsometricSpyro1_Sparx.AnimSet.Animation>()));
+            }
+
+            var objManager = new Unity_ObjectManager_GBAIsometricSpyro1_Sparx(context, animSets.ToArray(), rom.Sparx_ObjectTypes);
+            lev.ObjManager = objManager;
+
+            // Add objects
+            if (levelData.ObjectMap != null)
+            {
+                GBAIsometric_Ice_Sparx_MapLayer map = levelData.ObjectMap;
+
+                for (int y = 0; y < map.Height; y++)
+                {
+                    for (int x = 0; x < map.Width; x++)
+                    {
+                        byte objValue = map.MapData[y * map.Width + x];
+
+                        if (objValue >= 0x40)
+                        {
+                            var objType = objValue - 0x40;
+
+                            var obj = new Unity_Object_GBAIsometricSpyro1_Sparx(objType, objManager)
+                            {
+                                XPosition = (short)(x * GBAConstants.TileSize * 2),
+                                YPosition = (short)(y * GBAConstants.TileSize * 2),
+                            };
+
+                            lev.EventData.Add(obj);
+
+                            // Blocker has a child object
+                            if (objType >= 17 && objType <= 24)
+                            {
+                                // Horizontal
+                                if (obj.AnimIndex == 1)
+                                {
+                                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Sparx(objType, objManager)
+                                    {
+                                        XPosition = (short)(obj.XPosition - 48),
+                                        YPosition = obj.YPosition,
+                                        AnimIndex = 0,
+                                    });
+                                }
+                                // Vertical
+                                else
+                                {
+                                    lev.EventData.Add(new Unity_Object_GBAIsometricSpyro1_Sparx(objType, objManager)
+                                    {
+                                        XPosition = obj.XPosition,
+                                        YPosition = (short)(obj.YPosition - 48),
+                                        AnimIndex = 2,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
@@ -559,31 +651,35 @@ namespace Ray1Map.GBAIsometric
             return tex;
         }
 
-        public Texture2D[] GetAnimFrames(Sparx_Animation anim)
+        public (Texture2D[] Frames, Vector2Int Offset) GetAnimFrames(Sparx_Animation anim, Color[] overridePal = null)
         {
             // Get the frames
             Sparx_Frame[] frames = anim.Frames.TakeWhile(x => x.Sprites != null).ToArray();
 
             if (!frames.Any())
-                return null;
+                return default;
 
             var output = new Texture2D[frames.Length];
 
             int minX = frames.SelectMany(x => x.Sprites).
-                Select(x => x.GraphicsPointer.Value).
-                SelectMany(x => x.Parts.Select(p => p.XPos - x.XPos)).
+                Select(sprite => new { Graphics = sprite.GraphicsPointer.Value, sprite.XPos }).
+                SelectMany(sprite => sprite.Graphics.Parts.
+                    Select(part => part.XPos + sprite.XPos)).
                 Min();
             int minY = frames.SelectMany(x => x.Sprites).
-                Select(x => x.GraphicsPointer.Value).
-                SelectMany(x => x.Parts.Select(p => p.YPos - x.YPos)).
+                Select(sprite => new { Graphics = sprite.GraphicsPointer.Value, sprite.YPos }).
+                SelectMany(sprite => sprite.Graphics.Parts.
+                    Select(part => part.YPos + sprite.YPos)).
                 Min();
             int maxX = frames.SelectMany(x => x.Sprites).
-                Select(x => x.GraphicsPointer.Value).
-                SelectMany(x => x.Parts.Select(p => p.XPos - x.XPos + p.Attribute.GetSpriteShape().Width)).
+                Select(sprite => new { Graphics = sprite.GraphicsPointer.Value, sprite.XPos }).
+                SelectMany(sprite => sprite.Graphics.Parts.
+                    Select(part => part.XPos + sprite.XPos + part.Attribute.GetSpriteShape().Width)).
                 Max();
             int maxY = frames.SelectMany(x => x.Sprites).
-                Select(x => x.GraphicsPointer.Value).
-                SelectMany(x => x.Parts.Select(p => p.YPos - x.YPos + p.Attribute.GetSpriteShape().Height)).
+                Select(sprite => new { Graphics = sprite.GraphicsPointer.Value, sprite.YPos }).
+                SelectMany(sprite => sprite.Graphics.Parts.
+                    Select(part => part.YPos + sprite.YPos + part.Attribute.GetSpriteShape().Height)).
                 Max();
 
             int width = maxX - minX;
@@ -599,7 +695,7 @@ namespace Ray1Map.GBAIsometric
                 {
                     Sparx_SpriteGraphics spriteGraphics = sprite.GraphicsPointer;
 
-                    Color[] pal = Util.ConvertGBAPalette(spriteGraphics.Palette.Value.Colors);
+                    Color[] pal = overridePal ?? Util.ConvertGBAPalette(spriteGraphics.Palette.Value.Colors);
 
                     foreach (Sparx_SpriteGraphicsPart part in spriteGraphics.Parts)
                     {
@@ -618,8 +714,8 @@ namespace Ray1Map.GBAIsometric
                                     encoding: Util.TileEncoding.Linear_4bpp,
                                     tileWidth: GBAConstants.TileSize,
                                     flipTextureY: true,
-                                    tileX: part.XPos - spriteGraphics.XPos + x - minX,
-                                    tileY: part.YPos - spriteGraphics.YPos + y - minY);
+                                    tileX: part.XPos + sprite.XPos + x - minX,
+                                    tileY: part.YPos + sprite.YPos + y - minY);
 
                                 offset += 0x20;
                             }
@@ -632,7 +728,7 @@ namespace Ray1Map.GBAIsometric
                 output[frameIndex] = tex;
             }
 
-            return output;
+            return (output, new Vector2Int(minX, minY));
         }
 
         public void PatchJPROM(

@@ -61,5 +61,6 @@
         Ice_Sparx_Levels,
         Ice_Sparx_MenuMap,
         Ice_Sparx_ObjectTypes,
+        Ice_Sparx_ObjectPalette,
     }
 }

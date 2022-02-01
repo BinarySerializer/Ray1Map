@@ -628,6 +628,14 @@ namespace Ray1Map
                 [15] = "Grendor's Lair 1",
                 [16] = "Grendor's Lair 2",
             },
+            [GBAIsometric_Spyro1_Manager.World_Sparx] = new Dictionary<int, string>()
+            {
+                [0] = "Ant Farm (Z000)",
+                [1] = "Wasp City (Z001)",
+                [2] = "Beetle Burrows (Z002)",
+                [3] = "Caterpillar Gardens (Z003)",
+                [4] = "Unused Menu (MENU)",
+            },
             [GBAIsometric_Spyro1_Manager.World_Cutscenes] = new Dictionary<int, string>()
             {
                 [0] = "Cutscene 0",
