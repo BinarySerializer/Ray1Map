@@ -240,6 +240,7 @@ namespace Ray1Map
 
             // Force update event controller
             controllerEvents.ForceUpdate();
+            controllerTilemap.ForceUpdate();
 
             // Hide unused links and show gendoors
             foreach (var e in Objects)

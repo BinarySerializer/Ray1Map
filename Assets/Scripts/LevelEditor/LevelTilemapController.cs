@@ -1101,7 +1101,9 @@ namespace Ray1Map
             }
         }
 
-		private void Update()
+        public void ForceUpdate() => UpdateLayersVisibility();
+
+        private void Update()
         {
             if (Controller.LoadState != Controller.State.Finished) return;
 
