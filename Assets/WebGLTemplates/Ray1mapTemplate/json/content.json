@@ -65,6 +65,7 @@
 						{ "json": "pc_nl2", "image": ".\/img\/version\/msdos.png", "name": "Dutch 2 (NL2)", "volume": "NL2", "folder": "r1/edu/pc_nl2" },
 						{ "json": "pc_nl3", "image": ".\/img\/version\/msdos.png", "name": "Dutch 3 (NL3)", "volume": "NL3", "folder": "r1/edu/pc_nl3" },
 						{ "json": "pc_dk", "image": ".\/img\/version\/msdos.png", "name": "Danish 1/2/3 (DK)", "volume": "DK", "folder": "r1/edu/pc_dk" },
+						{ "json": "pc_sw", "image": ".\/img\/version\/msdos.png", "name": "Swedish 1/2/3 (SW)", "volume": "SW", "folder": "r1/edu/pc_sw" },
 						{ "json": "pc_fi", "image": ".\/img\/version\/msdos.png", "name": "Finnish 1/2/3 (FI)", "volume": "FI", "folder": "r1/edu/pc_fi" },
 						{ "json": "pc_hn2", "image": ".\/img\/version\/msdos.png", "name": "Hungarian 2 (HN2)", "volume": "HN2", "folder": "r1/edu/pc_hn2" },
 						{ "json": "pc_isl", "image": ".\/img\/version\/msdos.png", "name": "Hebrew L (ISL)", "volume": "ISL", "folder": "r1/edu/pc_isl" },
