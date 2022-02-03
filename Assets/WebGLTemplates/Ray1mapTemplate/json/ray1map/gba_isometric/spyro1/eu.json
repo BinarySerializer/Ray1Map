@@ -1,0 +1,55 @@
+{
+  "name": "Spyro: Season of Ice (GBA - EU)",
+  "mode": "SpyroSeasonIceEU",
+  "folder": "gba_isometric/spyro1_eu",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "2", "name": "Autumn Fairy Home" },
+    { "world": 0, "level": 0, "nameInternal": "4", "name": "Lava Prairie" },
+    { "world": 0, "level": 0, "nameInternal": "5", "name": "Mermaid Coast" },
+    { "world": 0, "level": 0, "nameInternal": "6", "name": "Market Mesa" },
+    { "world": 1, "level": 0, "nameInternal": "Z000", "name": "Ant Farm - Sparx" },
+    
+    { "world": 0, "level": 0, "nameInternal": "3", "name": "Winter Fairy Home" },
+    { "world": 0, "level": 0, "nameInternal": "8", "name": "Hummingbird Fort" },
+    { "world": 0, "level": 0, "nameInternal": "9", "name": "Panda Gardens" },
+    { "world": 0, "level": 0, "nameInternal": "7", "name": "Honey Marsh" },
+    { "world": 1, "level": 1, "nameInternal": "Z001", "name": "Wasp City - Sparx" },
+    { "world": 0, "level": 0, "nameInternal": "15", "name": "Grendor's Lair - Boss" },
+    
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Spring Fairy Home" },
+    { "world": 0, "level": 0, "nameInternal": "12", "name": "Time Machine Lab" },
+    { "world": 0, "level": 0, "nameInternal": "14", "name": "Roman City" },
+    { "world": 0, "level": 0, "nameInternal": "13", "name": "Twilight Bulb Factory" },
+    { "world": 1, "level": 3, "nameInternal": "Z003", "name": "Caterpillar Gardens - Sparx" },
+    
+    { "world": 0, "level": 0, "nameInternal": "1", "name": "Summer Fairy Home" },
+    { "world": 0, "level": 0, "nameInternal": "10", "name": "Dusty Trails" },
+    { "world": 0, "level": 0, "nameInternal": "11", "name": "Star Park" },
+    { "world": 1, "level": 2, "nameInternal": "Z002", "name": "Beetle Burrows - Sparx" },
+    { "world": 0, "level": 0, "nameInternal": "16", "name": "Grendor's Lair - Boss" },
+    
+    { "world": 1, "level": 4, "nameInternal": "MENU", "name": "Unused Menu - Sparx" },
+    
+    { "world": 3, "level": 0, "nameInternal": "", "name": "Cutscene 1" },
+    { "world": 3, "level": 1, "nameInternal": "", "name": "Cutscene 2" },
+    { "world": 3, "level": 2, "nameInternal": "", "name": "Cutscene 3" },
+    { "world": 3, "level": 3, "nameInternal": "", "name": "Cutscene 4" },
+    { "world": 3, "level": 4, "nameInternal": "", "name": "Cutscene 5" },
+    { "world": 3, "level": 5, "nameInternal": "", "name": "Cutscene 6" },
+    { "world": 3, "level": 6, "nameInternal": "", "name": "Cutscene 7" },
+    { "world": 3, "level": 7, "nameInternal": "", "name": "Cutscene 8" },
+    { "world": 3, "level": 8, "nameInternal": "", "name": "Cutscene 9" },
+    { "world": 3, "level": 9, "nameInternal": "", "name": "Cutscene 10" },
+    { "world": 3, "level": 10, "nameInternal": "", "name": "Cutscene 11" },
+    { "world": 3, "level": 11, "nameInternal": "", "name": "Cutscene 12" },
+    { "world": 3, "level": 12, "nameInternal": "", "name": "Cutscene 13" },
+    { "world": 3, "level": 13, "nameInternal": "", "name": "Cutscene 14" },
+    { "world": 3, "level": 14, "nameInternal": "", "name": "Cutscene 15" },
+    { "world": 3, "level": 15, "nameInternal": "", "name": "Cutscene 16" },
+    { "world": 3, "level": 16, "nameInternal": "", "name": "Cutscene 17" },
+    { "world": 3, "level": 17, "nameInternal": "", "name": "Cutscene 18" },
+    { "world": 3, "level": 18, "nameInternal": "", "name": "Cutscene 19" },
+    { "world": 3, "level": 19, "nameInternal": "", "name": "Cutscene 20" },
+    { "world": 3, "level": 20, "nameInternal": "", "name": "Cutscene 21" }
+  ]
+}
