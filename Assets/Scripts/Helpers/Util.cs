@@ -606,11 +606,14 @@ namespace Ray1Map
             Linear_16bpp_4444_ABGR,
         }
 
-        public static void ExportAnim(IList<Texture2D> frames, int speed, bool center, bool saveAsGif, string outputDir, string primaryName, string secondaryName)
+        public static void ExportAnim(IList<Texture2D> frames, int speed, bool center, bool saveAsGif, string outputDir, string primaryName, string secondaryName = null, Vector2Int[] frameOffsets = null, bool trim = true)
         {
             if (saveAsGif)
             {
-                ExportAnimAsGif(frames, speed, center, true, Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
+                ExportAnimAsGif(frames, speed, center, trim, Path.Combine(outputDir, secondaryName != null 
+                    ? $"{primaryName} - {secondaryName}.gif"
+                    : $"{primaryName}.gif"), 
+                    frameOffsets: frameOffsets);
             }
             else
             {
@@ -618,7 +621,11 @@ namespace Ray1Map
 
                 foreach (var tex in frames)
                 {
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{primaryName}", $"{secondaryName}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                    string path = secondaryName != null
+                        ? Path.Combine(outputDir, $"{primaryName}", $"{secondaryName}", $"{frameIndex}.png")
+                        : Path.Combine(outputDir, $"{primaryName}", $"{frameIndex}.png");
+
+                    ByteArrayToFile(path, tex.EncodeToPNG());
                     frameIndex++;
                 }
             }
@@ -662,7 +669,7 @@ namespace Ray1Map
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             collection.Write(filePath);
         }
-        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath, int frameRate = 60) =>
-            ExportAnimAsGif(frames, Enumerable.Repeat(speed, frames.Count).ToArray(), center, trim, filePath, frameRate);
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath, int frameRate = 60, Vector2Int[] frameOffsets = null) =>
+            ExportAnimAsGif(frames, Enumerable.Repeat(speed, frames.Count).ToArray(), center, trim, filePath, frameRate, frameOffsets);
     }
 }
