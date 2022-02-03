@@ -20,7 +20,7 @@ namespace Ray1Map.GBAIsometric
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(World_Levels3D, Enumerable.Range(0, 17).ToArray()), // Levels 3D
-            new GameInfo_World(World_Mode7, Enumerable.Range(0, 4).ToArray()), // Mode7
+            //new GameInfo_World(World_Mode7, Enumerable.Range(0, 4).ToArray()), // Mode7
             new GameInfo_World(World_Sparx, Enumerable.Range(0, 5).ToArray()), // Sparx
             new GameInfo_World(World_Cutscenes, Enumerable.Range(0, 21).ToArray()), // Cutscenes
         });
@@ -31,7 +31,8 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Resources (categorized)", false, true, (input, output) => ExportResourcesAsync(settings, output, true)),
             new GameAction("Export Cutscene Maps", false, true, (input, output) => ExportCutsceneMapsAsync(settings, output)),
             new GameAction("Find and Export Sprites (no pal)", false, true, (input, output) => FindAndExportAllSpritesAsync(settings, output)),
-            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)),
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output, false)),
+            new GameAction("Export Sprite Animations as GIF", false, true, (input, output) => ExportSpritesAsync(settings, output, true)),
             new GameAction("Export Sparx Animation Frames", false, true, (input, output) => ExportSparxAnimSets(settings, output, false)),
             new GameAction("Export Sparx Animations as GIF", false, true, (input, output) => ExportSparxAnimSets(settings, output, true)),
             new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
@@ -39,6 +40,7 @@ namespace Ray1Map.GBAIsometric
             new GameAction("Export Font", false, true, (input, output) => ExportFont(settings, output)),
             new GameAction("Export Strings", false, true, (input, output) => ExportStrings(settings, output)),
             new GameAction("Export Localization", false, true, (input, output) => ExportLocalization(settings, output)),
+            new GameAction("Export All Graphics", false, true, (input, output) => ExportAllGraphicsAsync(settings, output)),
         };
 
         public async UniTask ExportResourcesAsync(GameSettings settings, string outputPath, bool categorize)
@@ -100,7 +102,7 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public async UniTask ExportSpritesAsync(GameSettings settings, string outputPath)
+        public async UniTask ExportSpritesAsync(GameSettings settings, string outputPath, bool saveAsGif)
         {
             await DoGameActionAsync<GBAIsometric_Ice_ROM>(settings, rom => rom.Pre_SerializeSprites = true, (rom, context) =>
             {
@@ -110,14 +112,24 @@ namespace Ray1Map.GBAIsometric
                 {
                     GBAIsometric_Ice_SpriteSet spriteSet = rom.SpriteSets[spriteSetIndex];
 
-                    for (int spriteIndex = 0; spriteIndex < spriteSet.Sprites.Length; spriteIndex++)
-                    {
-                        Color[] pal = rom.SpriteSetPalettes[spriteSetIndex] == null
-                            ? pal4
-                            : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors);
-                        Texture2D tex = GetSpriteTexture(spriteSet, spriteIndex, pal);
-                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{spriteSetIndex}", $"{spriteIndex}.png"), tex.EncodeToPNG());
-                    }
+                    Color[] pal = rom.SpriteSetPalettes[spriteSetIndex] == null
+                        ? pal4
+                        : Util.ConvertGBAPalette(rom.SpriteSetPalettes[spriteSetIndex].Value.Colors);
+
+                    Texture2D[] textures = spriteSet.Sprites.Select((s, i) => GetSpriteTexture(spriteSet, i, pal)).ToArray();
+
+                    sbyte minX = spriteSet.Sprites.Min(x => x.XPos);
+                    sbyte minY = spriteSet.Sprites.Min(x => x.YPos);
+
+                    Util.ExportAnim(
+                        frames: textures,
+                        speed: 4,
+                        center: false,
+                        saveAsGif: saveAsGif,
+                        outputDir: outputPath,
+                        primaryName: $"{spriteSetIndex}",
+                        frameOffsets: spriteSet.Sprites.Select(x => new Vector2Int(x.XPos - minX, x.YPos - minY)).ToArray(),
+                        trim: false);
                 }
             });
         }
@@ -232,6 +244,17 @@ namespace Ray1Map.GBAIsometric
             {
                 JsonHelpers.SerializeToFile(LoadLocalization(context, rom.Localization), Path.Combine(outputPath, "Localization.json"));
             });
+        }
+
+        public async UniTask ExportAllGraphicsAsync(GameSettings settings, string outputPath)
+        {
+            await ExportCutsceneMapsAsync(settings, Path.Combine(outputPath, "Cutscenes"));
+            await ExportSpritesAsync(settings, Path.Combine(outputPath, "Sprites"), false);
+            await ExportSpritesAsync(settings, Path.Combine(outputPath, "Sprite Animations"), true);
+            await ExportSparxAnimSets(settings, Path.Combine(outputPath, "Sparx Animation Frames"), false);
+            await ExportSparxAnimSets(settings, Path.Combine(outputPath, "Sparx Animations"), true);
+            await ExportPortraitsAsync(settings, Path.Combine(outputPath, "Portraits"));
+            await ExportFont(settings, Path.Combine(outputPath, "Font"));
         }
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
@@ -1018,6 +1041,53 @@ namespace Ray1Map.GBAIsometric
 
             for (int i = 0; i < spriteSetPointers.Count; i++)
                 str.AppendLine($"(0x{spriteSetPointers[i]?.StringAbsoluteOffset ?? "00"}, 0x00), // {i}");
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public async UniTask CopySpriteSetPaletteOffsetsFromEUBaseAsync(Context context)
+        {
+            using var euContext = new Ray1MapContext(new GameSettings(GameModeSelection.SpyroSeasonIceEU, Settings.GameDirectories[GameModeSelection.SpyroSeasonIceEU], 0, 0));
+            await LoadFilesAsync(euContext);
+            GBAIsometric_Ice_ROM euRom = FileFactory.Read<GBAIsometric_Ice_ROM>(euContext, GetROMFilePath, (s, r) =>
+            {
+                r.Pre_SerializeSprites = true;
+            });
+
+            BinaryDeserializer s = context.Deserializer;
+            BinaryDeserializer s_eu = euContext.Deserializer;
+
+            var palOffsets = new Pointer[euRom.SpriteSetPalettes.Length];
+
+            for (int i = 0; i < euRom.SpriteSetPalettes.Length; i++)
+            {
+                var pal = euRom.SpriteSetPalettes[i];
+
+                if (pal != null)
+                {
+                    var rawPal = s_eu.DoAt(pal.PointerValue, () => s_eu.SerializeArray<byte>(default, 32));
+
+                    s.Goto(context.FilePointer(GetROMFilePath));
+
+                    while (s.CurrentFileOffset < s.CurrentLength - 32)
+                    {
+                        var raw = s.DoAt(s.CurrentPointer, () => s.SerializeArray<byte>(default, 32));
+
+                        if (raw.SequenceEqual(rawPal))
+                        {
+                            palOffsets[i] = s.CurrentPointer;
+                            break;
+                        }
+
+                        s.Goto(s.CurrentPointer + 4);
+                    }
+                }
+            }
+
+            var str = new StringBuilder();
+
+            foreach (Pointer p in palOffsets)
+                str.AppendLine($"0x{p?.StringAbsoluteOffset ?? "00"}");
 
             str.ToString().CopyToClipboard();
         }
