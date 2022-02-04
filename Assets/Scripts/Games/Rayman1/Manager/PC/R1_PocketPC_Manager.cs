@@ -166,11 +166,18 @@ namespace Ray1Map.Rayman1
         {
             var s = context.Deserializer;
 
-            var headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetSettings<Ray1Settings>(), "VIGNET.DAT");
-            var headerLength = headerBytes.Length / 12;
+            const string key = "VIGNET_Header";
 
-            var headerStream = new MemoryStream(headerBytes);
-            var file = s.Context.AddStreamFile($"VIGNET_Header", headerStream);
+            byte[] headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetSettings<Ray1Settings>(), "VIGNET.DAT");
+            int headerLength = headerBytes.Length / 12;
+
+            if (!context.FileExists(key))
+            {
+                var headerStream = new MemoryStream(headerBytes);
+                s.Context.AddStreamFile(key, headerStream);
+            }
+
+            BinaryFile file = context.GetFile(key);
 
             return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<PC_FileArchiveEntry>(default, headerLength, name: "Entries"));
         }
