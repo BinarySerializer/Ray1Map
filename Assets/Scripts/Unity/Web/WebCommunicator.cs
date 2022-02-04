@@ -325,7 +325,25 @@ public class WebCommunicator : MonoBehaviour {
 					if(includeLists)
 						webObj.GBAIsometric_AnimSetNames = rhrObj.ObjManager.AnimSets.Select(x => x.Name).ToArray();
 					break;
-				case Unity_Object_GBAIsometricSpyro spyroObj:
+                case Unity_Object_GBAIsometricSpyro1_Level3D spyroObj:
+                    if (spyroObj.SpriteSetIndex != -1)
+                    {
+                        webObj.GBAIsometric_AnimSetIndex = spyroObj.SpriteSetIndex;
+                        if (includeLists)
+                            webObj.GBAIsometric_AnimSetNames = spyroObj.ObjManager.SpriteSets.
+                                Select((x, i) => $"{i} - 0x{x.SpriteSetObj.Offset.StringAbsoluteOffset}").
+                                ToArray();
+                    }
+                    break;
+                case Unity_Object_GBAIsometricSpyro1_Sparx spyroObj:
+                    if (spyroObj.AnimSetIndex != -1)
+                    {
+                        webObj.GBAIsometric_AnimSetIndex = spyroObj.AnimSetIndex;
+                        if (includeLists)
+                            webObj.GBAIsometric_AnimSetNames = spyroObj.ObjManager.AnimSets.Select((x, i) => $"{i}").ToArray();
+                    }
+                    break;
+                case Unity_Object_GBAIsometricSpyro spyroObj:
 					if (spyroObj.AnimSetIndex != -1)
                     {
                         webObj.GBAIsometric_AnimSetIndex = spyroObj.AnimSetIndex;
@@ -829,6 +847,18 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GBAIsometricRHR rhro:
 				if (msg.GBAIsometric_AnimSetIndex.HasValue && rhro.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
 					rhro.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAIsometricSpyro1_Level3D spyro_o:
+				if (msg.GBAIsometric_AnimSetIndex.HasValue && spyro_o.SpriteSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
+					spyro_o.SpriteSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAIsometricSpyro1_Sparx spyro_o:
+				if (msg.GBAIsometric_AnimSetIndex.HasValue && spyro_o.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
+					spyro_o.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
