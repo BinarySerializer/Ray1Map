@@ -41,6 +41,8 @@ namespace Ray1Map.GBAVV
                 // Skip padding
                 output.Position += paddingSize * 2;
             }
+
+            output.SetLength(output.Position);
         }
 
         public void EncodeStream(Stream input, Stream output) => throw new NotImplementedException();
