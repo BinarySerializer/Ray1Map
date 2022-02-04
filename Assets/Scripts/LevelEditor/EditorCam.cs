@@ -52,7 +52,8 @@ namespace Ray1Map {
             if (wasTrackMoving && wasFreeCameraMode != FreeCameraMode && FreeCameraMode == false) {
                 StopMovingAlongTrack();
             }
-            if (setShowCollision && wasFreeCameraMode != FreeCameraMode && LevelEditorData.Level?.IsometricData?.CollisionMap != null) {
+            if (setShowCollision && wasFreeCameraMode != FreeCameraMode && 
+                (LevelEditorData.Level?.IsometricData?.CollisionMap != null || LevelEditorData.Level?.IsometricData?.CollisionObjects != null)) {
                 if (freeCameraMode) { // On enable free camera mode
                     storedCollisionSetting = Settings.ShowCollision;
                     Settings.ShowCollision = true;
