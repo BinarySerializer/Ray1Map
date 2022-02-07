@@ -7,7 +7,7 @@ namespace Ray1Map.GBA
     {
         public byte Flags { get; set; }
         public byte Byte_01 { get; set; }
-        public ushort AffineMatricesIndex { get; set; }
+        public ushort Index_AffineMatrices { get; set; }
         public byte Byte_03 { get; set; }
         public byte[] LayersPerFrame { get; set; }
 
@@ -27,7 +27,7 @@ namespace Ray1Map.GBA
             if (!s.GetR1Settings().GBA_IsMilan)
             {
                 Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-                AffineMatricesIndex = s.Serialize<byte>((byte)AffineMatricesIndex, name: nameof(AffineMatricesIndex));
+                Index_AffineMatrices = s.Serialize<byte>((byte)Index_AffineMatrices, name: nameof(Index_AffineMatrices));
                 Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 FrameCount = (byte)BitHelpers.ExtractBits(Byte_03, 6, 0);
 
@@ -45,7 +45,7 @@ namespace Ray1Map.GBA
             {
                 FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
                 Milan_Ushort_02 = s.Serialize<ushort>(Milan_Ushort_02, name: nameof(Milan_Ushort_02));
-                AffineMatricesIndex = s.Serialize<ushort>(AffineMatricesIndex, name: nameof(AffineMatricesIndex));
+                Index_AffineMatrices = s.Serialize<ushort>(Index_AffineMatrices, name: nameof(Index_AffineMatrices));
                 Milan_Int_06 = s.Serialize<int>(Milan_Int_06, name: nameof(Milan_Int_06));
 
                 var offsetBase = s.CurrentPointer;

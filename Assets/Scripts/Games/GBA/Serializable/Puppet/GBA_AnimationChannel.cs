@@ -193,8 +193,8 @@ namespace Ray1Map.GBA
 
         public float GetRotation(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                if (puppet.Matrices.ContainsKey(anim.Index_AffineMatrices)) {
+                    var m = puppet.Matrices[anim.Index_AffineMatrices].GetMatrix(AffineMatrixIndex, frameIndex);
                     if (m != null) {
                         var rotation = -Mathf.Atan2(m.Pb / 256f, m.Pa / 256f);
                         return rotation * Mathf.Rad2Deg;
@@ -212,8 +212,8 @@ namespace Ray1Map.GBA
 
         public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                if (puppet.Matrices.ContainsKey(anim.Index_AffineMatrices)) {
+                    var m = puppet.Matrices[anim.Index_AffineMatrices].GetMatrix(AffineMatrixIndex, frameIndex);
                     if (m != null) {
                         var a = m.Pa / 256f;
                         var b = m.Pb / 256f;

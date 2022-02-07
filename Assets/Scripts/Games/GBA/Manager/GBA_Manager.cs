@@ -1166,7 +1166,7 @@ namespace Ray1Map.GBA
                                 {
                                     Flags = baseAnim.Flags,
                                     Byte_01 = baseAnim.Byte_01,
-                                    AffineMatricesIndex = baseAnim.AffineMatricesIndex,
+                                    Index_AffineMatrices = baseAnim.Index_AffineMatrices,
                                     Byte_03 = baseAnim.Byte_03,
                                     LayersPerFrame = baseAnim.LayersPerFrame,
                                     Milan_Ushort_02 = baseAnim.Milan_Ushort_02,

@@ -7,8 +7,7 @@ namespace Ray1Map.GBA
     public class GBA_Puppet : GBA_BaseBlock {
         #region Data
 
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
+        public ushort ID { get; set; }
         public ushort Index_TileSet { get; set; }
         public ushort Index_Palette { get; set; }
         public byte Index_Unknown { get; set; }
@@ -39,10 +38,7 @@ namespace Ray1Map.GBA
             if (!s.GetR1Settings().GBA_IsMilan)
             {
                 if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_Sabrina)
-                {
-                    Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-                    Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-                }
+                    ID = s.Serialize<ushort>(ID, name: nameof(ID));
 
                 Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
                 Index_Palette = s.Serialize<byte>((byte)Index_Palette, name: nameof(Index_Palette));
@@ -52,7 +48,7 @@ namespace Ray1Map.GBA
 
                 Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04)); // Byte_04 & 0xF == palette count
                 AnimationsCount = s.Serialize<byte>((byte)AnimationsCount, name: nameof(AnimationsCount));
-                Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
+                Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06)); // This multiplied by 2 is some length
 
                 AnimationIndexTable = s.SerializeArray<byte>(AnimationIndexTable?.Select(x => (byte)x).ToArray(), AnimationsCount, name: nameof(AnimationIndexTable)).Select(x => (ushort)x).ToArray();
             }
@@ -90,7 +86,7 @@ namespace Ray1Map.GBA
 
             for (int i = 0; i < Animations.Length; i++) {
                 if (Animations[i] == null) continue;
-                int matrixIndex = Animations[i].AffineMatricesIndex;
+                int matrixIndex = Animations[i].Index_AffineMatrices;
                 if (matrixIndex != 0) {
 
                     Matrices[matrixIndex] = s.DoAt(OffsetTable.GetPointer(matrixIndex),

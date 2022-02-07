@@ -103,6 +103,8 @@ namespace Ray1Map.GBA
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
                 Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
                 Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
+
+                // Padding
                 Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
                 Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
             }

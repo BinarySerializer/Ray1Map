@@ -11,8 +11,8 @@ namespace Ray1Map.GBA
 
         public byte Index_PlayField { get; set; }
         public byte Unk_01 { get; set; }
-        public byte Unk_02 { get; set; }
-        public byte IndexMin_ActorModels { get; set; }
+        public byte Unk_02 { get; set; } // TODO: A ushort, VRAM offset
+        public byte IndexMin_ActorModels { get; set; } // TODO: Incorrect
 
         public byte ActorsCountTotal { get; set; }
 
@@ -23,7 +23,7 @@ namespace Ray1Map.GBA
         public byte ActorsCount5 { get; set; }
 
         public byte IndexMax_ActorModels { get; set; }
-        public byte SectorsCount { get; set; }
+        public byte KnotsCount { get; set; }
 
         public GBA_Actor[] MainActors { get; set; }
         public GBA_Actor[] AlwaysActors { get; set; }
@@ -74,7 +74,7 @@ namespace Ray1Map.GBA
 
             IndexMax_ActorModels = s.Serialize<byte>(IndexMax_ActorModels, name: nameof(IndexMax_ActorModels));
 
-            SectorsCount = s.Serialize<byte>(SectorsCount, name: nameof(SectorsCount));
+            KnotsCount = s.Serialize<byte>(KnotsCount, name: nameof(KnotsCount));
 
             if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
 
@@ -102,7 +102,7 @@ namespace Ray1Map.GBA
                 Captors = s.SerializeObjectArray<GBA_Actor>(Captors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Captor, name: nameof(Captors));
             }
 
-            Knots = s.SerializeObjectArray<GBA_Knot>(Knots, SectorsCount, name: nameof(Knots));
+            Knots = s.SerializeObjectArray<GBA_Knot>(Knots, KnotsCount, name: nameof(Knots));
         }
 
         public override void SerializeOffsetData(SerializerObject s)

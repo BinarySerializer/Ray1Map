@@ -13,7 +13,7 @@ namespace Ray1Map.GBA
         public ushort TileSet4bppSize { get; set; }
         public ushort TileSet8bppSize { get; set; }
         public byte Byte_04 { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
-        public byte AnimatedTileKitManagerIndex { get; set; }
+        public byte Index_AnimatedTileKitManager { get; set; }
         public byte PaletteCount { get; set; }
         public byte Byte_07 { get; set; }
 
@@ -56,7 +56,7 @@ namespace Ray1Map.GBA
                 TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
                 TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
                 IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
-                AnimatedTileKitManagerIndex = s.Serialize<byte>(AnimatedTileKitManagerIndex, name: nameof(AnimatedTileKitManagerIndex)); // Can be 0xFF which means this block doesn't exist
+                Index_AnimatedTileKitManager = s.Serialize<byte>(Index_AnimatedTileKitManager, name: nameof(Index_AnimatedTileKitManager)); // Can be 0xFF which means this block doesn't exist
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
                 PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
@@ -96,8 +96,8 @@ namespace Ray1Map.GBA
                 }
 
                 // Serialize tile animations
-                if (AnimatedTileKitManagerIndex != 0xFF) {
-                    AnimatedTileKitManager = s.DoAt(OffsetTable.GetPointer(AnimatedTileKitManagerIndex), () => s.SerializeObject<GBA_AnimatedTileKitManager>(AnimatedTileKitManager, name: nameof(AnimatedTileKitManager)));
+                if (Index_AnimatedTileKitManager != 0xFF) {
+                    AnimatedTileKitManager = s.DoAt(OffsetTable.GetPointer(Index_AnimatedTileKitManager), () => s.SerializeObject<GBA_AnimatedTileKitManager>(AnimatedTileKitManager, name: nameof(AnimatedTileKitManager)));
                     if (AnimatedTileKits == null) AnimatedTileKits = new GBA_AnimatedTileKit[AnimatedTileKitManager.Length];
                     for (int i = 0; i < AnimatedTileKits.Length; i++) {
                         AnimatedTileKits[i] = s.DoAt(OffsetTable.GetPointer(AnimatedTileKitManager.TileKitBlocks[i]), () => s.SerializeObject<GBA_AnimatedTileKit>(AnimatedTileKits[i], name: $"{nameof(AnimatedTileKits)}[{i}]"));

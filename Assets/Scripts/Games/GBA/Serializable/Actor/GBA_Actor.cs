@@ -9,7 +9,7 @@ namespace Ray1Map.GBA
         public short XPos { get; set; }
         public short YPos { get; set; }
 
-        public byte Byte_04 { get; set; }
+        public byte Byte_04 { get; set; } // TODO: Has puppet related data, like palettes count etc.
         
         public byte ActorID { get; set; }
         

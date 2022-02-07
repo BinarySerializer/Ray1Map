@@ -1,8 +1,4 @@
-﻿using System;
-using System.Numerics;
-using BinarySerializer;
-using Ray1Map.GBA;
-using UnityEngine;
+﻿using BinarySerializer;
 
 namespace Ray1Map.GBARRR
 {
@@ -29,14 +25,6 @@ namespace Ray1Map.GBARRR
         public bool Mosaic { get; set; }
         public GBA_ColorMode Color { get; set; }
         public int AffineMatrixIndex { get; set; }
-
-        public Type ChannelType { get; set; } = Type.Sprite;
-        public sbyte Box_MinX { get; set; }
-        public sbyte Box_MaxX { get; set; }
-        public sbyte Box_MinY { get; set; }
-        public sbyte Box_MaxY { get; set; }
-        public int Unknown8 { get; set; }
-        public int UnknownC { get; set; }
 
         public bool IsEndAttribute => Attr0 == 0x7F7F;
 
@@ -154,68 +142,6 @@ namespace Ray1Map.GBARRR
             VulnerabilityBox,
             Unknown8,
             UnknownC
-        }
-
-        public float GetRotation(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
-            if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
-                    if (m != null) {
-                        var rotation = -Mathf.Atan2(m.Pb / 256f, m.Pa / 256f);
-                        return rotation * Mathf.Rad2Deg;
-
-                        // Resources: 
-                        // https://stackoverflow.com/questions/45159314/decompose-2d-transformation-matrix
-                        // https://wiki.nycresistor.com/wiki/GB101:Affine_Sprites
-                        // https://www.coranac.com/tonc/text/affine.htm
-                        // https://www.coranac.com/tonc/text/affobj.htm
-                    }
-                }
-            }
-            return 0f;
-        }
-
-        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
-            if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
-                    if (m != null) {
-                        var a = m.Pa / 256f;
-                        var b = m.Pb / 256f;
-                        var c = m.Pc / 256f;
-                        var d = m.Pd / 256f;
-                        var delta = a * d - b * c;
-
-                        //var rotation = 0f;
-                        var scale = UnityEngine.Vector2.zero;
-                        //var skew = UnityEngine.Vector2.zero;
-                        // Apply the QR-like decomposition.
-                        if (a != 0 || b != 0) {
-                            var r = Mathf.Sqrt(a * a + b * b);
-                            //rotation = b > 0 ? Mathf.Acos(a / r) : -Mathf.Acos(a / r);
-                            scale = new UnityEngine.Vector2(r, delta / r);
-                            //skew = new UnityEngine.Vector2(Mathf.Atan((a * c + b * d) / (r * r)), 0);
-                        } else if (c != 0 || d != 0) {
-                            var s = Mathf.Sqrt(c * c + d * d);
-                            //rotation =
-                            //  Mathf.PI / 2 - (d > 0 ? Mathf.Acos(-c / s) : -Mathf.Acos(c / s));
-                            scale = new UnityEngine.Vector2(delta / s, s);
-                            //skew = new UnityEngine.Vector2(0, Mathf.Atan((a * c + b * d) / (s * s)));
-                        } else {
-                            // a = b = c = d = 0
-                        }
-                        if (scale.x != 0) scale.x = 1f / scale.x;
-                        if (scale.y != 0) scale.y = 1f / scale.y;
-
-                        return scale;
-                        // Resources: 
-                        // https://wiki.nycresistor.com/wiki/GB101:Affine_Sprites
-                        // https://www.coranac.com/tonc/text/affine.htm
-                        // https://www.coranac.com/tonc/text/affobj.htm
-                    }
-                }
-            }
-            return UnityEngine.Vector2.one;
         }
     }
 }

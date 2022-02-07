@@ -9,15 +9,15 @@ namespace Ray1Map.GBA
 
         public Type StructType { get; set; }
 
-        public byte TileKitOffsetIndex { get; set; }
+        public byte Index_TileKit { get; set; }
 
-        public byte BGTileTableOffsetIndex { get; set; }
+        public byte Index_BGTileTable { get; set; }
 
         public byte LayerStartIndex { get; set; }
 
         public byte TileKitCount { get; set; } = 1;
 
-        public byte Unk_03 { get; set; }
+        public byte DefaultPaletteIndex { get; set; }
 
         // 0-4 (isn't it 0-3?)
         public byte ClusterCount { get; set; }
@@ -73,8 +73,8 @@ namespace Ray1Map.GBA
             {
                 StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));
-                BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
-                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
+                Index_BGTileTable = s.Serialize<byte>(Index_BGTileTable, name: nameof(Index_BGTileTable));
+                Index_TileKit = s.Serialize<byte>(Index_TileKit, name: nameof(Index_TileKit));
                 TileKitCount = s.Serialize<byte>(TileKitCount, name: nameof(TileKitCount));
                 if (StructType == Type.PlayFieldPoP) {
                     UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 0x13, name: nameof(UnkBytes2));
@@ -90,14 +90,14 @@ namespace Ray1Map.GBA
             else if (s.GetR1Settings().GBA_IsCommon)
             {
                 StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
-                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
-                BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
+                Index_TileKit = s.Serialize<byte>(Index_TileKit, name: nameof(Index_TileKit));
+                Index_BGTileTable = s.Serialize<byte>(Index_BGTileTable, name: nameof(Index_BGTileTable));
                 if (StructType == Type.PlayFieldZoom) {
                     LayerStartIndex = s.Serialize<byte>(LayerStartIndex, name: nameof(LayerStartIndex));
                     LayerCount = 4;
                     LayerTable = s.SerializeArray<byte>(LayerTable, 4, name: nameof(LayerTable));
                 } else {
-                    Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+                    DefaultPaletteIndex = s.Serialize<byte>(DefaultPaletteIndex, name: nameof(DefaultPaletteIndex));
                 }
             }
             if (StructType != Type.PlayFieldZoom && StructType != Type.PlayFieldPoP) {
@@ -252,7 +252,7 @@ namespace Ray1Map.GBA
                 if (TileKits == null) TileKits = new GBA_TileKit[TileKitCount];
                 for (int i = 0; i < TileKitCount; i++)
                 {
-                    TileKits[i] = s.DoAt(OffsetTable.GetPointer(TileKitOffsetIndex + i),
+                    TileKits[i] = s.DoAt(OffsetTable.GetPointer(Index_TileKit + i),
                         () => s.SerializeObject<GBA_TileKit>(TileKits[i], name: $"{nameof(TileKits)}[{i}]"));
                 }
 
@@ -260,7 +260,7 @@ namespace Ray1Map.GBA
                 if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_SplinterCell_NGage)
                 {
                     // Serialize tilemap
-                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex, isRelativeOffset: IsGCNBlock),
+                    BGTileTable = s.DoAt(OffsetTable.GetPointer(Index_BGTileTable, isRelativeOffset: IsGCNBlock),
                         () =>
                         {
                             return s.SerializeObject<GBA_BGTileTable>(BGTileTable, onPreSerialize: b =>
@@ -273,7 +273,7 @@ namespace Ray1Map.GBA
                     if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia &&
                         StructType != Type.PlayFieldPoP)
                     {
-                        FGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex + 1),
+                        FGTileTable = s.DoAt(OffsetTable.GetPointer(Index_BGTileTable + 1),
                             () => s.SerializeObject<GBA_BGTileTable>(FGTileTable, name: nameof(FGTileTable)));
                     }
                 }
@@ -281,7 +281,7 @@ namespace Ray1Map.GBA
         }
 
 		public override int GetOffsetTableLengthGCN(SerializerObject s) {
-			return TileKitOffsetIndex + 1;
+			return Index_TileKit + 1;
         }
 
 		#endregion
