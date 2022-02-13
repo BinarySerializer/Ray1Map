@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ray1Map.Jade {
+﻿namespace Ray1Map.Jade {
 	public enum Jade_Code : uint {
 		Unknown = 0,
 		ACBD = 0xAACCBBDD,

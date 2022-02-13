@@ -1,7 +1,4 @@
-﻿using BinarySerializer.Ray1;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Ray1Map {
 	public class LegacyEditorUIController : MonoBehaviour {

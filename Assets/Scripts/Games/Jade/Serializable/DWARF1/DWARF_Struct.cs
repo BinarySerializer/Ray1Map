@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.DWARF1 {
 	public class DWARF_Struct : BinarySerializable {

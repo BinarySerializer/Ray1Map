@@ -1,6 +1,5 @@
 ﻿using System;
 using BinarySerializer;
-using Ray1Map;
 
 namespace Ray1Map.Gameloft
 {

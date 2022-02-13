@@ -1,7 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.PS2;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Ray1Map.Jade {

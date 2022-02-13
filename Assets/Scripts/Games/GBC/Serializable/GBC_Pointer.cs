@@ -38,7 +38,7 @@ namespace Ray1Map.GBC
             if (HasMemoryBankValue)
                 MemoryBank = s.Serialize<ushort>(MemoryBank, name: nameof(MemoryBank));
 
-            s.Log($"Pointer: {GetPointer()}");
+            s.Log("Pointer: {0}", GetPointer());
         }
     }
 }

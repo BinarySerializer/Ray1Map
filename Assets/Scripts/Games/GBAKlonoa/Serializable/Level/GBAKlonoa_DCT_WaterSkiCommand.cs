@@ -1,6 +1,5 @@
 ﻿using System;
 using BinarySerializer;
-using UnityEngine;
 
 namespace Ray1Map.GBAKlonoa
 {

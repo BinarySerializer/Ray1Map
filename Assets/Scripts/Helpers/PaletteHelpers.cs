@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using BinarySerializer;
-using BinarySerializer.PS1;
 using UnityEngine;
 
 namespace Ray1Map

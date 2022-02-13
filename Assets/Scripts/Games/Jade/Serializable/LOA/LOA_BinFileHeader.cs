@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class LOA_BinFileHeader : BinarySerializable {

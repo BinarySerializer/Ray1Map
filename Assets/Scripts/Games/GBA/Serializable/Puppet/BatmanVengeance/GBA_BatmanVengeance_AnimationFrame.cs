@@ -36,7 +36,7 @@ namespace Ray1Map.GBA
                     if (!commands.Last().IsTerminator)
                         throw new Exception($"Frame did not end with terminator command!");
                 } catch (Exception ex) {
-                    s.Log($"Error parsing command: {ex.Message}");
+                    s.Log("Error parsing command: {0}", ex.Message);
                     Debug.LogWarning($"Error parsing command at {Offset}: {ex.Message}");
                 }
 

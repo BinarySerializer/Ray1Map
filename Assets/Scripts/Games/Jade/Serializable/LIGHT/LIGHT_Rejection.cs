@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class LIGHT_Rejection : Jade_File {

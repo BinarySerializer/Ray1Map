@@ -38,7 +38,7 @@ namespace Ray1Map.GBAKlonoa
             if (ImgDataPointerValue < 10000)
             {
                 LinkedAnimIndex = (byte)ImgDataPointerValue;
-                s.Log($"{nameof(LinkedAnimIndex)}: {LinkedAnimIndex}");
+                s.Log("{0}: {1}", nameof(LinkedAnimIndex), LinkedAnimIndex);
 
                 if (Pre_IsMapAnimation)
                     Debug.LogWarning($"{s.CurrentPointer}: Map animation frame links to another animation");
@@ -88,7 +88,7 @@ namespace Ray1Map.GBAKlonoa
                     ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
             }
 
-            s.Log($"{nameof(ImgDataPointer)}: {ImgDataPointer}");
+            s.Log("{0}: {1}", nameof(ImgDataPointer), ImgDataPointer);
 
             Speed = s.Serialize<byte>(Speed, name: nameof(Speed));
             Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));

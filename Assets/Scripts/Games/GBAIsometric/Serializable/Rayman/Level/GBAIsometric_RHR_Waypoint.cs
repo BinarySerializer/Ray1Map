@@ -29,11 +29,11 @@ namespace Ray1Map.GBAIsometric
         public override void SerializeImpl(SerializerObject s)
         {
             XPos = s.Serialize<int>(XPos, name: nameof(XPos));
-            s.Log($"XPos value: {XPosValue}");
+            s.Log("XPos value: {0}", XPosValue);
             YPos = s.Serialize<int>(YPos, name: nameof(YPos));
-            s.Log($"YPos value: {YPosValue}");
+            s.Log("YPos value: {0}", YPosValue);
             Height = s.Serialize<int>(Height, name: nameof(Height));
-            s.Log($"Height value: {HeightValue}");
+            s.Log("Height value: {0}", HeightValue);
         }
     }
 }

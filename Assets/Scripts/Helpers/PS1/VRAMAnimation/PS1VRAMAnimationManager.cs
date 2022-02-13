@@ -2,7 +2,6 @@
 using System.Linq;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace Ray1Map
 {

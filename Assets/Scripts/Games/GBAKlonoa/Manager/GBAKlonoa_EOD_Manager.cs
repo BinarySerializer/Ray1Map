@@ -1,5 +1,4 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;

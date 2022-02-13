@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using BinarySerializer;
+﻿using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
 	public class TEX_GlobalList {

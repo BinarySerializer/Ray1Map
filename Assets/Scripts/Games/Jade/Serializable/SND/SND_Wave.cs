@@ -61,7 +61,7 @@ namespace Ray1Map.Jade
 		public bool IsSerializeDataSupported(SerializerObject s) => s.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && !s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon);
 
 		public void SerializeData(SerializerObject s) {
-			s.Log($"Serializing data for SND_Wave: {Key}");
+			s.Log("Serializing data for SND_Wave: {0}", Key);
 			if (Chunks == null)
 				throw new BinarySerializableException(this, $"{GetType()}: Tried to serialize data, but Chunks was null");
 

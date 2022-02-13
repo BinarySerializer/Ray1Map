@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	// Found in CAM_p_CreateFromBuffer

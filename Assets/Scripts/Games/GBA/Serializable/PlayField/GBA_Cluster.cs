@@ -88,17 +88,17 @@ namespace Ray1Map.GBA
                     Shanghai_Byte_0B = s.Serialize<byte>(Shanghai_Byte_0B, name: nameof(Shanghai_Byte_0B));
 
                     ScrollX = s.Serialize<int>(ScrollX, name: nameof(ScrollX));
-                    s.Log($"ScrollXFloat: {ScrollXFloat}");
+                    s.Log("ScrollXFloat: {0}", ScrollXFloat);
                     ScrollY = s.Serialize<int>(ScrollY, name: nameof(ScrollY));
-                    s.Log($"ScrollYFloat: {ScrollYFloat}");
+                    s.Log("ScrollYFloat: {0}", ScrollYFloat);
                 }
             }
             else
             {
                 ScrollX = s.Serialize<int>(ScrollX, name: nameof(ScrollX));
-                s.Log($"ScrollXFloat: {ScrollXFloat}");
+                s.Log("ScrollXFloat: {0}", ScrollXFloat);
                 ScrollY = s.Serialize<int>(ScrollY, name: nameof(ScrollY));
-                s.Log($"ScrollYFloat: {ScrollYFloat}");
+                s.Log("ScrollYFloat: {0}", ScrollYFloat);
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
                 Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));

@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BinarySerializer;
 using System.IO;
 
@@ -210,7 +208,7 @@ namespace Ray1Map.Jade {
 							FileInfo f = FileInfos[currentRef.Key];
 							Pointer off_target = f.FileOffset;
 							s.Goto(off_target);
-							s.Log($"LOA: Loading file: {f}");
+							s.Log("LOA: Loading file: {0}", f);
 							string previousState = Controller.DetailedState;
 							Controller.DetailedState = $"{previousState}\n{f}";
 							await s.FillCacheForReadAsync(4);
@@ -233,7 +231,7 @@ namespace Ray1Map.Jade {
 						FileInfo f = FileInfos[currentRef.Key];
 						Pointer off_target = f.FileOffset;
 						s.Goto(off_target);
-						s.Log($"LOA: Loading file: {f}");
+						s.Log("LOA: Loading file: {0}", f);
 						string previousState = Controller.DetailedState;
 						Controller.DetailedState = $"{previousState}\n{f}";
 						await s.FillCacheForReadAsync(4);
@@ -314,7 +312,7 @@ namespace Ray1Map.Jade {
 						Pointer off_current = s.CurrentPointer;
 						string filename = keyList[currentRef.Key.Key];
 						var f = await Context.AddLinearFileAsync(filename);
-						s.Log($"LOA: Loading file: {f}");
+						s.Log("LOA: Loading file: {0}", f);
 						Pointer off_target = f.StartPointer;
 						s.Goto(off_target);
 						string previousState = Controller.DetailedState;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class AI_ProcList : Jade_File {
@@ -23,7 +19,7 @@ namespace Ray1Map.Jade {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];
-				s.Log($"Compiled function found! Function name: {FunctionDef.Name}");
+				s.Log("Compiled function found! Function name: {0}", FunctionDef.Name);
 			}
 
 			ProcsCount = s.Serialize<ushort>(ProcsCount, name: nameof(ProcsCount));

@@ -40,7 +40,7 @@ namespace Ray1Map.Jade {
 					Flags = (LightFlags)b.SerializeBits<int>((int)Flags, 29, name: nameof(Flags));
 				});
 			}
-			s.Log(Type + " - " + Flags);
+			s.Log("{0} - {1}", Type, Flags);
 			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Type, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));

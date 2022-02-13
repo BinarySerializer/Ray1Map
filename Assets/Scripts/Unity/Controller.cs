@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 
 using System.Diagnostics;
-using BinarySerializer;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;

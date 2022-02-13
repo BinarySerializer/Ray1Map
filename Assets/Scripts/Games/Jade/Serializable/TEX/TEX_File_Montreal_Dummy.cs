@@ -1,6 +1,4 @@
 ﻿using BinarySerializer;
-using System;
-using BinarySerializer.Image;
 
 namespace Ray1Map.Jade
 {

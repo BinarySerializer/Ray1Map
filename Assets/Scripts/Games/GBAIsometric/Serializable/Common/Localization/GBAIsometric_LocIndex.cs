@@ -23,7 +23,7 @@ namespace Ray1Map.GBAIsometric
             var locString = GetString();
             
             if (locString != null)
-                s.Log($"String: {locString}");
+                s.Log("String: {0}", locString);
         }
     }
 }

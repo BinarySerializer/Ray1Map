@@ -1,7 +1,4 @@
-﻿using System;
-using BinarySerializer;
-
-namespace Ray1Map.Jade {
+﻿namespace Ray1Map.Jade {
 	public enum TEXT_Language : int {
 		Français = 0,
         English = 1,

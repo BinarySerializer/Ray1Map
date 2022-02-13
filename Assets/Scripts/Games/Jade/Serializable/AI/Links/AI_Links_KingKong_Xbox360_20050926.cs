@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ray1Map.Jade {
+﻿namespace Ray1Map.Jade {
 	public class AI_Links_KingKong_Xbox360_20050926 : AI_Links_KingKong_Xbox360 {
 		protected override void InitFunctionDefs() {
 			#region Function Defs

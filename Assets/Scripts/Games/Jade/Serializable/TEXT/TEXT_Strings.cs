@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class TEXT_Strings : Jade_File {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BinarySerializer;
-using UnityEngine;
 
 namespace Ray1Map.GBC
 {
@@ -41,8 +40,8 @@ namespace Ray1Map.GBC
                 }
                 catch (Exception ex)
                 {
-                    s.Log($"Error parsing instruction: {ex.Message}");
-                    Debug.LogWarning($"Error parsing instruction at {Offset}: {ex.Message}");
+                    s.Log("Error parsing instruction: {0}", ex.Message);
+                    s.LogWarning("Error parsing instruction at {0}: {1}", Offset, ex.Message);
 
                     s.Goto(endPointer);
                 }

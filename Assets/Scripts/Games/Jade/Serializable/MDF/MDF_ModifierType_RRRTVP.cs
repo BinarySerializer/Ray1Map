@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ray1Map.Jade {
+﻿namespace Ray1Map.Jade {
 	// TODO: Use similar system to AI_Links - this array is probably different for other games
 	public enum MDF_ModifierType_RRRTVP : int {
 		None = -1,

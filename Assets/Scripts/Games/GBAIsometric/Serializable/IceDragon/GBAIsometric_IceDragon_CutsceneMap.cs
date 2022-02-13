@@ -39,7 +39,7 @@ namespace Ray1Map.GBAIsometric
             MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_IceDragon_SpriteMap>(Map, name: nameof(Map)));
             PaletteIndex.DoAt(size => Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette)));
 
-            s.Log($"Min: {Map.MapData.Where(x => x.TileMapY > 1).Min(x => x.TileMapY)}");
+            s.Log("Min: {0}", Map.MapData.Where(x => x.TileMapY > 1).Min(x => x.TileMapY));
         }
 
         public Texture2D ToTexture2D()

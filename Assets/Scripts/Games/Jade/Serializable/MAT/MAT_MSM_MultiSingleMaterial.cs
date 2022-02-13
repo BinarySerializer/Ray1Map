@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class MAT_MSM_MultiSingleMaterial : GRO_GraphicRenderObject {

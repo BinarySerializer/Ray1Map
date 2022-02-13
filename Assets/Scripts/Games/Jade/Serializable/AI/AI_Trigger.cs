@@ -1,5 +1,4 @@
 ﻿using BinarySerializer;
-using System;
 
 namespace Ray1Map.Jade {
 	public class AI_Trigger : BinarySerializable {

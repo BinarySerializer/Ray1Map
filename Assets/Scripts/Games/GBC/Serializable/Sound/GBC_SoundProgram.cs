@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using BinarySerializer;
 
 namespace Ray1Map.GBC
@@ -83,19 +82,19 @@ namespace Ray1Map.GBC
                         switch (CommandType) {
                             case Type.Note:
                                 Note = CommandData[0] | (CommandData[1] << 8);
-                                s.Log($"Channel {CommandChannel} - Command: {CommandType} - Note: {Note}");
+                                s.Log("Channel {0} - Command: {1} - Note: {2}", CommandChannel, CommandType, Note);
                                 break;
                             case Type.Time:
                                 Time = CommandData[1] | (CommandData[2] << 8) | (CommandData[3] << 16);
-                                s.Log($"Channel {CommandChannel} - Command: {CommandType} - Time: {Time}");
+                                s.Log("Channel {0} - Command: {1} - Time: {2}", CommandChannel, CommandType, Time);
                                 break;
                             default:
-                                s.Log($"Channel {CommandChannel} - Command: {CommandType}");
+                                s.Log("Channel {0} - Command: {1}", CommandChannel, CommandType);
                                 break;
                         }
                     } else {
                         CommandType = Type.Unknown;
-                        s.Log($"Channel {CommandChannel} - Command: {CommandType}");
+                        s.Log("Channel {0} - Command: {1}", CommandChannel, CommandType);
                     }
                 }
 

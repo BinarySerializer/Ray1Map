@@ -67,23 +67,23 @@ namespace Ray1Map.GBARRR
             Priority = BitHelpers.ExtractBits(Attr2, 2, 10);
             PaletteIndex = BitHelpers.ExtractBits(Attr2, 4, 12);
 
-            s.Log($"{nameof(XPosition)}: {XPosition}");
-            s.Log($"{nameof(YPosition)}: {YPosition}");
-            s.Log($"{nameof(TransformMode)}: {TransformMode}");
-            s.Log($"{nameof(RenderMode)}: {RenderMode}");
-            s.Log($"{nameof(Color)}: {Color}");
-            s.Log($"{nameof(Mosaic)}: {Mosaic}");
-            s.Log($"{nameof(SpriteShape)}: {SpriteShape}");
-            s.Log($"{nameof(SpriteSize)}: {SpriteSize}");
+            s.Log("{0}: {1}", nameof(XPosition), XPosition);
+            s.Log("{0}: {1}", nameof(YPosition), YPosition);
+            s.Log("{0}: {1}", nameof(TransformMode), TransformMode);
+            s.Log("{0}: {1}", nameof(RenderMode), RenderMode);
+            s.Log("{0}: {1}", nameof(Color), Color);
+            s.Log("{0}: {1}", nameof(Mosaic), Mosaic);
+            s.Log("{0}: {1}", nameof(SpriteShape), SpriteShape);
+            s.Log("{0}: {1}", nameof(SpriteSize), SpriteSize);
 
-            s.Log($"{nameof(ImageIndex)}: {ImageIndex}");
-            s.Log($"{nameof(Priority)}: {Priority}");
-            s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+            s.Log("{0}: {1}", nameof(ImageIndex), ImageIndex);
+            s.Log("{0}: {1}", nameof(Priority), Priority);
+            s.Log("{0}: {1}", nameof(PaletteIndex), PaletteIndex);
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                s.Log($"{nameof(AffineMatrixIndex)}: {AffineMatrixIndex}");
+                s.Log("{0}: {1}", nameof(AffineMatrixIndex), AffineMatrixIndex);
             } else {
-                s.Log($"{nameof(IsFlippedHorizontally)}: {IsFlippedHorizontally}");
-                s.Log($"{nameof(IsFlippedVertically)}: {IsFlippedVertically}");
+                s.Log("{0}: {1}", nameof(IsFlippedHorizontally), IsFlippedHorizontally);
+                s.Log("{0}: {1}", nameof(IsFlippedVertically), IsFlippedVertically);
 
             }
             if (bit9) s.Log("BIT9");

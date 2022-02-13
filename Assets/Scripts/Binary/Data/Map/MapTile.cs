@@ -235,10 +235,10 @@ namespace Ray1Map
                     VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
                     PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
 
-                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
-                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
-                    s.Log($"{nameof(IsFirstBlock)}: {IsFirstBlock}");
-                    s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+                    s.Log("{0}: {1}", nameof(TileMapY), TileMapY);
+                    s.Log("{0}: {1}", nameof(HorizontalFlip), HorizontalFlip);
+                    s.Log("{0}: {1}", nameof(IsFirstBlock), IsFirstBlock);
+                    s.Log("{0}: {1}", nameof(PaletteIndex), PaletteIndex);
                 } else if(GBATileType == GBA_TileType.Mode7Tile) {
 
                     ushort value = 0;
@@ -255,9 +255,9 @@ namespace Ray1Map
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
                     VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
 
-                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
-                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
-                    s.Log($"{nameof(IsFirstBlock)}: {IsFirstBlock}");
+                    s.Log("{0}: {1}", nameof(TileMapY), TileMapY);
+                    s.Log("{0}: {1}", nameof(HorizontalFlip), HorizontalFlip);
+                    s.Log("{0}: {1}", nameof(IsFirstBlock), IsFirstBlock);
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
 
@@ -300,9 +300,9 @@ namespace Ray1Map
                         VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }
 
-                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
-                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
-                    s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+                    s.Log("{0}: {1}", nameof(TileMapY), TileMapY);
+                    s.Log("{0}: {1}", nameof(HorizontalFlip), HorizontalFlip);
+                    s.Log("{0}: {1}", nameof(PaletteIndex), PaletteIndex);
                 }
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)

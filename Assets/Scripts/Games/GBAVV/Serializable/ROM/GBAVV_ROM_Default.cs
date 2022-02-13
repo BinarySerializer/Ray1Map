@@ -1,5 +1,4 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
 
 namespace Ray1Map.GBAVV
 {

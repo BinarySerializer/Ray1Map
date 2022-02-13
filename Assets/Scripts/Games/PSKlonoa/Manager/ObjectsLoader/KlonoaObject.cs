@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BinarySerializer.PS1;
+﻿using BinarySerializer.PS1;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa

@@ -1,6 +1,5 @@
 ﻿using BinarySerializer.Ray1;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Ray1Map.Rayman1;

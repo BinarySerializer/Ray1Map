@@ -19,7 +19,7 @@ namespace Ray1Map
         public override void SerializeImpl(SerializerObject s)
         {
             Time = s.Serialize<uint>(Time, name: nameof(Time));
-            s.Log($"Time: {GetDateTime}");
+            s.Log("Time: {0}", GetDateTime);
         }
     }
 }

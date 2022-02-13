@@ -2,7 +2,6 @@
 using System;
 using BinarySerializer.Image;
 using System.Linq;
-using System.IO;
 using UnityEngine;
 
 namespace Ray1Map.Jade

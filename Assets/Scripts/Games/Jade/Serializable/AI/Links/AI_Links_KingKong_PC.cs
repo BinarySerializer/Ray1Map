@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ray1Map.Jade {
 	public class AI_Links_KingKong_PC : AI_Links_KingKong_GC {

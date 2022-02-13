@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Text;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.GEN {
 	public class GEN_RLX : BinarySerializable {

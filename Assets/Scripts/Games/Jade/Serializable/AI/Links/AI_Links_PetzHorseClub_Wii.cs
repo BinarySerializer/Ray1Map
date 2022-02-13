@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ray1Map.Jade {
+﻿namespace Ray1Map.Jade {
 	public class AI_Links_PetzHorseClub_Wii : AI_Links_Horsez2_Wii {
 		protected override void InitFunctionDefs() {
 			#region Function Defs

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
@@ -18,7 +15,7 @@ namespace Ray1Map.Jade {
 			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];
-				s.Log($"Compiled function found! Function name: {FunctionDef.Name}");
+				s.Log("Compiled function found! Function name: {0}", FunctionDef.Name);
 			}
 
 			References = s.SerializeObjectArray<Jade_GenericReference>(References, FileSize / 8, name: nameof(References));

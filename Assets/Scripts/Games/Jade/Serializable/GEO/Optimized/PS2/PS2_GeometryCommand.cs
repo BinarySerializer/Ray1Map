@@ -27,7 +27,7 @@ namespace Ray1Map.Jade {
             if (VIFCode.CMD >= 0x60 && VIFCode.CMD <= 0x7F) {
                 // UNPACK command
                 VIFcode_Unpack unpack = new VIFcode_Unpack(VIFCode);
-                s.Log($"VIF Command: [UNPACK] {unpack}");
+                s.Log("VIF Command: [UNPACK] {0}", unpack);
                 if (unpack.VN == VIFcode_Unpack.UnpackVN.V3 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_32) {
                     V3_VL32 = s.SerializeObjectArray<PS2_Vector3_32>(V3_VL32, unpack.SIZE, name: nameof(V3_VL32));
                     Type = CommandType.Vertices;
@@ -63,7 +63,7 @@ namespace Ray1Map.Jade {
                 }
             } else {
 
-                s.Log($"VIF Command: [{(VIF_Command)VIFCode.CMD}]");
+                s.Log("VIF Command: [{0}]", (VIF_Command)VIFCode.CMD);
                 switch ((VIF_Command)VIFCode.CMD) {
                     case VIF_Command.NOP:
                         break;

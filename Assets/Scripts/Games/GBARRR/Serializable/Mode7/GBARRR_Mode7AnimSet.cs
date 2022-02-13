@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.GBARRR
 {

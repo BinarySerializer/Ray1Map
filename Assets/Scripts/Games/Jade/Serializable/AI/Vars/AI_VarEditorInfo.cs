@@ -1,5 +1,4 @@
-﻿using System.Text;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
 	public class AI_VarEditorInfo : BinarySerializable {

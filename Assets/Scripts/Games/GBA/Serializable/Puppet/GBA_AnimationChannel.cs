@@ -103,23 +103,23 @@ namespace Ray1Map.GBA
                 }
                 bool paletteFlag = BitHelpers.ExtractBits(Attr2, 1, 15) == 1;
 
-                s.Log($"{nameof(XPosition)}: {XPosition}");
-                s.Log($"{nameof(YPosition)}: {YPosition}");
-                s.Log($"{nameof(TransformMode)}: {TransformMode}");
-                s.Log($"{nameof(RenderMode)}: {RenderMode}");
-                s.Log($"{nameof(Color)}: {Color}");
-                s.Log($"{nameof(SpriteShape)}: {SpriteShape}");
-                s.Log($"{nameof(SpriteSize)}: {SpriteSize}");
+                s.Log("{0}: {1}", nameof(XPosition), XPosition);
+                s.Log("{0}: {1}", nameof(YPosition), YPosition);
+                s.Log("{0}: {1}", nameof(TransformMode), TransformMode);
+                s.Log("{0}: {1}", nameof(RenderMode), RenderMode);
+                s.Log("{0}: {1}", nameof(Color), Color);
+                s.Log("{0}: {1}", nameof(SpriteShape), SpriteShape);
+                s.Log("{0}: {1}", nameof(SpriteSize), SpriteSize);
 
-                s.Log($"{nameof(ImageIndex)}: {ImageIndex}");
-                s.Log($"{nameof(Priority)}: {Priority}");
-                s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
-                s.Log($"{nameof(paletteFlag)}: {paletteFlag}");
+                s.Log("{0}: {1}", nameof(ImageIndex), ImageIndex);
+                s.Log("{0}: {1}", nameof(Priority), Priority);
+                s.Log("{0}: {1}", nameof(PaletteIndex), PaletteIndex);
+                s.Log("{0}: {1}", nameof(paletteFlag), paletteFlag);
                 if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                    s.Log($"{nameof(AffineMatrixIndex)}: {AffineMatrixIndex}");
+                    s.Log("{0}: {1}", nameof(AffineMatrixIndex), AffineMatrixIndex);
                 } else {
-                    s.Log($"{nameof(IsFlippedHorizontally)}: {IsFlippedHorizontally}");
-                    s.Log($"{nameof(IsFlippedVertically)}: {IsFlippedVertically}");
+                    s.Log("{0}: {1}", nameof(IsFlippedHorizontally), IsFlippedHorizontally);
+                    s.Log("{0}: {1}", nameof(IsFlippedVertically), IsFlippedVertically);
 
                 }
                 if (bit9) s.Log("BIT9");
@@ -156,7 +156,7 @@ namespace Ray1Map.GBA
             } else if (ChannelType == Type.UnknownC) {
                 UnknownC = s.Serialize<int>(UnknownC, name: nameof(UnknownC));
             } else {
-                s.Log($"{nameof(ChannelType)}: {ChannelType}");
+                s.Log("{0}: {1}", nameof(ChannelType), ChannelType);
                 Box_MinY = s.Serialize<sbyte>(Box_MinY, name: nameof(Box_MinY));
                 Box_MaxY = s.Serialize<sbyte>(Box_MaxY, name: nameof(Box_MaxY));
                 Box_MinX = s.Serialize<sbyte>(Box_MinX, name: nameof(Box_MinX));

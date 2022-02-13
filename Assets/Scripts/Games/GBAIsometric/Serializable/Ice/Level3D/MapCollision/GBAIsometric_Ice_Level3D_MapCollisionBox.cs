@@ -24,7 +24,7 @@ namespace Ray1Map.GBAIsometric
             MaxX = s.Serialize<short>(MaxX, name: nameof(MaxX));
             MaxY = s.Serialize<short>(MaxY, name: nameof(MaxY));
 
-            s.Log($"Size: {MaxX - MinX}x{MaxY - MinY}");
+            s.Log("Size: {0}x{1}", MaxX - MinX, MaxY - MinY);
         }
     }
 }

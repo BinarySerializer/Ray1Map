@@ -1,5 +1,4 @@
 ﻿using BinarySerializer;
-using System.Text;
 
 namespace Ray1Map.Jade {
 	public abstract class SND_WaveChunk : BinarySerializable {

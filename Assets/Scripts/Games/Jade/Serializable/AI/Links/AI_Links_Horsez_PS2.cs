@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ray1Map.Jade {
 	public class AI_Links_Horsez_PS2 : AI_Links_PoP_SoT_PS2_Proto {

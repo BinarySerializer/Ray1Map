@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using BinarySerializer;
-using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
 	public class BIG_BigFile : BinarySerializable {

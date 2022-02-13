@@ -42,7 +42,7 @@ namespace Ray1Map.GBAKlonoa
                 ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
             }
 
-            s.Log($"{nameof(ImgDataPointer)}: {ImgDataPointer}");
+            s.Log("{0}: {1}", nameof(ImgDataPointer), ImgDataPointer);
 
             PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
             AnimationsPointer = s.SerializePointer(AnimationsPointer, name: nameof(AnimationsPointer));

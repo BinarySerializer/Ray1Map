@@ -22,7 +22,7 @@ namespace Ray1Map.GBAVV
         public override void SerializeImpl(SerializerObject s)
         {
             LocIndex_LevelName = s.Serialize<uint>(LocIndex_LevelName, name: nameof(LocIndex_LevelName));
-            s.Log($"LevelName: {s.Context.GetStoredObject<GBAVV_Crash_LocTable>(GBAVV_Crash_BaseManager.LocTableID)?.Strings[LocIndex_LevelName]}");
+            s.Log("LevelName: {0}", s.Context.GetStoredObject<GBAVV_Crash_LocTable>(GBAVV_Crash_BaseManager.LocTableID)?.Strings[LocIndex_LevelName]);
             LevelTheme = s.Serialize<int>(LevelTheme, name: nameof(LevelTheme));
 
             Time_Sapphire = s.SerializeObject<GBAVV_Time>(Time_Sapphire, name: nameof(Time_Sapphire));

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using BinarySerializer;
 
 namespace Ray1Map.GEN

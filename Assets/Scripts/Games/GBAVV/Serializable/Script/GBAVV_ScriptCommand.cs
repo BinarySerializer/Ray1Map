@@ -52,7 +52,7 @@ namespace Ray1Map.GBAVV
             if (Param >= BaseFile.BaseAddress && Param < BaseFile.BaseAddress + 0x1000000)
             {
                 ParamPointer = new Pointer(Param, BaseFile);
-                s.Log($"Param: {ParamPointer}");
+                s.Log("Param: {0}", ParamPointer);
             }
 
             // Parse the parameter

@@ -8,12 +8,8 @@ using Sanford.Multimedia.Midi;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using BinarySerializer;
-using BinarySerializer.Ray1;
 using BinarySerializer.Ray1.Jaguar;
 
 namespace Ray1Map.Rayman1_Jaguar {

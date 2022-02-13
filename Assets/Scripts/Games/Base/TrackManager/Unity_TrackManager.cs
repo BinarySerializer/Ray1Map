@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 using Cinemachine;
 using System.Linq;
 using UnityEngine;

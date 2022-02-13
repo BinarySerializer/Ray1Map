@@ -47,7 +47,7 @@ namespace Ray1Map.GBAIsometric
 
                         var str = encoding.GetString(StringTileIndices[i]);
                         Strings[i] = str;
-                        s.Log($"String: {str}");
+                        s.Log("String: {0}", str);
                     });
                 }
             }

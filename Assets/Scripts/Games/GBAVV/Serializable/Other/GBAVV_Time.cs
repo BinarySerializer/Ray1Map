@@ -21,7 +21,7 @@ namespace Ray1Map.GBAVV
         public override void SerializeImpl(SerializerObject s)
         {
             Value = s.Serialize<int>(Value, name: nameof(Value));
-            s.Log($"Time: {Time:g}");
+            s.Log("Time: {0:g}", Time);
         }
     }
 }

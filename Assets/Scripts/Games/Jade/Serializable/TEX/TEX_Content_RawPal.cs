@@ -1,5 +1,4 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 using UnityEngine;
 
 namespace Ray1Map.Jade

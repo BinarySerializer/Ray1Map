@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using BinarySerializer;
+﻿using BinarySerializer;
 
 namespace Ray1Map.GBC
 {
