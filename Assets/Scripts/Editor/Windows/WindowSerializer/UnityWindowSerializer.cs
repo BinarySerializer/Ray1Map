@@ -265,7 +265,7 @@ public class UnityWindowSerializer : SerializerObject
         serializeFunc(new UnityWindowBitSerializer(this, CurrentPointer, null, 0));
     }
 
-    public override void Log(string logString)
+    public override void Log(string logString, params object[] args)
     {
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
     }

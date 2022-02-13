@@ -1,8 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
-using BinarySerializer.Ray1;
 using UnityEngine;
 using ILogger = BinarySerializer.ILogger;
 
@@ -78,9 +78,9 @@ namespace Ray1Map
         
         public class UnityLogger : ILogger
         {
-            public void Log(object log) => Debug.Log(log);
-            public void LogWarning(object log) => Debug.LogWarning(log);
-            public void LogError(object log) => Debug.LogError(log);
+            public void Log(object log, params object[] args) => Debug.Log(String.Format(log?.ToString() ?? String.Empty, args));
+            public void LogWarning(object log, params object[] args) => Debug.LogWarning(String.Format(log?.ToString() ?? String.Empty, args));
+            public void LogError(object log, params object[] args) => Debug.LogError(String.Format(log?.ToString() ?? String.Empty, args));
         }
 
         public class R1SerializerLog : ISerializerLog
