@@ -230,27 +230,8 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet, Util.TileEncoding encoding = Util.TileEncoding.Linear_8bpp)
-        {
-            Color[] pal = Util.ConvertGBAPalette(tilePal);
-
-            Texture2D tileSetTex = Util.ToTileSetTexture(tileSet, pal, encoding, CellSize, false);
-
-            return new Unity_TileSet(tileSetTex, CellSize);
-        }
-
-        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet, IEnumerable<MapTile> mapTiles)
-        {
-            var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
-
-            int[] paletteIndices = new int[tileSet.Length];
-            foreach (MapTile mt in mapTiles)
-                paletteIndices[mt.TileMapY] = mt.PaletteIndex;
-
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
-
-            return new Unity_TileSet(tileSetTex, CellSize);
-        }
+        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet) => 
+            new Unity_TileSet(tileSet, Util.ConvertAndSplitGBAPalette(tilePal), Unity_TextureFormat.Indexed_4, GBAConstants.TileSize);
 
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
         {
@@ -259,8 +240,9 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();
 
-            var fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
-            var cutsceneTileSet = LoadTileSet(cutsceneMap.Palette, fullTileSet);
+            byte[] fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
+            Color[] pal = Util.ConvertGBAPalette(cutsceneMap.Palette);
+            var cutsceneTileSet = new Unity_TileSet(fullTileSet, pal, Unity_TextureFormat.Indexed_8, GBAConstants.TileSize);
 
             Controller.DetailedState = $"Loading map";
             await Controller.WaitIfNecessary();

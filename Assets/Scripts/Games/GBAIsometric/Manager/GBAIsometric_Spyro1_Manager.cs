@@ -304,7 +304,7 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();
 
-            Unity_TileSet tileSet = LoadTileSet(pal.Colors, tileSetData, mapTiles.SelectMany(x => x));
+            Unity_TileSet tileSet = LoadTileSet(pal.Colors, tileSetData);
 
             Controller.DetailedState = $"Loading collision";
             await Controller.WaitIfNecessary();
@@ -452,7 +452,7 @@ namespace Ray1Map.GBAIsometric
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();
 
-            Unity_TileSet tileSet = LoadTileSet(levelData.Palette.Value.Colors, levelData.TileSet.Value.ImgData, mapLayers.SelectMany(x => x.TileMap));
+            Unity_TileSet tileSet = LoadTileSet(levelData.Palette.Value.Colors, levelData.TileSet.Value.ImgData);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();

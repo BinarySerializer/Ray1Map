@@ -852,7 +852,7 @@ namespace Ray1Map.GBAIsometric
                     for (int x = 0; x < tex.width; x += CellSize)
                     {
                         // Create a tile
-                        tiles[index] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+                        tiles[index] = tex.CreateTile(new RectInt(x, y, CellSize, CellSize));
 
                         if (palTable?.PaletteIndices.Length > index)
                             addTileAnimation(index, palTable.PaletteIndices[index], tileSize * index);

@@ -147,7 +147,7 @@ namespace Ray1Map
                 var tileCount = tileSet.Tiles.Length;
                 const int tileSetWidth = 16;
                 var tileSetHeight = (int)Math.Ceiling(tileCount / (double)tileSetWidth);
-                var tileSize = (int)tileSet.Tiles.First().rect.width;
+                var tileSize = (int)tileSet.Tiles.First().Rect.width;
 
                 // Create the texture
                 var tileTex = TextureHelpers.CreateTexture2D(tileSetWidth * tileSize, tileSetHeight * tileSize);
@@ -166,11 +166,11 @@ namespace Ray1Map
                     var offsetX = (i % tileSetWidth) * tileSize;
 
                     // Set the pixels
-                    for (int y = 0; y < tile.rect.height; y++)
+                    for (int y = 0; y < tile.Rect.height; y++)
                     {
-                        for (int x = 0; x < tile.rect.width; x++)
+                        for (int x = 0; x < tile.Rect.width; x++)
                         {
-                            tileTex.SetPixel(x + offsetX, tileTex.height - (y + offsetY) - 1, tile.texture.GetPixel((int)tile.rect.x + x, (int)tile.rect.y + y));
+                            tileTex.SetPixel(x + offsetX, tileTex.height - (y + offsetY) - 1, tile.Texture.GetPixel((int)tile.Rect.x + x, (int)tile.Rect.y + y));
                         }
                     }
                 }

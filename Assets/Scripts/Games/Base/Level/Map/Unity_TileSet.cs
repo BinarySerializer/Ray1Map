@@ -9,7 +9,8 @@ namespace Ray1Map
     /// <summary>
     /// Defines a common tile-set
     /// </summary>
-    public class Unity_TileSet {
+    public class Unity_TileSet 
+    {
         /// <summary>
         /// Creates a tile set from a tile map
         /// </summary>
@@ -62,7 +63,7 @@ namespace Ray1Map
             for (int y = 0; y < tileSet.height; y += cellSize) {
                 for (int x = 0; x < tileSet.width; x += cellSize) {
                     // Create a tile
-                    Tiles[index] = tileSet.CreateTile(new Rect(x, y, cellSize, cellSize));
+                    Tiles[index] = tileSet.CreateTile(new RectInt(x, y, cellSize, cellSize));
 
                     index++;
                 }
@@ -103,6 +104,31 @@ namespace Ray1Map
             {
                 tex.CreateTile()
             };
+        }
+
+        public Unity_TileSet(byte[] imgData, Color[] pal, Unity_TextureFormat format, int tileWidth) 
+        {
+            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = imgData.Length / tileSize;
+
+            Tiles = new Unity_TileTexture[tilesetLength];
+
+            for (int i = 0; i < tilesetLength; i++)
+                Tiles[i] = new Unity_TileTexture(
+                    new Unity_Texture(tileWidth, tileWidth, pal, imgData, format, i * tileSize));
+        }
+        public Unity_TileSet(byte[] imgData, Color[][] pal, Unity_TextureFormat format, int tileWidth) 
+        {
+            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = imgData.Length / tileSize;
+
+            Tiles = new Unity_TileTexture[tilesetLength];
+
+            for (int i = 0; i < tilesetLength; i++)
+                Tiles[i] = new Unity_TileTexture(
+                    new Unity_MultiPaletteTexture(tileWidth, tileWidth, pal, imgData, format, i * tileSize));
         }
 
         /// <summary>

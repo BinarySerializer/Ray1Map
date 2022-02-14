@@ -37,14 +37,8 @@ namespace Ray1Map
             return Sprite.Create(tex, rect ?? new Rect(0, 0, tex.width, tex.height), pivot ?? new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
         }
 
-        public static Unity_TileTexture CreateTile(this Texture2D tex, Rect? rect = null)
-        {
-            var t = new Unity_TileTexture() {
-                rect = rect ?? new Rect(0, 0, tex.width, tex.height),
-                texture = tex
-            };
-            return t;
-        }
+        public static Unity_TileTexture CreateTile(this Texture2D tex, RectInt? rect = null) => 
+            new Unity_TileTexture(tex, rect ?? new RectInt(0, 0, tex.width, tex.height));
 
         public static MagickImage ToMagickImage(this Texture2D tex)
         {

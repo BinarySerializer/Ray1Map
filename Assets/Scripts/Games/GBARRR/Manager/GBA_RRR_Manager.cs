@@ -361,14 +361,14 @@ namespace Ray1Map.GBARRR
                             try
                             {
                                 var ts = LoadTileSet(bytes, true, pal, palCount: 16);
-                                Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset_4.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset_4.png"), ts.Tiles[0].Texture.EncodeToPNG());
                                 exported = true;
                             } catch (Exception) {
                             }
                             try
                             {
                                 var ts = LoadTileSet(bytes, false, pal, palCount: 1);
-                                Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset_8.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset_8.png"), ts.Tiles[0].Texture.EncodeToPNG());
                                 exported = true;
                             } catch (Exception) {
                             }
@@ -524,7 +524,7 @@ namespace Ray1Map.GBARRR
                                     int length = tileset.Data.Length;
                                     bool is4Bit = (length % 0x40 != 0);
                                     var ts = LoadTileSet(tileset.Data, is4Bit, tileset.Palette, palCount: is4Bit ? 16 : 1);
-                                    Util.ByteArrayToFile(Path.Combine(outPath, $"Tilesets/{i}{append}.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outPath, $"Tilesets/{i}{append}.png"), ts.Tiles[0].Texture.EncodeToPNG());
                                     exported = true;
                                 } catch (Exception) {
                                 }

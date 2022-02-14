@@ -464,7 +464,7 @@ namespace Ray1Map.KlonoaHeroes
                         break;
 
                     // Create a tile
-                    tiles[index++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+                    tiles[index++] = tex.CreateTile(new RectInt(x, y, CellSize, CellSize));
                 }
             }
 

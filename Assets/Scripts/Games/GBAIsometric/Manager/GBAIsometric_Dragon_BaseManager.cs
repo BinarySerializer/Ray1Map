@@ -308,7 +308,7 @@ namespace Ray1Map.GBAIsometric
                     Height = lvlMap.Map.Height,
                     TileSet = new Unity_TileSet[]
                     {
-                        LoadTileSet(lvlMap.Palette, lvlMap.TileSet, lvlMap.Map.MapData)
+                        LoadTileSet(lvlMap.Palette, lvlMap.TileSet)
                     },
                     MapTiles = lvlMap.Map.MapData.Select(x => new Unity_Tile(x)).ToArray()
                 });
