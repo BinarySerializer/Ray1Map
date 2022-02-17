@@ -52,7 +52,7 @@ namespace Ray1Map.GBAIsometric
                     break;
 
                 case CompressionType.Huff:
-                    encoder = new GBA_Huffman4Encoder();
+                    encoder = new GBA_HuffmanEncoder();
                     break;
             }
 

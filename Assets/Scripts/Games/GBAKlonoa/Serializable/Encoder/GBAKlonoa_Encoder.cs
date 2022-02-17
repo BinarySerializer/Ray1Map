@@ -29,7 +29,7 @@ namespace Ray1Map.GBAKlonoa
                 // Huffman + LZSS
                 if (lengthValue < 0)
                 {
-                    var huff = new GBA_Huffman4Encoder();
+                    var huff = new GBA_HuffmanEncoder();
                     var lzss = new GBA_LZSSEncoder();
 
                     Stream decodedHuff = new MemoryStream();
