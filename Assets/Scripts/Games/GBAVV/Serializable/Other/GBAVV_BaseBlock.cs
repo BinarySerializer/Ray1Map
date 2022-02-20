@@ -39,7 +39,7 @@ namespace Ray1Map.GBAVV
                     break;
 
                 case BlockCompressionType.Huffman:
-                    encoder = new GBA_Huffman4Encoder();
+                    encoder = new GBA_HuffmanEncoder();
                     break;
 
                 case BlockCompressionType.RL:

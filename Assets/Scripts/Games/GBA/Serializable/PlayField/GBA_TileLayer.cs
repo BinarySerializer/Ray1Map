@@ -268,7 +268,7 @@ namespace Ray1Map.GBA
                 if (!IsCompressed)
                     SerializeTileMap(s);
                 else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
-                    s.DoEncoded(new GBA_Huffman4Encoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+                    s.DoEncoded(new GBA_HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 else
                     s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
                 s.Align();

@@ -218,6 +218,22 @@ namespace Ray1Map.GBAIsometric
                     return new SpriteInfo(38);
 
                 // Enemy
+                case 170:
+                case 171:
+                case 172:
+                case 173:
+                case 174:
+                    return new SpriteInfo(37);
+
+                // Enemy
+                case 175:
+                case 176:
+                case 177:
+                case 178:
+                case 179:
+                    return new SpriteInfo(38);
+
+                // Enemy
                 case 185:
                 case 186:
                 case 187:

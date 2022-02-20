@@ -10,26 +10,16 @@ namespace Ray1Map.GBAIsometric
 
         public static void DoAtResource(SerializerObject s, GBAIsometric_IceDragon_CompressionType compressionType, Action<long> action, long size = -1)
         {
-            switch (compressionType)
+            IStreamEncoder encoder = compressionType switch
             {
-                case GBAIsometric_IceDragon_CompressionType.None:
-                    action(size);
-                    break;
+                GBAIsometric_IceDragon_CompressionType.None => null,
+                GBAIsometric_IceDragon_CompressionType.Huffman => new GBA_HuffmanEncoder(),
+                GBAIsometric_IceDragon_CompressionType.LZSS => new GBA_LZSSEncoder(),
+                GBAIsometric_IceDragon_CompressionType.RL => new GBA_RLEEncoder(),
+                _ => throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null)
+            };
 
-                case GBAIsometric_IceDragon_CompressionType.Huffman:
-                    s.DoEncoded(new GBA_Huffman4Encoder(), () => action(s.CurrentLength)); break;
-
-                case GBAIsometric_IceDragon_CompressionType.LZSS:
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => action(s.CurrentLength));
-                    break;
-
-                // RL encoding is never used by any of the games
-                case GBAIsometric_IceDragon_CompressionType.RL:
-                    throw new NotImplementedException("RL encoding is not implemented");
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null);
-            }
+            s.DoEncodedIf(encoder, encoder != null, () => action(encoder != null ? s.CurrentLength : size));
         }
 
         public void DoAtResource(Context context, long index, Action<long> action)
