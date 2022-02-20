@@ -107,6 +107,60 @@ namespace Ray1Map
             }
         }
 
+        /// <summary>
+        /// Creates a tile set from a pixel array
+        /// </summary>
+        /// <param name="pixels">The tile set pixels</param>
+        /// <param name="tileWidth">The tile size</param>
+        public Unity_TileSet(Color[] pixels, int tileWidth)
+        {
+            int tileSize = tileWidth * tileWidth;
+            int tilesetLength = pixels.Length / tileSize;
+
+            Tiles = new Unity_TileTexture[tilesetLength];
+
+            for (int i = 0; i < tilesetLength; i++)
+                Tiles[i] = new Unity_TileTexture(new Unity_Texture(pixels, tileWidth, tileWidth, i * tileSize));
+        }
+
+        /// <summary>
+        /// Creates a tile set from paletted image data
+        /// </summary>
+        /// <param name="imgData">The image data for the tile set</param>
+        /// <param name="pal">The palette</param>
+        /// <param name="format">The image format</param>
+        /// <param name="tileWidth">The tile size</param>
+        public Unity_TileSet(byte[] imgData, Unity_Palette pal, Unity_TextureFormat format, int tileWidth)
+        {
+            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = imgData.Length / tileSize;
+
+            Tiles = new Unity_TileTexture[tilesetLength];
+
+            for (int i = 0; i < tilesetLength; i++)
+                Tiles[i] = new Unity_TileTexture(new Unity_PalettedTexture(imgData, pal, tileWidth, tileWidth, format, i * tileSize));
+        }
+
+        /// <summary>
+        /// Creates a tile set from paletted image data with multiple palettes
+        /// </summary>
+        /// <param name="imgData">The image data for the tile set</param>
+        /// <param name="pal">The palettes</param>
+        /// <param name="format">The image format</param>
+        /// <param name="tileWidth">The tile size</param>
+        public Unity_TileSet(byte[] imgData, Unity_Palette[] pal, Unity_TextureFormat format, int tileWidth)
+        {
+            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = imgData.Length / tileSize;
+
+            Tiles = new Unity_TileTexture[tilesetLength];
+
+            for (int i = 0; i < tilesetLength; i++)
+                Tiles[i] = new Unity_TileTexture(new Unity_MultiPalettedTexture(imgData, pal, tileWidth, tileWidth, format, i * tileSize));
+        }
+
         // TODO: Refactor below code
 
         /// <summary>
@@ -166,31 +220,6 @@ namespace Ray1Map
             {
                 tex.CreateTile()
             };
-        }
-
-        public Unity_TileSet(byte[] imgData, Unity_Palette pal, Unity_TextureFormat format, int tileWidth) 
-        {
-            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
-            int tileSize = tileWidth * tileWidth * bpp / 8;
-            int tilesetLength = imgData.Length / tileSize;
-
-            Tiles = new Unity_TileTexture[tilesetLength];
-
-            for (int i = 0; i < tilesetLength; i++)
-                Tiles[i] = new Unity_TileTexture(
-                    new Unity_PalettedTexture(imgData, pal, tileWidth, tileWidth, format, i * tileSize));
-        }
-        public Unity_TileSet(byte[] imgData, Unity_Palette[] pal, Unity_TextureFormat format, int tileWidth) 
-        {
-            int bpp = format.GetAttribute<Unity_TextureFormatInfoAttribute>().BPP;
-            int tileSize = tileWidth * tileWidth * bpp / 8;
-            int tilesetLength = imgData.Length / tileSize;
-
-            Tiles = new Unity_TileTexture[tilesetLength];
-
-            for (int i = 0; i < tilesetLength; i++)
-                Tiles[i] = new Unity_TileTexture(
-                    new Unity_MultiPalettedTexture(imgData, pal, tileWidth, tileWidth, format, i * tileSize));
         }
 
         /// <summary>

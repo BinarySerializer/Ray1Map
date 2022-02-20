@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Ray1Map
 {
@@ -10,6 +11,15 @@ namespace Ray1Map
         public Unity_Texture(Color[] colors, int width, int height)
         {
             Colors = colors;
+            Width = width;
+            Height = height;
+        }
+
+        public Unity_Texture(Color[] colors, int width, int height, int offset)
+        {
+            Colors = new Color[width * height];
+            Array.Copy(colors, offset, Colors, 0, Colors.Length);
+
             Width = width;
             Height = height;
         }
