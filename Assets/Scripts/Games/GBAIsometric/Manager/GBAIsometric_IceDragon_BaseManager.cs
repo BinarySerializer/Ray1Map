@@ -231,7 +231,7 @@ namespace Ray1Map.GBAIsometric
         }
 
         public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet) => 
-            new Unity_TileSet(tileSet, Util.ConvertAndSplitGBAPalette(tilePal), Unity_TextureFormat.Indexed_4, GBAConstants.TileSize);
+            new Unity_TileSet(tileSet, Unity_Palette.SplitMultiple(tilePal, 16, true), Unity_TextureFormat.Indexed_4, GBAConstants.TileSize);
 
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
         {
@@ -241,8 +241,7 @@ namespace Ray1Map.GBAIsometric
             await Controller.WaitIfNecessary();
 
             byte[] fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
-            Color[] pal = Util.ConvertGBAPalette(cutsceneMap.Palette);
-            var cutsceneTileSet = new Unity_TileSet(fullTileSet, pal, Unity_TextureFormat.Indexed_8, GBAConstants.TileSize);
+            var cutsceneTileSet = new Unity_TileSet(fullTileSet, new Unity_Palette(cutsceneMap.Palette, true), Unity_TextureFormat.Indexed_8, GBAConstants.TileSize);
 
             Controller.DetailedState = $"Loading map";
             await Controller.WaitIfNecessary();

@@ -30,7 +30,7 @@ namespace Ray1Map
         {
             if (UnityTexture != null)
             {
-                if (UnityTexture is Unity_MultiPaletteTexture p)
+                if (UnityTexture is Unity_MultiPalettedTexture p)
                     return p.GetColors(mapTile.Data.PaletteIndex);
                 else
                     return UnityTexture.GetColors();
