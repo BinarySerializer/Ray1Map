@@ -11,6 +11,29 @@ namespace Ray1Map
     public class Unity_TileSet 
     {
         /// <summary>
+        /// Creates a tile set from a tile array
+        /// </summary>
+        /// <param name="tiles">The tiles in this set</param>
+        public Unity_TileSet(Unity_TileTexture[] tiles)
+        {
+            Tiles = tiles;
+        }
+
+        /// <summary>
+        /// Creates an empty tileset with a single transparent tile
+        /// </summary>
+        public Unity_TileSet(int tileWidth) : this(tileWidth, Color.clear) { }
+
+        /// <summary>
+        /// Creates a tileset with a single colored tile
+        /// </summary>
+        public Unity_TileSet(int tileWidth, Color color)
+        {
+            Color[] pixels = Enumerable.Repeat(color, tileWidth * tileWidth).ToArray();
+            Tiles = new Unity_TileTexture(new Unity_Texture(pixels, tileWidth, tileWidth)).YieldToArray();
+        }
+
+        /// <summary>
         /// Creates a tile set from 2-dimensional tile-set pixel array. Only use this if the width is greater than 1.
         /// </summary>
         /// <param name="pixels">The tile set pixels</param>
@@ -161,65 +184,30 @@ namespace Ray1Map
                 Tiles[i] = new Unity_TileTexture(new Unity_MultiPalettedTexture(imgData, pal, tileWidth, tileWidth, format, i * tileSize));
         }
 
-        // TODO: Refactor below code
-
         /// <summary>
         /// Creates a tile set from a tile-set texture
         /// </summary>
         /// <param name="tileSet">The tile-set texture</param>
-        /// <param name="cellSize">The tile size</param>
-        public Unity_TileSet(Texture2D tileSet, int cellSize) {
+        /// <param name="tileWidth">The tile size</param>
+        public Unity_TileSet(Texture2D tileSet, int tileWidth)
+        {
             // Create the tile array
-            Tiles = new Unity_TileTexture[(tileSet.width / cellSize) * (tileSet.height / cellSize)];
+            Tiles = new Unity_TileTexture[(tileSet.width / tileWidth) * (tileSet.height / tileWidth)];
 
             // Keep track of the index
             var index = 0;
 
             // Extract every tile
-            for (int y = 0; y < tileSet.height; y += cellSize) {
-                for (int x = 0; x < tileSet.width; x += cellSize) {
+            for (int y = 0; y < tileSet.height; y += tileWidth) 
+            {
+                for (int x = 0; x < tileSet.width; x += tileWidth) 
+                {
                     // Create a tile
-                    Tiles[index] = tileSet.CreateTile(new RectInt(x, y, cellSize, cellSize));
+                    Tiles[index] = tileSet.CreateTile(new RectInt(x, y, tileWidth, tileWidth));
 
                     index++;
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates a tile set from a tile array
-        /// </summary>
-        /// <param name="tiles">The tiles in this set</param>
-        public Unity_TileSet(Unity_TileTexture[] tiles) {
-            Tiles = tiles;
-        }
-
-        /// <summary>
-        /// Creates an empty tileset with a single transparent tile
-        /// </summary>
-        public Unity_TileSet(int cellSize) 
-        {
-            Tiles = new Unity_TileTexture[]
-            {
-                TextureHelpers.CreateTexture2D(cellSize, cellSize, true, true).CreateTile()
-            };
-        }
-
-        /// <summary>
-        /// Creates a tileset with a single colored tile
-        /// </summary>
-        public Unity_TileSet(int cellSize, Color color) 
-        {
-            var tex = TextureHelpers.CreateTexture2D(cellSize, cellSize);
-
-            tex.SetPixels(Enumerable.Repeat(color, cellSize * cellSize).ToArray());
-
-            tex.Apply();
-
-            Tiles = new Unity_TileTexture[]
-            {
-                tex.CreateTile()
-            };
         }
 
         /// <summary>
