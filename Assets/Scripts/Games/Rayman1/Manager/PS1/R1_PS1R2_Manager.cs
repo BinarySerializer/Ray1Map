@@ -113,13 +113,15 @@ namespace Ray1Map.Rayman1
         /// <param name="context">The context</param>
         /// <param name="map">The map</param>
         /// <returns>The tile set to use</returns>
-        public Unity_TileSet GetTileSet(Context context, int map) {
-            var tileSetPath = GetSubMapTilesetPath(map);
-            var palettePath = GetSubMapPalettePath(map);
+        public Unity_TileSet GetTileSet(Context context, int map)
+        {
+            string tileSetPath = GetSubMapTilesetPath(map);
+            string palettePath = GetSubMapPalettePath(map);
+            
             var tileSet = FileFactory.Read<Array<byte>>(context, tileSetPath, (s, x) => x.Pre_Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, palettePath, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
-            return new Unity_TileSet(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, Settings.CellSize);
+            return new Unity_TileSet(tileSet, new Unity_Palette(palette.Value), Unity_TextureFormat.Indexed_8, TileSetWidth, Settings.CellSize);
         }
 
         /// <summary>

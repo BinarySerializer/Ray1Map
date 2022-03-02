@@ -385,7 +385,7 @@ namespace Ray1Map.GBAVV
                         break;
 
                     // Create a tile
-                    tiles[finalTileIndex++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+                    tiles[finalTileIndex++] = tex.CreateTile(new RectInt(x, y, CellSize, CellSize));
                 }
             }
 

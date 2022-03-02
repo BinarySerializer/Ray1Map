@@ -291,6 +291,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
+        Settings.LoadFullTileSet = EditorField("Load full tile set", Settings.LoadFullTileSet);
+
         Settings.FollowRaymanInMemoryMode = EditorField("Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
 
         // Game Settings

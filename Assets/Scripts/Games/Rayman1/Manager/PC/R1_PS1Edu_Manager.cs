@@ -582,8 +582,11 @@ namespace Ray1Map.Rayman1
             var output = new Unity_TileSet[levData.ColorPalettes.Length];
 
             // Enumerate every palette
-            for (int i = 0; i < levData.ColorPalettes.Length; i++)
-                output[i] = new Unity_TileSet(levData.TileTextures.Select(x => x == 0 ? BaseColor.Clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
+            for (int palIndex = 0; palIndex < levData.ColorPalettes.Length; palIndex++)
+            {
+                var pal = new Unity_Palette(levData.ColorPalettes[palIndex], true);
+                output[palIndex] = new Unity_TileSet(levData.TileTextures, pal, Unity_TextureFormat.Indexed_8, 32, Settings.CellSize);
+            }
 
             return output;
         }

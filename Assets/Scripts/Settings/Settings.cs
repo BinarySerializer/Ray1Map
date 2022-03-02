@@ -90,6 +90,7 @@ namespace Ray1Map {
         public static bool ShowRayman { get; set; } = true;
         public static bool ShowDefaultObjIcons { get; set; } = true;
         public static bool ShowObjOffsets { get; set; }
+        public static bool LoadFullTileSet { get; set; } = false;
         public static bool FollowRaymanInMemoryMode { get; set; } = true;
 
         public static string Tool_mkpsxiso_filePath { get; set; }
@@ -248,6 +249,7 @@ namespace Ray1Map {
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);
             ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
+            LoadFullTileSet = s.SerializeBool("LoadFullTileSet", LoadFullTileSet);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
             Tool_mkpsxiso_filePath = s.SerializeString("Tool_mkpsxiso_filePath", Tool_mkpsxiso_filePath, "mkpsxiso");
 

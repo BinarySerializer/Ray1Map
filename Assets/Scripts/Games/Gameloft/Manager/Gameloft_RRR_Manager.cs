@@ -254,7 +254,7 @@ namespace Ray1Map.Gameloft
 				DefaultCollisionLayer = 2,
 				GetCollisionTypeGraphicFunc = x => ((Gameloft_RRR_CollisionType)x).GetCollisionTypeGraphic(),
 				GetCollisionTypeNameFunc = x => ((Gameloft_RRR_CollisionType)x).ToString(),
-				CellSize = (int)maps[0].TileSet[0].Tiles[0].rect.width,
+				CellSize = (int)maps[0].TileSet[0].Tiles[0].Rect.width,
 			};
 		}
 	}

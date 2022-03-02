@@ -465,8 +465,11 @@ namespace Ray1Map
                 if (wasTiled) SetGraphicsLayerTiled(i, true);
             }
 
-            if(lvl.GridMap != null) CreateTilemapGrid();
-            CreateTilemapFull();
+            if(lvl.GridMap != null) 
+                CreateTilemapGrid();
+            
+            if (Settings.LoadFullTileSet)
+                CreateTilemapFull();
         }
 
         public void SetGraphicsLayerTiled(int layerIndex, bool tiled) {
@@ -707,34 +710,42 @@ namespace Ray1Map
                 TileIndexOverrides = layer.TileIndexOverrides;
             }
             var tile = map.GetTile(t, LevelEditorData.CurrentSettings, tileIndexOverride: TileIndexOverrides != null ? TileIndexOverrides[x,y][0] : null);
-            FillInTilePixels_Single(tex, tile, x, y, flipX, flipY, cellSize, applyTexture: false, overlay: false);
+            FillInTilePixels_Single(tex, tile, x, y, flipX, flipY, cellSize, applyTexture: false, overlay: false, mapTile: t);
 
             // Write combined tiles
             if (t?.CombinedTiles?.Length > 0) {
                 for(int i = 0; i < t.CombinedTiles.Length; i++) {
                     var ct = t.CombinedTiles[i];
                     var tileTex = map.GetTile(ct, LevelEditorData.CurrentSettings, tileIndexOverride: TileIndexOverrides != null ? TileIndexOverrides[x, y][1 + i] : null);
-                    FillInTilePixels_Single(tex, tileTex, x, y, ct.Data.HorizontalFlip, ct.Data.VerticalFlip, cellSize, applyTexture: false, overlay: true);
+                    FillInTilePixels_Single(tex, tileTex, x, y, ct.Data.HorizontalFlip, ct.Data.VerticalFlip, cellSize, applyTexture: false, overlay: true, mapTile: t);
                 }
             }
             if (applyTexture) tex.Apply();
         }
 
-        private void FillInTilePixels_Single(Texture2D tex, Unity_TileTexture tile, int x, int y, bool flipX, bool flipY, int cellSize, bool applyTexture = false, bool overlay = false) {
+        private void FillInTilePixels_Single(
+            Texture2D tex, Unity_TileTexture tile, 
+            int x, int y, 
+            bool flipX, bool flipY, 
+            int cellSize, 
+            bool applyTexture = false, 
+            bool overlay = false, 
+            Unity_Tile mapTile = null) 
+        {
             int texX = x * cellSize;
             int texY = y * cellSize;
             if (!overlay) {
-                if (tile?.texture == null) {
+                if (tile?.IsNull != false) {
                     tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
                 } else {
-                    tex.SetPixels(texX, texY, cellSize, cellSize, tile.GetPixels(flipX, flipY));
+                    tex.SetPixels(texX, texY, cellSize, cellSize, tile.GetPixels(flipX, flipY, mapTile));
                 }
             } else {
-                if (tile?.texture != null) {
-                    Color[] px = tile.GetPixels(flipX, flipY);
+                if (tile?.Texture != null) {
+                    Color[] px = tile.GetPixels(flipX, flipY, mapTile);
                     for (int yy = 0; yy < cellSize; yy++) {
                         for (int xx = 0; xx < cellSize; xx++) {
-                            var c = px[(int)(yy * cellSize + xx)];
+                            var c = px[yy * cellSize + xx];
 
                             if (c != Color.clear)
                                 tex.SetPixel(texX + xx, texY + yy, c);

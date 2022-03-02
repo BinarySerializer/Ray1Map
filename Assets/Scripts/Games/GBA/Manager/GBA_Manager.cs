@@ -1389,7 +1389,7 @@ namespace Ray1Map.GBA
                 }
                 for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
                     // Create a tile
-                    tiles[tilePal][i] = tileSetTex.CreateTile(new Rect(tileX, tileY + (tilePal * tilesY * CellSize), CellSize, CellSize));
+                    tiles[tilePal][i] = tileSetTex.CreateTile(new RectInt(tileX, tileY + (tilePal * tilesY * CellSize), CellSize, CellSize));
                 }
             }
 

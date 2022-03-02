@@ -1165,7 +1165,8 @@ namespace Ray1Map.Rayman1_Jaguar
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            maps[0].TileSet[0] = new Unity_TileSet(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? BaseColor.Clear : x).ToArray(), 1, Settings.CellSize);
+            var pixels = rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? Color.clear : x.GetColor()).ToArray();
+            maps[0].TileSet[0] = new Unity_TileSet(pixels, Settings.CellSize);
 
             var eventDefinitions = new List<Unity_ObjectManager_R1Jaguar.EventDefinition>();
             var objManager = new Unity_ObjectManager_R1Jaguar(context, eventDefinitions);
@@ -1273,15 +1274,15 @@ namespace Ray1Map.Rayman1_Jaguar
                         ed = rom.EventDefinitions[indEd + e.Unk_0C];
                     }*/
                     /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
-						var indEd = Array.IndexOf(rom.EventDefinitions, ed);
-						ed = rom.EventDefinitions[indEd + 2];
-					}*/
+                        var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+                        ed = rom.EventDefinitions[indEd + 2];
+                    }*/
                     // Switch
                     /*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
-						//var indEd = Array.IndexOf(rom.EventDefinitions, ed);
-						ed = rom.EventDefinitions[388];
-						predeterminedState = e.EventDefinition.UnkBytes[5];
-					}*/
+                        //var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+                        ed = rom.EventDefinitions[388];
+                        predeterminedState = e.EventDefinition.UnkBytes[5];
+                    }*/
                     // Add the event
                     var eventData = loadEventDef(ed);
                     uniqueEvents[e.EventIndex] = eventData;

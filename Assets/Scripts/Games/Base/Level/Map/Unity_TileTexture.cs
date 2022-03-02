@@ -1,52 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ray1Map {
-	public class Unity_TileTexture {
-		public Texture2D texture;
-		public Rect rect;
+namespace Ray1Map
+{
+    public class Unity_TileTexture
+    {
+        public Unity_TileTexture(IUnity_Texture unityTexture)
+        {
+            UnityTexture = unityTexture ?? throw new ArgumentNullException(nameof(unityTexture));
+            Rect = new RectInt(0, 0, unityTexture.Width, unityTexture.Height);
+        }
+        public Unity_TileTexture(Texture2D texture, RectInt rect)
+        {
+            UnityTexture = null;
+            Texture = texture;
+            Rect = rect;
+        }
 
-		private Dictionary<Flip, Color[]> Pixels = new Dictionary<Flip, Color[]>();
-		[Flags]
-		public enum Flip {
-			None,
-			Horizontal,
-			Vertical
-		}
-		public Color[] GetPixels(bool flipX, bool flipY) {
-			Flip flip = Flip.None;
-			if (flipX) flip |= Flip.Horizontal;
-			if (flipY) flip |= Flip.Vertical;
-			return GetPixels(flip);
-		}
-		public Color[] GetPixels(Flip flip) {
-			if (!Pixels.ContainsKey(flip)) {
-				if (!Pixels.ContainsKey(Flip.None)) {
-					int w = (int)rect.width;
-					int h = (int)rect.height;
-					int x = (int)rect.x;
-					int y = (int)rect.y;
-					Pixels[Flip.None] = texture.GetPixels(x, y, w, h);
-				}
-				if (flip != Flip.None) {
-					int w = (int)rect.width;
-					int h = (int)rect.height;
-					bool flipX = flip.HasFlag(Flip.Horizontal);
-					bool flipY = flip.HasFlag(Flip.Vertical);
-					Color[] pix = Pixels[Flip.None];
-					Color[] tar = new Color[pix.Length];
-					for (int j = 0; j < h; j++) {
-						for (int k = 0; k < w; k++) {
-							int tileY = flipY ? (h - 1 - j) : j;
-							int tileX = flipX ? (w - 1 - k) : k;
-							tar[j*w+k] = pix[tileY * w + tileX];
-						}
-					}
-					Pixels[flip] = tar;
-				}
-			}
-			return Pixels[flip];
-		}
-	}
+        public IUnity_Texture UnityTexture { get; }
+        public RectInt Rect { get; }
+
+        // Legacy - should be replaced
+        private Color[] _texturePixels;
+        public Texture2D Texture { get; }
+
+        public bool IsNull => Texture == null && UnityTexture == null;
+
+        private Color[] GetPixels(Unity_Tile mapTile)
+        {
+            if (UnityTexture != null)
+            {
+                if (UnityTexture is Unity_MultiPalettedTexture p)
+                    return p.GetColors(mapTile.Data.PaletteIndex);
+                else
+                    return UnityTexture.GetColors();
+            }
+            else
+            {
+                return _texturePixels ??= Texture.GetPixels(Rect.x, Rect.y, Rect.width, Rect.height);
+            }
+        }
+
+        public Color[] GetPixels(bool flipX, bool flipY, Unity_Tile mapTile) 
+        {
+            Color[] pixels = GetPixels(mapTile);
+
+            // TODO: Cache flipped colors
+            if (flipX || flipY)
+            {
+                var flippedPixels = new Color[pixels.Length];
+
+                int width = Rect.width;
+                int height = Rect.height;
+
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int tileX = flipX ? (width - 1 - x) : x;
+                        int tileY = flipY ? (height - 1 - y) : y;
+                        flippedPixels[y * width + x] = pixels[tileY * width + tileX];
+                    }
+                }
+
+                return flippedPixels;
+            }
+
+            return pixels;
+        }
+    }
 }

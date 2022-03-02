@@ -294,7 +294,7 @@ namespace Ray1Map.Rayman1
                 for (int tx = 0; tx < tileSetWidth; tx++)
                 {
                     // Create a tile
-                    tiles[ty * tileSetWidth + tx] = tileMap.CreateTile(new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize));
+                    tiles[ty * tileSetWidth + tx] = tileMap.CreateTile(new RectInt(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize));
                 }
             }
 
