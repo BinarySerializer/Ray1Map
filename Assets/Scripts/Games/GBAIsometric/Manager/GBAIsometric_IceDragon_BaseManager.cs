@@ -230,7 +230,7 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Unity_TileSet LoadTileSet(BaseColor[] tilePal, byte[] tileSet) => 
+        public Unity_TileSet LoadTileSet(RGB555Color[] tilePal, byte[] tileSet) => 
             new Unity_TileSet(tileSet, Unity_Palette.SplitMultiple(tilePal, 16, true), Unity_TextureFormat.Indexed_4, GBAConstants.TileSize);
 
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
