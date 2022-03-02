@@ -189,7 +189,7 @@ namespace Ray1Map.Rayman1
             if (entry == null)
                 throw new Exception($"No file entry found for path: {path}");
 
-            PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize)
+            PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize == 0 ? (long?)null : entry.FileSize)
             {
                 RecreateOnWrite = recreateOnWrite
             };

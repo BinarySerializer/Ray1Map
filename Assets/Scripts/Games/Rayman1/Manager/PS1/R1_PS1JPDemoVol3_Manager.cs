@@ -187,9 +187,6 @@ namespace Ray1Map.Rayman1
             var levelPath = GetLevelFilePath(context.GetR1Settings());
             var mapPath = GetMapFilePath(context.GetR1Settings());
 
-            // Load the files
-            await LoadFilesAsync(context);
-
             // Read the files
             var map = FileFactory.Read<MapData>(context, mapPath);
             var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(context, levelPath);
