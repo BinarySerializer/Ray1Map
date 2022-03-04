@@ -1179,14 +1179,17 @@ namespace Ray1Map {
 			// Input: Keys to avoid
 			// Output: folder where raw files will be saved
 			var modBehaviour = GameObject.FindObjectOfType<JadeModBehaviour>();
-			if (modBehaviour != null) {
+			var customModels = GameObject.FindObjectsOfType<JadeModelImportBehaviour>();
+			if (modBehaviour != null || customModels.Length > 0) {
 				List<ModdedGameObject> ModdedGameObjects = new List<ModdedGameObject>();
 				Jade_Reference<WOR_World> ModWorld = null;
 				string ModWorldName = null;
-				var moddedObjCount = modBehaviour.gameObject.transform.childCount;
-				if (moddedObjCount > 0) {
+				var moddedObjCount = modBehaviour?.gameObject.transform.childCount ?? 0;
+
+				if (moddedObjCount > 0 || customModels.Length > 0) {
 					bool saveModWorld = false;
 					LOA_Loader readLoader = null;
+
 					using (var readContext = new Ray1MapContext(settings)) {
 						await LoadFilesAsync(readContext);
 						readLoader = await InitJadeAsync(readContext, initAI: true, initTextures: true, initSound: true);
@@ -1249,7 +1252,7 @@ namespace Ray1Map {
 						await readLoader.LoadLoop(readContext.Deserializer);
 					}
 
-					if(ModdedGameObjects.Count == 0) return;
+					if(ModdedGameObjects.Count == 0 && customModels.Length == 0) return;
 
 					// Read keys to avoid
 					HashSet<uint> keysToAvoid = new HashSet<uint>();
@@ -1381,6 +1384,19 @@ namespace Ray1Map {
 								await loader.LoadLoop(writeContext.Serializer);
 							}
 						}
+
+						// Export models
+						foreach (var cMod in customModels) {
+							var geos = cMod.GetJadeModel(loader, newKey);
+							foreach (var geo in geos) {
+								Jade_Reference<GEO_Object> newRef = new Jade_Reference<GEO_Object>(writeContext, geo.Key) {
+									Value = geo
+								};
+								newRef.Resolve();
+								await loader.LoadLoop(writeContext.Serializer);
+							}
+						}
+
 					}
 
 					// Save written file keys

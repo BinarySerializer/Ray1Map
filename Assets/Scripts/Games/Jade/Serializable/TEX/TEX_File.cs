@@ -62,9 +62,9 @@ namespace Ray1Map.Jade
         public ushort Height { get; set; }
         public Jade_Color Color { get; set; }
         public Jade_Reference<STR_FontDescriptor> FontDesc { get; set; }
-        public Jade_Code Code_14 { get; set; } // Usually CAD01234
-        public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
-        public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
+        public Jade_Code Code_14 { get; set; } = Jade_Code.CAD01234; // Usually CAD01234
+        public Jade_Code Code_18 { get; set; } = Jade_Code.FF00FF; // Checked for 0xFF00FF
+        public Jade_Code Code_1C { get; set; } = Jade_Code.CodeCode; // Checked for 0xC0DEC0DE
 
         public uint ContentSize { get; set; }
         public TEX_Content_RawPal Content_RawPal { get; set; }
