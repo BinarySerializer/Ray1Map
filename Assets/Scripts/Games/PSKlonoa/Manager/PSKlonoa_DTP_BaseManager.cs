@@ -145,10 +145,14 @@ namespace Ray1Map.PSKlonoa
 
                 int blockIndex = binBlockIndex;
 
+                string blockName = $"{blockIndex}";
+
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
                 {
                     IDXLoadCommand.FileType type = cmd.FILE_Type;
+
+                    string fileName = $"{i} ({type}).bin";
 
                     if (unpack)
                     {
@@ -165,7 +169,7 @@ namespace Ray1Map.PSKlonoa
                                 {
                                     var file = archive.Files[j];
 
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{j}.bin"), file.Data);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockName}", fileName, $"{j}.bin"), file.Data);
                                 }
                             }
                             else if (archiveDepth == 2)
@@ -180,7 +184,7 @@ namespace Ray1Map.PSKlonoa
                                     {
                                         var file = archive.Files[j];
 
-                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{a}_{j}.bin"), file.Data);
+                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockName}", fileName, $"{a}_{j}.bin"), file.Data);
                                     }
                                 }
                             }
@@ -193,10 +197,16 @@ namespace Ray1Map.PSKlonoa
                         }
                     }
 
+                    s.Goto(cmd.FILE_Pointer);
+
                     // Read the raw data
                     var data = s.SerializeArray<byte>(null, cmd.FILE_Length);
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"Data.bin"), data);
+                    string filePath = unpack
+                        ? Path.Combine(outputPath, $"{blockName}", fileName, $"Data.bin")
+                        : Path.Combine(outputPath, $"{blockName}", fileName);
+
+                    Util.ByteArrayToFile(filePath, data);
                 });
             }
         }
