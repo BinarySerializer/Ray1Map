@@ -116,7 +116,7 @@ namespace Ray1Map.GBAKlonoa
                 });
 
                 // Allocate the compressed block. This fixes animations which use pointers to ram, such as the bosses.
-                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_BaseManager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
+                var file = new MemoryMappedStreamFile(s.Context, GBAKlonoa_BaseManager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
                 s.Context.AddFile(file);
             }
 
