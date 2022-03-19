@@ -1,8 +1,8 @@
 {
-  "name": "Legende let med Rayman 1/2/3 (PC - DK)",
+  "name": "Lek og lær med Rayman 1/2/3 (PC - NW)",
   "mode": "RaymanEducationalPC",
-  "folder": "r1/edu/pc_dk",
-  "volume": "DK",
+  "folder": "r1/edu/pc_nw",
+  "volume": "NW",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",
@@ -10,32 +10,30 @@
     },
     {
       "image": "./img/icon/R1/R1-W2.png",
-      "level": 34
+      "level": 33
     },
     {
       "image": "./img/icon/R1/R1-W3.png",
-      "level": 67
+      "level": 66
     },
     {
       "image": "./img/icon/R1/R1-W4.png",
-      "level": 100
+      "level": 99
     },
     {
       "image": "./img/icon/R1/R1-W5.png",
-      "level": 133
+      "level": 132
     },
     {
       "image": "./img/icon/R1/R1-W6.png",
-      "level": 166
+      "level": 165
+    },
+    {
+      "image": "./img/icon/R1/R1-W7.png",
+      "level": 199
     }
   ],
   "levels": [
-    {
-      "world": 7,
-      "level": 0,
-      "nameInternal": "WLDMAP01",
-      "name": "World Map"
-    },
     {
       "world": 1,
       "level": 1,
@@ -130,91 +128,91 @@
       "world": 1,
       "level": 16,
       "nameInternal": "JUN16",
-      "name": "Plus og Minus 1-1"
+      "name": "Pluss og Minus 1-1"
     },
     {
       "world": 1,
       "level": 17,
       "nameInternal": "JUN17",
-      "name": "Plus og Minus 1-2"
+      "name": "Pluss og Minus 1-2"
     },
     {
       "world": 1,
       "level": 18,
       "nameInternal": "JUN18",
-      "name": "Plus og Minus 1-3"
+      "name": "Pluss og Minus 1-3"
     },
     {
       "world": 1,
       "level": 19,
       "nameInternal": "JUN19",
-      "name": "Plus og Minus 1-4"
+      "name": "Pluss og Minus 1-4"
     },
     {
       "world": 1,
       "level": 20,
       "nameInternal": "JUN20",
-      "name": "Plus og Minus 1-5"
+      "name": "Pluss og Minus 1-5"
     },
     {
       "world": 1,
       "level": 21,
       "nameInternal": "JUN21",
-      "name": "Plus og Minus 2-1"
+      "name": "Pluss og Minus 2-1"
     },
     {
       "world": 1,
       "level": 22,
       "nameInternal": "JUN22",
-      "name": "Plus og Minus 2-2"
+      "name": "Pluss og Minus 2-2"
     },
     {
       "world": 1,
       "level": 23,
       "nameInternal": "JUN23",
-      "name": "Plus og Minus 2-3"
+      "name": "Pluss og Minus 2-3"
     },
     {
       "world": 1,
       "level": 24,
       "nameInternal": "JUN24",
-      "name": "Plus og Minus 2-4"
+      "name": "Pluss og Minus 2-4"
     },
     {
       "world": 1,
       "level": 25,
       "nameInternal": "JUN25",
-      "name": "Plus og Minus 2-5"
+      "name": "Pluss og Minus 2-5"
     },
     {
       "world": 1,
       "level": 26,
       "nameInternal": "JUN26",
-      "name": "Plus og Minus 3-1"
+      "name": "Pluss og Minus 3-1"
     },
     {
       "world": 1,
       "level": 27,
       "nameInternal": "JUN27",
-      "name": "Plus og Minus 3-2"
+      "name": "Pluss og Minus 3-2"
     },
     {
       "world": 1,
       "level": 28,
       "nameInternal": "JUN28",
-      "name": "Plus og Minus 3-3"
+      "name": "Pluss og Minus 3-3"
     },
     {
       "world": 1,
       "level": 29,
       "nameInternal": "JUN29",
-      "name": "Plus og Minus 3-4"
+      "name": "Pluss og Minus 3-4"
     },
     {
       "world": 1,
       "level": 30,
       "nameInternal": "JUN30",
-      "name": "Plus og Minus 3-5"
+      "name": "Pluss og Minus 3-5"
     },
     {
       "world": 1,
@@ -232,97 +230,97 @@
       "world": 1,
       "level": 53,
       "nameInternal": "JUN53",
-      "name": "Ov din timing 1-1"
+      "name": "Øve din timing 1-1"
     },
     {
       "world": 2,
       "level": 1,
       "nameInternal": "MUS01",
-      "name": "Stavning 1-1"
+      "name": "Staving 1-1"
     },
     {
       "world": 2,
       "level": 2,
       "nameInternal": "MUS02",
-      "name": "Stavning 1-2"
+      "name": "Staving 1-2"
     },
     {
       "world": 2,
       "level": 3,
       "nameInternal": "MUS03",
-      "name": "Stavning 1-3"
+      "name": "Staving 1-3"
     },
     {
       "world": 2,
       "level": 4,
       "nameInternal": "MUS04",
-      "name": "Stavning 1-4"
+      "name": "Staving 1-4"
     },
     {
       "world": 2,
       "level": 5,
       "nameInternal": "MUS05",
-      "name": "Stavning 1-5"
+      "name": "Staving 1-5"
     },
     {
       "world": 2,
       "level": 6,
       "nameInternal": "MUS06",
-      "name": "Stavning 2-1"
+      "name": "Staving 2-1"
     },
     {
       "world": 2,
       "level": 7,
       "nameInternal": "MUS07",
-      "name": "Stavning 2-2"
+      "name": "Staving 2-2"
     },
     {
       "world": 2,
       "level": 8,
       "nameInternal": "MUS08",
-      "name": "Stavning 2-3"
+      "name": "Staving 2-3"
     },
     {
       "world": 2,
       "level": 9,
       "nameInternal": "MUS09",
-      "name": "Stavning 2-4"
+      "name": "Staving 2-4"
     },
     {
       "world": 2,
       "level": 10,
       "nameInternal": "MUS10",
-      "name": "Stavning 2-5"
+      "name": "Staving 2-5"
     },
     {
       "world": 2,
       "level": 11,
       "nameInternal": "MUS11",
-      "name": "Stavning 3-1"
+      "name": "Staving 3-1"
     },
     {
       "world": 2,
       "level": 12,
       "nameInternal": "MUS12",
-      "name": "Stavning 3-2"
+      "name": "Staving 3-2"
     },
     {
       "world": 2,
       "level": 13,
       "nameInternal": "MUS13",
-      "name": "Stavning 3-3"
+      "name": "Staving 3-3"
     },
     {
       "world": 2,
       "level": 14,
       "nameInternal": "MUS14",
-      "name": "Stavning 3-4"
+      "name": "Staving 3-4"
     },
     {
       "world": 2,
       "level": 15,
       "nameInternal": "MUS15",
-      "name": "Stavning 3-5"
+      "name": "Staving 3-5"
     },
     {
       "world": 2,
@@ -430,7 +428,7 @@
       "world": 2,
       "level": 53,
       "nameInternal": "MUS53",
-      "name": "Ovelse i at styre marakas raketter 1-1"
+      "name": "Øvelse i å styre maracas raketter 1-1"
     },
     {
       "world": 3,
@@ -526,91 +524,91 @@
       "world": 3,
       "level": 16,
       "nameInternal": "MON16",
-      "name": "Talgenkendelse 1-1"
+      "name": "Tallgjenkennelse 1-1"
     },
     {
       "world": 3,
       "level": 17,
       "nameInternal": "MON17",
-      "name": "Talgenkendelse 1-2"
+      "name": "Tallgjenkennelse 1-2"
     },
     {
       "world": 3,
       "level": 18,
       "nameInternal": "MON18",
-      "name": "Talgenkendelse 1-3"
+      "name": "Tallgjenkennelse 1-3"
     },
     {
       "world": 3,
       "level": 19,
       "nameInternal": "MON19",
-      "name": "Talgenkendelse 1-4"
+      "name": "Tallgjenkennelse 1-4"
     },
     {
       "world": 3,
       "level": 20,
       "nameInternal": "MON20",
-      "name": "Talgenkendelse 1-5"
+      "name": "Tallgjenkennelse 1-5"
     },
     {
       "world": 3,
       "level": 21,
       "nameInternal": "MON21",
-      "name": "Talgenkendelse 2-1"
+      "name": "Tallgjenkennelse 2-1"
     },
     {
       "world": 3,
       "level": 22,
       "nameInternal": "MON22",
-      "name": "Talgenkendelse 2-2"
+      "name": "Tallgjenkennelse 2-2"
     },
     {
       "world": 3,
       "level": 23,
       "nameInternal": "MON23",
-      "name": "Talgenkendelse 2-3"
+      "name": "Tallgjenkennelse 2-3"
     },
     {
       "world": 3,
       "level": 24,
       "nameInternal": "MON24",
-      "name": "Talgenkendelse 2-4"
+      "name": "Tallgjenkennelse 2-4"
     },
     {
       "world": 3,
       "level": 25,
       "nameInternal": "MON25",
-      "name": "Talgenkendelse 2-5"
+      "name": "Tallgjenkennelse 2-5"
     },
     {
       "world": 3,
       "level": 26,
       "nameInternal": "MON26",
-      "name": "Talgenkendelse 3-1"
+      "name": "Tallgjenkennelse 3-1"
     },
     {
       "world": 3,
       "level": 27,
       "nameInternal": "MON27",
-      "name": "Talgenkendelse 3-2"
+      "name": "Tallgjenkennelse 3-2"
     },
     {
       "world": 3,
       "level": 28,
       "nameInternal": "MON28",
-      "name": "Talgenkendelse 3-3"
+      "name": "Tallgjenkennelse 3-3"
     },
     {
       "world": 3,
       "level": 29,
       "nameInternal": "MON29",
-      "name": "Talgenkendelse 3-4"
+      "name": "Tallgjenkennelse 3-4"
     },
     {
       "world": 3,
       "level": 30,
       "nameInternal": "MON30",
-      "name": "Talgenkendelse 3-5"
+      "name": "Tallgjenkennelse 3-5"
     },
     {
       "world": 3,
@@ -634,91 +632,91 @@
       "world": 4,
       "level": 1,
       "nameInternal": "IMA01",
-      "name": "Fonetik 1-1"
+      "name": "Fonetikk 1-1"
     },
     {
       "world": 4,
       "level": 2,
       "nameInternal": "IMA02",
-      "name": "Fonetik 1-2"
+      "name": "Fonetikk 1-2"
     },
     {
       "world": 4,
       "level": 3,
       "nameInternal": "IMA03",
-      "name": "Fonetik 1-3"
+      "name": "Fonetikk 1-3"
     },
     {
       "world": 4,
       "level": 4,
       "nameInternal": "IMA04",
-      "name": "Fonetik 1-4"
+      "name": "Fonetikk 1-4"
     },
     {
       "world": 4,
       "level": 5,
       "nameInternal": "IMA05",
-      "name": "Fonetik 1-5"
+      "name": "Fonetikk 1-5"
     },
     {
       "world": 4,
       "level": 6,
       "nameInternal": "IMA06",
-      "name": "Fonetik 2-1"
+      "name": "Fonetikk 2-1"
     },
     {
       "world": 4,
       "level": 7,
       "nameInternal": "IMA07",
-      "name": "Fonetik 2-2"
+      "name": "Fonetikk 2-2"
     },
     {
       "world": 4,
       "level": 8,
       "nameInternal": "IMA08",
-      "name": "Fonetik 2-3"
+      "name": "Fonetikk 2-3"
     },
     {
       "world": 4,
       "level": 9,
       "nameInternal": "IMA09",
-      "name": "Fonetik 2-4"
+      "name": "Fonetikk 2-4"
     },
     {
       "world": 4,
       "level": 10,
       "nameInternal": "IMA10",
-      "name": "Fonetik 2-5"
+      "name": "Fonetikk 2-5"
     },
     {
       "world": 4,
       "level": 11,
       "nameInternal": "IMA11",
-      "name": "Fonetik 3-1"
+      "name": "Fonetikk 3-1"
     },
     {
       "world": 4,
       "level": 12,
       "nameInternal": "IMA12",
-      "name": "Fonetik 3-2"
+      "name": "Fonetikk 3-2"
     },
     {
       "world": 4,
       "level": 13,
       "nameInternal": "IMA13",
-      "name": "Fonetik 3-3"
+      "name": "Fonetikk 3-3"
     },
     {
       "world": 4,
       "level": 14,
       "nameInternal": "IMA14",
-      "name": "Fonetik 3-4"
+      "name": "Fonetikk 3-4"
     },
     {
       "world": 4,
       "level": 15,
       "nameInternal": "IMA15",
-      "name": "Fonetik 3-5"
+      "name": "Fonetikk 3-5"
     },
     {
       "world": 4,
@@ -826,187 +824,187 @@
       "world": 4,
       "level": 53,
       "nameInternal": "IMA53",
-      "name": "Ovelse i hop og helikopter 1-1"
+      "name": "Øvelse i hopp og helikopter 1-1"
     },
     {
       "world": 5,
       "level": 1,
       "nameInternal": "CAV01",
-      "name": "Ordleg 1-1"
+      "name": "Ordlek 1-1"
     },
     {
       "world": 5,
       "level": 2,
       "nameInternal": "CAV02",
-      "name": "Ordleg 1-2"
+      "name": "Ordlek 1-2"
     },
     {
       "world": 5,
       "level": 3,
       "nameInternal": "CAV03",
-      "name": "Ordleg 1-3"
+      "name": "Ordlek 1-3"
     },
     {
       "world": 5,
       "level": 4,
       "nameInternal": "CAV04",
-      "name": "Ordleg 1-4"
+      "name": "Ordlek 1-4"
     },
     {
       "world": 5,
       "level": 5,
       "nameInternal": "CAV05",
-      "name": "Ordleg 1-5"
+      "name": "Ordlek 1-5"
     },
     {
       "world": 5,
       "level": 6,
       "nameInternal": "CAV06",
-      "name": "Ordleg 2-1"
+      "name": "Ordlek 2-1"
     },
     {
       "world": 5,
       "level": 7,
       "nameInternal": "CAV07",
-      "name": "Ordleg 2-2"
+      "name": "Ordlek 2-2"
     },
     {
       "world": 5,
       "level": 8,
       "nameInternal": "CAV08",
-      "name": "Ordleg 2-3"
+      "name": "Ordlek 2-3"
     },
     {
       "world": 5,
       "level": 9,
       "nameInternal": "CAV09",
-      "name": "Ordleg 2-4"
+      "name": "Ordlek 2-4"
     },
     {
       "world": 5,
       "level": 10,
       "nameInternal": "CAV10",
-      "name": "Ordleg 2-5"
+      "name": "Ordlek 2-5"
     },
     {
       "world": 5,
       "level": 11,
       "nameInternal": "CAV11",
-      "name": "Ordleg 3-1"
+      "name": "Ordlek 3-1"
     },
     {
       "world": 5,
       "level": 12,
       "nameInternal": "CAV12",
-      "name": "Ordleg 3-2"
+      "name": "Ordlek 3-2"
     },
     {
       "world": 5,
       "level": 13,
       "nameInternal": "CAV13",
-      "name": "Ordleg 3-3"
+      "name": "Ordlek 3-3"
     },
     {
       "world": 5,
       "level": 14,
       "nameInternal": "CAV14",
-      "name": "Ordleg 3-4"
+      "name": "Ordlek 3-4"
     },
     {
       "world": 5,
       "level": 15,
       "nameInternal": "CAV15",
-      "name": "Ordleg 3-5"
+      "name": "Ordlek 3-5"
     },
     {
       "world": 5,
       "level": 16,
       "nameInternal": "CAV16",
-      "name": "Talgrupper og Multiplikation 1-1"
+      "name": "Tallgrupper og Multiplikasjon 1-1"
     },
     {
       "world": 5,
       "level": 17,
       "nameInternal": "CAV17",
-      "name": "Talgrupper og Multiplikation 1-2"
+      "name": "Tallgrupper og Multiplikasjon 1-2"
     },
     {
       "world": 5,
       "level": 18,
       "nameInternal": "CAV18",
-      "name": "Talgrupper og Multiplikation 1-3"
+      "name": "Tallgrupper og Multiplikasjon 1-3"
     },
     {
       "world": 5,
       "level": 19,
       "nameInternal": "CAV19",
-      "name": "Talgrupper og Multiplikation 1-4"
+      "name": "Tallgrupper og Multiplikasjon 1-4"
     },
     {
       "world": 5,
       "level": 20,
       "nameInternal": "CAV20",
-      "name": "Talgrupper og Multiplikation 1-5"
+      "name": "Tallgrupper og Multiplikasjon 1-5"
     },
     {
       "world": 5,
       "level": 21,
       "nameInternal": "CAV21",
-      "name": "Talgrupper og Multiplikation 2-1"
+      "name": "Tallgrupper og Multiplikasjon 2-1"
     },
     {
       "world": 5,
       "level": 22,
       "nameInternal": "CAV22",
-      "name": "Talgrupper og Multiplikation 2-2"
+      "name": "Tallgrupper og Multiplikasjon 2-2"
     },
     {
       "world": 5,
       "level": 23,
       "nameInternal": "CAV23",
-      "name": "Talgrupper og Multiplikation 2-3"
+      "name": "Tallgrupper og Multiplikasjon 2-3"
     },
     {
       "world": 5,
       "level": 24,
       "nameInternal": "CAV24",
-      "name": "Talgrupper og Multiplikation 2-4"
+      "name": "Tallgrupper og Multiplikasjon 2-4"
     },
     {
       "world": 5,
       "level": 25,
       "nameInternal": "CAV25",
-      "name": "Talgrupper og Multiplikation 2-5"
+      "name": "Tallgrupper og Multiplikasjon 2-5"
     },
     {
       "world": 5,
       "level": 26,
       "nameInternal": "CAV26",
-      "name": "Talgrupper og Multiplikation 3-1"
+      "name": "Tallgrupper og Multiplikasjon 3-1"
     },
     {
       "world": 5,
       "level": 27,
       "nameInternal": "CAV27",
-      "name": "Talgrupper og Multiplikation 3-2"
+      "name": "Tallgrupper og Multiplikasjon 3-2"
     },
     {
       "world": 5,
       "level": 28,
       "nameInternal": "CAV28",
-      "name": "Talgrupper og Multiplikation 3-3"
+      "name": "Tallgrupper og Multiplikasjon 3-3"
     },
     {
       "world": 5,
       "level": 29,
       "nameInternal": "CAV29",
-      "name": "Talgrupper og Multiplikation 3-4"
+      "name": "Tallgrupper og Multiplikasjon 3-4"
     },
     {
       "world": 5,
       "level": 30,
       "nameInternal": "CAV30",
-      "name": "Talgrupper og Multiplikation 3-5"
+      "name": "Tallgrupper og Multiplikasjon 3-5"
     },
     {
       "world": 5,
@@ -1024,187 +1022,187 @@
       "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
-      "name": "Ovelse i at bruge næver 1-1"
+      "name": "Øvelse i å bruke never 1-1"
     },
     {
       "world": 6,
       "level": 1,
       "nameInternal": "CAK01",
-      "name": "Staveleg 1-1"
+      "name": "Stavelek 1-1"
     },
     {
       "world": 6,
       "level": 2,
       "nameInternal": "CAK02",
-      "name": "Staveleg 1-2"
+      "name": "Stavelek 1-2"
     },
     {
       "world": 6,
       "level": 3,
       "nameInternal": "CAK03",
-      "name": "Staveleg 1-3"
+      "name": "Stavelek 1-3"
     },
     {
       "world": 6,
       "level": 4,
       "nameInternal": "CAK04",
-      "name": "Staveleg 1-4"
+      "name": "Stavelek 1-4"
     },
     {
       "world": 6,
       "level": 5,
       "nameInternal": "CAK05",
-      "name": "Staveleg 1-5"
+      "name": "Stavelek 1-5"
     },
     {
       "world": 6,
       "level": 6,
       "nameInternal": "CAK06",
-      "name": "Staveleg 2-1"
+      "name": "Stavelek 2-1"
     },
     {
       "world": 6,
       "level": 7,
       "nameInternal": "CAK07",
-      "name": "Staveleg 2-2"
+      "name": "Stavelek 2-2"
     },
     {
       "world": 6,
       "level": 8,
       "nameInternal": "CAK08",
-      "name": "Staveleg 2-3"
+      "name": "Stavelek 2-3"
     },
     {
       "world": 6,
       "level": 9,
       "nameInternal": "CAK09",
-      "name": "Staveleg 2-4"
+      "name": "Stavelek 2-4"
     },
     {
       "world": 6,
       "level": 10,
       "nameInternal": "CAK10",
-      "name": "Staveleg 2-5"
+      "name": "Stavelek 2-5"
     },
     {
       "world": 6,
       "level": 11,
       "nameInternal": "CAK11",
-      "name": "Staveleg 3-1"
+      "name": "Stavelek 3-1"
     },
     {
       "world": 6,
       "level": 12,
       "nameInternal": "CAK12",
-      "name": "Staveleg 3-2"
+      "name": "Stavelek 3-2"
     },
     {
       "world": 6,
       "level": 13,
       "nameInternal": "CAK13",
-      "name": "Staveleg 3-3"
+      "name": "Stavelek 3-3"
     },
     {
       "world": 6,
       "level": 14,
       "nameInternal": "CAK14",
-      "name": "Staveleg 3-4"
+      "name": "Stavelek 3-4"
     },
     {
       "world": 6,
       "level": 15,
       "nameInternal": "CAK15",
-      "name": "Staveleg 3-5"
+      "name": "Stavelek 3-5"
     },
     {
       "world": 6,
       "level": 16,
       "nameInternal": "CAK16",
-      "name": "Talværdi 1-1"
+      "name": "Tallverdi 1-1"
     },
     {
       "world": 6,
       "level": 17,
       "nameInternal": "CAK17",
-      "name": "Talværdi 1-2"
+      "name": "Tallverdi 1-2"
     },
     {
       "world": 6,
       "level": 18,
       "nameInternal": "CAK18",
-      "name": "Talværdi 1-3"
+      "name": "Tallverdi 1-3"
     },
     {
       "world": 6,
       "level": 19,
       "nameInternal": "CAK19",
-      "name": "Talværdi 1-4"
+      "name": "Tallverdi 1-4"
     },
     {
       "world": 6,
       "level": 20,
       "nameInternal": "CAK20",
-      "name": "Talværdi 1-5"
+      "name": "Tallverdi 1-5"
     },
     {
       "world": 6,
       "level": 21,
       "nameInternal": "CAK21",
-      "name": "Talværdi 2-1"
+      "name": "Tallverdi 2-1"
     },
     {
       "world": 6,
       "level": 22,
       "nameInternal": "CAK22",
-      "name": "Talværdi 2-2"
+      "name": "Tallverdi 2-2"
     },
     {
       "world": 6,
       "level": 23,
       "nameInternal": "CAK23",
-      "name": "Talværdi 2-3"
+      "name": "Tallverdi 2-3"
     },
     {
       "world": 6,
       "level": 24,
       "nameInternal": "CAK24",
-      "name": "Talværdi 2-4"
+      "name": "Tallverdi 2-4"
     },
     {
       "world": 6,
       "level": 25,
       "nameInternal": "CAK25",
-      "name": "Talværdi 2-5"
+      "name": "Tallverdi 2-5"
     },
     {
       "world": 6,
       "level": 26,
       "nameInternal": "CAK26",
-      "name": "Talværdi 3-1"
+      "name": "Tallverdi 3-1"
     },
     {
       "world": 6,
       "level": 27,
       "nameInternal": "CAK27",
-      "name": "Talværdi 3-2"
+      "name": "Tallverdi 3-2"
     },
     {
       "world": 6,
       "level": 28,
       "nameInternal": "CAK28",
-      "name": "Talværdi 3-3"
+      "name": "Tallverdi 3-3"
     },
     {
       "world": 6,
       "level": 29,
       "nameInternal": "CAK29",
-      "name": "Talværdi 3-4"
+      "name": "Tallverdi 3-4"
     },
     {
       "world": 6,
       "level": 30,
       "nameInternal": "CAK30",
-      "name": "Talværdi 3-5"
+      "name": "Tallverdi 3-5"
     },
     {
       "world": 6,
@@ -1222,13 +1220,13 @@
       "world": 6,
       "level": 53,
       "nameInternal": "CAK53",
-      "name": "Ovelse i superhelikopter 1-1"
+      "name": "Øvelse i superhelikopter 1-1"
     },
     {
       "world": 6,
       "level": 54,
       "nameInternal": "CAK54",
-      "name": "Slut 1-1"
+      "name": "Slutt 1-1"
     }
   ]
 }
