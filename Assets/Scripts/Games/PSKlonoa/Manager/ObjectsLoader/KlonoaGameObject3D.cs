@@ -45,7 +45,7 @@ namespace Ray1Map.PSKlonoa
 
                 case GlobalGameObjectType.VRAMScrollAnimation:
                 case GlobalGameObjectType.VRAMScrollAnimationWithTexture:
-                    KlonoaSettings_DTP.VRAMScrollInfo[] scroll = Obj.VRAMScrollInfos;
+                    KlonoaSettings_DTP_PS1.VRAMScrollInfo[] scroll = Obj.VRAMScrollInfos;
 
                     if (scroll == null)
                         return;

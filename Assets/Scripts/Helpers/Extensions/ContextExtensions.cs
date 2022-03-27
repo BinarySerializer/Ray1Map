@@ -72,17 +72,9 @@ namespace Ray1Map
 
             return file;
         }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, uint length, uint baseAddress, Endian endianness = Endian.Little)
+        public static MemoryMappedStreamFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, Endian endianness = Endian.Little)
         {
-            var file = new MemoryMappedByteArrayFile(context, name, length, baseAddress, endianness);
-
-            context.AddFile(file);
-
-            return file;
-        }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, Endian endianness = Endian.Little)
-        {
-            var file = new MemoryMappedByteArrayFile(context, name, baseAddress, bytes, endianness);
+            var file = new MemoryMappedStreamFile(context, name, baseAddress, bytes, endianness);
 
             context.AddFile(file);
 

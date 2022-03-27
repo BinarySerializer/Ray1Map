@@ -939,6 +939,9 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - US)", typeof(PSKlonoa_DTP_Manager_US), Platform.PS1)]
         KlonoaDoorToPhantomilePS1US,
 
+        [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS2)", typeof(PSKlonoa_DTP_Manager_PS2), Platform.PS2)]
+        KlonoaDoorToPhantomilePS2,
+
         #endregion
     }
 }

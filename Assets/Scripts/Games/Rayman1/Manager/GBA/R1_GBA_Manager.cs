@@ -993,7 +993,7 @@ namespace Ray1Map.Rayman1
                     // Add to the ETA
                     eventETA.Add(new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(eta, etaPointer));
                 }
-                else if (etaPointer != null && context.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
+                else if (etaPointer != null)
                 {
                     // Temporary solution - combine ETA
                     var current = eventETA.First(x => x.PrimaryPointer == etaPointer).Data;

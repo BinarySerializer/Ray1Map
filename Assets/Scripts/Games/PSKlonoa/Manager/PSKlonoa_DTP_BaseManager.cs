@@ -61,13 +61,13 @@ namespace Ray1Map.PSKlonoa
             ("Extra Vision", 9),
         };
 
-        public abstract KlonoaSettings_DTP GetKlonoaSettings(GameSettings settings);
+        public abstract KlonoaSettings_DTP_PS1 GetKlonoaSettings(GameSettings settings);
 
         public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
         public virtual bool DisableLevelTextures(int binBlock, int sector) => false;
 
-        public IDX Load_IDX(Context context, KlonoaSettings_DTP settings)
+        public IDX Load_IDX(Context context, KlonoaSettings_DTP_PS1 settings)
         {
             return FileFactory.Read<IDX>(context, settings.FilePath_IDX);
         }
@@ -131,8 +131,8 @@ namespace Ray1Map.PSKlonoa
                 [IDXLoadCommand.FileType.Font] = 0,
                 [IDXLoadCommand.FileType.Archive_MenuBackgrounds] = 2,
                 
-                [IDXLoadCommand.FileType.Archive_Unk0] = 1,
-                [IDXLoadCommand.FileType.Unk1] = 0,
+                [IDXLoadCommand.FileType.Archive_ClipTable] = 1,
+                [IDXLoadCommand.FileType.BackgroundPalettes] = 0,
 
                 [IDXLoadCommand.FileType.Code] = 0,
                 [IDXLoadCommand.FileType.CodeNoDest] = 0,
@@ -145,10 +145,14 @@ namespace Ray1Map.PSKlonoa
 
                 int blockIndex = binBlockIndex;
 
+                string blockName = $"{blockIndex}";
+
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
                 {
                     IDXLoadCommand.FileType type = cmd.FILE_Type;
+
+                    string fileName = $"{i} ({type}).bin";
 
                     if (unpack)
                     {
@@ -165,7 +169,7 @@ namespace Ray1Map.PSKlonoa
                                 {
                                     var file = archive.Files[j];
 
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{j}.bin"), file.Data);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockName}", fileName, $"{j}.bin"), file.Data);
                                 }
                             }
                             else if (archiveDepth == 2)
@@ -180,7 +184,7 @@ namespace Ray1Map.PSKlonoa
                                     {
                                         var file = archive.Files[j];
 
-                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{a}_{j}.bin"), file.Data);
+                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockName}", fileName, $"{a}_{j}.bin"), file.Data);
                                     }
                                 }
                             }
@@ -193,10 +197,16 @@ namespace Ray1Map.PSKlonoa
                         }
                     }
 
+                    s.Goto(cmd.FILE_Pointer);
+
                     // Read the raw data
                     var data = s.SerializeArray<byte>(null, cmd.FILE_Length);
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"Data.bin"), data);
+                    string filePath = unpack
+                        ? Path.Combine(outputPath, $"{blockName}", fileName, $"Data.bin")
+                        : Path.Combine(outputPath, $"{blockName}", fileName);
+
+                    Util.ByteArrayToFile(filePath, data);
                 });
             }
         }
@@ -238,7 +248,7 @@ namespace Ray1Map.PSKlonoa
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new Ray1MapContext(settings);
-            KlonoaSettings_DTP config = GetKlonoaSettings(settings);
+            KlonoaSettings_DTP_PS1 config = GetKlonoaSettings(settings);
             await LoadFilesAsync(context, config);
             context.AddKlonoaSettings(config);
 
@@ -792,7 +802,7 @@ namespace Ray1Map.PSKlonoa
             GameSettings settings = context.GetR1Settings();
             int lev = settings.World;
             int sector = settings.Level;
-            KlonoaSettings_DTP config = GetKlonoaSettings(settings);
+            KlonoaSettings_DTP_PS1 config = GetKlonoaSettings(settings);
             const float scale = 64f;
 
             // Create the level
@@ -850,12 +860,12 @@ namespace Ray1Map.PSKlonoa
                 await Controller.WaitIfNecessary();
             });
 
-            // Load the fixed BIN
-            loader.SwitchBlocks(loader.Settings.BLOCK_Fix);
+            // Load the boot BIN
+            loader.SwitchBlocks(loader.Settings.BLOCK_Boot);
             await loader.FillCacheForBlockReadAsync();
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
+            startupLog?.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded boot BIN");
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
@@ -2020,7 +2030,7 @@ namespace Ray1Map.PSKlonoa
             }
         }
 
-        public async UniTask LoadFilesAsync(Context context, KlonoaSettings_DTP config)
+        public async UniTask LoadFilesAsync(Context context, KlonoaSettings_DTP_PS1 config)
         {
             // The game only loads portions of the BIN at a time
             await context.AddLinearFileAsync(config.FilePath_BIN);
