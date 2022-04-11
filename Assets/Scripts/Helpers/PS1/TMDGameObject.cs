@@ -80,8 +80,8 @@ namespace Ray1Map
             unityMesh.SetTriangles(triangles, 0);
 
             Color[] colors = TMD.Pre_HasColorTable 
-                ? packet.RGBIndices.Select(x => obj.Colors[x].Color.GetColor()).ToArray() 
-                : packet.RGB.Select(x => x.Color.GetColor()).ToArray();
+                ? packet.RGBIndices.Select(x => obj.Colors[x].GetColor()).ToArray() 
+                : packet.RGB.Select(x => x.GetColor()).ToArray();
 
             if (colors.Length == 1)
                 colors = Enumerable.Repeat(colors[0], vertices.Length).ToArray();
