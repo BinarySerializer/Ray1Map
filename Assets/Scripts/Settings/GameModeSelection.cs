@@ -10,6 +10,7 @@ using Ray1Map.GBC;
 using Ray1Map.GEN;
 using Ray1Map.KlonoaHeroes;
 using Ray1Map.PSKlonoa;
+using Ray1Map.Psychonauts;
 using Ray1Map.Rayman1;
 using Ray1Map.Rayman1_Jaguar;
 using Ray1Map.SNES;
@@ -944,6 +945,19 @@ namespace Ray1Map
 
         [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS2)", typeof(PSKlonoa_DTP_Manager_PS2), Platform.PS2)]
         KlonoaDoorToPhantomilePS2,
+
+        #endregion
+
+        #region Psychonauts
+
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (Xbox - Prototype 2004/12/17)", typeof(Psychonauts_Manager), Platform.Xbox)]
+        Psychonauts_Xbox_Proto_20041217,
+
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PC - Digital)", typeof(Psychonauts_Manager), Platform.PC)]
+        Psychonauts_PC_Digital,
+
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2)", typeof(Psychonauts_Manager), Platform.PS2)]
+        Psychonauts_PS2,
 
         #endregion
     }

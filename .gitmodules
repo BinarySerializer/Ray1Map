@@ -25,3 +25,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Audio.GBA"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Audio.GBA
 	url = https://github.com/BinarySerializer/BinarySerializer.Audio.GBA
+[submodule "Assets/Plugins/psychoportal.unity"]
+	path = Assets/Plugins/psychoportal.unity
+	url = https://gitlab.com/scrunguscrungus/psychoportal.unity
