@@ -43,7 +43,7 @@ namespace Ray1Map.Psychonauts
                     index: x.First().WorldIndex,
                     worldName: LevelNames[x.First().WorldIndex].DisplayName,
                     maps: x.Select(m => m.Index).ToArray(),
-                    mapNames: x.Select(m => m.DisplayName).ToArray())).
+                    mapNames: x.Select(m => $"{m.Level} - {m.DisplayName}").ToArray())).
                 ToArray());
         }
 
@@ -491,7 +491,7 @@ namespace Ray1Map.Psychonauts
             if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.AdditiveBlending))
                 matSrc = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
             else
-                matSrc = new Material(Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial);
+                matSrc = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
             Material mat = new Material(matSrc);
 
