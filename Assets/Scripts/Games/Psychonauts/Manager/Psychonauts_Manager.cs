@@ -140,6 +140,9 @@ namespace Ray1Map.Psychonauts
             _ => throw new Exception("Invalid game mode"),
         };
 
+        private static readonly float _scale = 1 / 32f;
+        private static readonly Vector3 _scaleVector = new Vector3(_scale, _scale, -_scale);
+
         #endregion
 
         #region Game Actions
@@ -282,13 +285,10 @@ namespace Ray1Map.Psychonauts
             // Create the object manager
             level.ObjManager = new Unity_ObjectManager(context);
 
-            GameObject world = LoadLevel(loader, Controller.obj.levelController.editor.layerTiles.transform, lvl);
-
-            // Temporarily scale everything down
-            const float scale = 1 / 32f;
+            GameObject world = LoadLevel(loader, level, Controller.obj.levelController.editor.layerTiles.transform, lvl);
 
             // Need to invert the z-axis
-            world.transform.localScale = new Vector3(scale, scale, -scale);
+            world.transform.localScale = _scaleVector;
 
             level.Layers = new Unity_Layer[]
             {
@@ -303,48 +303,26 @@ namespace Ray1Map.Psychonauts
 
             Controller.obj.levelController.editor.cam.camera3D.farClipPlane = 10000f;
 
-            // Show entity positions
-            foreach (DomainEntityInfo ei in loader.LevelScene.RootDomain.DomainEntityInfos)
-            {
-                var pos = ei.Position.ToInvVector3();
-
-                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object, 
-                    position: new Vector3(pos.x * scale, -pos.y * scale, pos.z * scale), 
-                    name: $"Entity: {ei.Name}", 
-                    debugText: ei.ScriptClass));
-            }
-
-            // Show trigger positions
-            foreach (TriggerOBB t in loader.LevelScene.RootDomain.Meshes.SelectMany(x => x.Triggers))
-            {
-                var pos = t.Position.ToInvVector3();
-
-                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Trigger, 
-                    position: new Vector3(pos.x * scale, -pos.y * scale,-pos.z * scale),  
-                    name: $"Trigger: {t.Name}", 
-                    debugText: t.Name));
-            }
-
             return level;
         }
 
-        public GameObject LoadLevel(Loader loader, Transform parent, string level)
+        public GameObject LoadLevel(Loader loader, Unity_Level level, Transform parent, string levelName)
         {
-            GameObject gaoParent = new GameObject(level);
+            GameObject gaoParent = new GameObject(levelName);
             gaoParent.transform.SetParent(parent, false);
             gaoParent.transform.localScale = Vector3.one;
             gaoParent.transform.localRotation = Quaternion.identity;
             gaoParent.transform.localPosition = Vector3.zero;
 
             // Load the level scene
-            LoadScene(loader.LevelScene, gaoParent.transform, loader.TexturesManager, "Level");
+            LoadScene(level, loader.LevelScene, gaoParent.transform, loader.TexturesManager, "Level");
             
             // Load models outside the map for now
             Vector3 plbPos = new Vector3(-60000, 30000, 20000);
 
             foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(meshFile.Scene, gaoParent.transform, loader.TexturesManager, meshFile.Name);
+                GameObject obj = LoadScene(level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, meshFile.Name);
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }
@@ -352,7 +330,7 @@ namespace Ray1Map.Psychonauts
             return gaoParent;
         }
 
-        public GameObject LoadScene(Scene scene, Transform parent, TexturesManager texManager, string name)
+        public GameObject LoadScene(Unity_Level level, Scene scene, Transform parent, TexturesManager texManager, string name)
         {
             GameObject sceneObj = new GameObject($"Scene: {name}");
             sceneObj.transform.SetParent(parent, false);
@@ -360,17 +338,17 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(scene.RootDomain, sceneObj.transform, texManager.GetTextures(scene.TextureTranslationTable));
+            LoadDomain(level, scene.RootDomain, sceneObj.transform, texManager.GetTextures(scene.TextureTranslationTable));
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
                 foreach (Scene refScene in scene.ReferencedScenes)
-                    LoadScene(refScene, sceneObj.transform, texManager, $"{name} References");
+                    LoadScene(level, refScene, sceneObj.transform, texManager, $"{name} References");
 
             return sceneObj;
         }
 
-        public void LoadDomain(Domain domain, Transform parent, PsychonautsTexture[] textures)
+        public void LoadDomain(Unity_Level level, Domain domain, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject domainObj = new GameObject($"Domain: {domain.Name}");
             domainObj.transform.SetParent(parent, false);
@@ -380,14 +358,23 @@ namespace Ray1Map.Psychonauts
 
             // Load children
             foreach (Domain domainChild in domain.Children)
-                LoadDomain(domainChild, domainObj.transform, textures);
+                LoadDomain(level, domainChild, domainObj.transform, textures);
 
             // Load meshes
             foreach (Mesh mesh in domain.Meshes)
-                LoadMesh(mesh, domainObj.transform, textures);
+                LoadMesh(level, mesh, domainObj.transform, textures);
+
+            // Show entity positions
+            foreach (DomainEntityInfo ei in domain.DomainEntityInfos)
+            {
+                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object,
+                    position: ei.Position.ToInvVector3() * _scale,
+                    name: $"Entity: {ei.Name}",
+                    debugText: ei.ScriptClass));
+            }
         }
 
-        public void LoadMesh(Mesh mesh, Transform parent, PsychonautsTexture[] textures)
+        public void LoadMesh(Unity_Level level, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject meshObj = new GameObject($"Mesh: {mesh.Name}");
             meshObj.transform.SetParent(parent, false);
@@ -396,7 +383,7 @@ namespace Ray1Map.Psychonauts
             meshObj.transform.localPosition = Vector3.zero;
 
             foreach (Mesh meshChild in mesh.Children)
-                LoadMesh(meshChild, meshObj.transform, textures);
+                LoadMesh(level, meshChild, meshObj.transform, textures);
 
             meshObj.transform.localPosition = mesh.Position.ToVector3();
             meshObj.transform.localRotation = mesh.Rotation.ToQuaternion();
@@ -449,8 +436,17 @@ namespace Ray1Map.Psychonauts
 
                 LoadMeshFrag(meshFrag, meshObj.transform, i, textures, bones, bindPoses);
             }
+
+            // Show trigger positions
+            foreach (TriggerOBB t in mesh.Triggers)
+            {
+                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Trigger,
+                    position: t.Position.ToInvVector3() * _scale,
+                    name: $"Trigger: {t.Name}",
+                    debugText: t.Name));
+            }
         }
-        
+
         public void LoadMeshFrag(MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, Transform[][] bones, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
