@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using PsychoPortal;
@@ -6,7 +7,6 @@ using PsychoPortal.Unity;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
-using Joint = PsychoPortal.Joint;
 using Mesh = PsychoPortal.Mesh;
 using UnityMesh = UnityEngine.Mesh;
 
@@ -141,6 +141,7 @@ namespace Ray1Map.Psychonauts
         };
 
         private static readonly float _scale = 1 / 32f;
+        // Need to invert the z-axis
         private static readonly Vector3 _scaleVector = new Vector3(_scale, _scale, -_scale);
 
         #endregion
@@ -254,12 +255,28 @@ namespace Ray1Map.Psychonauts
             // Load common data
             loader.LoadFilePackages(logger);
             loader.LoadCommonPackPack(logger);
+            loader.LoadCommonAnimPack(logger);
 
             Controller.DetailedState = "Loading level packs";
             await Controller.WaitIfNecessary();
 
             // Load level data
             loader.LoadLevelPackPack(lvl, logger);
+            loader.LoadLevelAnimPack(lvl, logger);
+
+            Controller.DetailedState = "Loading animations";
+            await Controller.WaitIfNecessary();
+
+            loader.AnimationManager.LoadAnimations(loader.LevelAnimPack.StubSharedAnims.
+                Concat(loader.CommonAnimPack.StubSharedAnims).
+                Select(x =>
+                {
+                    SharedSkelAnim jan = loader.FileManager.ReadFromFile<SharedSkelAnim>(x.JANFileName, logger, throwIfNotFound: true);
+                    return new PsychonautsSkelAnim(x, jan);
+                }));
+
+            Controller.DetailedState = "Creating objects";
+            await Controller.WaitIfNecessary();
 
             // Create the level
             var level = new Unity_Level()
@@ -287,7 +304,6 @@ namespace Ray1Map.Psychonauts
 
             GameObject world = LoadLevel(loader, level, Controller.obj.levelController.editor.layerTiles.transform, lvl);
 
-            // Need to invert the z-axis
             world.transform.localScale = _scaleVector;
 
             level.Layers = new Unity_Layer[]
@@ -313,24 +329,24 @@ namespace Ray1Map.Psychonauts
             gaoParent.transform.localScale = Vector3.one;
             gaoParent.transform.localRotation = Quaternion.identity;
             gaoParent.transform.localPosition = Vector3.zero;
-
-            // Load the level scene
-            LoadScene(level, loader.LevelScene, gaoParent.transform, loader.TexturesManager, "Level");
             
             // Load models outside the map for now
             Vector3 plbPos = new Vector3(-60000, 30000, 20000);
 
             foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, meshFile.Name);
+                GameObject obj = LoadScene(loader, level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, meshFile.Name);
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }
 
+            // Load the level scene
+            LoadScene(loader, level, loader.LevelScene, gaoParent.transform, loader.TexturesManager, "Level");
+
             return gaoParent;
         }
 
-        public GameObject LoadScene(Unity_Level level, Scene scene, Transform parent, TexturesManager texManager, string name)
+        public GameObject LoadScene(Loader loader, Unity_Level level, Scene scene, Transform parent, TexturesManager texManager, string name)
         {
             GameObject sceneObj = new GameObject($"Scene: {name}");
             sceneObj.transform.SetParent(parent, false);
@@ -338,17 +354,17 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(level, scene.RootDomain, sceneObj.transform, texManager.GetTextures(scene.TextureTranslationTable));
+            LoadDomain(loader, level, scene.RootDomain, sceneObj.transform, texManager.GetTextures(scene.TextureTranslationTable));
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
                 foreach (Scene refScene in scene.ReferencedScenes)
-                    LoadScene(level, refScene, sceneObj.transform, texManager, $"{name} References");
+                    LoadScene(loader, level, refScene, sceneObj.transform, texManager, $"{name} References");
 
             return sceneObj;
         }
 
-        public void LoadDomain(Unity_Level level, Domain domain, Transform parent, PsychonautsTexture[] textures)
+        public void LoadDomain(Loader loader, Unity_Level level, Domain domain, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject domainObj = new GameObject($"Domain: {domain.Name}");
             domainObj.transform.SetParent(parent, false);
@@ -358,23 +374,51 @@ namespace Ray1Map.Psychonauts
 
             // Load children
             foreach (Domain domainChild in domain.Children)
-                LoadDomain(level, domainChild, domainObj.transform, textures);
+                LoadDomain(loader, level, domainChild, domainObj.transform, textures);
 
             // Load meshes
             foreach (Mesh mesh in domain.Meshes)
-                LoadMesh(level, mesh, domainObj.transform, textures);
+                LoadMesh(loader, level, mesh, domainObj.transform, textures);
 
             // Show entity positions
             foreach (DomainEntityInfo ei in domain.DomainEntityInfos)
             {
+                Dictionary<string, string> editVars = ei.ParseEditVars();
+                string plbName = editVars?.TryGetItem("self.meshname");
+
+                if (plbName != null)
+                {
+                    //var n = plbName.ToLower().Replace('/', '\\');
+
+                    //if (n.StartsWith("workresource"))
+                    //    n = n.Substring("workresource".Length + 1);
+
+                    //if (plbs.ContainsKey(n))
+                    //{
+                    //    GameObject entitiyObj = new GameObject($"Entity: {ei.Name}");
+                    //    entitiyObj.transform.SetParent(domainObj.transform, false);
+                    //    entitiyObj.transform.localPosition = ei.Position.ToVector3();
+                    //    entitiyObj.transform.localRotation = ei.Rotation.ToQuaternionRad();
+                    //    entitiyObj.transform.localScale = ei.Scale.ToVector3();
+
+                    //    GameObject obj = Object.Instantiate(plbs[n]);
+                    //    obj.transform.SetParent(entitiyObj.transform, false);
+                    //    obj.transform.localPosition = Vector3.zero;
+                    //    obj.transform.localRotation = Quaternion.identity;
+                    //    obj.transform.localScale = Vector3.one;
+                    //}
+                }
+
                 level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object,
                     position: ei.Position.ToInvVector3() * _scale,
                     name: $"Entity: {ei.Name}",
-                    debugText: ei.ScriptClass));
+                    debugText: $"Class: {ei.ScriptClass}{Environment.NewLine}" +
+                               $"EditVars: {ei.EditVars}{Environment.NewLine}" +
+                               $"{(editVars != null ? String.Join(Environment.NewLine, editVars.Select(x => $"{x.Key}: {x.Value}")) : null)}"));
             }
         }
 
-        public void LoadMesh(Unity_Level level, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
+        public void LoadMesh(Loader loader, Unity_Level level, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject meshObj = new GameObject($"Mesh: {mesh.Name}");
             meshObj.transform.SetParent(parent, false);
@@ -383,15 +427,15 @@ namespace Ray1Map.Psychonauts
             meshObj.transform.localPosition = Vector3.zero;
 
             foreach (Mesh meshChild in mesh.Children)
-                LoadMesh(level, meshChild, meshObj.transform, textures);
+                LoadMesh(loader, level, meshChild, meshObj.transform, textures);
 
             meshObj.transform.localPosition = mesh.Position.ToVector3();
-            meshObj.transform.localRotation = mesh.Rotation.ToQuaternion();
+            meshObj.transform.localRotation = mesh.Rotation.ToQuaternionRad();
             meshObj.transform.localScale = mesh.Scale.ToVector3();
 
             int skeletonsCount = mesh.Skeletons.Length;
 
-            Transform[][] bones = new Transform[skeletonsCount][];
+            PsychonautsSkeleton[] skeletons = new PsychonautsSkeleton[skeletonsCount];
             Matrix4x4[][] bindPoses = new Matrix4x4[skeletonsCount][];
 
             for (int skelIndex = 0; skelIndex < skeletonsCount; skelIndex++)
@@ -404,37 +448,25 @@ namespace Ray1Map.Psychonauts
                 skeletonObj.transform.localRotation = Quaternion.identity;
                 skeletonObj.transform.localScale = Vector3.one;
 
-                bones[skelIndex] = new Transform[s.JointsCount];
-                bindPoses[skelIndex] = new Matrix4x4[bones[skelIndex].Length];
+                bindPoses[skelIndex] = new Matrix4x4[s.JointsCount];
+                skeletons[skelIndex] = new PsychonautsSkeleton(s, skeletonObj.transform);
 
-                addJoint(s.RootJoint, skeletonObj.transform);
+                for (int i = 0; i < s.JointsCount; i++)
+                    bindPoses[skelIndex][i] = skeletons[skelIndex].Joints[i].Transform.worldToLocalMatrix * skeletonObj.transform.localToWorldMatrix;
+            }
 
-                void addJoint(Joint j, Transform parentJoint)
-                {
-                    GameObject jointObj = new GameObject($"Joint_{j.ID.JointIndex}: {j.Name}");
-                    jointObj.transform.SetParent(parentJoint);
-                    bones[skelIndex][j.ID.JointIndex] = jointObj.transform;
-
-                    jointObj.transform.localPosition = j.Position.ToVector3();
-
-                    if (j.Rotation.ToVector3() == new Vector3(-1, -1, -1))
-                        jointObj.transform.localRotation = Quaternion.identity;
-                    else
-                        jointObj.transform.localRotation = j.Rotation.ToQuaternion();
-                    
-                    jointObj.transform.localScale = Vector3.one;
-                    bindPoses[skelIndex][j.ID.JointIndex] = jointObj.transform.worldToLocalMatrix * meshObj.transform.localToWorldMatrix;
-
-                    foreach (Joint child in j.Children)
-                        addJoint(child, jointObj.transform);
-                }
+            if (skeletonsCount > 0)
+            {
+                var ja = meshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
+                ja.Skeletons = skeletons;
+                ja.AnimationManager = loader.AnimationManager;
             }
 
             for (var i = 0; i < mesh.MeshFrags.Length; i++)
             {
                 MeshFrag meshFrag = mesh.MeshFrags[i];
 
-                LoadMeshFrag(meshFrag, meshObj.transform, i, textures, bones, bindPoses);
+                LoadMeshFrag(meshFrag, meshObj.transform, i, textures, skeletons, bindPoses);
             }
 
             // Show trigger positions
@@ -447,7 +479,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void LoadMeshFrag(MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, Transform[][] bones, Matrix4x4[][] bindPoses)
+        public void LoadMeshFrag(MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
                 $"Frag: {index}, " +
@@ -473,14 +505,14 @@ namespace Ray1Map.Psychonauts
             mf.sharedMesh = unityMesh;
 
             // Temporary code for visualizing the blend shapes
-            if (meshFrag.BlendshapeData != null)
-            {
-                BlendTestComponent ba = meshFragObj.AddComponent<BlendTestComponent>();
-                ba.mesh = unityMesh;
-                ba.blendStreams = meshFrag.BlendshapeData.Streams;
-                ba.vertices = meshFrag.Vertices.Select(x => x.Vertex.ToVector3()).ToArray();
-                ba.speed = new AnimSpeed_SecondIncrease(1f);
-            }
+            //if (meshFrag.BlendshapeData != null)
+            //{
+            //    BlendTestComponent ba = meshFragObj.AddComponent<BlendTestComponent>();
+            //    ba.mesh = unityMesh;
+            //    ba.blendStreams = meshFrag.BlendshapeData.Streams;
+            //    ba.vertices = meshFrag.Vertices.Select(x => x.Vertex.ToVector3()).ToArray();
+            //    ba.speed = new AnimSpeed_SecondIncrease(1f);
+            //}
 
             Material matSrc;
 
@@ -510,8 +542,8 @@ namespace Ray1Map.Psychonauts
                 SkinnedMeshRenderer smr = meshFragObj.AddComponent<SkinnedMeshRenderer>();
                 smr.sharedMaterial = mat;
                 smr.sharedMesh = unityMesh;
-                smr.bones = bones[0];
-                smr.rootBone = bones[0][0];
+                smr.bones = skeletons[0].Joints.Select(x => x.Transform).ToArray();
+                smr.rootBone = skeletons[0].Joints[0].Transform;
             }
             else
             {
