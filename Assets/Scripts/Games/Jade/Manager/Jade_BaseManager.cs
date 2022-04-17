@@ -830,6 +830,7 @@ namespace Ray1Map {
 						try {
 							Jade_TextureReference texRef = new Jade_TextureReference(context, fileInfo.Key);
 							texRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
 
 							var t = texList.Textures[0];
 
