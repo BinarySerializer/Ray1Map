@@ -335,7 +335,9 @@ namespace Ray1Map.Psychonauts
 
             foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(loader, level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, meshFile.Name);
+                GameObject obj = LoadScene(loader, level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, 
+                    $"{meshFile.Name}, " +
+                    $"Type: {meshFile.Type}");
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }
@@ -348,7 +350,10 @@ namespace Ray1Map.Psychonauts
 
         public GameObject LoadScene(Loader loader, Unity_Level level, Scene scene, Transform parent, TexturesManager texManager, string name)
         {
-            GameObject sceneObj = new GameObject($"Scene: {name}");
+            GameObject sceneObj = new GameObject(
+                $"Scene: {name}, " +
+                $"NavMeshes: {scene.NavMeshes.Length}, " +
+                $"VisTree: {scene.VisibilityTree != null}");
             sceneObj.transform.SetParent(parent, false);
             sceneObj.transform.localScale = Vector3.one;
             sceneObj.transform.localRotation = Quaternion.identity;
@@ -366,7 +371,10 @@ namespace Ray1Map.Psychonauts
 
         public void LoadDomain(Loader loader, Unity_Level level, Domain domain, Transform parent, PsychonautsTexture[] textures)
         {
-            GameObject domainObj = new GameObject($"Domain: {domain.Name}");
+            GameObject domainObj = new GameObject(
+                $"Domain: {domain.Name}, " +
+                $"EntityInitData: {domain.EntityInitDatas?.Length ?? 0}, " +
+                $"RuntimeRefs: ({String.Join(", ", domain.RuntimeReferences.Select(x => x.Value))})");
             domainObj.transform.SetParent(parent, false);
             domainObj.transform.localScale = Vector3.one;
             domainObj.transform.localRotation = Quaternion.identity;
@@ -420,7 +428,13 @@ namespace Ray1Map.Psychonauts
 
         public void LoadMesh(Loader loader, Unity_Level level, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
         {
-            GameObject meshObj = new GameObject($"Mesh: {mesh.Name}");
+            GameObject meshObj = new GameObject(
+                $"Mesh: {mesh.Name}, " +
+                $"LODs: {mesh.LODs?.Length ?? 0}, " +
+                $"Lights: ({String.Join(", ", mesh.Lights.Select(x => x.Type))}), " +
+                $"AnimAffectors: ({String.Join(", ", mesh.AnimAffectors.Select(x => x.Type))}), " +
+                $"Collision: {mesh.CollisionTree != null}, " +
+                $"EntityMeshInfo: {(mesh.EntityMeshInfo == null ? null : $"(Class: {mesh.EntityMeshInfo.ScriptClass}, EditVars: {mesh.EntityMeshInfo.EditVars})")}");
             meshObj.transform.SetParent(parent, false);
             meshObj.transform.localScale = Vector3.one;
             meshObj.transform.localRotation = Quaternion.identity;
@@ -433,6 +447,15 @@ namespace Ray1Map.Psychonauts
             meshObj.transform.localRotation = mesh.Rotation.ToQuaternionRad();
             meshObj.transform.localScale = mesh.Scale.ToVector3();
 
+            GameObject visualMeshObj = new GameObject("Visual");
+            visualMeshObj.transform.SetParent(meshObj.transform, false);
+            visualMeshObj.transform.localScale = Vector3.one;
+            visualMeshObj.transform.localRotation = Quaternion.identity;
+            visualMeshObj.transform.localPosition = Vector3.zero;
+
+            var mapObjComp = meshObj.AddComponent<MapObjectComponent>();
+            mapObjComp.MapObject = visualMeshObj;
+
             int skeletonsCount = mesh.Skeletons.Length;
 
             PsychonautsSkeleton[] skeletons = new PsychonautsSkeleton[skeletonsCount];
@@ -443,7 +466,7 @@ namespace Ray1Map.Psychonauts
                 Skeleton s = mesh.Skeletons[skelIndex];
 
                 GameObject skeletonObj = new GameObject($"Skeleton: {s.Name}");
-                skeletonObj.transform.SetParent(meshObj.transform, false);
+                skeletonObj.transform.SetParent(visualMeshObj.transform, false);
                 skeletonObj.transform.localPosition = Vector3.zero;
                 skeletonObj.transform.localRotation = Quaternion.identity;
                 skeletonObj.transform.localScale = Vector3.one;
@@ -457,16 +480,24 @@ namespace Ray1Map.Psychonauts
 
             if (skeletonsCount > 0)
             {
-                var ja = meshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
+                var ja = visualMeshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
                 ja.Skeletons = skeletons;
                 ja.AnimationManager = loader.AnimationManager;
+            }
+
+            // Collision
+            if (mesh.CollisionTree != null)
+            {
+                GameObject colObj = LoadCollisionTree(mesh.CollisionTree, meshObj.transform);
+                var colObjComp = meshObj.AddComponent<CollisionObjectComponent>();
+                colObjComp.CollisionObject = colObj;
             }
 
             for (var i = 0; i < mesh.MeshFrags.Length; i++)
             {
                 MeshFrag meshFrag = mesh.MeshFrags[i];
 
-                LoadMeshFrag(meshFrag, meshObj.transform, i, textures, skeletons, bindPoses);
+                LoadMeshFrag(meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
             }
 
             // Show trigger positions
@@ -566,6 +597,82 @@ namespace Ray1Map.Psychonauts
 
                 unityMesh.SetUVs(meshFrag, 0);
             }
+        }
+
+        public GameObject LoadCollisionTree(CollisionTree col, Transform parent)
+        {
+            GameObject colObj = new GameObject($"Collision");
+            colObj.transform.SetParent(parent, false);
+
+            colObj.transform.localPosition = Vector3.zero;
+            colObj.transform.localRotation = Quaternion.identity;
+            colObj.transform.localScale = Vector3.one;
+
+            // Create a separate mesh for each type of collision polygons
+            foreach (var v in col.CollisionPolys.GroupBy(x => x.SurfaceFlags))
+            {
+                SurfaceFlags flags = v.Key;
+                Vector3[] vertices = v.SelectMany(x => x.VertexIndices).Select(x => col.Vertices[x].ToVector3()).ToArray();
+                int[] triIndices = Enumerable.Range(0, vertices.Length / 3).Select(x =>
+                {
+                    int off = x * 3;
+                    // TODO: Show double-sided?
+                    //return new int[] { off + 0, off + 1, off + 2, off + 0, off + 2, off + 1 };
+                    return new int[] { off + 0, off + 2, off + 1 };
+                }).SelectMany(x => x).ToArray();
+
+                GameObject polyObj = new GameObject(
+                    $"CollisionPoly, " +
+                    $"Surface: {flags}");
+                polyObj.transform.SetParent(colObj.transform, false);
+
+                polyObj.transform.localPosition = Vector3.zero;
+                polyObj.transform.localRotation = Quaternion.identity;
+                polyObj.transform.localScale = Vector3.one;
+
+                UnityMesh unityMesh = new UnityMesh();
+
+                // Set vertices
+                unityMesh.SetVertices(vertices);
+                unityMesh.SetTriangles(triIndices, 0);
+
+                // TODO: Use better colors here
+                Color color = new Color32(60, 120, 180, 255);
+
+                for (int i = 0; i < 32; i++)
+                {
+                    if (((int)flags & (1 << i)) != 0)
+                        color = Color.Lerp(color, new Color(i / 31f, i / 31f, i / 31f), 0.5f);
+                }
+
+                unityMesh.SetColors(Enumerable.Repeat(color, vertices.Length).ToArray());
+
+                unityMesh.RecalculateNormals();
+
+                MeshFilter mf = polyObj.AddComponent<MeshFilter>();
+                polyObj.layer = LayerMask.NameToLayer("3D Collision");
+                polyObj.transform.localScale = Vector3.one;
+                polyObj.transform.localRotation = Quaternion.identity;
+                polyObj.transform.localPosition = Vector3.zero;
+                mf.sharedMesh = unityMesh;
+
+                MeshRenderer mr = polyObj.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+                // Add Collider GameObject
+                GameObject gaoc = new GameObject($"Poly Collider");
+                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
+                mc.sharedMesh = unityMesh;
+                gaoc.layer = LayerMask.NameToLayer("3D Collision");
+                gaoc.transform.SetParent(colObj.transform);
+                gaoc.transform.localScale = Vector3.one;
+                gaoc.transform.localRotation = Quaternion.identity;
+                gaoc.transform.localPosition = Vector3.zero;
+                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
+                col3D.Type = $"{flags}";
+            }
+
+            return colObj;
         }
 
         #endregion
