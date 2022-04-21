@@ -24,7 +24,7 @@ namespace Ray1Map.Jade {
         public override void SerializeImpl(SerializerObject s) {
             VIFCode = s.SerializeObject<VIFcode>(VIFCode, name: nameof(VIFCode));
 
-            if (VIFCode.CMD >= 0x60 && VIFCode.CMD <= 0x7F) {
+            if ((int)VIFCode.CMD >= 0x60 && (int)VIFCode.CMD <= 0x7F) {
                 // UNPACK command
                 VIFcode_Unpack unpack = new VIFcode_Unpack(VIFCode);
                 s.Log("VIF Command: [UNPACK] {0}", unpack);
