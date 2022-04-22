@@ -359,6 +359,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -368,8 +370,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 0
@@ -390,9 +392,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 1
   platformSettings:
   - serializedVersion: 3
@@ -1107,6 +1112,38 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Spikes: 980301016103558135
+      Exit: 848235925670341131
+      Passthrough: 5952016016909777030
+      Slippery: 306881212683075847
+      Hill_Slight_Right_2: 4348509129755015395
+      Unknown3: 403154682482232163
+      Cliff: 5586633005738744777
+      Water: 7741478571819324514
+      Bounce: -6390522803144573849
+      Hill_Slight_Left_1: -6471239257855383930
+      Climb: -541949160996301626
+      Unknown4: -1286720978719862414
+      Hill_Steep_Right: -1929805820428528851
+      Slippery_Slight_Left_2: 8389344153059746050
+      Hill_Slight_Left_2: 7631552946031441819
+      Slippery_Slight_Right_2: 5377589014826520355
+      Unknown2: 2745589101236320176
+      Unknown0: -443986218189412202
+      Damage: 145604147332103513
+      Slippery_Slight_Right_1: -6543639312854883270
+      Unknown: -7315793704915975869
+      Slippery_Slight_Left_1: -1595922255337957678
+      Water_NoSplash: 1117890852493055300
+      Hill_Steep_Left: 1637147933150425752
+      Unknown1: -7722963707877292598
+      Hill_Slight_Right_1: -9174620244060137645
+      Slippery_Steep_Left: 6127672942224286340
+      Reactionary: -5129695853149024117
+      Slippery_Steep_Right: 5931549597590950192
+      Solid: -8650991762211185995
+      Seed: -5282947189964365613
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

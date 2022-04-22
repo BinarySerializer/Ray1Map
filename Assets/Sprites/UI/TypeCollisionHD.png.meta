@@ -116,6 +116,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -126,10 +128,10 @@ TextureImporter:
     serializedVersion: 2
     filterMode: 0
     aniso: 0
-    mipBias: -100
+    mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: -1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -147,9 +149,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 1
   platformSettings:
   - serializedVersion: 3
@@ -840,6 +845,38 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      TypeCollisionHD_15: -6607972700903698022
+      TypeCollisionHD_20: 5093528543658846698
+      TypeCollisionHD_8: 3186072616286568529
+      Hill_Slight_Right_2: 2082257202725009839
+      TypeCollisionHD_7: -3084183687961976604
+      TypeCollisionHD_21: -3291295520780296464
+      TypeCollisionHD_28: -7097016005066595995
+      TypeCollisionHD_26: 6784017770465439777
+      TypeCollisionHD_14: -5296393470863489049
+      Hill_Slight_Left_1: 7295462223140319994
+      Hill_Steep_Right: 122192940335433754
+      TypeCollisionHD_16: 4398982078262962081
+      Hill_Slight_Left_2: -2329880974346266235
+      TypeCollisionHD_13: 8826907989238140000
+      TypeCollisionHD_10: -6386121838047512134
+      TypeCollisionHD_18: -6861236170081678193
+      TypeCollisionHD_23: 6482038836943475298
+      TypeCollisionHD_9: 2493159850326827559
+      TypeCollisionHD_30: -7705297142466163505
+      TypeCollisionHD_12: 205274198410006504
+      TypeCollisionHD_29: 4621682152964363076
+      Hill_Steep_Left: -7836275266263227111
+      TypeCollisionHD_17: -5644497674881573737
+      Hill_Slight_Right_1: -3546144252572866034
+      TypeCollisionHD_19: -696954681905060290
+      TypeCollisionHD_22: -6979960712875665761
+      Reactionary: 3014885194146689839
+      TypeCollisionHD_11: -7662937423954672095
+      TypeCollisionHD_25: 6548950422000145376
+      TypeCollisionHD_24: 3033167730200469729
+      TypeCollisionHD_27: 7489497388940792972
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

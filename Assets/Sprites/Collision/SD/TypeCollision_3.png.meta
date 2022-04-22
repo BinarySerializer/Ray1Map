@@ -68,6 +68,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -77,8 +79,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -99,9 +101,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
   platformSettings:
   - serializedVersion: 3
@@ -480,6 +485,22 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      EnemyDirection_DownRight: 857013443609837443
+      EnemyDirection_DownLeft: -3379408102321610515
+      CannonTarget_Valid: -7474302931718650719
+      EnemyDirection_UpLeft: -6815258365777293507
+      CannonTarget_Invalid: -2075355440900834431
+      Trigger_StopMovement: 9097968163793552157
+      Race_Finish3: 7484949207243427760
+      Race_SpeedUp: -9194689513151578204
+      Race_Finish2: 2289268859991525308
+      Race_Bumper: -2799391548849485256
+      Solid_NotHangable: 538311081401336944
+      EnemyDirection_UpRight: 5255996285059953597
+      DetectionZone: -2427483602084164149
+      SpikePin: -8592029584354589911
+      Race_Finish1: -6193872267293402942
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

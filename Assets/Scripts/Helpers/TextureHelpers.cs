@@ -103,7 +103,7 @@ namespace Ray1Map
             //Copy the texture data on the GPU - this is where the magic happens [(;]
             Graphics.Blit(texture2D, rt);
             //resize the texture to the target values (this sets the pixel data as undefined)
-            texture2D.Resize(targetX, targetY, texture2D.format, mipmap);
+            texture2D.Reinitialize(targetX, targetY, texture2D.format, mipmap);
             texture2D.filterMode = filter;
 
             try {

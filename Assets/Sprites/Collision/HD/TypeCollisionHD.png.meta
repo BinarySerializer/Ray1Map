@@ -149,6 +149,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -158,8 +160,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -180,9 +182,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
   platformSettings:
   - serializedVersion: 3
@@ -1128,6 +1133,49 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Spikes: -3581508582439343098
+      Exit: 7635022443321957450
+      Passthrough: -5715569787581468706
+      Slippery: 7529079607414775979
+      Direction_UpRight: -4282602873934628237
+      Hill_Slight_Right_2: -7035217505932569519
+      Direction_Right: 4225854964764360949
+      Unknown3: -620962746505152526
+      Cliff: -7753985363473780603
+      Water: 4447495046787053757
+      Bounce: -9076283289787716804
+      Hill_Slight_Left_1: -3628550029362988260
+      Direction_DownLeft: -5246615176005666007
+      Unknown4: 8960339739576551559
+      Hill_Steep_Right: -5231493913089441438
+      Climb: 8862315578041385718
+      Hill_Slight_Left_2: 8289273529015327584
+      Slippery_Slight_Right_2: -2027052081514077686
+      Slippery_Slight_Left_2: -1310214650515933179
+      Direction_Up: 4087755089588048638
+      Unknown0: -2850282812941230268
+      Direction_Left: -4326151304882374141
+      Unknown2: -6077499552314698369
+      Damage: 5443298481060491074
+      Slippery_Slight_Right_1: -6046994731279335834
+      Climb_Hang: -5356422488573592705
+      Unknown: 339362300557655196
+      Slippery_Slight_Left_1: -539134451889832190
+      Climb_Full: 8392028804253454171
+      Direction_UpLeft: -5838909841812524133
+      Water_NoSplash: -8916883517313955387
+      Hill_Steep_Left: -6143942886111296486
+      Unknown1: 9120094050930694099
+      Direction_Down: 1236506199471683607
+      Hill_Slight_Right_1: 3183912970669082115
+      Solid_Hangable: 4867547398572345846
+      Slippery_Steep_Left: 410735162964766377
+      Reactionary: -6681085072440473785
+      Slippery_Steep_Right: -8071664622476123821
+      Direction_DownRight: -4950051264190424724
+      Solid: -2602771086480544207
+      Seed: 310214738210302216
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

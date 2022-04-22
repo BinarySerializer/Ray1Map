@@ -92,6 +92,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -101,8 +103,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -123,9 +125,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
   platformSettings:
   - serializedVersion: 3
@@ -615,7 +620,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 4959eed015c4a7fc0800000000000000
-      internalID: -3496398249689967212
+      internalID: 5954969708200282545
       vertices: []
       indices: 
       edges: []
@@ -636,7 +641,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: b749d86cfbc6360b0800000000000000
-      internalID: -5736621929414159237
+      internalID: -8287913959409992315
       vertices: []
       indices: 
       edges: []
@@ -672,6 +677,30 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Direction_UpRight: 3603153550722357760
+      Direction_Right: 1293285418797953619
+      Rotate_CounterClockwise90: 2834357983806616692
+      Direction_DownLeft: 1580294909663003558
+      Rotate_Clockwise90: 5954969708200282545
+      Direction_Up: -2407276464361511430
+      Direction_Left: -2796429469133065938
+      Climb_Walls: -3430106347616854512
+      Climb_Spider: 7586653261181008106
+      Slippery_Hangable: -403557844658274033
+      Lava: -5984812877084800497
+      Rotate_Clockwise45: -8287913959409992315
+      EnemyDirection_Down: 8653725111196545660
+      Climb_Hang: 4536573328369616790
+      EnemyDirection_Right: -5166613870213094818
+      Climb_Full: 3650989443003397875
+      EnemyDirection_Left: -1928314702911298250
+      Direction_UpLeft: -6766529816403859323
+      Direction_Down: 1289432309611926591
+      Solid_Hangable: 1877323086903821328
+      Direction_DownRight: 4800029848246086115
+      EnemyDirection_Up: -3512847774044218668
+      Rotate_CounterClockwise45: 8404832690215943779
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
