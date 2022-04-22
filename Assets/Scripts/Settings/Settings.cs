@@ -133,6 +133,8 @@ namespace Ray1Map {
         /// </summary>
         public static string LogFile { get; set; }
 
+        public static string PsychoPortalLogFile { get; set; }
+
         /// <summary>
         /// Whether to log to the serialization log file
         /// </summary>
@@ -262,6 +264,7 @@ namespace Ray1Map {
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);
+            PsychoPortalLogFile = s.SerializeString("PsychoPortalLogFile", PsychoPortalLogFile);
         }
 
         /// <summary>

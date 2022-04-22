@@ -474,6 +474,9 @@ public class SettingsWindow : UnityWindow
         if (Settings.Log)
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
 
+        if (Settings.Log)
+            Settings.PsychoPortalLogFile = FileField(GetNextRect(ref YPos), "PsychoPortal log File", Settings.PsychoPortalLogFile, true, "txt");
+
         // External Tools
 
         DrawHeader("External Tools");

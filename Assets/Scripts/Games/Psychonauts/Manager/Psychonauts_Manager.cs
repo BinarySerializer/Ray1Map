@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using BinarySerializer;
+using BinarySerializer.Klonoa.LV;
 using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using PsychoPortal.Unity;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
+using Loader = PsychoPortal.Unity.Loader;
 using Mesh = PsychoPortal.Mesh;
 using UnityMesh = UnityEngine.Mesh;
 
@@ -131,7 +135,7 @@ namespace Ray1Map.Psychonauts
             ("MCBB", "The Butcher"),
         };
 
-        private static IBinarySerializerLogger GetLogger() => Settings.Log ? new BinarySerializerLogger(Settings.LogFile) : null;
+        private static IBinarySerializerLogger GetLogger() => Settings.Log ? new BinarySerializerLogger(Settings.PsychoPortalLogFile) : null;
         private static PsychonautsVersion GetVersion(GameSettings settings) => settings.GameModeSelection switch
         {
             GameModeSelection.Psychonauts_Xbox_Proto_20041217 => PsychonautsVersion.Xbox_Proto_20041217,
@@ -243,8 +247,29 @@ namespace Ray1Map.Psychonauts
             GameSettings r1Settings = context.GetR1Settings();
             string lvl = Maps[r1Settings.Level].Name;
 
+            // Create the level
+            var level = new Unity_Level()
+            {
+                FramesPerSecond = 60,
+                IsometricData = new Unity_IsometricData
+                {
+                    CollisionMapWidth = 0,
+                    CollisionMapHeight = 0,
+                    TilesWidth = 0,
+                    TilesHeight = 0,
+                    CollisionMap = null,
+                    Scale = Vector3.one,
+                    ViewAngle = Quaternion.Euler(90, 0, 0),
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = Vector3.one * 1
+                },
+                PixelsPerUnit = 1,
+                CellSize = 1,
+            };
+
             // Create a loader
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(r1Settings)), r1Settings.GameDirectory);
+            Ray1MapLoader loader = new Ray1MapLoader(new PsychonautsSettings(GetVersion(r1Settings)), r1Settings.GameDirectory, context, level);
 
             // Use a PsychoPortal logger
             using IBinarySerializerLogger logger = GetLogger();
@@ -267,6 +292,7 @@ namespace Ray1Map.Psychonauts
             Controller.DetailedState = "Loading animations";
             await Controller.WaitIfNecessary();
 
+            // TODO: Lazy loading?
             loader.AnimationManager.LoadAnimations(loader.LevelAnimPack.StubSharedAnims.
                 Concat(loader.CommonAnimPack.StubSharedAnims).
                 Select(x =>
@@ -278,31 +304,10 @@ namespace Ray1Map.Psychonauts
             Controller.DetailedState = "Creating objects";
             await Controller.WaitIfNecessary();
 
-            // Create the level
-            var level = new Unity_Level()
-            {
-                FramesPerSecond = 60,
-                IsometricData = new Unity_IsometricData
-                {
-                    CollisionMapWidth = 0,
-                    CollisionMapHeight = 0,
-                    TilesWidth = 0,
-                    TilesHeight = 0,
-                    CollisionMap = null,
-                    Scale = Vector3.one,
-                    ViewAngle = Quaternion.Euler(90, 0, 0),
-                    CalculateYDisplacement = () => 0,
-                    CalculateXDisplacement = () => 0,
-                    ObjectScale = Vector3.one * 1
-                },
-                PixelsPerUnit = 1,
-                CellSize = 1,
-            };
-
             // Create the object manager
             level.ObjManager = new Unity_ObjectManager(context);
 
-            GameObject world = LoadLevel(loader, level, Controller.obj.levelController.editor.layerTiles.transform, lvl);
+            GameObject world = LoadLevel(loader, Controller.obj.levelController.editor.layerTiles.transform, lvl);
 
             world.transform.localScale = _scaleVector;
 
@@ -322,7 +327,7 @@ namespace Ray1Map.Psychonauts
             return level;
         }
 
-        public GameObject LoadLevel(Loader loader, Unity_Level level, Transform parent, string levelName)
+        public GameObject LoadLevel(Ray1MapLoader loader, Transform parent, string levelName)
         {
             GameObject gaoParent = new GameObject(levelName);
             gaoParent.transform.SetParent(parent, false);
@@ -335,7 +340,7 @@ namespace Ray1Map.Psychonauts
 
             foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(loader, level, meshFile.Scene, gaoParent.transform, loader.TexturesManager, 
+                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, 
                     $"{meshFile.Name}, " +
                     $"Type: {meshFile.Type}");
                 obj.transform.position = plbPos;
@@ -343,12 +348,12 @@ namespace Ray1Map.Psychonauts
             }
 
             // Load the level scene
-            LoadScene(loader, level, loader.LevelScene, gaoParent.transform, loader.TexturesManager, "Level");
+            LoadScene(loader, loader.LevelScene, gaoParent.transform, "Level");
 
             return gaoParent;
         }
 
-        public GameObject LoadScene(Loader loader, Unity_Level level, Scene scene, Transform parent, TexturesManager texManager, string name)
+        public GameObject LoadScene(Ray1MapLoader loader, Scene scene, Transform parent, string name)
         {
             GameObject sceneObj = new GameObject(
                 $"Scene: {name}, " +
@@ -359,17 +364,17 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(loader, level, scene.RootDomain, sceneObj.transform, texManager.GetTextures(scene.TextureTranslationTable));
+            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable));
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
                 foreach (Scene refScene in scene.ReferencedScenes)
-                    LoadScene(loader, level, refScene, sceneObj.transform, texManager, $"{name} References");
+                    LoadScene(loader, refScene, sceneObj.transform, $"{name} References");
 
             return sceneObj;
         }
 
-        public void LoadDomain(Loader loader, Unity_Level level, Domain domain, Transform parent, PsychonautsTexture[] textures)
+        public void LoadDomain(Ray1MapLoader loader, Domain domain, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject domainObj = new GameObject(
                 $"Domain: {domain.Name}, " +
@@ -382,11 +387,11 @@ namespace Ray1Map.Psychonauts
 
             // Load children
             foreach (Domain domainChild in domain.Children)
-                LoadDomain(loader, level, domainChild, domainObj.transform, textures);
+                LoadDomain(loader, domainChild, domainObj.transform, textures);
 
             // Load meshes
             foreach (Mesh mesh in domain.Meshes)
-                LoadMesh(loader, level, mesh, domainObj.transform, textures);
+                LoadMesh(loader, mesh, domainObj.transform, textures);
 
             // Show entity positions
             foreach (DomainEntityInfo ei in domain.DomainEntityInfos)
@@ -417,7 +422,7 @@ namespace Ray1Map.Psychonauts
                     //}
                 }
 
-                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object,
+                loader.Level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object,
                     position: ei.Position.ToInvVector3() * _scale,
                     name: $"Entity: {ei.Name}",
                     debugText: $"Class: {ei.ScriptClass}{Environment.NewLine}" +
@@ -426,7 +431,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void LoadMesh(Loader loader, Unity_Level level, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
+        public void LoadMesh(Ray1MapLoader loader, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
         {
             GameObject meshObj = new GameObject(
                 $"Mesh: {mesh.Name}, " +
@@ -441,7 +446,7 @@ namespace Ray1Map.Psychonauts
             meshObj.transform.localPosition = Vector3.zero;
 
             foreach (Mesh meshChild in mesh.Children)
-                LoadMesh(loader, level, meshChild, meshObj.transform, textures);
+                LoadMesh(loader, meshChild, meshObj.transform, textures);
 
             meshObj.transform.localPosition = mesh.Position.ToVector3();
             meshObj.transform.localRotation = mesh.Rotation.ToQuaternionRad();
@@ -497,13 +502,21 @@ namespace Ray1Map.Psychonauts
             {
                 MeshFrag meshFrag = mesh.MeshFrags[i];
 
-                LoadMeshFrag(meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
+                if (loader.Version == PsychonautsVersion.PS2)
+                {
+                    InitPS2MeshFrag(loader, meshFrag);
+                    // TODO: Once InitPS2 can successfully convert the data we need to load the mesh frag like usual
+                }
+                else
+                {
+                    LoadMeshFrag(meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
+                }
             }
 
             // Show trigger positions
             foreach (TriggerOBB t in mesh.Triggers)
             {
-                level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Trigger,
+                loader.Level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Trigger,
                     position: t.Position.ToInvVector3() * _scale,
                     name: $"Trigger: {t.Name}",
                     debugText: t.Name));
@@ -673,6 +686,23 @@ namespace Ray1Map.Psychonauts
             }
 
             return colObj;
+        }
+
+        public void InitPS2MeshFrag(Ray1MapLoader loader, MeshFrag meshFrag)
+        {
+            const string key = "geo";
+
+            try
+            {
+                loader.Context.AddFile(new StreamFile(loader.Context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
+                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(loader.Context, key);
+
+                // TODO: Convert the data to common format so it can be loaded
+            }
+            finally
+            {
+                loader.Context.RemoveFile(key);
+            }
         }
 
         #endregion
