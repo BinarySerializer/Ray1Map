@@ -85,7 +85,7 @@ namespace Ray1Map.Jade {
                     case VIF_Command.STCYCL:
                         break;*/
 					default:
-                        throw new BinarySerializableException(this, $"Unknown VIF command: {VIFCode.CMD:X2} or {(VIF_Command)VIFCode.CMD}");
+                        throw new BinarySerializableException(this, $"Unknown VIF command: {(int)VIFCode.CMD:X2} or {(VIF_Command)VIFCode.CMD}");
                 }
             }
         }
