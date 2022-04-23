@@ -1964,14 +1964,14 @@ namespace Ray1Map.PSKlonoa
                 31 => new ObjSpriteInfo(30, 157),
                 32 => new ObjSpriteInfo(31, 16),
 
-                35 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
-                36 => new ObjSpriteInfo(1, 0, scale: 2),
-                37 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
+                35 => new ObjSpriteInfo(0, 81, Scale: 2), // Big Moo
+                36 => new ObjSpriteInfo(1, 0, Scale: 2),
+                37 => new ObjSpriteInfo(0, 81, Scale: 2), // Big Moo
 
-                39 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo with shield
+                39 => new ObjSpriteInfo(14, 0, Scale: 2), // Big Moo with shield
 
                 112 => new ObjSpriteInfo(11, 149),
-                137 => new ObjSpriteInfo(11, 149, scale: 2),
+                137 => new ObjSpriteInfo(11, 149, Scale: 2),
                 _ => new ObjSpriteInfo(-1, -1)
             };
         }
@@ -2042,23 +2042,7 @@ namespace Ray1Map.PSKlonoa
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, memoryMappedPriority: 0); // Give lower prio to prioritize IDX
         }
 
-        public class ObjSpriteInfo
-        {
-            public ObjSpriteInfo(int spriteSet, int spriteIndex, int scale = 1, int palOffsetX = 0, int palOffsetY = 500)
-            {
-                SpriteSet = spriteSet;
-                SpriteIndex = spriteIndex;
-                Scale = scale;
-                PalOffsetX = palOffsetX;
-                PalOffsetY = palOffsetY;
-            }
-
-            public int SpriteSet { get; }
-            public int SpriteIndex { get; }
-            public int Scale { get; }
-            public int PalOffsetX { get; }
-            public int PalOffsetY { get; }
-        }
+        public record ObjSpriteInfo(int SpriteSet, int SpriteIndex, int Scale = 1, int PalOffsetX = 0, int PalOffsetY = 500);
 
         public class CutsceneObjectInstance
         {
