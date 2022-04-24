@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using BinarySerializer;
-using BinarySerializer.Klonoa.LV;
 using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using PsychoPortal.Unity;
+using UnityEditor;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
 using Loader = PsychoPortal.Unity.Loader;
 using Mesh = PsychoPortal.Mesh;
+using UInt24 = PsychoPortal.UInt24;
 using UnityMesh = UnityEngine.Mesh;
 
 namespace Ray1Map.Psychonauts
@@ -340,9 +342,7 @@ namespace Ray1Map.Psychonauts
 
             foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, 
-                    $"{meshFile.Name}, " +
-                    $"Type: {meshFile.Type}");
+                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, $"{meshFile.Name} ({meshFile.Type})");
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }
@@ -355,11 +355,10 @@ namespace Ray1Map.Psychonauts
 
         public GameObject LoadScene(Ray1MapLoader loader, Scene scene, Transform parent, string name)
         {
-            GameObject sceneObj = new GameObject(
-                $"Scene: {name}, " +
-                $"NavMeshes: {scene.NavMeshes.Length}, " +
-                $"VisTree: {scene.VisibilityTree != null}");
+            GameObject sceneObj = new GameObject($"Scene: {name}");
             sceneObj.transform.SetParent(parent, false);
+            sceneObj.AddBinarySerializableData(loader.Settings, scene);
+
             sceneObj.transform.localScale = Vector3.one;
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
@@ -376,11 +375,10 @@ namespace Ray1Map.Psychonauts
 
         public void LoadDomain(Ray1MapLoader loader, Domain domain, Transform parent, PsychonautsTexture[] textures)
         {
-            GameObject domainObj = new GameObject(
-                $"Domain: {domain.Name}, " +
-                $"EntityInitData: {domain.EntityInitDatas?.Length ?? 0}, " +
-                $"RuntimeRefs: ({String.Join(", ", domain.RuntimeReferences.Select(x => x.Value))})");
+            GameObject domainObj = new GameObject($"Domain: {domain.Name}");
             domainObj.transform.SetParent(parent, false);
+            domainObj.AddBinarySerializableData(loader.Settings, domain);
+
             domainObj.transform.localScale = Vector3.one;
             domainObj.transform.localRotation = Quaternion.identity;
             domainObj.transform.localPosition = Vector3.zero;
@@ -396,51 +394,20 @@ namespace Ray1Map.Psychonauts
             // Show entity positions
             foreach (DomainEntityInfo ei in domain.DomainEntityInfos)
             {
-                Dictionary<string, string> editVars = ei.ParseEditVars();
-                string plbName = editVars?.TryGetItem("self.meshname");
-
-                if (plbName != null)
-                {
-                    //var n = plbName.ToLower().Replace('/', '\\');
-
-                    //if (n.StartsWith("workresource"))
-                    //    n = n.Substring("workresource".Length + 1);
-
-                    //if (plbs.ContainsKey(n))
-                    //{
-                    //    GameObject entitiyObj = new GameObject($"Entity: {ei.Name}");
-                    //    entitiyObj.transform.SetParent(domainObj.transform, false);
-                    //    entitiyObj.transform.localPosition = ei.Position.ToVector3();
-                    //    entitiyObj.transform.localRotation = ei.Rotation.ToQuaternionRad();
-                    //    entitiyObj.transform.localScale = ei.Scale.ToVector3();
-
-                    //    GameObject obj = Object.Instantiate(plbs[n]);
-                    //    obj.transform.SetParent(entitiyObj.transform, false);
-                    //    obj.transform.localPosition = Vector3.zero;
-                    //    obj.transform.localRotation = Quaternion.identity;
-                    //    obj.transform.localScale = Vector3.one;
-                    //}
-                }
-
                 loader.Level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Object,
                     position: ei.Position.ToInvVector3() * _scale,
                     name: $"Entity: {ei.Name}",
                     debugText: $"Class: {ei.ScriptClass}{Environment.NewLine}" +
-                               $"EditVars: {ei.EditVars}{Environment.NewLine}" +
-                               $"{(editVars != null ? String.Join(Environment.NewLine, editVars.Select(x => $"{x.Key}: {x.Value}")) : null)}"));
+                               $"EditVars: {ei.EditVars}{Environment.NewLine}"));
             }
         }
 
         public void LoadMesh(Ray1MapLoader loader, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
         {
-            GameObject meshObj = new GameObject(
-                $"Mesh: {mesh.Name}, " +
-                $"LODs: {mesh.LODs?.Length ?? 0}, " +
-                $"Lights: ({String.Join(", ", mesh.Lights.Select(x => x.Type))}), " +
-                $"AnimAffectors: ({String.Join(", ", mesh.AnimAffectors.Select(x => x.Type))}), " +
-                $"Collision: {mesh.CollisionTree != null}, " +
-                $"EntityMeshInfo: {(mesh.EntityMeshInfo == null ? null : $"(Class: {mesh.EntityMeshInfo.ScriptClass}, EditVars: {mesh.EntityMeshInfo.EditVars})")}");
+            GameObject meshObj = new GameObject($"Mesh: {mesh.Name}");
             meshObj.transform.SetParent(parent, false);
+            meshObj.AddBinarySerializableData(loader.Settings, mesh);
+
             meshObj.transform.localScale = Vector3.one;
             meshObj.transform.localRotation = Quaternion.identity;
             meshObj.transform.localPosition = Vector3.zero;
@@ -472,12 +439,14 @@ namespace Ray1Map.Psychonauts
 
                 GameObject skeletonObj = new GameObject($"Skeleton: {s.Name}");
                 skeletonObj.transform.SetParent(visualMeshObj.transform, false);
+                skeletonObj.AddBinarySerializableData(loader.Settings, s);
+
                 skeletonObj.transform.localPosition = Vector3.zero;
                 skeletonObj.transform.localRotation = Quaternion.identity;
                 skeletonObj.transform.localScale = Vector3.one;
 
                 bindPoses[skelIndex] = new Matrix4x4[s.JointsCount];
-                skeletons[skelIndex] = new PsychonautsSkeleton(s, skeletonObj.transform);
+                skeletons[skelIndex] = new PsychonautsSkeleton(s, skeletonObj.transform, loader.Settings);
 
                 for (int i = 0; i < s.JointsCount; i++)
                     bindPoses[skelIndex][i] = skeletons[skelIndex].Joints[i].Transform.worldToLocalMatrix * skeletonObj.transform.localToWorldMatrix;
@@ -493,7 +462,7 @@ namespace Ray1Map.Psychonauts
             // Collision
             if (mesh.CollisionTree != null)
             {
-                GameObject colObj = LoadCollisionTree(mesh.CollisionTree, meshObj.transform);
+                GameObject colObj = LoadCollisionTree(loader, mesh.CollisionTree, meshObj.transform);
                 var colObjComp = meshObj.AddComponent<CollisionObjectComponent>();
                 colObjComp.CollisionObject = colObj;
             }
@@ -509,7 +478,7 @@ namespace Ray1Map.Psychonauts
                 }
                 else
                 {
-                    LoadMeshFrag(meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
+                    LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
                 }
             }
 
@@ -523,15 +492,14 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void LoadMeshFrag(MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public void LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
                 $"Frag: {index}, " +
                 $"Blend Shapes: {meshFrag.BlendshapeData?.Streams.Length ?? 0}, " +
-                $"VertexStreamBasis: {meshFrag.VertexStreamBasis?.Length ?? 0}, " +
-                $"Textures: {meshFrag.TextureIndices.Length}, " +
                 $"Flags: {meshFrag.MaterialFlags}");
             meshFragObj.transform.SetParent(parent, false);
+            meshFragObj.AddBinarySerializableData(loader.Settings, meshFrag);
 
             UnityMesh unityMesh = new UnityMesh();
 
@@ -612,10 +580,11 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public GameObject LoadCollisionTree(CollisionTree col, Transform parent)
+        public GameObject LoadCollisionTree(Ray1MapLoader loader, CollisionTree col, Transform parent)
         {
             GameObject colObj = new GameObject($"Collision");
             colObj.transform.SetParent(parent, false);
+            colObj.AddBinarySerializableData(loader.Settings, col);
 
             colObj.transform.localPosition = Vector3.zero;
             colObj.transform.localRotation = Quaternion.identity;
@@ -634,9 +603,7 @@ namespace Ray1Map.Psychonauts
                     return new int[] { off + 0, off + 2, off + 1 };
                 }).SelectMany(x => x).ToArray();
 
-                GameObject polyObj = new GameObject(
-                    $"CollisionPoly, " +
-                    $"Surface: {flags}");
+                GameObject polyObj = new GameObject($"CollisionPoly ({flags})");
                 polyObj.transform.SetParent(colObj.transform, false);
 
                 polyObj.transform.localPosition = Vector3.zero;
