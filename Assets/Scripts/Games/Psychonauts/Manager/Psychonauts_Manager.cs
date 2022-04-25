@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using PsychoPortal.Unity;
-using UnityEditor;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
 using Loader = PsychoPortal.Unity.Loader;
 using Mesh = PsychoPortal.Mesh;
-using UInt24 = PsychoPortal.UInt24;
 using UnityMesh = UnityEngine.Mesh;
 
 namespace Ray1Map.Psychonauts
@@ -412,6 +408,9 @@ namespace Ray1Map.Psychonauts
             meshObj.transform.localRotation = Quaternion.identity;
             meshObj.transform.localPosition = Vector3.zero;
 
+            if (mesh.AnimAffectors.Length > 0)
+                meshObj.AddComponent<MeshAnimationComponent>(x => x.Mesh = mesh);
+
             foreach (Mesh meshChild in mesh.Children)
                 LoadMesh(loader, meshChild, meshObj.transform, textures);
 
@@ -639,17 +638,20 @@ namespace Ray1Map.Psychonauts
                 MeshRenderer mr = polyObj.AddComponent<MeshRenderer>();
                 mr.sharedMaterial = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
 
-                // Add Collider GameObject
-                GameObject gaoc = new GameObject($"Poly Collider");
-                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
-                mc.sharedMesh = unityMesh;
-                gaoc.layer = LayerMask.NameToLayer("3D Collision");
-                gaoc.transform.SetParent(colObj.transform);
-                gaoc.transform.localScale = Vector3.one;
-                gaoc.transform.localRotation = Quaternion.identity;
-                gaoc.transform.localPosition = Vector3.zero;
-                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
-                col3D.Type = $"{flags}";
+                if (vertices.Distinct().Count() >= 3)
+                {
+                    // Add Collider GameObject
+                    GameObject gaoc = new GameObject($"Poly Collider");
+                    MeshCollider mc = gaoc.AddComponent<MeshCollider>();
+                    mc.sharedMesh = unityMesh;
+                    gaoc.layer = LayerMask.NameToLayer("3D Collision");
+                    gaoc.transform.SetParent(colObj.transform);
+                    gaoc.transform.localScale = Vector3.one;
+                    gaoc.transform.localRotation = Quaternion.identity;
+                    gaoc.transform.localPosition = Vector3.zero;
+                    var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
+                    col3D.Type = $"{flags}";
+                }
             }
 
             return colObj;
