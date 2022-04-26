@@ -295,8 +295,22 @@ namespace Ray1Map.Psychonauts
                 Concat(loader.CommonAnimPack.StubSharedAnims).
                 Select(x =>
                 {
-                    SharedSkelAnim jan = loader.FileManager.ReadFromFile<SharedSkelAnim>(x.JANFileName, logger, throwIfNotFound: true);
-                    return new PsychonautsSkelAnim(x, jan);
+                    // Read the joint animation
+                    SharedSkelAnim jointAnim = loader.FileManager.ReadFromFile<SharedSkelAnim>(x.JANFileName, logger, throwIfNotFound: true);
+                    
+                    // Read the event animation
+                    EventAnim eventAnim = null;
+                    if (x.EventAnim != null)
+                        using (var eventAnimStream = new MemoryStream(x.EventAnim))
+                            eventAnim = Binary.ReadFromStream<EventAnim>(eventAnimStream, loader.Settings, logger: logger);
+
+                    // Read the blend animation
+                    SharedBlendAnim blendAnim = null;
+                    if (x.BlendAnim != null)
+                        using (var blendAnimStream = new MemoryStream(x.BlendAnim))
+                            blendAnim = Binary.ReadFromStream<SharedBlendAnim>(blendAnimStream, loader.Settings, logger: logger);
+                    
+                    return new PsychonautsSkelAnim(x, jointAnim, eventAnim, blendAnim);
                 }));
 
             Controller.DetailedState = "Creating objects";
