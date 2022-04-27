@@ -465,13 +465,6 @@ namespace Ray1Map.Psychonauts
                     bindPoses[skelIndex][i] = skeletons[skelIndex].Joints[i].Transform.worldToLocalMatrix * skeletonObj.transform.localToWorldMatrix;
             }
 
-            if (skeletonsCount > 0)
-            {
-                var ja = visualMeshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
-                ja.Skeletons = skeletons;
-                ja.AnimationManager = loader.AnimationManager;
-            }
-
             // Collision
             if (mesh.CollisionTree != null)
             {
@@ -479,6 +472,8 @@ namespace Ray1Map.Psychonauts
                 var colObjComp = meshObj.AddComponent<CollisionObjectComponent>();
                 colObjComp.CollisionObject = colObj;
             }
+
+            var psychoMeshFrags = new PsychonautsMeshFrag[mesh.MeshFrags.Length];
 
             for (var i = 0; i < mesh.MeshFrags.Length; i++)
             {
@@ -491,8 +486,17 @@ namespace Ray1Map.Psychonauts
                 }
                 else
                 {
-                    LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
+                    psychoMeshFrags[i] = LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
                 }
+            }
+
+            var psychoMesh = new PsychonautsMesh(mesh, psychoMeshFrags, skeletons);
+
+            if (skeletonsCount > 0)
+            {
+                var ja = visualMeshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
+                ja.Mesh = psychoMesh;
+                ja.AnimationManager = loader.AnimationManager;
             }
 
             // Show trigger positions
@@ -505,7 +509,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
                 $"Frag: {index}, " +
@@ -529,15 +533,14 @@ namespace Ray1Map.Psychonauts
             meshFragObj.transform.localPosition = Vector3.zero;
             mf.sharedMesh = unityMesh;
 
-            // Temporary code for visualizing the blend shapes
-            //if (meshFrag.BlendshapeData != null)
-            //{
-            //    BlendTestComponent ba = meshFragObj.AddComponent<BlendTestComponent>();
-            //    ba.mesh = unityMesh;
-            //    ba.blendStreams = meshFrag.BlendshapeData.Streams;
-            //    ba.vertices = meshFrag.Vertices.Select(x => x.Vertex.ToVector3()).ToArray();
-            //    ba.speed = new AnimSpeed_SecondIncrease(1f);
-            //}
+            MeshFragBlendComponent blendComponent = null;
+
+            if (meshFrag.BlendshapeData != null)
+                blendComponent = meshFragObj.AddComponent<MeshFragBlendComponent>(x =>
+                {
+                    x.MeshFrag = meshFrag;
+                    x.UnityMesh = unityMesh;
+                });
 
             Material matSrc;
 
@@ -591,6 +594,8 @@ namespace Ray1Map.Psychonauts
 
                 unityMesh.SetUVs(meshFrag, 0);
             }
+
+            return new PsychonautsMeshFrag(meshFrag, unityMesh, blendComponent);
         }
 
         public GameObject LoadCollisionTree(Ray1MapLoader loader, CollisionTree col, Transform parent)
@@ -689,69 +694,5 @@ namespace Ray1Map.Psychonauts
         }
 
         #endregion
-    }
-
-    // TODO: Remove once animations have been implemented
-    public class BlendTestComponent : ObjectAnimationComponent
-    {
-        public UnityMesh mesh;
-        public BlendshapeStream[] blendStreams;
-        public Vector3[] vertices;
-
-        protected override void UpdateAnimation()
-        {
-            if (mesh == null || blendStreams == null)
-                return;
-
-            speed.Update(blendStreams.Length, loopMode);
-
-            int frameInt = speed.CurrentFrameInt;
-
-            int nextFrameIndex = frameInt + 1 * speed.Direction;
-
-            if (nextFrameIndex >= blendStreams.Length)
-            {
-                switch (loopMode)
-                {
-                    case AnimLoopMode.Repeat:
-                        nextFrameIndex = 0;
-                        break;
-
-                    case AnimLoopMode.PingPong:
-                        nextFrameIndex = blendStreams.Length - 1;
-                        break;
-                }
-            }
-            else if (nextFrameIndex < 0)
-            {
-                switch (loopMode)
-                {
-                    case AnimLoopMode.PingPong:
-                        nextFrameIndex = 1;
-                        break;
-                }
-            }
-
-            BlendshapeStream currentFrame = blendStreams[frameInt];
-            BlendshapeStream nextFrame = blendStreams[nextFrameIndex];
-
-            float lerpFactor = speed.CurrentFrame - frameInt;
-
-            Vector3[] newVertices = Enumerable.Range(0, vertices.Length)
-                .Select(x =>
-                {
-                    Vector3 current = x >= currentFrame.Vertices.Length
-                        ? new Vector3()
-                        : currentFrame.Vertices[x].Vertex.ToVector3() * currentFrame.Scale;
-                    Vector3 next = x >= nextFrame.Vertices.Length
-                        ? new Vector3()
-                        : nextFrame.Vertices[x].Vertex.ToVector3() * nextFrame.Scale;
-
-                    return Vector3.Lerp(current, next, lerpFactor) + vertices[x];
-                }).
-                ToArray();
-
-            mesh.SetVertices(newVertices);
-        }
     }
 }
