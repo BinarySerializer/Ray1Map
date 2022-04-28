@@ -518,6 +518,10 @@ namespace Ray1Map.Psychonauts
             meshFragObj.transform.SetParent(parent, false);
             meshFragObj.AddBinarySerializableData(loader.Settings, meshFrag);
 
+            // For meshes with LOD any number greater than 1 will be a lower-res variant, usually without blend shapes
+            if (meshFrag.DistantLOD > 1)
+                meshFragObj.SetActive(false);
+
             UnityMesh unityMesh = new UnityMesh();
 
             // Set vertices and normals
