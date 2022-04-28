@@ -147,8 +147,8 @@ namespace Ray1Map
                 GameModeSelection.RaymanPC_1_20 => Ray1PCVersion.PC_1_20,
                 GameModeSelection.RaymanPC_1_21_JP => Ray1PCVersion.PC_1_21_JP,
                 GameModeSelection.RaymanPC_1_21 => Ray1PCVersion.PC_1_21,
-                GameModeSelection.RaymanPC_Demo_1 => Ray1PCVersion.PC_Demo_1,
-                GameModeSelection.RaymanPC_Demo_2 => Ray1PCVersion.PC_Demo_2,
+                GameModeSelection.RaymanPC_Demo_1 => Ray1PCVersion.PC_Demo_19951207,
+                GameModeSelection.RaymanPC_Demo_2 => Ray1PCVersion.PC_Demo_19960215,
                 GameModeSelection.RaymanPocketPC => Ray1PCVersion.PocketPC,
                 GameModeSelection.RaymanClassicMobile => Ray1PCVersion.Android,
                 _ => Ray1PCVersion.None

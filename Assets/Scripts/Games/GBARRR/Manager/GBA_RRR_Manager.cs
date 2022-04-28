@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using BinarySerializer.Audio;
 using BinarySerializer.GBA.Audio.GAX;
 using Cysharp.Threading.Tasks;

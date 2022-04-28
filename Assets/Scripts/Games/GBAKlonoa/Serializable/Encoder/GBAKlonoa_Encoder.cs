@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 
 namespace Ray1Map.GBAKlonoa
 {

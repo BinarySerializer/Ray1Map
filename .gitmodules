@@ -4,9 +4,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Image"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Image
 	url = https://github.com/BinarySerializer/BinarySerializer.Image
-[submodule "Assets/Scripts/Libraries/BinarySerializer.GBA"]
-	path = Assets/Scripts/Libraries/BinarySerializer.GBA
-	url = https://github.com/BinarySerializer/BinarySerializer.GBA
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Ray1"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Ray1
 	url = https://github.com/BinarySerializer/BinarySerializer.Ray1
@@ -25,3 +22,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.GBA.Audio"]
 	path = Assets/Scripts/Libraries/BinarySerializer.GBA.Audio
 	url = https://github.com/BinarySerializer/BinarySerializer.GBA.Audio
+[submodule "Assets/Scripts/Libraries/BinarySerializer.Nintendo"]
+	path = Assets/Scripts/Libraries/BinarySerializer.Nintendo
+	url = https://github.com/BinarySerializer/BinarySerializer.Nintendo

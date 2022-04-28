@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -193,7 +193,7 @@ namespace Ray1Map.GBAIsometric
                 for (int i = 0; i < rom.PortraitTileMaps.Length; i++)
                 {
                     Color[] pal = Util.ConvertGBAPalette(rom.PortraitPalettes[i].Value.Colors);
-                    BinarySerializer.GBA.MapTile[] map = rom.PortraitTileMaps[i].Value;
+                    BinarySerializer.Nintendo.GBA_MapTile[] map = rom.PortraitTileMaps[i].Value;
                     byte[] tileSet = rom.PortraitTileSets[i].Value;
 
                     Texture2D tex = TextureHelpers.CreateTexture2D(GBAConstants.TileSize * 4, GBAConstants.TileSize * 4);
@@ -296,7 +296,7 @@ namespace Ray1Map.GBAIsometric
                 PaletteIndex = (byte)m.PaletteIndex,
             }).ToArray()).ToArray();
             byte[] tileSetData = rom.Level3D_TileSets[level].Value;
-            Palette pal = rom.Level3D_Palettes[level];
+            GBA_Palette pal = rom.Level3D_Palettes[level];
 
             // Create the level
             var lev = new Unity_Level();
@@ -810,11 +810,11 @@ namespace Ray1Map.GBAIsometric
                 {
                     // Replace palette
                     s.Goto(jpRom.PortraitPalettes[i]);
-                    s.SerializeObject<Palette>(euRom.PortraitPalettes[i]);
+                    s.SerializeObject<GBA_Palette>(euRom.PortraitPalettes[i]);
 
                     // Replace map
                     s.Goto(jpRom.PortraitTileMaps[i]);
-                    s.SerializeObject<ObjectArray<BinarySerializer.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
+                    s.SerializeObject<ObjectArray<BinarySerializer.Nintendo.GBA_MapTile>>(euRom.PortraitTileMaps[i]);
 
                     // Replace tile set
                     if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])
@@ -963,7 +963,7 @@ namespace Ray1Map.GBAIsometric
                 s.DoAt(new Pointer(pointerOffsets[i], context.GetFile(romName)), () => s.SerializePointer(remapPointer));
 
                 // Write the palette
-                s.SerializeObject<Palette>(rom.Level3D_LevelMaps[i].Palette);
+                s.SerializeObject<GBA_Palette>(rom.Level3D_LevelMaps[i].Palette);
 
                 // Write the compressed level map
                 s.SerializeArray<byte>(bytes, bytes.Length);

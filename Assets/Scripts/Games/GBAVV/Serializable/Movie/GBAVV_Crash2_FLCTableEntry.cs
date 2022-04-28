@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using BinarySerializer.Image;
 
 namespace Ray1Map.GBAVV

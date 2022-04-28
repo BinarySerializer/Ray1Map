@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Audio;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using UnityEngine;
 
 namespace Ray1Map.GBA

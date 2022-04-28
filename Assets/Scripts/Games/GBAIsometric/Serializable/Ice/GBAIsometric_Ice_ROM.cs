@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -17,7 +17,7 @@ namespace Ray1Map.GBAIsometric
         // TODO: Mode7 levels
 
         // Levels 3D
-        public Pointer<Palette>[] Level3D_Palettes { get; set; }
+        public Pointer<GBA_Palette>[] Level3D_Palettes { get; set; }
         public GBAIsometric_Ice_Level3D_MapLayers[] Level3D_MapLayers { get; set; }
         public uint[] Level3D_TileSetLengths { get; set; }
         public Pointer<Array<byte>>[] Level3D_TileSets { get; set; }
@@ -30,17 +30,17 @@ namespace Ray1Map.GBAIsometric
         public GBAIsometric_Ice_Sparx_LevelData[] Sparx_Levels { get; set; }
         public GBAIsometric_Ice_Sparx_LevelData Sparx_MenuMap { get; set; } // Unused
         public Sparx_ObjectType[] Sparx_ObjectTypes { get; set; }
-        public Palette Sparx_ObjPalette { get; set; }
+        public GBA_Palette Sparx_ObjPalette { get; set; }
 
         // Portraits
-        public Pointer<Palette>[] PortraitPalettes { get; set; }
-        public Pointer<ObjectArray<BinarySerializer.GBA.MapTile>>[] PortraitTileMaps { get; set; }
+        public Pointer<GBA_Palette>[] PortraitPalettes { get; set; }
+        public Pointer<ObjectArray<BinarySerializer.Nintendo.GBA_MapTile>>[] PortraitTileMaps { get; set; }
         public ushort[] PortraitTileSetLengths { get; set; }
         public Pointer<Array<byte>>[] PortraitTileSets { get; set; }
 
         // Sprites
         public Pointer<GBAIsometric_Ice_SpriteSet>[] SpriteSets { get; set; }
-        public Pointer<Palette>[] SpriteSetPalettes { get; set; }
+        public Pointer<GBA_Palette>[] SpriteSetPalettes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -71,7 +71,7 @@ namespace Ray1Map.GBAIsometric
 
             // Serialize palettes
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Level3D_Palettes], () =>
-                Level3D_Palettes = s.SerializePointerArray<Palette>(Level3D_Palettes, count, resolve: Pre_Level3DIndex == -1, onPreSerialize: (x, i) =>
+                Level3D_Palettes = s.SerializePointerArray<GBA_Palette>(Level3D_Palettes, count, resolve: Pre_Level3DIndex == -1, onPreSerialize: (x, i) =>
                 {
                     x.Pre_Is8Bit = true;
                 }, name: nameof(Level3D_Palettes)));
@@ -148,7 +148,7 @@ namespace Ray1Map.GBAIsometric
                         s.SerializeObject<GBAIsometric_Ice_Sparx_MapLayer>(Sparx_MenuMap.Maps?.FirstOrDefault(), name: nameof(Sparx_MenuMap.Maps))
                     };
                     s.Align();
-                    Sparx_MenuMap.Palette = s.SerializeObject<Palette>(Sparx_MenuMap.Palette,
+                    Sparx_MenuMap.Palette = s.SerializeObject<GBA_Palette>(Sparx_MenuMap.Palette,
                         x => x.Pre_Is8Bit = true, name: nameof(Sparx_MenuMap.Palette));
                     Sparx_MenuMap.TileSetMap = s.SerializeObject<GBAIsometric_Ice_Sparx_TileSetMap>(Sparx_MenuMap.TileSetMap,
                         x => x.Pre_TilesCount = 150, name: nameof(Sparx_MenuMap.TileSetMap));
@@ -167,7 +167,7 @@ namespace Ray1Map.GBAIsometric
 
             // Serialize object palette
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_Sparx_ObjectPalette], () =>
-                Sparx_ObjPalette = s.SerializeObject<Palette>(Sparx_ObjPalette, x => x.Pre_Is8Bit = true, name: nameof(Sparx_ObjPalette)));
+                Sparx_ObjPalette = s.SerializeObject<GBA_Palette>(Sparx_ObjPalette, x => x.Pre_Is8Bit = true, name: nameof(Sparx_ObjPalette)));
         }
 
         private void SerializePortraits(
@@ -177,10 +177,10 @@ namespace Ray1Map.GBAIsometric
             const int count = 24;
             
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitPalettes], () =>
-                PortraitPalettes = s.SerializePointerArray<Palette>(PortraitPalettes, count, resolve: true, name: nameof(PortraitPalettes)));
+                PortraitPalettes = s.SerializePointerArray<GBA_Palette>(PortraitPalettes, count, resolve: true, name: nameof(PortraitPalettes)));
 
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileMaps], () =>
-                PortraitTileMaps = s.SerializePointerArray<ObjectArray<BinarySerializer.GBA.MapTile>>(PortraitTileMaps, count, resolve: true, onPreSerialize: (x, _) => x.Pre_Length = 4 * 4, name: nameof(PortraitTileMaps)));
+                PortraitTileMaps = s.SerializePointerArray<ObjectArray<BinarySerializer.Nintendo.GBA_MapTile>>(PortraitTileMaps, count, resolve: true, onPreSerialize: (x, _) => x.Pre_Length = 4 * 4, name: nameof(PortraitTileMaps)));
 
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileSetLengths], () =>
                 PortraitTileSetLengths = s.SerializeArray<ushort>(PortraitTileSetLengths, count, name: nameof(PortraitTileSetLengths)));
@@ -202,10 +202,10 @@ namespace Ray1Map.GBAIsometric
             SpriteSetPalettes ??= settings.Ice_SpriteSetOffsets.
                 Select(x => x.PaletteOffset == 0 
                     ? null 
-                    : new Pointer<Palette>(new Pointer(x.PaletteOffset, Offset.File))).
+                    : new Pointer<GBA_Palette>(new Pointer(x.PaletteOffset, Offset.File))).
                 ToArray();
 
-            foreach (Pointer<Palette> pal in SpriteSetPalettes)
+            foreach (Pointer<GBA_Palette> pal in SpriteSetPalettes)
                 pal?.Resolve(s);
         }
     }

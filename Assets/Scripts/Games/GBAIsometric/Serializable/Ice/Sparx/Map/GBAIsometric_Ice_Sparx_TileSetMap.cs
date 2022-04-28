@@ -6,11 +6,11 @@ namespace Ray1Map.GBAIsometric
     {
         public long Pre_TilesCount { get; set; } = 256;
 
-        public BinarySerializer.GBA.MapTile[] Tiles { get; set; } // 4 * 256
+        public BinarySerializer.Nintendo.GBA_MapTile[] Tiles { get; set; } // 4 * 256
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Tiles = s.SerializeObjectArray<BinarySerializer.GBA.MapTile>(Tiles, 4 * Pre_TilesCount, name: nameof(Tiles));
+            Tiles = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA_MapTile>(Tiles, 4 * Pre_TilesCount, name: nameof(Tiles));
         }
     }
 }

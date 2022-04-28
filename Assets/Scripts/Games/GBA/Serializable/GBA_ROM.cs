@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using Ray1Map.GBA;
 
 namespace Ray1Map

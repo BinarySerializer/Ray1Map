@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.KH;
 using Cysharp.Threading.Tasks;
@@ -398,7 +398,7 @@ namespace Ray1Map.KlonoaHeroes
             return lvl;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, BinarySerializer.GBA.MapTile[] mapTiles)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, BinarySerializer.Nintendo.GBA_MapTile[] mapTiles)
         {
             var additionalTiles = new List<Texture2D>();
             const int tileSize = 0x20;
@@ -441,7 +441,7 @@ namespace Ray1Map.KlonoaHeroes
                         tileY: 0);
 
                     // Modify all tiles where this is used
-                    foreach (BinarySerializer.GBA.MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
+                    foreach (BinarySerializer.Nintendo.GBA_MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
                         t.TileIndex = (ushort)(tilesCount + additionalTiles.Count);
 
                     // Add to additional tiles list

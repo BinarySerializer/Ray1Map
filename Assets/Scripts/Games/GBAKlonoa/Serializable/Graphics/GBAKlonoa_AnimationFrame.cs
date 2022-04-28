@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using UnityEngine;
 
 namespace Ray1Map.GBAKlonoa

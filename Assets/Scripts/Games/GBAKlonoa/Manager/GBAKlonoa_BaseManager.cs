@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.GBA;
+using BinarySerializer.Nintendo;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
