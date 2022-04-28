@@ -19,9 +19,9 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Audio"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Audio
 	url = https://github.com/BinarySerializer/BinarySerializer.Audio
-[submodule "Assets/Scripts/Libraries/BinarySerializer.GBA.Audio"]
-	path = Assets/Scripts/Libraries/BinarySerializer.GBA.Audio
-	url = https://github.com/BinarySerializer/BinarySerializer.GBA.Audio
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Nintendo"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Nintendo
 	url = https://github.com/BinarySerializer/BinarySerializer.Nintendo
+[submodule "Assets/Scripts/Libraries/BinarySerializer.Audio.GBA"]
+	path = Assets/Scripts/Libraries/BinarySerializer.Audio.GBA
+	url = https://github.com/BinarySerializer/BinarySerializer.Audio.GBA

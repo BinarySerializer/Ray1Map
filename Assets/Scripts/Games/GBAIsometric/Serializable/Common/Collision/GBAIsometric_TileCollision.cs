@@ -41,7 +41,7 @@ namespace Ray1Map.GBAIsometric
                 if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
                     s.DoBits<byte>(b => {
                         Height = (byte)b.SerializeBits<int>(Height,6,name: nameof(Height));
-                        HeightFlags = (byte)b.SerializeBits<int>(HeightFlags, 2, nameof(HeightFlags));
+                        HeightFlags = (byte)b.SerializeBits<int>(HeightFlags, 2, name: nameof(HeightFlags));
                     });
                 } else {
                     Height = s.Serialize<byte>(Height, name: nameof(Height));

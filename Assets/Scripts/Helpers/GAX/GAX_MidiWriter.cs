@@ -7,7 +7,7 @@ using Sanford.Multimedia.Midi;
 #endif
 using System;
 using System.IO;
-using BinarySerializer.GBA.Audio.GAX;
+using BinarySerializer.Audio.GBA.GAX;
 using UnityEngine;
 
 namespace Ray1Map {

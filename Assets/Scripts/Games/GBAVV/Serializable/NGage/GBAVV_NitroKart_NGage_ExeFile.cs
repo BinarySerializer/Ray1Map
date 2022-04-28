@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.GBA.Audio.GAX;
+using BinarySerializer.Audio.GBA.GAX;
 
 namespace Ray1Map.GBAVV
 {

@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Audio;
 using BinarySerializer.Nintendo;
-using BinarySerializer.GBA.Audio.MusyX;
+using BinarySerializer.Audio.GBA.MusyX;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;

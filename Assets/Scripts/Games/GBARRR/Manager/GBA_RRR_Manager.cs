@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Nintendo;
 using BinarySerializer.Audio;
-using BinarySerializer.GBA.Audio.GAX;
+using BinarySerializer.Audio.GBA.GAX;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;

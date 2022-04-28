@@ -1,6 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Audio;
-using BinarySerializer.GBA.Audio.GAX;
+using BinarySerializer.Audio.GBA.GAX;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
