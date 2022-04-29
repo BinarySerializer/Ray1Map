@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
-    public abstract class GBAIsometric_IceDragon_BaseROM : GBA_ROMBase
+    public abstract class GBAIsometric_IceDragon_BaseROM : ROMBase
     {
         public GBAIsometric_IceDragon_Resources Resources { get; set; }
         public GBAIsometric_IceDragon_Localization Localization { get; set; }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBA
@@ -159,7 +159,7 @@ namespace Ray1Map.GBA
 
                     // Decode data
                     byte[] data = null;
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
+                    s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
 
                     int width;
                     int height;

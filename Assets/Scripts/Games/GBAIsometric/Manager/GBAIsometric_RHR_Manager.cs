@@ -1,6 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Audio;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Audio.GBA.MusyX;
 using Cysharp.Threading.Tasks;
 using System;
@@ -888,7 +888,7 @@ namespace Ray1Map.GBAIsometric
             return t;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
 
         public override void AddContextSettings(Context context)
         {

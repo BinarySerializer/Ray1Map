@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 
 namespace Ray1Map.GBA
@@ -32,7 +32,7 @@ namespace Ray1Map.GBA
             var tileLength = s.GetR1Settings().EngineVersion < EngineVersion.GBA_BatmanVengeance && Is8Bit ? 64 : 32;
 
             if (IsDataCompressed ?? IsCompressed) {
-                s.DoEncoded(new GBA_LZSSEncoder(), () => TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * tileLength, name: nameof(TileSet)));
+                s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * tileLength, name: nameof(TileSet)));
                 s.Align();
             } else {
                 TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * tileLength, name: nameof(TileSet));

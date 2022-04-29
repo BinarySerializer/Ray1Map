@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.KH;
 using Cysharp.Threading.Tasks;
@@ -11,7 +11,7 @@ namespace Ray1Map.KlonoaHeroes
 {
     public class KlonoaHeroes_Manager : BaseGameManager
     {
-        public const int CellSize = GBAConstants.TileSize;
+        public const int CellSize = Constants.TileSize;
         public const int CollisionCellSize = 32;
         public const string GetROMFilePath = "ROM.gba";
 
@@ -398,7 +398,7 @@ namespace Ray1Map.KlonoaHeroes
             return lvl;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, BinarySerializer.Nintendo.GBA_MapTile[] mapTiles)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, BinarySerializer.Nintendo.GBA.MapTile[] mapTiles)
         {
             var additionalTiles = new List<Texture2D>();
             const int tileSize = 0x20;
@@ -441,7 +441,7 @@ namespace Ray1Map.KlonoaHeroes
                         tileY: 0);
 
                     // Modify all tiles where this is used
-                    foreach (BinarySerializer.Nintendo.GBA_MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
+                    foreach (BinarySerializer.Nintendo.GBA.MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
                         t.TileIndex = (ushort)(tilesCount + additionalTiles.Count);
 
                     // Add to additional tiles list
@@ -514,8 +514,8 @@ namespace Ray1Map.KlonoaHeroes
 
             var minX = anim.Frames.SelectMany(x => x.Sprites).Min(x => x.XPos);
             var minY = anim.Frames.SelectMany(x => x.Sprites).Min(x => x.YPos);
-            var maxX = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.XPos + GBAConstants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Width);
-            var maxY = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.YPos + GBAConstants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Height);
+            var maxX = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.XPos + Constants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Width);
+            var maxY = anim.Frames.SelectMany(x => x.Sprites).Max(x => x.YPos + Constants.GetSpriteShape(x.ObjAttr.SpriteShape, x.ObjAttr.SpriteSize).Height);
 
             var width = maxX - minX;
             var height = maxY - minY;
@@ -528,7 +528,7 @@ namespace Ray1Map.KlonoaHeroes
 
                 foreach (AnimationSprite sprite in frame.Sprites)
                 {
-                    GBAConstants.Size shape = GBAConstants.GetSpriteShape(sprite.ObjAttr.SpriteShape, sprite.ObjAttr.SpriteSize);
+                    Constants.Size shape = Constants.GetSpriteShape(sprite.ObjAttr.SpriteShape, sprite.ObjAttr.SpriteSize);
 
                     var offset = (int)sprite.TileSetOffset;
 
@@ -560,7 +560,7 @@ namespace Ray1Map.KlonoaHeroes
             return output;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
 
         public class LevelEntry
         {

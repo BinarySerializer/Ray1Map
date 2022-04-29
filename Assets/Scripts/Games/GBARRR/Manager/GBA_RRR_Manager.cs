@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Audio;
 using BinarySerializer.Audio.GBA.GAX;
 using Cysharp.Threading.Tasks;
@@ -1666,7 +1666,7 @@ namespace Ray1Map.GBARRR
             return loc.Strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray())).ToArray();
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
 
 		#region Hardcoded methods
 		public Dictionary<uint, uint> GetActorGraphicsData(int level, int world) {

@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBA
 {
@@ -137,7 +137,7 @@ namespace Ray1Map.GBA
                         Mode7Unk = s.Serialize<byte>(Mode7Unk, name: nameof(Mode7Unk));
                         if (Mode7IsCompressed)
                         {
-                            s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(
+                            s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(
                                 Mode7Tiles, Mode7TilesSize / 2,
                                 onPreSerialize: x =>
                                 {

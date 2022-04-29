@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ namespace Ray1Map.GBAKlonoa
 {
     public abstract class GBAKlonoa_BaseManager : BaseGameManager
     {
-        public const int CellSize = GBAConstants.TileSize;
+        public const int CellSize = Constants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
         public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
@@ -93,7 +93,7 @@ namespace Ray1Map.GBAKlonoa
                             var framesCount = anim.Frames.Length;
 
                             // We assume the tileset we're parsing is located at the start of the VRAM
-                            var tileIndex = (int)((graphics.VRAMPointer - GBAConstants.Address_VRAM + tileOffset) / tileSize);
+                            var tileIndex = (int)((graphics.VRAMPointer - Constants.Address_VRAM + tileOffset) / tileSize);
 
                             tileAnim.AnimationSpeeds = new float[]
                             {
@@ -207,7 +207,7 @@ namespace Ray1Map.GBAKlonoa
 
             var frameCache = new Dictionary<GBAKlonoa_AnimationFrame, Texture2D>();
 
-            var shapes = GBAConstants.SpriteShapes;
+            var shapes = Constants.SpriteShapes;
 
             for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
             {
@@ -328,7 +328,7 @@ namespace Ray1Map.GBAKlonoa
             var romFile = context.GetFile(GetROMFilePath);
             var s = context.Deserializer;
             var specialAnimIndex = 0;
-            var shapes = GBAConstants.SpriteShapes;
+            var shapes = Constants.SpriteShapes;
 
             // Load special animations. These are all manually loaded into VRAM by the game.
             foreach (var specialAnim in specialAnims)
@@ -453,7 +453,7 @@ namespace Ray1Map.GBAKlonoa
 
                 var tileIndex = vramTileIndex;
                 var p = allocationInfo.Offset != null 
-                    ? new Pointer(allocationInfo.Offset.Value, allocationInfo.Offset >= GBAConstants.Address_ROM ? romFile : memFile) 
+                    ? new Pointer(allocationInfo.Offset.Value, allocationInfo.Offset >= Constants.Address_ROM ? romFile : memFile) 
                     : s.CurrentPointer;
                 
                 if (allocationInfo.Offset != null)
@@ -545,7 +545,7 @@ namespace Ray1Map.GBAKlonoa
             }
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
 
         public abstract AnimSetInfo[] AnimSetInfos { get; }
 

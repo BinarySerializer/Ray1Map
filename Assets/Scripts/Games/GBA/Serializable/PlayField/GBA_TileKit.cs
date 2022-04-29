@@ -1,7 +1,7 @@
 ﻿
 using System;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBA
@@ -77,7 +77,7 @@ namespace Ray1Map.GBA
                     throw new NotImplementedException();
 
                 case Milan_CompressionType.LZSS:
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => {
+                    s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => {
                         TileSet4bpp = s.SerializeArray<byte>(TileSet4bpp, TileSet4bppSize * 0x20, name: nameof(TileSet4bpp));
                         TileSet8bpp = s.SerializeArray<byte>(TileSet8bpp, TileSet8bppSize * 0x40, name: nameof(TileSet8bpp));
                     });

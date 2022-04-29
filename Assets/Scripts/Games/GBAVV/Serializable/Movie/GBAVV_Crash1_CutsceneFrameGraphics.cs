@@ -1,6 +1,6 @@
 ﻿using System;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBAVV
@@ -17,7 +17,7 @@ namespace Ray1Map.GBAVV
             // The JP version has data here for one frame which is not compressed, but appears to just be leftover data (?)
             try
             {
-                s.DoEncoded(new GBA_LZSSEncoder(), () => ImageData = s.SerializeArray<byte>(ImageData, s.CurrentLength, name: nameof(ImageData)));
+                s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => ImageData = s.SerializeArray<byte>(ImageData, s.CurrentLength, name: nameof(ImageData)));
             }
             catch (Exception ex)
             {

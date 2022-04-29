@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -21,7 +21,7 @@ namespace Ray1Map.GBAIsometric
             if ((CompressionHeader & 0xf0) == 0x10)
             {
                 s.Goto(s.CurrentPointer - 4);
-                s.DoEncoded(new GBA_LZSSEncoder(), () => ImgData = s.SerializeArray<byte>(ImgData, Length, name: nameof(ImgData)));
+                s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => ImgData = s.SerializeArray<byte>(ImgData, Length, name: nameof(ImgData)));
             }
             else
             {

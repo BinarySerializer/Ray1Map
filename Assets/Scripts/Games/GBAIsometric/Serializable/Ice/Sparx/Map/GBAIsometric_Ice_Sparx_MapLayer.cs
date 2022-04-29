@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -11,9 +12,9 @@ namespace Ray1Map.GBAIsometric
         public ushort[] RowsOffsetTable { get; set; }
         public byte[] MapData { get; set; }
 
-        public BinarySerializer.Nintendo.GBA_MapTile[] GetMap(GBAIsometric_Ice_Sparx_TileSetMap tileSetMap)
+        public BinarySerializer.Nintendo.GBA.MapTile[] GetMap(GBAIsometric_Ice_Sparx_TileSetMap tileSetMap)
         {
-            BinarySerializer.Nintendo.GBA_MapTile[] map = new BinarySerializer.Nintendo.GBA_MapTile[Width * 2 * Height * 2];
+            BinarySerializer.Nintendo.GBA.MapTile[] map = new BinarySerializer.Nintendo.GBA.MapTile[Width * 2 * Height * 2];
 
             for (int y = 0; y < Height; y++)
             {

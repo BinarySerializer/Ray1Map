@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBA
@@ -99,12 +99,12 @@ namespace Ray1Map.GBA
                 {
                     case GBA_Cluster.Milan_CompressionType.Collision_RL:
                     case GBA_Cluster.Milan_CompressionType.Map_RL:
-                        encoder = new GBA_RLEEncoder();
+                        encoder = new RLEEncoder();
                         break;
 
                     case GBA_Cluster.Milan_CompressionType.Collsiion_LZSS:
                     case GBA_Cluster.Milan_CompressionType.Map_LZSS:
-                        encoder = new GBA_LZSSEncoder();
+                        encoder = new BinarySerializer.Nintendo.GBA.LZSSEncoder();
                         break;
                 }
 
@@ -268,9 +268,9 @@ namespace Ray1Map.GBA
                 if (!IsCompressed)
                     SerializeTileMap(s);
                 else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
-                    s.DoEncoded(new GBA_HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => SerializeTileMap(s)));
                 else
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
+                    s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => SerializeTileMap(s));
                 s.Align();
             }
         }

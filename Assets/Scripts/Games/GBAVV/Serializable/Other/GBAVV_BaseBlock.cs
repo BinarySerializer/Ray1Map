@@ -1,6 +1,6 @@
 ﻿using System;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAVV
 {
@@ -35,15 +35,15 @@ namespace Ray1Map.GBAVV
                     break;
 
                 case BlockCompressionType.LZSS:
-                    encoder = new GBA_LZSSEncoder();
+                    encoder = new BinarySerializer.Nintendo.GBA.LZSSEncoder();
                     break;
 
                 case BlockCompressionType.Huffman:
-                    encoder = new GBA_HuffmanEncoder();
+                    encoder = new HuffmanEncoder();
                     break;
 
                 case BlockCompressionType.RL:
-                    encoder = new GBA_RLEEncoder();
+                    encoder = new RLEEncoder();
                     break;
 
                 default:

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -193,17 +193,17 @@ namespace Ray1Map.GBAIsometric
                 for (int i = 0; i < rom.PortraitTileMaps.Length; i++)
                 {
                     Color[] pal = Util.ConvertGBAPalette(rom.PortraitPalettes[i].Value.Colors);
-                    BinarySerializer.Nintendo.GBA_MapTile[] map = rom.PortraitTileMaps[i].Value;
+                    BinarySerializer.Nintendo.GBA.MapTile[] map = rom.PortraitTileMaps[i].Value;
                     byte[] tileSet = rom.PortraitTileSets[i].Value;
 
-                    Texture2D tex = TextureHelpers.CreateTexture2D(GBAConstants.TileSize * 4, GBAConstants.TileSize * 4);
+                    Texture2D tex = TextureHelpers.CreateTexture2D(Constants.TileSize * 4, Constants.TileSize * 4);
 
                     for (int y = 0; y < 4; y++)
                     {
                         for (int x = 0; x < 4; x++)
                         {
                             int tile = map[y * 4 + x].TileIndex;
-                            tex.FillInTile(tileSet, tile * 0x20, pal, Util.TileEncoding.Linear_4bpp, GBAConstants.TileSize, true, x * GBAConstants.TileSize, y * GBAConstants.TileSize);
+                            tex.FillInTile(tileSet, tile * 0x20, pal, Util.TileEncoding.Linear_4bpp, Constants.TileSize, true, x * Constants.TileSize, y * Constants.TileSize);
                         }
                     }
 
@@ -296,7 +296,7 @@ namespace Ray1Map.GBAIsometric
                 PaletteIndex = (byte)m.PaletteIndex,
             }).ToArray()).ToArray();
             byte[] tileSetData = rom.Level3D_TileSets[level].Value;
-            GBA_Palette pal = rom.Level3D_Palettes[level];
+            Palette pal = rom.Level3D_Palettes[level];
 
             // Create the level
             var lev = new Unity_Level();
@@ -351,7 +351,7 @@ namespace Ray1Map.GBAIsometric
                     MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
                 };
             }).Reverse();
-            lev.CellSize = GBAConstants.TileSize;
+            lev.CellSize = Constants.TileSize;
 
             // Add the level map if available
             if (rom.Level3D_LevelMaps != null && rom.Level3D_LevelMaps.Length > level && Settings.LoadIsometricMapLayer)
@@ -362,7 +362,7 @@ namespace Ray1Map.GBAIsometric
                     imgData: lvlMap.ImgData,
                     pal: Util.ConvertGBAPalette(lvlMap.Palette.Colors),
                     encoding: Util.TileEncoding.Linear_4bpp,
-                    tileWidth: GBAConstants.TileSize,
+                    tileWidth: Constants.TileSize,
                     flipY: false);
 
                 maps = maps.Append(new Unity_Map()
@@ -487,8 +487,8 @@ namespace Ray1Map.GBAIsometric
                 });
             }
 
-            lev.CellSize = GBAConstants.TileSize;
-            lev.CellSizeOverrideCollision = GBAConstants.TileSize * 2;
+            lev.CellSize = Constants.TileSize;
+            lev.CellSizeOverrideCollision = Constants.TileSize * 2;
             lev.GetCollisionTypeGraphicFunc = x => (GBAIsometric_Ice_Sparx_CollisionType)x switch
             {
                 GBAIsometric_Ice_Sparx_CollisionType.None => Unity_MapCollisionTypeGraphic.None,
@@ -547,8 +547,8 @@ namespace Ray1Map.GBAIsometric
 
                             var obj = new Unity_Object_GBAIsometricSpyro1_Sparx(objType, objManager)
                             {
-                                XPosition = (short)(x * GBAConstants.TileSize * 2),
-                                YPosition = (short)(y * GBAConstants.TileSize * 2),
+                                XPosition = (short)(x * Constants.TileSize * 2),
+                                YPosition = (short)(y * Constants.TileSize * 2),
                             };
 
                             lev.EventData.Add(obj);
@@ -604,7 +604,7 @@ namespace Ray1Map.GBAIsometric
             else if (sprite.Width < sprite.Height)
                 shape = 2;
 
-            GBAConstants.Size size = GBAConstants.GetSpriteShape(shape, sprite.SpriteSize);
+            Constants.Size size = Constants.GetSpriteShape(shape, sprite.SpriteSize);
 
             int spritesWidth = 1;
             int spritesHeight = 1;
@@ -629,7 +629,7 @@ namespace Ray1Map.GBAIsometric
                     spritesHeight = 2;
                 }
 
-                size = new GBAConstants.Size(64, 64);
+                size = new Constants.Size(64, 64);
             }
 
             Texture2D tex = TextureHelpers.CreateTexture2D(size.Width * spritesWidth, size.Height * spritesHeight, clear: true);
@@ -641,9 +641,9 @@ namespace Ray1Map.GBAIsometric
             {
                 for (int spriteX = 0; spriteX < spritesWidth; spriteX++)
                 {
-                    for (int y = 0; y < size.Height / GBAConstants.TileSize; y++)
+                    for (int y = 0; y < size.Height / Constants.TileSize; y++)
                     {
-                        for (int x = 0; x < size.Width / GBAConstants.TileSize; x++)
+                        for (int x = 0; x < size.Width / Constants.TileSize; x++)
                         {
                             if (!spriteSet.SpriteMaps[mapIndex])
                             {
@@ -656,10 +656,10 @@ namespace Ray1Map.GBAIsometric
                                 imgDataOffset: imgDataOffset,
                                 pal: pal,
                                 encoding: Util.TileEncoding.Linear_4bpp,
-                                tileWidth: GBAConstants.TileSize,
+                                tileWidth: Constants.TileSize,
                                 flipTextureY: true,
-                                tileX: spriteX * size.Width + x * GBAConstants.TileSize,
-                                tileY: spriteY * size.Height + y * GBAConstants.TileSize);
+                                tileX: spriteX * size.Width + x * Constants.TileSize,
+                                tileY: spriteY * size.Height + y * Constants.TileSize);
 
                             imgDataOffset += spriteSet.Is8Bit ? 0x40 : 0x20;
 
@@ -735,7 +735,7 @@ namespace Ray1Map.GBAIsometric
                                     imgDataOffset: offset,
                                     pal: pal,
                                     encoding: Util.TileEncoding.Linear_4bpp,
-                                    tileWidth: GBAConstants.TileSize,
+                                    tileWidth: Constants.TileSize,
                                     flipTextureY: true,
                                     tileX: part.XPos + sprite.XPos + x - minX,
                                     tileY: part.YPos + sprite.YPos + y - minY);
@@ -785,8 +785,8 @@ namespace Ray1Map.GBAIsometric
             using var euContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceEU, baseDir, 0, 0));
             using var jpContext = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
 
-            euContext.AddFile(new GBAMemoryMappedFile(euContext, euName, GBAConstants.Address_ROM));
-            jpContext.AddFile(new GBAMemoryMappedFile(jpContext, jpName, GBAConstants.Address_ROM)
+            euContext.AddFile(new GBAMemoryMappedFile(euContext, euName, Constants.Address_ROM));
+            jpContext.AddFile(new GBAMemoryMappedFile(jpContext, jpName, Constants.Address_ROM)
             {
                 RecreateOnWrite = false
             });
@@ -810,11 +810,11 @@ namespace Ray1Map.GBAIsometric
                 {
                     // Replace palette
                     s.Goto(jpRom.PortraitPalettes[i]);
-                    s.SerializeObject<GBA_Palette>(euRom.PortraitPalettes[i]);
+                    s.SerializeObject<Palette>(euRom.PortraitPalettes[i]);
 
                     // Replace map
                     s.Goto(jpRom.PortraitTileMaps[i]);
-                    s.SerializeObject<ObjectArray<BinarySerializer.Nintendo.GBA_MapTile>>(euRom.PortraitTileMaps[i]);
+                    s.SerializeObject<ObjectArray<BinarySerializer.Nintendo.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
 
                     // Replace tile set
                     if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])
@@ -859,7 +859,7 @@ namespace Ray1Map.GBAIsometric
                         // Get the length of the encoded data
                         long encodedLength = d.DoAt(euPointer, () =>
                         {
-                            d.DoEncoded(new GBA_LZSSEncoder(), () => { });
+                            d.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => { });
                             d.Align();
                             return d.CurrentPointer - euPointer;
                         });
@@ -886,7 +886,7 @@ namespace Ray1Map.GBAIsometric
                     // Get the length of the encoded data
                     long encodedMapLength = d.DoAt(euMapPointer, () =>
                     {
-                        d.DoEncoded(new GBA_LZSSEncoder(), () => { });
+                        d.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => { });
                         d.Align();
                         return d.CurrentPointer - euMapPointer;
                     });
@@ -935,7 +935,7 @@ namespace Ray1Map.GBAIsometric
 
             using var context = new Ray1MapContext(baseDir, new GameSettings(GameModeSelection.SpyroSeasonIceJP, baseDir, 0, 0));
 
-            context.AddFile(new GBAMemoryMappedFile(context, romName, GBAConstants.Address_ROM)
+            context.AddFile(new GBAMemoryMappedFile(context, romName, Constants.Address_ROM)
             {
                 RecreateOnWrite = false
             });
@@ -963,7 +963,7 @@ namespace Ray1Map.GBAIsometric
                 s.DoAt(new Pointer(pointerOffsets[i], context.GetFile(romName)), () => s.SerializePointer(remapPointer));
 
                 // Write the palette
-                s.SerializeObject<GBA_Palette>(rom.Level3D_LevelMaps[i].Palette);
+                s.SerializeObject<Palette>(rom.Level3D_LevelMaps[i].Palette);
 
                 // Write the compressed level map
                 s.SerializeArray<byte>(bytes, bytes.Length);

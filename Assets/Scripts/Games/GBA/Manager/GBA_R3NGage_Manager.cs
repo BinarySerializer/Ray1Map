@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Audio;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBA
@@ -65,7 +65,7 @@ namespace Ray1Map.GBA
                 {
                     // Decode image data
                     byte[] data = null;
-                    s.DoAt(dataBlock.UiOffsetTable.GetPointer(vignetteStart + i), () => s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength)));
+                    s.DoAt(dataBlock.UiOffsetTable.GetPointer(vignetteStart + i), () => s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength)));
 
                     // Read palette
                     var palette = s.DoAt(dataBlock.UiOffsetTable.GetPointer(palStart + i), () => s.SerializeObjectArray<RGBA5551Color>(default, 256));

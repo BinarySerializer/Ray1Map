@@ -1,6 +1,6 @@
 ﻿using System;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -13,9 +13,9 @@ namespace Ray1Map.GBAIsometric
             IStreamEncoder encoder = compressionType switch
             {
                 GBAIsometric_IceDragon_CompressionType.None => null,
-                GBAIsometric_IceDragon_CompressionType.Huffman => new GBA_HuffmanEncoder(),
-                GBAIsometric_IceDragon_CompressionType.LZSS => new GBA_LZSSEncoder(),
-                GBAIsometric_IceDragon_CompressionType.RL => new GBA_RLEEncoder(),
+                GBAIsometric_IceDragon_CompressionType.Huffman => new HuffmanEncoder(),
+                GBAIsometric_IceDragon_CompressionType.LZSS => new BinarySerializer.Nintendo.GBA.LZSSEncoder(),
+                GBAIsometric_IceDragon_CompressionType.RL => new RLEEncoder(),
                 _ => throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null)
             };
 

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAKlonoa
 {
@@ -29,8 +29,8 @@ namespace Ray1Map.GBAKlonoa
                 // Huffman + LZSS
                 if (lengthValue < 0)
                 {
-                    var huff = new GBA_HuffmanEncoder();
-                    var lzss = new GBA_LZSSEncoder();
+                    var huff = new HuffmanEncoder();
+                    var lzss = new BinarySerializer.Nintendo.GBA.LZSSEncoder();
 
                     Stream decodedHuff = new MemoryStream();
                     huff.DecodeStream(input, decodedHuff);
@@ -55,7 +55,7 @@ namespace Ray1Map.GBAKlonoa
                     // LZSS
                     else
                     {
-                        var lzss = new GBA_LZSSEncoder();
+                        var lzss = new BinarySerializer.Nintendo.GBA.LZSSEncoder();
 
                         decompStream = new MemoryStream();
                         lzss.DecodeStream(input, decompStream);

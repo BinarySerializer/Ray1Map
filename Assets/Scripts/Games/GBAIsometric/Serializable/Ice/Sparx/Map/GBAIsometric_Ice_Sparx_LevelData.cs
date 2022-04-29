@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -11,7 +11,7 @@ namespace Ray1Map.GBAIsometric
         public Pointer<GBAIsometric_Ice_Sparx_MapLayer> ObjectMap { get; set; } // Objects and collision
         public Pointer<GBAIsometric_Ice_Sparx_TileSet> TileSet { get; set; }
         public Pointer<GBAIsometric_Ice_Sparx_TileSetMap> TileSetMap { get; set; } // Each tile defines in maps consists of 2x2 tiles
-        public Pointer<GBA_Palette> Palette { get; set; }
+        public Pointer<Palette> Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -23,7 +23,7 @@ namespace Ray1Map.GBAIsometric
             s.SerializePadding(4);
             TileSetMap = s.SerializePointer<GBAIsometric_Ice_Sparx_TileSetMap>(TileSetMap, resolve: Pre_Resolve, name: nameof(TileSetMap));
             s.SerializePadding(4);
-            Palette = s.SerializePointer<GBA_Palette>(Palette, onPreSerialize: x => x.Pre_Is8Bit = true, resolve: Pre_Resolve, name: nameof(Palette));
+            Palette = s.SerializePointer<Palette>(Palette, onPreSerialize: x => x.Pre_Is8Bit = true, resolve: Pre_Resolve, name: nameof(Palette));
         }
     }
 }

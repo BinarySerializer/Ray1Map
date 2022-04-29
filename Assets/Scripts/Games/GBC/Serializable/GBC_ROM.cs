@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GB;
 
 namespace Ray1Map.GBC
 {
-    public class GBC_ROM : GB_ROMBase
+    public class GBC_ROM : ROMBase
     {
         public ushort ReferencesCount { get; set; }
         public byte Byte_02 { get; set; } // Engine version?

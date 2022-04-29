@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;
@@ -211,7 +211,7 @@ namespace Ray1Map
                 // Check for compression header
                 if (s.SerializeArray<byte>(default, header.Length).SequenceEqual(header))
                 {
-                    if (encoder is GBA_LZSSEncoder)
+                    if (encoder is BinarySerializer.Nintendo.GBA.LZSSEncoder)
                     {
                         // Get the decompressed size
                         var decompressedSizeValue = s.SerializeArray<byte>(default, 3);

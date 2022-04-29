@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Ray1Map.GBA;
 
 namespace Ray1Map
 {
-    public class GBA_ROM : GBA_ROMBase
+    public class GBA_ROM : ROMBase
     {
         // Game data
         public GBA_Data Data { get; set; }

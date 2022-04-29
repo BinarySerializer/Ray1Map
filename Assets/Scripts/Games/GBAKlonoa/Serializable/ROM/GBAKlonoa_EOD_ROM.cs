@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAKlonoa
 {
-    public class GBAKlonoa_EOD_ROM : GBA_ROMBase
+    public class GBAKlonoa_EOD_ROM : ROMBase
     {
         // Info
         public GBAKlonoa_EOD_WaterSkiInfo[] WaterSkiInfos { get; set; }

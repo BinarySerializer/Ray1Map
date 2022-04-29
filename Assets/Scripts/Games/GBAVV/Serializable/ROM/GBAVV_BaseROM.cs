@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAVV
 {
-    public abstract class GBAVV_BaseROM : GBA_ROMBase
+    public abstract class GBAVV_BaseROM : ROMBase
     {
         public bool SerializeFLC { get; set; } // Set before serializing
 
@@ -51,7 +51,7 @@ namespace Ray1Map.GBAVV
             // Get the graphics pointers
             var graphicsDataPointers = s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA ? new uint[]
             {
-                GBAConstants.Address_ROM // Dummy pointer
+                Constants.Address_ROM // Dummy pointer
             } : s.GetR1Settings().GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
 
             // Serialize graphics

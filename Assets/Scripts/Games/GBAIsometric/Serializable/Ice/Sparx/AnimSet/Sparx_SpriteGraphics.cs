@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
     public class Sparx_SpriteGraphics : BinarySerializable
     {
-        public Pointer<GBA_Palette> Palette { get; set; }
+        public Pointer<Palette> Palette { get; set; }
         public Pointer TileSetPointer { get; set; }
         public ushort PartsCount { get; set; }
         public ushort Ushort_0A { get; set; } // Always 0
@@ -21,7 +21,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Palette = s.SerializePointer<GBA_Palette>(Palette, resolve: true, name: nameof(Palette));
+            Palette = s.SerializePointer<Palette>(Palette, resolve: true, name: nameof(Palette));
             TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
             PartsCount = s.Serialize<ushort>(PartsCount, name: nameof(PartsCount));
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));

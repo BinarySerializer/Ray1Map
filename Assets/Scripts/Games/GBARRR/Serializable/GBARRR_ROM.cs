@@ -1,10 +1,10 @@
 ﻿using System;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBARRR
 {
-    public class GBARRR_ROM : GBA_ROMBase
+    public class GBARRR_ROM : ROMBase
     {
         // Global data
         public GBARRR_OffsetTable OffsetTable { get; set; }

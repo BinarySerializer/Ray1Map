@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBA
@@ -75,7 +75,7 @@ namespace Ray1Map.GBA
                 {
                     settings.World = world;
 
-                    await context.AddMemoryMappedFile(GetROMFilePath(context), GBAConstants.Address_ROM);
+                    await context.AddMemoryMappedFile(GetROMFilePath(context), Constants.Address_ROM);
 
                     int index = 0;
 

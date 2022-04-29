@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Image;
 
 
@@ -124,7 +124,7 @@ namespace Ray1Map.GBAVV
                     }
                     else if (SerializeFLC)
                     {
-                        s.DoAt(ParamPointer, () => s.DoEncoded(new GBA_LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
+                        s.DoAt(ParamPointer, () => s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
                     }
 
                     break;

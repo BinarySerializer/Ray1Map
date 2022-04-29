@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBAVV
@@ -226,7 +226,7 @@ namespace Ray1Map.GBAVV
                         if (cmd.ParamPointer != null)
                             logUnknownCommand(cmd, getAnimString(cmd.ParamPointer));
                         // RAM pointer
-                        else if (cmd.Param >= GBAConstants.Address_WRAM && cmd.Param < GBAConstants.Address_WRAM + 0x40000)
+                        else if (cmd.Param >= Constants.Address_WRAM && cmd.Param < Constants.Address_WRAM + 0x40000)
                             logUnknownCommand(cmd, $"0x{cmd.Param:X8}");
                         // Value
                         else

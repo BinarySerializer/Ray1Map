@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -26,20 +26,20 @@ namespace Ray1Map.GBAIsometric
         public byte TileGroupHeight { get; set; } // In pixels
         public ushort TileGroupsCount { get; set; }
 
-        public BinarySerializer.Nintendo.GBA_MapTile[][] TileGroups { get; set; }
+        public BinarySerializer.Nintendo.GBA.MapTile[][] TileGroups { get; set; }
         public ushort[] GroupMap { get; set; }
 
-        public BinarySerializer.Nintendo.GBA_MapTile[] TileMap { get; set; }
+        public BinarySerializer.Nintendo.GBA.MapTile[] TileMap { get; set; }
 
-        public BinarySerializer.Nintendo.GBA_MapTile[] GetFullMap()
+        public BinarySerializer.Nintendo.GBA.MapTile[] GetFullMap()
         {
             if (!HasGroups)
                 return TileMap;
 
-            var map = new BinarySerializer.Nintendo.GBA_MapTile[Width * Height];
+            var map = new BinarySerializer.Nintendo.GBA.MapTile[Width * Height];
 
-            int groupWidth = TileGroupWidth / GBAConstants.TileSize;
-            int groupHeight = TileGroupHeight / GBAConstants.TileSize;
+            int groupWidth = TileGroupWidth / Constants.TileSize;
+            int groupHeight = TileGroupHeight / Constants.TileSize;
 
             int groupMapWidth = Width / groupWidth;
             int groupMapHeight = Height / groupHeight;
@@ -48,7 +48,7 @@ namespace Ray1Map.GBAIsometric
             {
                 for (int x = 0; x < groupMapWidth; x++)
                 {
-                    BinarySerializer.Nintendo.GBA_MapTile[] group = TileGroups[GroupMap[y * groupMapWidth + x]];
+                    BinarySerializer.Nintendo.GBA.MapTile[] group = TileGroups[GroupMap[y * groupMapWidth + x]];
 
                     for (int gy = 0; gy < groupHeight; gy++)
                     {
@@ -65,7 +65,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            s.DoEncoded(new GBA_LZSSEncoder(), () =>
+            s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () =>
             {
                 s.DoBits<byte>(b =>
                 {
@@ -96,17 +96,17 @@ namespace Ray1Map.GBAIsometric
 
                 if (HasGroups)
                 {
-                    TileGroups ??= new BinarySerializer.Nintendo.GBA_MapTile[TileGroupsCount][];
-                    int groupLength = (TileGroupWidth / GBAConstants.TileSize) * (TileGroupHeight / GBAConstants.TileSize);
+                    TileGroups ??= new BinarySerializer.Nintendo.GBA.MapTile[TileGroupsCount][];
+                    int groupLength = (TileGroupWidth / Constants.TileSize) * (TileGroupHeight / Constants.TileSize);
 
                     for (int i = 0; i < TileGroups.Length; i++)
-                        TileGroups[i] = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA_MapTile>(TileGroups[i], groupLength, x => x.Pre_IsAffine = !Is16Bit, name: $"{nameof(TileGroups)}[{i}]");
+                        TileGroups[i] = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA.MapTile>(TileGroups[i], groupLength, x => x.Pre_IsAffine = !Is16Bit, name: $"{nameof(TileGroups)}[{i}]");
 
                     GroupMap = s.SerializeArray<ushort>(GroupMap, (Width * Height) / groupLength, name: nameof(GroupMap));
                 }
                 else
                 {
-                    TileMap = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA_MapTile>(TileMap, Width * Height, 
+                    TileMap = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA.MapTile>(TileMap, Width * Height, 
                         x => x.Pre_IsAffine = !Is16Bit && Bits_00_00 == 0, name: nameof(TileMap));
                 }
             });

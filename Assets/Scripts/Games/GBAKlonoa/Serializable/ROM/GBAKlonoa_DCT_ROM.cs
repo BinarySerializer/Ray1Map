@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAKlonoa
 {
-    public class GBAKlonoa_DCT_ROM : GBA_ROMBase
+    public class GBAKlonoa_DCT_ROM : ROMBase
     {
         // Info
         public GBAKlonoa_LevelStartInfos[] LevelStartInfos { get; set; }

@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Image;
 
 namespace Ray1Map.GBAVV
@@ -17,7 +17,7 @@ namespace Ray1Map.GBAVV
             Loop = s.Serialize<bool>(Loop, name: nameof(Loop));
             s.Align();
 
-            s.DoAt(FLCPointer, () => s.DoEncoded(new GBA_LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
+            s.DoAt(FLCPointer, () => s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBAVV
@@ -58,7 +58,7 @@ namespace Ray1Map.GBAVV
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
 
             // Helper for getting a pointer
-            long getPointer(int index) => GBAConstants.Address_ROM + index * 4;
+            long getPointer(int index) => Constants.Address_ROM + index * 4;
 
             // Keep track of found data
             var foundAnimSets = new List<long>();
@@ -77,7 +77,7 @@ namespace Ray1Map.GBAVV
             // Find scripts by finding the name command which is always the first one
             for (int i = 0; i < values.Length - 2; i++)
             {
-                if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > GBAConstants.Address_ROM && values[i + 2] < GBAConstants.Address_ROM + s.CurrentLength)
+                if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > Constants.Address_ROM && values[i + 2] < Constants.Address_ROM + s.CurrentLength)
                 {
                     // Serialize the script
                     var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default));

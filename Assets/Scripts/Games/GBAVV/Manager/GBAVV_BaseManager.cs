@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using BinarySerializer.Audio.GBA.GAX;
 using BinarySerializer.Image;
 using Cysharp.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace Ray1Map.GBAVV
     public abstract class GBAVV_BaseManager : BaseGameManager
     {
         // Constants
-        public const int CellSize = GBAConstants.TileSize;
+        public const int CellSize = Constants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
         // Scripts
@@ -204,7 +204,7 @@ namespace Ray1Map.GBAVV
                         // Attempt to decompress
                         try
                         {
-                            s.DoEncoded(new GBA_LZSSEncoder(), () =>
+                            s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () =>
                             {
                                 // Start by reading the header and check so it's an FLC file
                                 var isValid = s.DoAt(s.CurrentPointer, () =>
@@ -237,7 +237,7 @@ namespace Ray1Map.GBAVV
         }
 
         // Load
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
         public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Map map, bool hasAssignedObjTypeGraphics = true)
         {
             Controller.DetailedState = "Loading tilesets";
@@ -1083,8 +1083,8 @@ namespace Ray1Map.GBAVV
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
 
             // Helper for getting a pointer
-            long getPointer(int index) => GBAConstants.Address_ROM + index * 4;
-            bool isValidPointer(uint value) => value >= GBAConstants.Address_ROM && value < GBAConstants.Address_ROM + s.CurrentLength;
+            long getPointer(int index) => Constants.Address_ROM + index * 4;
+            bool isValidPointer(uint value) => value >= Constants.Address_ROM && value < Constants.Address_ROM + s.CurrentLength;
 
             // Keep track of found data
             var foundGraphics = new List<long>();

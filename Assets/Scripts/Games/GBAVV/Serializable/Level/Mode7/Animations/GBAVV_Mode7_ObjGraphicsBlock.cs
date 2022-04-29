@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAVV
 {
@@ -31,7 +31,7 @@ namespace Ray1Map.GBAVV
                     {
                         var offset = animSet.FrameOffsets[frameIndex];
 
-                        var pointer = offset > GBAConstants.Address_ROM ? new Pointer(offset, Offset.File) : baseOffset + offset;
+                        var pointer = offset > Constants.Address_ROM ? new Pointer(offset, Offset.File) : baseOffset + offset;
 
                         var frame = s.DoAt(pointer, () => s.SerializeObject<GBAVV_Mode7_ObjFrame>(default, name: $"{nameof(AnimSets)}[{animSetIndex}].{nameof(animSet.ObjFrames)}[{frameIndex}]"));
 

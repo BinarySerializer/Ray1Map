@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAKlonoa
 {
@@ -13,7 +13,7 @@ namespace Ray1Map.GBAKlonoa
         public ushort TileSetLength { get; set; }
         public Pointer TileSetPointer { get; set; }
         public Pointer MapPointer { get; set; }
-        public GBA_BGxCNT CNT { get; set; }
+        public BGxCNT CNT { get; set; }
 
         // Serialized from pointers
         public MapTile[] Map { get; set; }
@@ -28,7 +28,7 @@ namespace Ray1Map.GBAKlonoa
             TileSetLength = s.Serialize<ushort>(TileSetLength, name: nameof(TileSetLength));
             TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
             MapPointer = s.SerializePointer(MapPointer, name: nameof(MapPointer));
-            CNT = s.SerializeObject<GBA_BGxCNT>(CNT, name: nameof(CNT));
+            CNT = s.SerializeObject<BGxCNT>(CNT, name: nameof(CNT));
             s.SerializePadding(2, logIfNotNull: true);
 
             s.DoAt(TileSetPointer, () => s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () => TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * TileLength, name: nameof(TileSet))));

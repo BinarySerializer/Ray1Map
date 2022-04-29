@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBAKlonoa
@@ -82,7 +82,7 @@ namespace Ray1Map.GBAKlonoa
             }
             else
             {
-                if (ImgDataPointerValue >= GBAConstants.Address_ROM)
+                if (ImgDataPointerValue >= Constants.Address_ROM)
                     ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
                 else
                     ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
@@ -95,7 +95,7 @@ namespace Ray1Map.GBAKlonoa
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 
-            s.DoAt(ImgDataPointer, () => s.DoEncodedIf(new GBA_RLEEncoder(), IsRLECompressed, () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData))));
+            s.DoAt(ImgDataPointer, () => s.DoEncodedIf(new RLEEncoder(), IsRLECompressed, () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData))));
 
             if (ImgData != null && ImgData.Length != Pre_ImgDataLength)
                 Debug.LogWarning($"Incorrect frame data length of {ImgData.Length} (should be {Pre_ImgDataLength}) at {Offset}");

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
-    public class GBAIsometric_RHR_ROM : GBA_ROMBase
+    public class GBAIsometric_RHR_ROM : ROMBase
     {
         public GBAIsometric_RHR_Localization Localization { get; set; }
 

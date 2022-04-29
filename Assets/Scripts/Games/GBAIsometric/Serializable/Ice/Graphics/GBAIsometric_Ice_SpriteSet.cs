@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 namespace Ray1Map.GBAIsometric
 {
@@ -48,11 +48,11 @@ namespace Ray1Map.GBAIsometric
             switch (Compression)
             {
                 case CompressionType.LZ77:
-                    encoder = new GBA_LZSSEncoder();
+                    encoder = new BinarySerializer.Nintendo.GBA.LZSSEncoder();
                     break;
 
                 case CompressionType.Huff:
-                    encoder = new GBA_HuffmanEncoder();
+                    encoder = new HuffmanEncoder();
                     break;
             }
 

@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using System;
@@ -121,7 +121,7 @@ namespace Ray1Map.GBA
                         {
                             byte[] data = null;
 
-                            s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
+                            s.DoEncoded(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
 
                             // Make sure we got some data
                             if (data != null && data.Length > 32)
@@ -1405,7 +1405,7 @@ namespace Ray1Map.GBA
             return output;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), Constants.Address_ROM);
 
         public enum LevelType
         {

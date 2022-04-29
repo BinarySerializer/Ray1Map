@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Ray1Map.GBAIsometric
     {
         #region Constant Fields
 
-        public const int CellSize = GBAConstants.TileSize;
+        public const int CellSize = Constants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
         #endregion
@@ -155,7 +155,7 @@ namespace Ray1Map.GBAIsometric
 
             GBAIsometric_IceDragon_SpriteMap map = loc.FontTileMap;
 
-            const int cellSize = GBAConstants.TileSize;
+            const int cellSize = Constants.TileSize;
             const int tileSize = 0x20;
 
             var tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
@@ -182,7 +182,7 @@ namespace Ray1Map.GBAIsometric
 
             GBAIsometric_IceDragon_SpriteMap map = loc.FontTileMap;
 
-            const int cellSize = GBAConstants.TileSize;
+            const int cellSize = Constants.TileSize;
             const int tileSize = 0x20;
 
             Color[] pal = Util.ConvertGBAPalette(PaletteHelpers.CreateDummyPalette(256, wrap: 16));
@@ -231,7 +231,7 @@ namespace Ray1Map.GBAIsometric
         }
 
         public Unity_TileSet LoadTileSet(RGB555Color[] tilePal, byte[] tileSet) => 
-            new Unity_TileSet(tileSet, Unity_Palette.SplitMultiple(tilePal, 16, true), Unity_TextureFormat.Indexed_4, GBAConstants.TileSize);
+            new Unity_TileSet(tileSet, Unity_Palette.SplitMultiple(tilePal, 16, true), Unity_TextureFormat.Indexed_4, Constants.TileSize);
 
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
         {
@@ -241,7 +241,7 @@ namespace Ray1Map.GBAIsometric
             await Controller.WaitIfNecessary();
 
             byte[] fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
-            var cutsceneTileSet = new Unity_TileSet(fullTileSet, new Unity_Palette(cutsceneMap.Palette, true), Unity_TextureFormat.Indexed_8, GBAConstants.TileSize);
+            var cutsceneTileSet = new Unity_TileSet(fullTileSet, new Unity_Palette(cutsceneMap.Palette, true), Unity_TextureFormat.Indexed_8, Constants.TileSize);
 
             Controller.DetailedState = $"Loading map";
             await Controller.WaitIfNecessary();
@@ -286,7 +286,7 @@ namespace Ray1Map.GBAIsometric
             context.AddSettings(context.GetR1Settings().GetGBAIsometricSettings());
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, Constants.Address_ROM);
 
         #endregion
     }

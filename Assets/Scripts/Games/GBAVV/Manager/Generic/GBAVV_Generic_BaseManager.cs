@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 
 using UnityEngine;
@@ -331,8 +331,8 @@ namespace Ray1Map.GBAVV
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
-            const int width = GBAConstants.ScreenWidth / CellSize;
-            const int height = GBAConstants.ScreenHeight / CellSize;
+            const int width = Constants.ScreenWidth / CellSize;
+            const int height = Constants.ScreenHeight / CellSize;
 
             var tilePal = rom.Mode7_GetTilePal(levelInfo);
 
@@ -678,8 +678,8 @@ namespace Ray1Map.GBAVV
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
-            const int width = GBAConstants.ScreenWidth / CellSize;
-            const int height = GBAConstants.ScreenHeight / CellSize;
+            const int width = Constants.ScreenWidth / CellSize;
+            const int height = Constants.ScreenHeight / CellSize;
             int framesCount = tileMaps.Length;
 
             var tex = TextureHelpers.CreateTexture2D(width * CellSize, height * CellSize * framesCount);

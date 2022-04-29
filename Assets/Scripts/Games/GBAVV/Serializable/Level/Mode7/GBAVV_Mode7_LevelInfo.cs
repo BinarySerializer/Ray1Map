@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 
 
 namespace Ray1Map.GBAVV
@@ -103,7 +103,7 @@ namespace Ray1Map.GBAVV
 
             s.DoAt(Crash1_BackgroundPointer, () =>
             {
-                s.DoEncodedIf(new GBA_LZSSEncoder(), s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, () => Crash1_Background = s.SerializeObject<GBAVV_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
+                s.DoEncodedIf(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, () => Crash1_Background = s.SerializeObject<GBAVV_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
             });
 
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));

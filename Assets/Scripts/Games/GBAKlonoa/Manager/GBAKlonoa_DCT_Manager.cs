@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
-using BinarySerializer.Nintendo;
+using BinarySerializer.Nintendo.GBA;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -87,7 +87,7 @@ namespace Ray1Map.GBAKlonoa
                     var obj = rom.LevelObjectCollection.Objects[cmd.ObjIndex - FixCount].ToLoadedObject(cmd.ObjIndex, 0);
 
                     // We handle positions differently than the game
-                    obj.XPos = (short)(cmd.ZPos + GBAConstants.ScreenWidth / 2);
+                    obj.XPos = (short)(cmd.ZPos + Constants.ScreenWidth / 2);
                     obj.YPos = (short)-cmd.XPos;
                     obj.ZPos = (short)-cmd.YPos;
 
@@ -160,7 +160,7 @@ namespace Ray1Map.GBAKlonoa
 
             if (isWaterSki)
             {
-                const float x = GBAConstants.ScreenWidth / 2f;
+                const float x = Constants.ScreenWidth / 2f;
                 const float z = 20;
 
                 var cmds = rom.WaterSkiDatas[worldIndex].Commands.Commands;
