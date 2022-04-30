@@ -39,7 +39,7 @@ namespace Ray1Map.Psychonauts
                         Index = i
                     };
                 }).
-                Where(x => loader.FileManager.FileExists(loader.GetPackPackFilePath(x.Level))).
+                Where(x => loader.FileManager.FileExists(new FileRef(loader.GetPackPackFilePath(x.Level), FileLocation.FileSystem))).
                 GroupBy(x => x.World).
                 Select(x => new GameInfo_World(
                     index: x.First().WorldIndex,
@@ -154,10 +154,22 @@ namespace Ray1Map.Psychonauts
         {
             return new GameAction[]
             {
+                new GameAction("Export Packaged Files", false, true, (_, output) => ExportPackagedFiles(settings, output)),
                 new GameAction("Export All Level Textures", false, true, (_, output) => ExportAllLevelTextures(settings, output)),
                 new GameAction("Export Current Level Textures", false, true, (_, output) => ExportCurrentLevelTextures(settings, output)),
                 new GameAction("Export Current Level Model as OBJ", false, true, (_, output) => ExportCurrentLevelModelAsOBJ(settings, output)),
             };
+        }
+
+        public void ExportPackagedFiles(GameSettings settings, string outputPath)
+        {
+            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using IBinarySerializerLogger logger = GetLogger();
+
+            loader.LoadFilePackages(logger);
+            loader.FileManager.ExportPackagedFiles(outputPath);
+
+            Debug.Log($"Finished exporting");
         }
 
         public void ExportAllLevelTextures(GameSettings settings, string outputPath)
@@ -171,7 +183,7 @@ namespace Ray1Map.Psychonauts
 
             foreach (string lvl in Maps.Select(x => x.Name))
             {
-                if (!loader.FileManager.FileExists(loader.GetPackPackFilePath(lvl)))
+                if (!loader.FileManager.FileExists(new FileRef(loader.GetPackPackFilePath(lvl), FileLocation.FileSystem)))
                     continue;
 
                 loader.LoadLevelPackPack(lvl, logger);
@@ -267,51 +279,52 @@ namespace Ray1Map.Psychonauts
             };
 
             // Create a loader
-            Ray1MapLoader loader = new Ray1MapLoader(new PsychonautsSettings(GetVersion(r1Settings)), r1Settings.GameDirectory, context, level);
-
-            // Use a PsychoPortal logger
-            using IBinarySerializerLogger logger = GetLogger();
+            using Ray1MapLoader loader = new Ray1MapLoader(new PsychonautsSettings(GetVersion(r1Settings)), r1Settings.GameDirectory, context, level, GetLogger());
 
             Controller.DetailedState = "Loading common packs";
             await Controller.WaitIfNecessary();
 
             // Load common data
-            loader.LoadFilePackages(logger);
-            loader.LoadCommonPackPack(logger);
-            loader.LoadCommonAnimPack(logger);
+            loader.LoadFilePackages(loader.Logger);
+            loader.LoadCommonPackPack(loader.Logger);
+            loader.LoadCommonAnimPack(loader.Logger);
 
             Controller.DetailedState = "Loading level packs";
             await Controller.WaitIfNecessary();
 
             // Load level data
-            loader.LoadLevelPackPack(lvl, logger);
-            loader.LoadLevelAnimPack(lvl, logger);
+            loader.LoadLevelPackPack(lvl, loader.Logger);
+            loader.LoadLevelAnimPack(lvl, loader.Logger);
 
             Controller.DetailedState = "Loading animations";
             await Controller.WaitIfNecessary();
 
-            // TODO: Lazy loading?
-            loader.AnimationManager.LoadAnimations(loader.LevelAnimPack.StubSharedAnims.
-                Concat(loader.CommonAnimPack.StubSharedAnims).
-                Select(x =>
-                {
-                    // Read the joint animation
-                    SharedSkelAnim jointAnim = loader.FileManager.ReadFromFile<SharedSkelAnim>(x.JANFileName, logger, throwIfNotFound: true);
-                    
-                    // Read the event animation
-                    EventAnim eventAnim = null;
-                    if (x.EventAnim != null)
-                        using (var eventAnimStream = new MemoryStream(x.EventAnim))
-                            eventAnim = Binary.ReadFromStream<EventAnim>(eventAnimStream, loader.Settings, logger: logger);
+            // Load stub animations from animation packs
+            loader.AnimationManager.LoadStubAnimations(loader.CommonAnimPack);
+            loader.AnimationManager.LoadStubAnimations(loader.LevelAnimPack);
 
-                    // Read the blend animation
-                    SharedBlendAnim blendAnim = null;
-                    if (x.BlendAnim != null)
-                        using (var blendAnimStream = new MemoryStream(x.BlendAnim))
-                            blendAnim = Binary.ReadFromStream<SharedBlendAnim>(blendAnimStream, loader.Settings, logger: logger);
-                    
-                    return new PsychonautsSkelAnim(x, jointAnim, eventAnim, blendAnim);
-                }));
+            // Load all remaining animations from master package
+            foreach (FileRef fileRef in loader.FileManager.EnumerateFiles(FileLocation.Package))
+            {
+                if (fileRef.FilePath.EndsWith(".jan") && !loader.AnimationManager.HasLoadedAnimation(fileRef.FilePath))
+                    loader.AnimationManager.LoadAnimation(fileRef, loader.FileManager, loader.Logger);
+            }
+
+            // Load animation components. This loads the blend animations which will help with validating which animations
+            // can be played on which mesh.
+            foreach (PsychonautsSkelAnim anim in loader.AnimationManager.Animations)
+                anim.InitComponents(loader.FileManager, loader.Logger);
+
+            // Fully load animations which can't be validated based on the header
+            foreach (PsychonautsSkelAnim anim in loader.AnimationManager.Animations)
+            {
+                // Version 100 does not have the joints count in the header
+                if (anim.Header.Version == 100)
+                    anim.Init(loader.FileManager, loader.Logger);
+                // Version 1 files are incomplete and thus can't be loaded
+                else if (anim.Header.Version < 100)
+                    Debug.LogWarning($"Animation {anim.FilePath} uses unsupported version {anim.Header.Version}");
+            }
 
             Controller.DetailedState = "Creating objects";
             await Controller.WaitIfNecessary();
@@ -494,9 +507,13 @@ namespace Ray1Map.Psychonauts
 
             if (skeletonsCount > 0)
             {
-                var ja = visualMeshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>();
-                ja.Mesh = psychoMesh;
-                ja.AnimationManager = loader.AnimationManager;
+                visualMeshObj.AddComponent<PsychoPortal.Unity.SkeletonAnimationComponent>(x =>
+                {
+                    x.Mesh = psychoMesh;
+                    x.AnimationManager = loader.AnimationManager;
+                    x.FileManager = loader.FileManager;
+                    x.Logger = loader.Logger;
+                });
             }
 
             // Show trigger positions
