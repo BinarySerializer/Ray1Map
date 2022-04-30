@@ -318,12 +318,16 @@ namespace Ray1Map.Psychonauts
             // Fully load animations which can't be validated based on the header
             foreach (PsychonautsSkelAnim anim in loader.AnimationManager.Animations)
             {
-                // Version 100 does not have the joints count in the header
-                if (anim.Header.Version == 100)
-                    anim.Init(loader.FileManager, loader.Logger);
-                // Version 1 files are incomplete and thus can't be loaded
-                else if (anim.Header.Version < 100)
-                    Debug.LogWarning($"Animation {anim.FilePath} uses unsupported version {anim.Header.Version}");
+                try
+                {
+                    // Older version don't have the joints count in the header
+                    if (anim.Header.Version < 200)
+                        anim.Init(loader.FileManager, loader.Logger);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Failed to load old animation file {anim.FilePath} with version {anim.Header.Version}: {ex.Message}");
+                }
             }
 
             Controller.DetailedState = "Creating objects";
