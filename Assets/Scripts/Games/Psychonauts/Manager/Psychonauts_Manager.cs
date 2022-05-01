@@ -580,23 +580,29 @@ namespace Ray1Map.Psychonauts
 
             if (meshFrag.AnimInfo != null)
             {
-                // TODO: Right now this is hard-coded to only ever use the first skeleton. However there can be multiple, like for Raz.
+                int[] skelOffsets = skeletons.Length > 1 ? new int[skeletons.Length] : null;
+
+                if (skelOffsets != null)
+                    for (int i = 1; i < skeletons.Length; i++)
+                        skelOffsets[i] = skelOffsets[i - 1] + skeletons[i - 1].Joints.Length;
+
+                int getBoneIndex(JointID id) => id.SkeletonIndex == 0 ? id.JointIndex : skelOffsets[id.SkeletonIndex] + id.JointIndex;
 
                 BoneWeight[] weights = meshFrag.AnimInfo.OriginalSkinWeights.Select(x => new BoneWeight()
                 {
-                    boneIndex0 = meshFrag.AnimInfo.JointIDs[x.Joint1].JointIndex,
+                    boneIndex0 = getBoneIndex(meshFrag.AnimInfo.JointIDs[x.Joint1]),
                     weight0 = x.Weight.X,
-                    boneIndex1 = meshFrag.AnimInfo.JointIDs[x.Joint2].JointIndex,
+                    boneIndex1 = getBoneIndex(meshFrag.AnimInfo.JointIDs[x.Joint2]),
                     weight1 = 1 - x.Weight.X,
                 }).ToArray();
                 unityMesh.boneWeights = weights;
-                unityMesh.bindposes = bindPoses[0];
+                unityMesh.bindposes = bindPoses.SelectMany(x => x).ToArray();
 
                 SkinnedMeshRenderer smr = meshFragObj.AddComponent<SkinnedMeshRenderer>();
                 smr.sharedMaterial = mat;
                 smr.sharedMesh = unityMesh;
-                smr.bones = skeletons[0].Joints.Select(x => x.Transform).ToArray();
-                smr.rootBone = skeletons[0].Joints[0].Transform;
+                smr.bones = skeletons.SelectMany(x => x.Joints).Select(x => x.Transform).ToArray();
+                //smr.rootBone = skeletons[0].Joints[0].Transform;
             }
             else
             {
