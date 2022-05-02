@@ -276,6 +276,7 @@ namespace Ray1Map.Psychonauts
                 },
                 PixelsPerUnit = 1,
                 CellSize = 1,
+                StartIn3D = true, // TODO: Disable the 2D view entirely
             };
 
             // Create a loader
@@ -523,10 +524,8 @@ namespace Ray1Map.Psychonauts
             // Show trigger positions
             foreach (TriggerOBB t in mesh.Triggers)
             {
-                loader.Level.EventData.Add(new Unity_Object_Dummy(null, Unity_ObjectType.Trigger,
-                    position: t.Position.ToInvVector3() * _scale,
-                    name: $"Trigger: {t.Name}",
-                    debugText: t.Name));
+                var triggerObj = new Unity_Object_Psychonauts_Trigger(t, _scale);
+                loader.Level.EventData.Add(triggerObj);
             }
         }
 
