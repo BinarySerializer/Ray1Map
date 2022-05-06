@@ -26,7 +26,7 @@ namespace Ray1Map.Psychonauts
         public void GeneratePS2FileList(string sourceDirPath)
         {
             GameModeSelection[] gameModes = { GameModeSelection.Psychonauts_PC_Digital, GameModeSelection.Psychonauts_Xbox_Proto_20041217 };
-            using var ps2Loader = new Loader(new PsychonautsSettings(PsychonautsVersion.PS2), Settings.GameDirectories[GameModeSelection.Psychonauts_PS2]);
+            using Loader ps2Loader = new(new PsychonautsSettings(PsychonautsVersion.PS2), Settings.GameDirectories[GameModeSelection.Psychonauts_PS2]);
             Loader[] loaders = gameModes.Select(x => new Loader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
 
             try
@@ -42,7 +42,7 @@ namespace Ray1Map.Psychonauts
 
         public void ExportPS2Files(GameSettings settings, string outputPath, bool convertFiles)
         {
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
             using IBinarySerializerLogger logger = GetLogger();
 
             loader.LoadFilePackages(logger);

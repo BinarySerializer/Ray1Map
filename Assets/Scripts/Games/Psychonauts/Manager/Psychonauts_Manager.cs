@@ -19,7 +19,7 @@ namespace Ray1Map.Psychonauts
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings)
         {
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
 
             if (loader.Version == PsychonautsVersion.PS2)
                 loader.LoadFilePackages();
@@ -162,7 +162,7 @@ namespace Ray1Map.Psychonauts
 
         public void ExportPackagedFiles(GameSettings settings, string outputPath)
         {
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
             using IBinarySerializerLogger logger = GetLogger();
 
             loader.LoadFilePackages(logger);
@@ -173,7 +173,7 @@ namespace Ray1Map.Psychonauts
 
         public void ExportAllLevelTextures(GameSettings settings, string outputPath)
         {
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
             loader.UseNativeTextures = false;
 
             using IBinarySerializerLogger logger = GetLogger();
@@ -201,7 +201,7 @@ namespace Ray1Map.Psychonauts
         {
             string lvl = Maps[settings.Level].Name;
 
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
             loader.UseNativeTextures = false;
 
             using IBinarySerializerLogger logger = GetLogger();
@@ -220,7 +220,7 @@ namespace Ray1Map.Psychonauts
         {
             string lvl = Maps[settings.Level].Name;
 
-            Loader loader = new Loader(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
             loader.UseNativeTextures = false;
 
             using IBinarySerializerLogger logger = GetLogger();
