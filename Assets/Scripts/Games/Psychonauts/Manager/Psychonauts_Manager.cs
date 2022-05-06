@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using BinarySerializer;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using PsychoPortal.Unity;
@@ -133,8 +132,9 @@ namespace Ray1Map.Psychonauts
             ("MCBB", "The Butcher"),
         };
 
-        private static IBinarySerializerLogger GetLogger() => Settings.Log ? new BinarySerializerLogger(Settings.PsychoPortalLogFile) : null;
-        private static PsychonautsVersion GetVersion(GameSettings settings) => settings.GameModeSelection switch
+        protected static IBinarySerializerLogger GetLogger() => Settings.Log ? new BinarySerializerLogger(Settings.PsychoPortalLogFile) : null;
+        protected static PsychonautsVersion GetVersion(GameSettings settings) => GetVersion(settings.GameModeSelection);
+        protected static PsychonautsVersion GetVersion(GameModeSelection gameMode) => gameMode switch
         {
             GameModeSelection.Psychonauts_Xbox_Proto_20041217 => PsychonautsVersion.Xbox_Proto_20041217,
             GameModeSelection.Psychonauts_PC_Digital => PsychonautsVersion.PC_Digital,
@@ -143,8 +143,7 @@ namespace Ray1Map.Psychonauts
         };
 
         private static readonly float _scale = 1 / 32f;
-        // Need to invert the z-axis
-        private static readonly Vector3 _scaleVector = new Vector3(_scale, _scale, -_scale);
+        private static readonly Vector3 _scaleVector = new(_scale, _scale, -_scale); // Need to invert the z-axis
 
         #endregion
 
@@ -154,10 +153,10 @@ namespace Ray1Map.Psychonauts
         {
             return new GameAction[]
             {
-                new GameAction("Export Packaged Files", false, true, (_, output) => ExportPackagedFiles(settings, output)),
-                new GameAction("Export All Level Textures", false, true, (_, output) => ExportAllLevelTextures(settings, output)),
-                new GameAction("Export Current Level Textures", false, true, (_, output) => ExportCurrentLevelTextures(settings, output)),
-                new GameAction("Export Current Level Model as OBJ", false, true, (_, output) => ExportCurrentLevelModelAsOBJ(settings, output)),
+                new("Export Packaged Files", false, true, (_, output) => ExportPackagedFiles(settings, output)),
+                new("Export All Level Textures", false, true, (_, output) => ExportAllLevelTextures(settings, output)),
+                new("Export Current Level Textures", false, true, (_, output) => ExportCurrentLevelTextures(settings, output)),
+                new("Export Current Level Model as OBJ", false, true, (_, output) => ExportCurrentLevelModelAsOBJ(settings, output)),
             };
         }
 
@@ -178,6 +177,9 @@ namespace Ray1Map.Psychonauts
             loader.UseNativeTextures = false;
 
             using IBinarySerializerLogger logger = GetLogger();
+
+            if (loader.Settings.Version == PsychonautsVersion.PS2)
+                loader.LoadFilePackages(logger);
 
             loader.LoadCommonPackPack(logger);
 
@@ -204,6 +206,9 @@ namespace Ray1Map.Psychonauts
 
             using IBinarySerializerLogger logger = GetLogger();
 
+            if (loader.Settings.Version == PsychonautsVersion.PS2)
+                loader.LoadFilePackages(logger);
+            
             loader.LoadLevelPackPack(lvl, logger);
 
             loader.TexturesManager.DumpTextures(outputPath);
@@ -223,7 +228,7 @@ namespace Ray1Map.Psychonauts
             loader.LoadLevelPackPack(lvl, logger);
 
             var exp = new PsychonautsObjExporter();
-            var textures = loader.TexturesManager.GetTextures(loader.LevelScene.TextureTranslationTable);
+            var textures = loader.TexturesManager.GetTextures(loader.LevelScene.TextureTranslationTable, loader.Version);
 
             exportDomain(loader.LevelScene.RootDomain);
 
@@ -307,7 +312,8 @@ namespace Ray1Map.Psychonauts
             // Load all remaining animations from master package
             foreach (FileRef fileRef in loader.FileManager.EnumerateFiles(FileLocation.Package))
             {
-                if (fileRef.FilePath.EndsWith(".jan") && !loader.AnimationManager.HasLoadedAnimation(fileRef.FilePath))
+                if ((fileRef.FilePath.EndsWith(".jan") || fileRef.FilePath.EndsWith(".ja2")) && 
+                    !loader.AnimationManager.HasLoadedAnimation(fileRef.FilePath))
                     loader.AnimationManager.LoadAnimation(fileRef, loader.FileManager, loader.Logger);
             }
 
@@ -391,7 +397,7 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable));
+            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable, loader.Version));
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
@@ -496,16 +502,7 @@ namespace Ray1Map.Psychonauts
             for (var i = 0; i < mesh.MeshFrags.Length; i++)
             {
                 MeshFrag meshFrag = mesh.MeshFrags[i];
-
-                if (loader.Version == PsychonautsVersion.PS2)
-                {
-                    InitPS2MeshFrag(loader, meshFrag);
-                    // TODO: Once InitPS2 can successfully convert the data we need to load the mesh frag like usual
-                }
-                else
-                {
-                    psychoMeshFrags[i] = LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
-                }
+                psychoMeshFrags[i] = LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
             }
 
             var psychoMesh = new PsychonautsMesh(mesh, psychoMeshFrags, skeletons);
@@ -529,7 +526,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
                 $"Frag: {index}, " +
@@ -704,23 +701,6 @@ namespace Ray1Map.Psychonauts
             }
 
             return colObj;
-        }
-
-        public void InitPS2MeshFrag(Ray1MapLoader loader, MeshFrag meshFrag)
-        {
-            const string key = "geo";
-
-            try
-            {
-                loader.Context.AddFile(new StreamFile(loader.Context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
-                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(loader.Context, key);
-
-                // TODO: Convert the data to common format so it can be loaded
-            }
-            finally
-            {
-                loader.Context.RemoveFile(key);
-            }
         }
 
         #endregion

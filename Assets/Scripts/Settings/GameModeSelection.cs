@@ -956,7 +956,7 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PC - Digital)", typeof(Psychonauts_Manager), Platform.PC)]
         Psychonauts_PC_Digital,
 
-        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2)", typeof(Psychonauts_Manager), Platform.PS2)]
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2)", typeof(Psychonauts_Manager_PS2), Platform.PS2)]
         Psychonauts_PS2,
 
         #endregion
