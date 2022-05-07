@@ -953,11 +953,22 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (Xbox - Prototype 2004/12/17)", typeof(Psychonauts_Manager), Platform.Xbox)]
         Psychonauts_Xbox_Proto_20041217,
 
+        // TODO: Xbox 2005 prototype
+        // TODO: Xbox
+        // TODO: PC retail
+        // TODO: PS4
+
         [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PC - Digital)", typeof(Psychonauts_Manager), Platform.PC)]
         Psychonauts_PC_Digital,
 
-        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2)", typeof(Psychonauts_Manager_PS2), Platform.PS2)]
-        Psychonauts_PS2,
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2 - EU)", typeof(Psychonauts_Manager_PS2), Platform.PS2)]
+        Psychonauts_PS2_EU,
+
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2 - US)", typeof(Psychonauts_Manager_PS2), Platform.PS2)]
+        Psychonauts_PS2_US,
+
+        [GameMode(MajorEngineVersion.Psychonauts, EngineVersion.Psychonauts, Game.Psychonauts_Psychonauts, "Psychonauts (PS2 - US Demo)", typeof(Psychonauts_Manager_PS2), Platform.PS2)]
+        Psychonauts_PS2_US_Demo,
 
         #endregion
     }

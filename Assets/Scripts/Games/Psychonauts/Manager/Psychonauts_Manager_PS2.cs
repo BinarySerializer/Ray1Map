@@ -19,22 +19,31 @@ namespace Ray1Map.Psychonauts
             {
                 new("Export PS2 Files", false, true, (_, output) => ExportPS2Files(settings, output, false)),
                 new("Export & Convert PS2 Files", false, true, (_, output) => ExportPS2Files(settings, output, true)),
-                new("Generate PS2 File List", true, false, (input, _) => GeneratePS2FileList(input)),
+                new("Generate PS2 File List", true, false, (input, _) => GeneratePS2FileList(settings, input)),
             }).ToArray();
         }
 
-        public void GeneratePS2FileList(string sourceDirPath)
+        public void GeneratePS2FileList(GameSettings settings, string sourceDirPath)
         {
-            GameModeSelection[] gameModes = { GameModeSelection.Psychonauts_PC_Digital, GameModeSelection.Psychonauts_Xbox_Proto_20041217 };
-            using Loader ps2Loader = new(new PsychonautsSettings(PsychonautsVersion.PS2), Settings.GameDirectories[GameModeSelection.Psychonauts_PS2]);
+            GameModeSelection[] ps2GameModes =
+            {
+                GameModeSelection.Psychonauts_PS2_EU, GameModeSelection.Psychonauts_PS2_US, GameModeSelection.Psychonauts_PS2_US_Demo
+            };
+            GameModeSelection[] gameModes =
+            {
+                GameModeSelection.Psychonauts_PC_Digital, GameModeSelection.Psychonauts_Xbox_Proto_20041217
+            };
+            Loader[] ps2Loaders = ps2GameModes.Select(x => new Loader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
             Loader[] loaders = gameModes.Select(x => new Loader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
 
             try
             {
-                PS2.GenerateFileTable(ps2Loader, loaders, sourceDirPath, GetLogger()).CopyToClipboard();
+                PS2.GenerateFileTable(ps2Loaders, loaders, sourceDirPath, GetLogger()).CopyToClipboard();
             }
             finally
             {
+                foreach (Loader loader in ps2Loaders)
+                    loader.Dispose();
                 foreach (Loader loader in loaders)
                     loader.Dispose();
             }

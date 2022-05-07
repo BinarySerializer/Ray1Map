@@ -138,7 +138,9 @@ namespace Ray1Map.Psychonauts
         {
             GameModeSelection.Psychonauts_Xbox_Proto_20041217 => PsychonautsVersion.Xbox_Proto_20041217,
             GameModeSelection.Psychonauts_PC_Digital => PsychonautsVersion.PC_Digital,
-            GameModeSelection.Psychonauts_PS2 => PsychonautsVersion.PS2,
+            GameModeSelection.Psychonauts_PS2_EU => PsychonautsVersion.PS2,
+            GameModeSelection.Psychonauts_PS2_US => PsychonautsVersion.PS2,
+            GameModeSelection.Psychonauts_PS2_US_Demo => PsychonautsVersion.PS2,
             _ => throw new Exception("Invalid game mode"),
         };
 
