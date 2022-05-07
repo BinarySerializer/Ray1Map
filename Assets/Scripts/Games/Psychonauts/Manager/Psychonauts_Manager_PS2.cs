@@ -33,8 +33,8 @@ namespace Ray1Map.Psychonauts
             {
                 GameModeSelection.Psychonauts_PC_Digital, GameModeSelection.Psychonauts_Xbox_Proto_20041217
             };
-            Loader[] ps2Loaders = ps2GameModes.Select(x => new Loader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
-            Loader[] loaders = gameModes.Select(x => new Loader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
+            Loader[] ps2Loaders = ps2GameModes.Select(x => new Ray1MapLoader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
+            Loader[] loaders = gameModes.Select(x => new Ray1MapLoader(new PsychonautsSettings(GetVersion(x)), Settings.GameDirectories[x])).ToArray();
 
             try
             {
@@ -51,14 +51,13 @@ namespace Ray1Map.Psychonauts
 
         public void ExportPS2Files(GameSettings settings, string outputPath, bool convertFiles)
         {
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
-            using IBinarySerializerLogger logger = GetLogger();
+            using Ray1MapLoader loader = CreateLoader(settings);
 
-            loader.LoadFilePackages(logger);
+            loader.LoadFilePackages(loader.Logger);
 
-            ExportPS2Files(loader, logger, loader.FileManager.PS2_FileTable, outputPath, PS2.FileTable.ToDictionary(PS2_FileEntry.GetFilePathHash), true, loader.FileManager.PS2_ResourcePacks, convertFiles);
+            ExportPS2Files(loader, loader.Logger, loader.FileManager.PS2_FileTable, outputPath, PS2.FileTable.ToDictionary(PS2_FileEntry.GetFilePathHash), true, loader.FileManager.PS2_ResourcePacks, convertFiles);
 
-            Debug.Log($"Finished exporting");
+            Debug.Log("Finished exporting");
         }
 
         public void ExportPS2Files(Loader loader, IBinarySerializerLogger logger, PS2_FileTable fileTable, string outputDir, Dictionary<uint, string> fileNames, bool categorizeUnnamed, Stream[] resourcePaks, bool convertFiles)

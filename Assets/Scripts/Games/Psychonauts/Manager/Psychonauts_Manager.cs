@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using PsychoPortal.Unity;
+using System;
+using System.Linq;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
-using Loader = PsychoPortal.Unity.Loader;
 using Mesh = PsychoPortal.Mesh;
 using UnityMesh = UnityEngine.Mesh;
 
@@ -19,7 +17,7 @@ namespace Ray1Map.Psychonauts
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings)
         {
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Ray1MapLoader loader = CreateLoader(settings);
 
             if (loader.Version == PsychonautsVersion.PS2)
                 loader.LoadFilePackages();
@@ -132,6 +130,10 @@ namespace Ray1Map.Psychonauts
             ("MCBB", "The Butcher"),
         };
 
+        protected static Ray1MapLoader CreateLoader(GameSettings settings, bool createLogger = true) =>
+            new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory, createLogger ? GetLogger() : null);
+        protected static Ray1MapLoader CreateLoader(Context context, Unity_Level level) =>
+            new(new PsychonautsSettings(GetVersion(context.GetR1Settings())), context.BasePath, context, level, GetLogger());
         protected static IBinarySerializerLogger GetLogger() => Settings.Log ? new BinarySerializerLogger(Settings.PsychoPortalLogFile) : null;
         protected static PsychonautsVersion GetVersion(GameSettings settings) => GetVersion(settings.GameModeSelection);
         protected static PsychonautsVersion GetVersion(GameModeSelection gameMode) => gameMode switch
@@ -164,70 +166,63 @@ namespace Ray1Map.Psychonauts
 
         public void ExportPackagedFiles(GameSettings settings, string outputPath)
         {
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
-            using IBinarySerializerLogger logger = GetLogger();
+            using Ray1MapLoader loader = CreateLoader(settings);
 
-            loader.LoadFilePackages(logger);
+            loader.LoadFilePackages(loader.Logger);
             loader.FileManager.ExportPackagedFiles(outputPath);
 
-            Debug.Log($"Finished exporting");
+            Debug.Log("Finished exporting");
         }
 
         public void ExportAllLevelTextures(GameSettings settings, string outputPath)
         {
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Ray1MapLoader loader = CreateLoader(settings);
             loader.UseNativeTextures = false;
 
-            using IBinarySerializerLogger logger = GetLogger();
-
             if (loader.Settings.Version == PsychonautsVersion.PS2)
-                loader.LoadFilePackages(logger);
+                loader.LoadFilePackages(loader.Logger);
 
-            loader.LoadCommonPackPack(logger);
+            loader.LoadCommonPackPack(loader.Logger);
 
             foreach (string lvl in Maps.Select(x => x.Name))
             {
                 if (!loader.FileManager.FileExists(new FileRef(loader.GetPackPackFilePath(lvl), FileLocation.FileSystem)))
                     continue;
 
-                loader.LoadLevelPackPack(lvl, logger);
+                loader.LoadLevelPackPack(lvl, loader.Logger);
                 loader.TexturesManager.DumpTextures(outputPath);
 
                 Debug.Log($"Exported {lvl}");
             }
 
-            Debug.Log($"Finished exporting");
+            Debug.Log("Finished exporting");
         }
 
         public void ExportCurrentLevelTextures(GameSettings settings, string outputPath)
         {
             string lvl = Maps[settings.Level].Name;
 
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Ray1MapLoader loader = CreateLoader(settings);
             loader.UseNativeTextures = false;
 
-            using IBinarySerializerLogger logger = GetLogger();
-
             if (loader.Settings.Version == PsychonautsVersion.PS2)
-                loader.LoadFilePackages(logger);
+                loader.LoadFilePackages(loader.Logger);
             
-            loader.LoadLevelPackPack(lvl, logger);
+            loader.LoadLevelPackPack(lvl, loader.Logger);
 
             loader.TexturesManager.DumpTextures(outputPath);
 
-            Debug.Log($"Finished exporting");
+            Debug.Log("Finished exporting");
         }
 
         public void ExportCurrentLevelModelAsOBJ(GameSettings settings, string outputPath)
         {
             string lvl = Maps[settings.Level].Name;
 
-            using Loader loader = new(new PsychonautsSettings(GetVersion(settings)), settings.GameDirectory);
+            using Ray1MapLoader loader = CreateLoader(settings);
             loader.UseNativeTextures = false;
 
-            using IBinarySerializerLogger logger = GetLogger();
-
-            loader.LoadLevelPackPack(lvl, logger);
+            loader.LoadLevelPackPack(lvl, loader.Logger);
 
             var exp = new PsychonautsObjExporter();
             var textures = loader.TexturesManager.GetTextures(loader.LevelScene.TextureTranslationTable, loader.Version);
@@ -261,8 +256,7 @@ namespace Ray1Map.Psychonauts
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Get the settings
-            GameSettings r1Settings = context.GetR1Settings();
-            string lvl = Maps[r1Settings.Level].Name;
+            string lvl = Maps[context.GetR1Settings().Level].Name;
 
             // Create the level
             var level = new Unity_Level()
@@ -287,7 +281,7 @@ namespace Ray1Map.Psychonauts
             };
 
             // Create a loader
-            using Ray1MapLoader loader = new Ray1MapLoader(new PsychonautsSettings(GetVersion(r1Settings)), r1Settings.GameDirectory, context, level, GetLogger());
+            using Ray1MapLoader loader = CreateLoader(context, level);
 
             Controller.DetailedState = "Loading common packs";
             await Controller.WaitIfNecessary();
