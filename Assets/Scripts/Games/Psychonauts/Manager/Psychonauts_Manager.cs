@@ -563,6 +563,8 @@ namespace Ray1Map.Psychonauts
 
             if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.AdditiveBlending))
                 matSrc = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+            else if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Decal))
+                matSrc = Controller.obj.levelController.controllerTilemap.blendedDecalMaterial;
             else
                 matSrc = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
