@@ -611,10 +611,16 @@ namespace Ray1Map.Psychonauts
                 mat.mainTexture = tex.Texture;
 
                 if (tex.IsAnimated)
+                    meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat));
+
+                if (meshFrag.TexCoordTransVel.X != 0 || meshFrag.TexCoordTransVel.Y != 0)
                 {
-                    TextureAnimationComponent animTex = meshFragObj.AddComponent<TextureAnimationComponent>();
-                    animTex.SetTexture(tex, mat);
-                    //Debug.Log($"Texture {tex.GameTexture.FileName} is animated with {tex.AnimInfo.FramesCount} frames");
+                    meshFragObj.AddComponent<TextureScrollComponent>(x =>
+                    {
+                        x.material = mat;
+                        x.scroll = meshFrag.TexCoordTransVel.ToVector2();
+                    });
+
                 }
 
                 unityMesh.SetUVs(meshFrag, 0);
