@@ -370,9 +370,9 @@ namespace Ray1Map.Psychonauts
             // Load models outside the map for now
             Vector3 plbPos = new Vector3(-60000, 30000, 20000);
 
-            foreach (PLB meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
+            foreach (PackedScene meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, $"{meshFile.Name} ({meshFile.Type})");
+                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, $"{meshFile.FileName} ({meshFile.Type})");
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }

@@ -55,7 +55,7 @@ namespace Ray1Map.Psychonauts
 
             loader.LoadFilePackages(loader.Logger);
 
-            ExportPS2Files(loader, loader.Logger, loader.FileManager.PS2_FileTable, outputPath, PS2.FileTable.ToDictionary(PS2_FileEntry.GetFilePathHash), true, loader.FileManager.PS2_ResourcePacks, convertFiles);
+            ExportPS2Files(loader, loader.Logger, loader.FileManager.PS2_FileTable, outputPath, PS2_FileNames.FileTable.ToDictionary(PS2_FileEntry.GetFilePathHash), true, loader.FileManager.PS2_ResourcePacks, convertFiles);
 
             Debug.Log("Finished exporting");
         }
@@ -110,7 +110,7 @@ namespace Ray1Map.Psychonauts
                         else if (magic is 0x504A4158 or 0x504A414E) // PJAX or PJAN
                         {
                             type = "Joint Animations";
-                            ext = ".jan";
+                            ext = ".ja2";
                         }
                         else if (magic == 0x50535943) // PSYC
                         {
