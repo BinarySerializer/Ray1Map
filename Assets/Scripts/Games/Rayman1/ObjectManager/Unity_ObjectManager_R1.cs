@@ -758,7 +758,7 @@ namespace Ray1Map.Rayman1
                         [nameof(ActiveObjCount)] = gameMemoryOffset + 0x170024,
                         [nameof(RayEventFlags)] = gameMemoryOffset + 0x17081A,
                         [nameof(NumLevelChoice)] = gameMemoryOffset + 0x17082E,
-                        [nameof(NumWorldChoice)] = gameMemoryOffset + 0x170838,
+                        [nameof(NumWorldChoice)] = gameMemoryOffset + 0x17083A,
                         [nameof(RayMode)] = gameMemoryOffset + 0x170868,
                         [nameof(RayWindForce)] = gameMemoryOffset + 0x170870,
                         [nameof(NumLevel)] = gameMemoryOffset + 0x17087C,
