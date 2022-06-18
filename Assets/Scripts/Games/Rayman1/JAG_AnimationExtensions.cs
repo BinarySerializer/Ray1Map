@@ -5,7 +5,7 @@ namespace Ray1Map.Rayman1
 {
     public static class JAG_AnimationExtensions
     {
-        public static Unity_ObjAnimation ToCommonAnimation(this JAG_Animation anim, JAG_EventDefinition eventDefinition)
+        public static Unity_ObjAnimation ToCommonAnimation(this JAG_Animation anim, JAG_MultiSprite multiSprite)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation
@@ -33,7 +33,7 @@ namespace Ray1Map.Rayman1
 
                         // Create the animation part
                         Unity_ObjAnimationPart part;
-                        if (((eventDefinition.UShort_12 & 5) == 5) || eventDefinition.StructType == 31)
+                        if (((multiSprite.UShort_12 & 5) == 5) || multiSprite.Verbe == 31)
                         {
                             part = new Unity_ObjAnimationPart
                             {
@@ -65,7 +65,7 @@ namespace Ray1Map.Rayman1
             return animation;
         }
 
-        public static Unity_ObjAnimation ToCommonAnimation(this JAG_EventDefinition ev)
+        public static Unity_ObjAnimation ToCommonAnimation(this JAG_MultiSprite ev)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation
@@ -75,7 +75,7 @@ namespace Ray1Map.Rayman1
 
             // The layer index
             var layer = 0;
-            int LayersPerFrame = ev.NumLayers > 0 ? ev.NumLayers : 1;
+            int LayersPerFrame = ev.SpritesCount > 0 ? ev.SpritesCount : 1;
 
             // Create each frame
             for (int i = 0; i < ev.FrameCount; i++)
@@ -93,7 +93,7 @@ namespace Ray1Map.Rayman1
 
                         // Create the animation part
                         Unity_ObjAnimationPart part;
-                        if (ev.UShort_12 == 5 || ev.StructType == 31)
+                        if (ev.UShort_12 == 5 || ev.Verbe == 31)
                         {
                             part = new Unity_ObjAnimationPart
                             {
@@ -125,7 +125,7 @@ namespace Ray1Map.Rayman1
             return animation;
         }
 
-        public static Unity_ObjAnimation ToCommonAnimation(this JAG_EventComplexDataState state, JAG_EventDefinition eventDefinition)
+        public static Unity_ObjAnimation ToCommonAnimation(this JAG_EventComplexDataState state, JAG_MultiSprite multiSprite)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation
@@ -155,7 +155,7 @@ namespace Ray1Map.Rayman1
 
                         // Create the animation part
                         Unity_ObjAnimationPart part;
-                        if (eventDefinition.UShort_12 == 5 || eventDefinition.StructType == 31)
+                        if (multiSprite.UShort_12 == 5 || multiSprite.Verbe == 31)
                         {
                             part = new Unity_ObjAnimationPart
                             {

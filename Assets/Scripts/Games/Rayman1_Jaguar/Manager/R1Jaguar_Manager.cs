@@ -193,7 +193,7 @@ namespace Ray1Map.Rayman1_Jaguar
                                 .Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
                             if (eventDefinitions.Length == 0)
                             {
-                                Debug.LogWarning($"No EventDefinition found with ImageBufferMemoryPtrPtr == {cmd.ImageBufferMemoryPointerPointer:X8}!");
+                                Debug.LogWarning($"No MultiSprite found with ImageBufferMemoryPtrPtr == {cmd.ImageBufferMemoryPointerPointer:X8}!");
                                 continue;
                             }
 
@@ -275,7 +275,7 @@ namespace Ray1Map.Rayman1_Jaguar
                                         {
                                             OverrideImageDescriptors = cd.Sprites,
                                             Anim = x.ToCommonAnimation(ed),
-                                            AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
+                                            AnimationSpeed = (byte)(x.Speed & 0b1111),
                                             Pointer = x.Offset
                                         });
                                         if (animComplex != null) animations.AddRange(animComplex);
@@ -301,7 +301,7 @@ namespace Ray1Map.Rayman1_Jaguar
                                     foreach (var anim in animations)
                                     {
                                         int flippingMethod = 0;
-                                        if (((ed.UShort_12 & 5) == 5) || ed.StructType == 31)
+                                        if (((ed.UShort_12 & 5) == 5) || ed.Verbe == 31)
                                         {
                                             flippingMethod = 1;
                                         }
@@ -781,7 +781,7 @@ namespace Ray1Map.Rayman1_Jaguar
             }
         }
 
-        public Unity_Object_R1Jaguar CreateEventData(Context c, JAG_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, Unity_ObjectManager_R1Jaguar objManager)
+        public Unity_Object_R1Jaguar CreateEventData(Context c, JAG_MultiSprite ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, Unity_ObjectManager_R1Jaguar objManager)
         {
             if (ed == null)
                 return null;
@@ -973,15 +973,15 @@ namespace Ray1Map.Rayman1_Jaguar
                             for (byte s = 0; s < substates.Length; s++)
                             {
                                 var stateLinkIndex = -1;
-                                if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length)
+                                if (validStates[s].Chain > 0 && validStates[s].Chain - 1 < cd.States.Length)
                                 {
-                                    var linkedState = cd.States[validStates[s].LinkedStateIndex - 1];
+                                    var linkedState = cd.States[validStates[s].Chain - 1];
                                     stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
                                 }
 
                                 substates[s] = new Unity_ObjectManager_R1Jaguar.State(
                                     animationIndex: (byte)curAnimIndex++, 
-                                    animSpeed: (byte)(validStates[s].Bytes_09[0] & 0b1111), 
+                                    animSpeed: (byte)(validStates[s].Speed & 0b1111), 
                                     //linkedComplexStateIndex: (byte)states.Count, 
                                     //linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
                                     name: GetPointerName(validStates[s].AnimationPointer - 4, s));
@@ -1183,10 +1183,10 @@ namespace Ray1Map.Rayman1_Jaguar
             Dictionary<int, Unity_SpriteObject> uniqueEvents = new Dictionary<int, Unity_SpriteObject>();
 
             // Get all event definitions
-            var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new JAG_EventDefinition[0]).ToArray() ?? new JAG_EventDefinition[0];
+            var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new JAG_MultiSprite[0]).ToArray() ?? new JAG_MultiSprite[0];
 
             // Helper method for loading an event definition
-            Unity_Object_R1Jaguar loadEventDef(JAG_EventDefinition def) => CreateEventData(context, def, eventDefinitions, objManager);
+            Unity_Object_R1Jaguar loadEventDef(JAG_MultiSprite def) => CreateEventData(context, def, eventDefinitions, objManager);
 
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
@@ -1240,7 +1240,7 @@ namespace Ray1Map.Rayman1_Jaguar
                         continue; // Duplicate
                     }
 
-                    var ed = e.EventDefinition;
+                    var ed = e.MultiSprite;
 
                     /* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
@@ -1252,14 +1252,14 @@ namespace Ray1Map.Rayman1_Jaguar
                     if (linkBackIndex.HasValue)
                     {
                         linkIndex++;
-                        if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Unk_00 != 2)
+                        if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Ushort_00 != 2)
                         {
                             linkIndex = linkBackIndex.Value;
                             linkBackIndex = null;
                         }
 
                     }
-                    else if (e.Unk_00 == 2)
+                    else if (e.Ushort_00 == 2)
                     {
                         // Duplicate
                         continue;
@@ -1281,7 +1281,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     /*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
                         //var indEd = Array.IndexOf(rom.EventDefinitions, ed);
                         ed = rom.EventDefinitions[388];
-                        predeterminedState = e.EventDefinition.UnkBytes[5];
+                        predeterminedState = e.MultiSprite.UnkBytes[5];
                     }*/
                     // Add the event
                     var eventData = loadEventDef(ed);
@@ -1345,7 +1345,7 @@ namespace Ray1Map.Rayman1_Jaguar
             // Check if all events have been loaded
             foreach (var t in rom.EventData.EventData)
             {
-                foreach (JAG_EventInstance inst in t)
+                foreach (JAG_Event inst in t)
                 {
                     if (!uniqueEvents.ContainsKey(inst.EventIndex))
                         Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");

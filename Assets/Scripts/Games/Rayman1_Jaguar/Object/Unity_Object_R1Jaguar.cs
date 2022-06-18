@@ -22,16 +22,15 @@ namespace Ray1Map.Rayman1_Jaguar
 
         public Unity_ObjectManager_R1Jaguar ObjManager { get; }
 
-        public JAG_EventInstance Instance { get; set; }
+        public JAG_Event Instance { get; set; }
 
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
-        public override string DebugText => $"{nameof(Instance.Unk_00)}: {Instance?.Unk_00}{Environment.NewLine}" +
+        public override string DebugText => $"{nameof(Instance.Ushort_00)}: {Instance?.Ushort_00}{Environment.NewLine}" +
                                             $"{nameof(Instance.Unk_0A)}: {Instance?.Unk_0A}{Environment.NewLine}" +
                                             $"{nameof(Instance.EventIndex)}: {Instance?.EventIndex}{Environment.NewLine}" +
                                             $"{nameof(EventDefinitionPointer)}: {EventDefinitionPointer}{Environment.NewLine}" +
                                             $"IsComplex: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.ComplexData != null}{Environment.NewLine}" +
-                                            $"CAR: {String.Join("-", ObjManager.EventDefinitions[EventDefinitionIndex].Definition.CarData ?? new byte[0])}{Environment.NewLine}" +
                                             $"Byte_25: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.Byte_25}{Environment.NewLine}" +
                                             $"Byte_26: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.Byte_26}{Environment.NewLine}" +
                                             $"{nameof(Instance.OffsetX)}: {Instance?.OffsetX}{Environment.NewLine}" +
@@ -81,7 +80,41 @@ namespace Ray1Map.Rayman1_Jaguar
         protected override int GetSpriteID => EventDefinitionIndex;
         public override IList<Sprite> Sprites => DES.Sprites;
 
-		protected override bool ShouldUpdateFrame()
+        // TODO: Uncomment this once we can get all collision to align correctly. We should also implement ZDD collision from the states.
+        //private Unity_ObjAnimationCollisionPart[] _prevObjCollision;
+        //private int _prevObjCollisionEventDefIndex = -1;
+        //public override Unity_ObjAnimationCollisionPart[] ObjCollision
+        //{
+        //    get
+        //    {
+        //        if (_prevObjCollisionEventDefIndex != EventDefinitionIndex)
+        //        {
+        //            JAG_Character car = ObjManager.EventDefinitions[EventDefinitionIndex].Definition?.Character;
+
+        //            _prevObjCollision = car == null ? null : new Unity_ObjAnimationCollisionPart[]
+        //            {
+        //                new Unity_ObjAnimationCollisionPart()
+        //                {
+        //                    XPosition = car.ColX,
+        //                    YPosition = car.ColY,
+        //                    Width = car.ColWidth,
+        //                    Height = car.ColHeight,
+        //                }
+        //            }.Concat(car.Collides?.Select(x => new Unity_ObjAnimationCollisionPart()
+        //            {
+        //                XPosition = x.XPos,
+        //                YPosition = x.YPos,
+        //                Width = x.Width,
+        //                Height = x.Height,
+        //            }) ?? Array.Empty<Unity_ObjAnimationCollisionPart>()).ToArray();
+        //            _prevObjCollisionEventDefIndex = EventDefinitionIndex;
+        //        }
+
+        //        return _prevObjCollision;
+        //    }
+        //}
+
+        protected override bool ShouldUpdateFrame()
         {
             if (ForceFrame != null && ForceNoAnimation)
             {

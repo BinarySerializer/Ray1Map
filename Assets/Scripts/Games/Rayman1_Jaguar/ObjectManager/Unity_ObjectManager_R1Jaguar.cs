@@ -67,7 +67,7 @@ namespace Ray1Map.Rayman1_Jaguar
 
         public class EventDefinition
         {
-            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name, JAG_EventDefinition definition)
+            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name, JAG_MultiSprite definition)
             {
                 Pointer = pointer;
                 DES = des;
@@ -81,7 +81,7 @@ namespace Ray1Map.Rayman1_Jaguar
             public State[][] ETA { get; }
             protected string Name { get; }
             public string DisplayName => Name ?? $"MS_0x{Pointer.FileOffset:X8}";
-            public JAG_EventDefinition Definition { get; }
+            public JAG_MultiSprite Definition { get; }
         }
     }
 }

@@ -111,7 +111,7 @@ namespace Ray1Map.Rayman1_Jaguar
                                 var animComplex = cd.States?.Where(x => x.Layers != null).Select(x => new ExportAnim()
                                 {
                                     Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
+                                    AnimationSpeed = (byte)(x.Speed & 0b1111),
                                     Pointer = x.AnimationPointer - 4
                                 });
 
@@ -130,7 +130,7 @@ namespace Ray1Map.Rayman1_Jaguar
                                 animations.AddRange(ed.ComplexData.States.Where(x => x.Layers != null).Select(x => new ExportAnim()
                                 {
                                     Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
+                                    AnimationSpeed = (byte)(x.Speed & 0b1111),
                                     Pointer = x.AnimationPointer - 4
                                 }));
 
