@@ -68,7 +68,11 @@ namespace Ray1Map.Rayman1_Jaguar
         public Unity_ObjectManager_R1Jaguar.State[][] ETA => ObjManager.EventDefinitions[EventDefinitionIndex].ETA;
         public Unity_ObjectManager_R1Jaguar.State State => ETA?.ElementAtOrDefault(RuntimeComplexStateIndex)?.ElementAtOrDefault(RuntimeStateIndex);
 
-        public override BinarySerializable SerializableData => Instance;
+        public override BinarySerializable[] AdditionalSerializableDatas => new BinarySerializable[]
+        {
+            ObjManager.EventDefinitions[EventDefinitionIndex].Definition,
+            Instance,
+        };
 
         public override BaseLegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
@@ -81,36 +85,76 @@ namespace Ray1Map.Rayman1_Jaguar
         public override IList<Sprite> Sprites => DES.Sprites;
 
         // TODO: Uncomment this once we can get all collision to align correctly. We should also implement ZDD collision from the states.
-        //private Unity_ObjAnimationCollisionPart[] _prevObjCollision;
-        //private int _prevObjCollisionEventDefIndex = -1;
+        //       The biggest issue is how some colliders attach to the sprites. It seems rather inconsistent. The sprite value should
+        //       be an offset in an internal pointer array (16-bit pointers), but it doesn't always work correctly. The game probably
+        //       hard-codes some of it since collision checks aren't normalized, so it might not always calculate it relative.
+        //private bool _loggedColWarn;
         //public override Unity_ObjAnimationCollisionPart[] ObjCollision
         //{
         //    get
         //    {
-        //        if (_prevObjCollisionEventDefIndex != EventDefinitionIndex)
-        //        {
-        //            JAG_Character car = ObjManager.EventDefinitions[EventDefinitionIndex].Definition?.Character;
+        //        Unity_ObjAnimationPart[] sprites = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers;
 
-        //            _prevObjCollision = car == null ? null : new Unity_ObjAnimationCollisionPart[]
+        //        if (sprites?.Any() != true)
+        //            return Array.Empty<Unity_ObjAnimationCollisionPart>();
+
+        //        JAG_Character car = ObjManager.EventDefinitions[EventDefinitionIndex].Definition?.Character;
+
+        //        if (car == null)
+        //            return Array.Empty<Unity_ObjAnimationCollisionPart>();
+
+        //        var col = new List<Unity_ObjAnimationCollisionPart>();
+
+        //        if (car.Type != JAG_CollideType.nib)
+        //        {
+        //            int spriteIndex = (car.ColSprite / 2) - 1;
+        //            Unity_ObjAnimationPart p = sprites.ElementAtOrDefault(spriteIndex);
+
+        //            if (p == null && car.ColSprite != 0)
         //            {
-        //                new Unity_ObjAnimationCollisionPart()
+        //                if (!_loggedColWarn)
         //                {
-        //                    XPosition = car.ColX,
-        //                    YPosition = car.ColY,
+        //                    UnityEngine.Debug.LogWarning($"Sprite {spriteIndex} is out of bounds for {PrimaryName} for car collision");
+        //                    _loggedColWarn = true;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                col.Add(new Unity_ObjAnimationCollisionPart()
+        //                {
+        //                    XPosition = car.ColX + (p?.XPosition ?? 0),
+        //                    YPosition = car.ColY + (p?.YPosition ?? 0),
         //                    Width = car.ColWidth,
         //                    Height = car.ColHeight,
-        //                }
-        //            }.Concat(car.Collides?.Select(x => new Unity_ObjAnimationCollisionPart()
-        //            {
-        //                XPosition = x.XPos,
-        //                YPosition = x.YPos,
-        //                Width = x.Width,
-        //                Height = x.Height,
-        //            }) ?? Array.Empty<Unity_ObjAnimationCollisionPart>()).ToArray();
-        //            _prevObjCollisionEventDefIndex = EventDefinitionIndex;
+        //                });
+        //            }
         //        }
 
-        //        return _prevObjCollision;
+        //        foreach (JAG_CharacterCollide collide in car.Collides)
+        //        {
+        //            int spriteIndex = (car.ColSprite / 2) - 1;
+        //            Unity_ObjAnimationPart p = sprites.ElementAtOrDefault(spriteIndex);
+
+        //            if (p == null)
+        //            {
+        //                if (!_loggedColWarn)
+        //                {
+        //                    UnityEngine.Debug.LogWarning($"Sprite {spriteIndex} is out of bounds for {PrimaryName} for collide");
+        //                    _loggedColWarn = true;
+        //                }
+        //                continue;
+        //            }
+
+        //            col.Add(new Unity_ObjAnimationCollisionPart()
+        //            {
+        //                XPosition = collide.XPos + p.XPosition,
+        //                YPosition = collide.YPos + p.YPosition,
+        //                Width = collide.Width,
+        //                Height = collide.Height,
+        //            });
+        //        }
+
+        //        return col.ToArray();
         //    }
         //}
 

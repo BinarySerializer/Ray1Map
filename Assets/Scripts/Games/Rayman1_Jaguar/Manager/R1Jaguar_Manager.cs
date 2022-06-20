@@ -1372,14 +1372,19 @@ namespace Ray1Map.Rayman1_Jaguar
                 if (bb1 != null)
                     loadEventDef(bb1);
 
-                /*foreach (var ed in eventDefs) {// Add the event
-                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
-                    //uniqueEvents[e.EventIndex] = eventData;
-                    eventData.Data.XPosition = xPos;
-                    eventData.Data.YPosition = 5;
-                    xPos += 5;
-                    commonLev.EventData.Add(eventData);
-                }*/
+                //var poing = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(JAG_Proto_References.MS_poing));
+                //if (poing != null)
+                //    loadEventDef(poing);
+
+                //short xPos = 0;
+                //foreach (JAG_MultiSprite ms in eventDefs.Where(x => eventDefinitions.All(e => e.Definition != x)))
+                //{
+                //    var eventData = loadEventDef(ms);
+                //    eventData.XPosition = xPos;
+                //    eventData.YPosition = 5;
+                //    xPos += 5;
+                //    eventDataList.Add(eventData);
+                //}
             }
 
             // Use this to load every single event
