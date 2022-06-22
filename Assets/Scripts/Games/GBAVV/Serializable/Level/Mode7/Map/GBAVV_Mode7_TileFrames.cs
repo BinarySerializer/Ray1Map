@@ -73,7 +73,8 @@ namespace Ray1Map.GBAVV
                     DataLength = s.Serialize<uint>(DataLength, name: nameof(DataLength));
 
                 var length = Width * Height * 0x20;
-                s.DoEncodedIf(new GBAVV_Mode7_TileSetEncoder(length), isCompressed, () => TileSet = s.SerializeArray<byte>(TileSet, length, name: nameof(TileSet)));
+                s.DoEncoded(isCompressed ? new GBAVV_Mode7_TileSetEncoder(length) : null, 
+                    () => TileSet = s.SerializeArray<byte>(TileSet, length, name: nameof(TileSet)));
 
                 if (HasPaletteIndices)
                 {

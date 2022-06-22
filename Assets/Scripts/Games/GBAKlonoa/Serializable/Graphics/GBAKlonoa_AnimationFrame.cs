@@ -95,7 +95,8 @@ namespace Ray1Map.GBAKlonoa
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 
-            s.DoAt(ImgDataPointer, () => s.DoEncodedIf(new RLEEncoder(), IsRLECompressed, () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData))));
+            s.DoAt(ImgDataPointer, () => s.DoEncoded(IsRLECompressed ? new RLEEncoder() : null, 
+                () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData))));
 
             if (ImgData != null && ImgData.Length != Pre_ImgDataLength)
                 Debug.LogWarning($"Incorrect frame data length of {ImgData.Length} (should be {Pre_ImgDataLength}) at {Offset}");

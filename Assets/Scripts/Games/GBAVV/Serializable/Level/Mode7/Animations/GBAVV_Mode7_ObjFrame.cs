@@ -16,7 +16,9 @@ namespace Ray1Map.GBAVV
             Height = s.Serialize<byte>(Height, name: nameof(Height));
             Flags = s.Serialize<FrameFlags>(Flags, name: nameof(Flags));
 
-            s.DoEncodedIf(new GBAVV_Mode7_TileSetEncoder(Width * Height * (Flags.HasFlag(FrameFlags.Is8bit) ? 0x40 : 0x20)), Flags.HasFlag(FrameFlags.IsCompressed), () => TileSet = s.SerializeArray<byte>(TileSet, Width * Height * 0x20, name: nameof(TileSet)));
+            var encoder = new GBAVV_Mode7_TileSetEncoder(Width * Height * (Flags.HasFlag(FrameFlags.Is8bit) ? 0x40 : 0x20));
+
+            s.DoEncoded(Flags.HasFlag(FrameFlags.IsCompressed) ? encoder : null, () => TileSet = s.SerializeArray<byte>(TileSet, Width * Height * 0x20, name: nameof(TileSet)));
         }
 
         [Flags]

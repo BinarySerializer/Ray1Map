@@ -48,7 +48,7 @@ namespace Ray1Map.GBAVV
                                    s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts ||
                                    s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpiderMan3;
 
-                s.DoEncodedIf(new BinarySerializer.Nintendo.GBA.LZSSEncoder(), !uncompressed, () =>
+                s.DoEncoded(!uncompressed ? new BinarySerializer.Nintendo.GBA.LZSSEncoder() : null, () =>
                 {
                     MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.GBAVV_IsWorldMap = true, name: nameof(MapTiles));
                 });

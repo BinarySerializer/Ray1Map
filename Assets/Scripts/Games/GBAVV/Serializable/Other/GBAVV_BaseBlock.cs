@@ -50,7 +50,7 @@ namespace Ray1Map.GBAVV
                     throw new ArgumentOutOfRangeException(nameof(Compression), Compression, null);
             }
 
-            s.DoEncodedIf(encoder, encoder != null, () => SerializeBlock(s));
+            s.DoEncoded(encoder, () => SerializeBlock(s));
         }
 
         public abstract void SerializeBlock(SerializerObject s);

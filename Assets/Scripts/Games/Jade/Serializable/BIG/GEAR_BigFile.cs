@@ -47,7 +47,7 @@ namespace Ray1Map.Jade {
 			Pointer off_target = fileOffset;
 			s.Goto(off_target);
 			await s.FillCacheForReadAsync(fileSize);
-			s.DoEncodedIf(new Jade_ZlibEncoder(fileSize), fileIsCompressed, () => {
+			s.DoEncoded(fileIsCompressed ? new Jade_ZlibEncoder(fileSize) : null, () => {
 				action(fileSize);
 			});
 			s.Goto(off_current);

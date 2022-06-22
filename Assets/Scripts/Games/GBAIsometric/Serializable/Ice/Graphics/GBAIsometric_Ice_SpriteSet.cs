@@ -56,7 +56,7 @@ namespace Ray1Map.GBAIsometric
                     break;
             }
 
-            s.DoEncodedIf(encoder, encoder != null, () =>
+            s.DoEncoded(encoder, () =>
             {
                 Sprites = s.SerializeObjectArray<GBAIsometric_Ice_Sprite>(Sprites, IsMulti ? SpritesCount : 1, name: nameof(Sprites));
                 s.Align();

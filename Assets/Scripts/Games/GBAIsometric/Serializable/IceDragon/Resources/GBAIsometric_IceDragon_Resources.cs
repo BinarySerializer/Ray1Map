@@ -19,7 +19,7 @@ namespace Ray1Map.GBAIsometric
                 _ => throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null)
             };
 
-            s.DoEncodedIf(encoder, encoder != null, () => action(encoder != null ? s.CurrentLength : size));
+            s.DoEncoded(encoder, () => action(encoder != null ? s.CurrentLength : size));
         }
 
         public void DoAtResource(Context context, long index, Action<long> action)

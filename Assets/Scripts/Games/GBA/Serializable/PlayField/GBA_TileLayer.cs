@@ -113,20 +113,20 @@ namespace Ray1Map.GBA
 
                 if (StructType == Type.Layer2D)
                 {
-                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, ((Width + Width % 2) * (Height + Height % 2)) / 4, name: nameof(Shanghai_MapIndices_16)));
+                    s.DoEncoded(encoder, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, ((Width + Width % 2) * (Height + Height % 2)) / 4, name: nameof(Shanghai_MapIndices_16)));
 
                     var end = s.CurrentPointer;
 
                     // Go to the map tiles
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
-                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (Shanghai_MapIndices_16.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1) * 4, name: nameof(Shanghai_MapTiles)));
+                    s.DoEncoded(encoder, () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (Shanghai_MapIndices_16.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1) * 4, name: nameof(Shanghai_MapTiles)));
 
                     s.Goto(end);
                 }
                 else // Collision
                 {
-                    s.DoEncodedIf(encoder, encoder != null, () => SerializeTileMap(s));
+                    s.DoEncoded(encoder, () => SerializeTileMap(s));
                 }
 
                 s.Align();
