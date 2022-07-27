@@ -45,7 +45,7 @@ namespace Ray1Map.Jade {
 							}
 
 							PS2_GeometryCommand[] VIFProgram = null;
-							using (Context c = new Context("", serializerLog: new ParentContextLog(Context.Log))) {
+							using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(Context.SerializerLog))) {
 								ms.Position = 0;
 								var file = c.AddStreamFile($"ChainProgram__{Offset}__{elementIndex}-{subElementIndex}", ms);
 								var s = c.Deserializer;

@@ -25,7 +25,7 @@ namespace Ray1Map.Rayman1
             EventData.InitialXPosition = EventData.XPosition;
             EventData.InitialYPosition = EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
-            EventData.RuntimeMapLayer = EventData.MapLayer;
+            EventData.MapLayer = EventData.InitialMapLayer; // MapLayer is None in the files
 
             if (EventData.ObjType == R2_ObjType.Ting)
                 EventData.RuntimeCurrentAnimFrame = (byte)(EventData.HitPoints - 1);
@@ -120,9 +120,9 @@ namespace Ray1Map.Rayman1
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.DisplayPrio * 512));
 
-        public override int? MapLayer => EventData.RuntimeMapLayer == R2_ObjData.ObjMapLayer.Back ? 2: 3;
+        public override int? MapLayer => EventData.MapLayer == R2_ObjData.ObjMapLayer.Back ? 2: 3;
 
-        public override float Scale => EventData.RuntimeMapLayer == R2_ObjData.ObjMapLayer.Back ? 0.5f : 1;
+        public override float Scale => EventData.MapLayer == R2_ObjData.ObjMapLayer.Back ? 0.5f : 1;
         public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlipX : EventData.Flags.HasFlag(R2_ObjData.PS1_R2Demo_ObjFlags.FlippedHorizontally);
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {

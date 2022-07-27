@@ -66,7 +66,7 @@ namespace Ray1Map.GBAIsometric
 
             public override void SerializeImpl(SerializerObject s)
             {
-                DataPointer = s.SerializePointer<GBAIsometric_RHR_MapLayer>(DataPointer, resolve: true, name: nameof(DataPointer));
+                DataPointer = s.SerializePointer<GBAIsometric_RHR_MapLayer>(DataPointer, name: nameof(DataPointer))?.ResolveObject(s);
                 UnkData = s.SerializeArray<byte>(UnkData, 16, name: nameof(UnkData));
             }
         }

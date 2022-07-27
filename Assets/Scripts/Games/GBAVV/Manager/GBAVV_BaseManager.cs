@@ -64,7 +64,7 @@ namespace Ray1Map.GBAVV
                 if (songCount != 0) {
                     Pointer<GAX2_Song>[] Songs = null;
                     s.DoAt(SongOffset, () => {
-                        Songs = s.SerializePointerArray<GAX2_Song>(Songs, songCount, resolve: true, name: nameof(Songs));
+                        Songs = s.SerializePointerArray<GAX2_Song>(Songs, songCount, name: nameof(Songs))?.ResolveObject(s);
                     });
                     for (int i = 0; i < Songs.Length; i++) {
                         GAXHelpers.ExportGAX(settings, $"{outputPath}/music", Songs[i]?.Value, 2);
@@ -73,7 +73,7 @@ namespace Ray1Map.GBAVV
                 if (fxCount != 0) {
                     Pointer<GAX2_Song>[] FX = null;
                     s.DoAt(FXOffset, () => {
-                        FX = s.SerializePointerArray<GAX2_Song>(FX, fxCount, resolve: true, name: nameof(FX));
+                        FX = s.SerializePointerArray<GAX2_Song>(FX, fxCount, name: nameof(FX))?.ResolveObject(s);
                     });
                     for (int i = 0; i < FX.Length; i++) {
                         GAXHelpers.ExportGAX(settings, $"{outputPath}/fx", FX[i]?.Value, 1);

@@ -115,7 +115,7 @@ namespace Ray1Map.GBARRR
                 var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
                 Pointer<GAX_Instrument>[] instruments = null;
                 s.DoAt(new Pointer(0x0805C8EC, rom.Offset.File), () => {
-                    instruments = s.SerializePointerArray<GAX_Instrument>(instruments, 156, resolve: true, name: nameof(instruments));
+                    instruments = s.SerializePointerArray<GAX_Instrument>(instruments, 156, name: nameof(instruments))?.ResolveObject(s);
                 });
                 s.DoAt(pointerTable[DefinedPointer.MusicSampleTable], () => {
                     var sampleTable = s.SerializeObject<GAX_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
@@ -253,7 +253,7 @@ namespace Ray1Map.GBARRR
                         using (var outputStream = File.Create(outputFilePath)) {
                             // Create a context
                             using (var xmContext = new Ray1MapContext(settings)) {
-                                ((Ray1MapContext.R1SerializerLog)xmContext.Log).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.txt");
+                                ((Ray1MapContext.R1SerializerLog)xmContext.SerializerLog).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.txt");
                                 // Create a key
                                 string xmKey = $"{h.Info.ParsedName}.xm";
 

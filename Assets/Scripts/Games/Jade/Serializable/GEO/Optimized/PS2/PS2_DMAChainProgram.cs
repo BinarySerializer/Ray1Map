@@ -13,7 +13,7 @@ namespace Ray1Map.Jade {
 
 			Commands = s.SerializeObjectArrayUntil<PS2_DMACommand>(Commands, gc => s.CurrentAbsoluteOffset >= Offset.AbsoluteOffset + 8 + DataSize, name: nameof(Commands));
 			if (s.CurrentAbsoluteOffset > Offset.AbsoluteOffset + 8 + DataSize) {
-				s.LogWarning($"{Offset}: Read too many DMA commands");
+				s.SystemLog?.LogWarning($"{Offset}: Read too many DMA commands");
 			}
 			s.Goto(Offset + 8 + DataSize);
 		}

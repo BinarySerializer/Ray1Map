@@ -20,7 +20,7 @@ namespace Ray1Map.GBAIsometric
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR)
-                AnimSetPointer = s.SerializePointer<GBAIsometric_RHR_AnimSet>(AnimSetPointer, resolve: true, name: nameof(AnimSetPointer));
+                AnimSetPointer = s.SerializePointer<GBAIsometric_RHR_AnimSet>(AnimSetPointer, name: nameof(AnimSetPointer))?.ResolveObject(s);
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                 ObjectMemorySize = s.Serialize<uint>(ObjectMemorySize, name: nameof(ObjectMemorySize));
 

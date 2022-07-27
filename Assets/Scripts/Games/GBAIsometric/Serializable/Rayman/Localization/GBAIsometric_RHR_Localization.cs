@@ -13,7 +13,8 @@ namespace Ray1Map.GBAIsometric
         public override void SerializeImpl(SerializerObject s)
         {
             Cutscenes = s.SerializePointerArray<GBAIsometric_RHR_Cutscene>(Cutscenes, 194, name: nameof(Cutscenes));
-            Offsets = s.SerializePointerArray<Array<ushort>>(Offsets, 6, resolve: true, onPreSerialize: (x, _) => x.Pre_Length = 690, name: nameof(Offsets));
+            Offsets = s.SerializePointerArray<Array<ushort>>(Offsets, 6, name: nameof(Offsets))
+                ?.ResolveObject(s, onPreSerialize: (x, _) => x.Pre_Length = 690);
             LocTables = s.SerializePointerArray(LocTables, 6, name: nameof(LocTables));
             if (Localization == null) {
                 Localization = new string[Offsets.Length][];
@@ -36,9 +37,8 @@ namespace Ray1Map.GBAIsometric
 
                 s.Context.StoreObject("Loc", Localization);
             }
-
-            foreach (var c in Cutscenes)
-                c.Resolve(s);
+            
+            Cutscenes?.ResolveObject(s);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Ray1Map.GBAIsometric
             Is8Bit = s.Serialize<bool>(Is8Bit, name: nameof(Is8Bit));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, name: nameof(GraphicsDataPointer))?.ResolveObject(s);
             Pointer1 = s.SerializePointer(Pointer1, name: nameof(Pointer1));
             Pointer2 = s.SerializePointer(Pointer2, name: nameof(Pointer2));
         }

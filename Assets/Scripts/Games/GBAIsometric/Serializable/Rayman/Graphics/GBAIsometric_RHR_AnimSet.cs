@@ -64,7 +64,7 @@ namespace Ray1Map.GBAIsometric
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
             PatternsPointer = s.SerializePointer(PatternsPointer, name: nameof(PatternsPointer));
             TileIndicesPointer = s.SerializePointer(TileIndicesPointer, name: nameof(TileIndicesPointer));
-            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, name: nameof(GraphicsDataPointer))?.ResolveObject(s);
             Bytes_28 = s.SerializeArray<byte>(Bytes_28, 8, name: nameof(Bytes_28));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 

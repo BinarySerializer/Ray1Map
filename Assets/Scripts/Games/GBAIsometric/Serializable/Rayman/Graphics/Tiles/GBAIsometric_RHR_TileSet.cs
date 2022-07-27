@@ -23,8 +23,9 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
-            PaletteIndexTablePointer = s.SerializePointer<GBAIsometric_RHR_PaletteIndexTable>(PaletteIndexTablePointer, resolve: true, onPreSerialize: pit => pit.Length = GraphicsDataPointer.Value.CompressionLookupBufferLength, name: nameof(PaletteIndexTablePointer));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, name: nameof(GraphicsDataPointer))?.ResolveObject(s);
+            PaletteIndexTablePointer = s.SerializePointer<GBAIsometric_RHR_PaletteIndexTable>(PaletteIndexTablePointer, name: nameof(PaletteIndexTablePointer))
+                ?.ResolveObject(s, onPreSerialize: pit => pit.Length = GraphicsDataPointer.Value.CompressionLookupBufferLength);
             CombinedTileDataPointer = s.SerializePointer(CombinedTileDataPointer, name: nameof(CombinedTileDataPointer));
             CombinedTileOffsetsPointer = s.SerializePointer(CombinedTileOffsetsPointer, name: nameof(CombinedTileOffsetsPointer));
             for (int i = 0; i < 4; i++) {

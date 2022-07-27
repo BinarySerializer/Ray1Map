@@ -15,7 +15,7 @@ namespace Ray1Map.Jade {
 			int worldIndex = 0;
 			foreach (var world in Worlds) {
 				if (!world.IsNull && Loader.IsBinaryData && Loader.Bin.CurrentPosition.AbsoluteOffset >= Loader.Bin.TotalSize) {
-					s.LogWarning($"World {worldIndex + 1}/{Worlds.Length} ({world.Key}) could not be serialized");
+					s.SystemLog?.LogWarning($"World {worldIndex + 1}/{Worlds.Length} ({world.Key}) could not be serialized");
 					break;
 				}
 				Controller.DetailedState = $"Loading world {worldIndex + 1}/{Worlds.Length}";

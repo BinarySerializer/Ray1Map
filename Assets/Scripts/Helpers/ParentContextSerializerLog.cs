@@ -2,7 +2,7 @@
 
 namespace Ray1Map
 {
-	public class ParentContextLog : ISerializerLog {
+	public class ParentContextSerializerLog : ISerializerLog {
 		public ISerializerLog ParentLog { get; set; }
 
 		public bool IsEnabled => ParentLog.IsEnabled;
@@ -11,7 +11,7 @@ namespace Ray1Map
 
 		public void Dispose() { }
 
-		public ParentContextLog(ISerializerLog parent) {
+		public ParentContextSerializerLog(ISerializerLog parent) {
 			ParentLog = parent;
 		}
 	}

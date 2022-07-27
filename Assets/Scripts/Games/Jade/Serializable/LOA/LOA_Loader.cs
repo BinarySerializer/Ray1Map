@@ -288,7 +288,7 @@ namespace Ray1Map.Jade {
 						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					s.SystemLog?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -340,7 +340,7 @@ namespace Ray1Map.Jade {
 						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
-					s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+					s.SystemLog?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -545,7 +545,7 @@ namespace Ray1Map.Jade {
 								} else if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_NoKeyChecks)) {
 									currentRef.Key = BinFileHeader.Key;
 								} else {
-									s.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
+									s.SystemLog?.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
 								}
 							}
 						}
@@ -703,9 +703,9 @@ namespace Ray1Map.Jade {
 						});
 						IsCompressed = Bin.Key.IsCompressed;
 						ReadBinFileHeader = IsCompressed;
-						Context.Logger?.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
+						Context.SystemLog?.LogInfo($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {
-						Context.Logger?.LogWarning($"[{key}] ({key.Type} - File not found, could not enter Speed Mode");
+						Context.SystemLog?.LogWarning($"[{key}] ({key.Type} - File not found, could not enter Speed Mode");
 						EndSpeedMode();
 					}
 				}

@@ -15,7 +15,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            AnimSet = s.SerializePointer<Sparx_AnimSet>(AnimSet, resolve: true, name: nameof(AnimSet));
+            AnimSet = s.SerializePointer<Sparx_AnimSet>(AnimSet, name: nameof(AnimSet))?.ResolveObject(s);
             AnimIndex = s.Serialize<int>(AnimIndex, name: nameof(AnimIndex));
             Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
             Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));

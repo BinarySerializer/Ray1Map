@@ -21,7 +21,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            TileSetPointer = s.SerializePointer<GBAIsometric_RHR_TileSet>(TileSetPointer, resolve: true, name: nameof(TileSetPointer));
+            TileSetPointer = s.SerializePointer<GBAIsometric_RHR_TileSet>(TileSetPointer, name: nameof(TileSetPointer))?.ResolveObject(s);
             StructType = s.Serialize<MapLayerType>(StructType, name: nameof(StructType));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));

@@ -154,7 +154,7 @@ namespace Ray1Map.Jade {
 						/*case Platform.PSP:
 							throw new NotImplementedException($"TODO: Implement {GetType()} for PSP");*/
 						default:
-							s.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
+							s.SystemLog?.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 							break;
 					}
 				}

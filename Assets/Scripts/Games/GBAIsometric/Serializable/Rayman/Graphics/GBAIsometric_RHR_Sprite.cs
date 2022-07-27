@@ -20,7 +20,7 @@ namespace Ray1Map.GBAIsometric
         {
             Info = s.SerializeObject<GBAIsometric_RHR_SpriteInfo>(Info, name: nameof(Info));
             Is8Bit = s.Serialize<bool>(Is8Bit, name: nameof(Is8Bit));
-            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, name: nameof(GraphicsDataPointer))?.ResolveObject(s);
             LookupBufferPositionsPointer = s.SerializePointer(LookupBufferPositionsPointer, name: nameof(LookupBufferPositionsPointer));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 

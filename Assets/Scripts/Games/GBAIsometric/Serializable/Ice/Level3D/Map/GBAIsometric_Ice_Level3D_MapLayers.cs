@@ -10,7 +10,8 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Layers = s.SerializePointerArray(Layers, 4, resolve: Pre_Resolve, name: nameof(Layers));
+            Layers = s.SerializePointerArray<GBAIsometric_Ice_Level3D_MapLayer>(Layers, 4, name: nameof(Layers));
+            if(Pre_Resolve) Layers?.ResolveObject(s);
         }
     }
 }

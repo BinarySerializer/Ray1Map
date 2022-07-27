@@ -18,7 +18,7 @@ namespace Ray1Map.GBAIsometric
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
             Bytes_06 = s.SerializeArray<byte>(Bytes_06, 14, name: nameof(Bytes_06));
-            GraphicsPointer = s.SerializePointer<Sparx_SpriteGraphics>(GraphicsPointer, resolve: true, name: nameof(GraphicsPointer));
+            GraphicsPointer = s.SerializePointer<Sparx_SpriteGraphics>(GraphicsPointer, name: nameof(GraphicsPointer))?.ResolveObject(s);
         }
     }
 }

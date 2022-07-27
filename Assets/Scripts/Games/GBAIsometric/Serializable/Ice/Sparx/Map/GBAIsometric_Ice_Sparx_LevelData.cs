@@ -16,14 +16,22 @@ namespace Ray1Map.GBAIsometric
         public override void SerializeImpl(SerializerObject s)
         {
             // The padding is unused pointers (this format seems to be taken from another game, not sure which one)
-            Maps = s.SerializePointerArray<GBAIsometric_Ice_Sparx_MapLayer>(Maps, 3, resolve: Pre_Resolve, name: nameof(Maps));
+            Maps = s.SerializePointerArray<GBAIsometric_Ice_Sparx_MapLayer>(Maps, 3, name: nameof(Maps));
             s.SerializePadding(4);
-            ObjectMap = s.SerializePointer<GBAIsometric_Ice_Sparx_MapLayer>(ObjectMap, resolve: Pre_Resolve, name: nameof(ObjectMap));
-            TileSet = s.SerializePointer<GBAIsometric_Ice_Sparx_TileSet>(TileSet, resolve: Pre_Resolve, name: nameof(TileSet));
+            ObjectMap = s.SerializePointer<GBAIsometric_Ice_Sparx_MapLayer>(ObjectMap, name: nameof(ObjectMap));
+            TileSet = s.SerializePointer<GBAIsometric_Ice_Sparx_TileSet>(TileSet, name: nameof(TileSet));
             s.SerializePadding(4);
-            TileSetMap = s.SerializePointer<GBAIsometric_Ice_Sparx_TileSetMap>(TileSetMap, resolve: Pre_Resolve, name: nameof(TileSetMap));
+            TileSetMap = s.SerializePointer<GBAIsometric_Ice_Sparx_TileSetMap>(TileSetMap, name: nameof(TileSetMap));
             s.SerializePadding(4);
-            Palette = s.SerializePointer<Palette>(Palette, onPreSerialize: x => x.Pre_Is8Bit = true, resolve: Pre_Resolve, name: nameof(Palette));
+            Palette = s.SerializePointer<Palette>(Palette, name: nameof(Palette));
+
+            if (Pre_Resolve) {
+                Maps?.ResolveObject(s);
+                ObjectMap?.ResolveObject(s);
+                TileSet?.ResolveObject(s);
+                TileSetMap?.ResolveObject(s);
+                Palette?.ResolveObject(s, onPreSerialize: x => x.Pre_Is8Bit = true);
+            }
         }
     }
 }

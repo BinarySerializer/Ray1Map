@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
 using UnityEngine;
-using ILogger = BinarySerializer.ILogger;
+using ISystemLog = BinarySerializer.ISystemLog;
 
 namespace Ray1Map
 {
@@ -15,7 +15,7 @@ namespace Ray1Map
             settings: new R1SerializerSettings(), // Pass in the settings
             serializerLog: new R1SerializerLog(), // Use R1 serializer log for logging to a file
             fileManager: new R1FileManager(), // Use R1 file manager for use with FileSystem
-            logger: new UnityLogger()) // Use Unity logger
+            systemLog: new UnitySystemLog()) // Use Unity logger
         {
             // Add the game settings
             AddSettings(settings);
@@ -76,11 +76,21 @@ namespace Ray1Map
             }
         }
         
-        public class UnityLogger : ILogger
+        public class UnitySystemLog : ISystemLog
         {
-            public void Log(object log, params object[] args) => Debug.Log(String.Format(log?.ToString() ?? String.Empty, args));
-            public void LogWarning(object log, params object[] args) => Debug.LogWarning(String.Format(log?.ToString() ?? String.Empty, args));
-            public void LogError(object log, params object[] args) => Debug.LogError(String.Format(log?.ToString() ?? String.Empty, args));
+            public void Log(BinarySerializer.LogLevel logLevel, object log, params object[] args) {
+                switch (logLevel) {
+                    case BinarySerializer.LogLevel.Error:
+                        Debug.LogError(String.Format(log?.ToString() ?? String.Empty, args));
+                        break;
+                    case BinarySerializer.LogLevel.Warning:
+                        Debug.LogWarning(String.Format(log?.ToString() ?? String.Empty, args));
+                        break;
+                    case BinarySerializer.LogLevel.Info:
+                        Debug.Log(String.Format(log?.ToString() ?? String.Empty, args));
+                        break;
+                }
+            }
         }
 
         public class R1SerializerLog : ISerializerLog

@@ -18,7 +18,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_RHR_GraphicsData>(GraphicsDataPointer, name: nameof(GraphicsDataPointer))?.ResolveObject(s);
             LookupBufferPositionsPointer = s.SerializePointer(LookupBufferPositionsPointer, name: nameof(LookupBufferPositionsPointer));
             SpriteInfosPointer = s.SerializePointer(SpriteInfosPointer, name: nameof(SpriteInfosPointer));
             Is8Bit = s.Serialize<bool>(Is8Bit, name: nameof(Is8Bit));

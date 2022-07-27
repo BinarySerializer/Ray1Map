@@ -186,8 +186,7 @@ public class UnityWindowSerializer : SerializerObject
         return obj;
     }
 
-    public override Pointer<T> SerializePointer<T>(Pointer<T> obj, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null,
-        bool allowInvalid = false, long? nullValue = null, string name = null) {
+    public override Pointer<T> SerializePointer<T>(Pointer<T> obj, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool allowInvalid = false, long? nullValue = null, string name = null) {
         EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{name} {obj}");
 
         return obj;
@@ -220,13 +219,12 @@ public class UnityWindowSerializer : SerializerObject
         return obj;
     }
 
-    public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool resolve = false,
-        Action<T, int> onPreSerialize = null, bool allowInvalid = false, long? nullValue = null, string name = null)
+    public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool allowInvalid = false, long? nullValue = null, string name = null)
     {
         if (obj == null) obj = new Pointer<T>[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
         for (int i = 0; i < obj.Length; i++)
-            SerializePointer(obj[i], size: size, anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize == null ? (Action<T>)null : x => onPreSerialize(x, i), allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
+            SerializePointer(obj[i], size: size, anchor: anchor, allowInvalid: allowInvalid, nullValue: nullValue, name: $"{name}[{i}]");
 
         return obj;
     }
@@ -238,7 +236,7 @@ public class UnityWindowSerializer : SerializerObject
         return Window.EditorField(String.Empty, obj, rect: rect);
     }
 
-    public override string[] SerializeStringArray(string[] obj, long count, int length, Encoding encoding = null, string name = null)
+    public override string[] SerializeStringArray(string[] obj, long count, long? length = null, Encoding encoding = null, string name = null)
     {
         if (obj == null) obj = new string[count];
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);

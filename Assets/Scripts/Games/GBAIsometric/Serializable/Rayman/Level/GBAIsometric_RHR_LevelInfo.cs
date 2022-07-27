@@ -36,7 +36,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            LevelDataPointer = s.SerializePointer<GBAIsometric_RHR_LevelData>(LevelDataPointer, resolve: SerializeData, name: nameof(LevelDataPointer));
+            LevelDataPointer = s.SerializePointer<GBAIsometric_RHR_LevelData>(LevelDataPointer, name: nameof(LevelDataPointer));
 
             MurfyStampScore1 = s.Serialize<ushort>(MurfyStampScore1, name: nameof(MurfyStampScore1));
             MurfyStampScore2 = s.Serialize<ushort>(MurfyStampScore2, name: nameof(MurfyStampScore2));
@@ -59,7 +59,12 @@ namespace Ray1Map.GBAIsometric
             Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
             Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 
-            MapPointer = s.SerializePointer(MapPointer, resolve: SerializeData, name: nameof(MapPointer));
+            MapPointer = s.SerializePointer(MapPointer, name: nameof(MapPointer));
+
+            if (SerializeData) {
+                LevelDataPointer?.ResolveObject(s);
+                MapPointer?.ResolveObject(s);
+            }
         }
 
         [Flags]
