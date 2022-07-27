@@ -265,6 +265,7 @@ namespace Ray1Map {
 								var langID = kv.Key;
 								var allText = kv.Value;
 								if(!langTables.ContainsKey(langID)) langTables[langID] = new Dictionary<string, string>();
+								if (allText?.Text == null) continue;
 								foreach (var g in allText.Text) {
 									if (g.IsNull || g.Value == null) continue;
 									var group = (TEXT_TextGroup)g.Value;
