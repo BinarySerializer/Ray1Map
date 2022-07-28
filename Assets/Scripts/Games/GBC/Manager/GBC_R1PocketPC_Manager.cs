@@ -16,7 +16,12 @@ namespace Ray1Map.GBC
         public string AllfixFilePath => "worldmap.dat";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                ((c.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPocketPC_LandscapeIPAQ) ? "ipaqmenu" : "menu"),
+                (c.GetR1Settings().GameModeSelection switch
+                {
+                    GameModeSelection.RaymanGBCPocketPC_LandscapeIPAQ => "ipaqmenu",
+                    GameModeSelection.RaymanGBCSymbian => "epocmenu",
+                    _ => "menu"
+                }),
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -36,7 +41,10 @@ namespace Ray1Map.GBC
                 "IDRegister",
                 "IDUnlock",
                 "save",
-                "save1"
+                "save1",
+
+                // Symbian exclusive
+                "bmps",
             };
         }
 
@@ -131,18 +139,30 @@ namespace Ray1Map.GBC
                         collection.Write(Path.Combine(outputDir, $"{p}.gif"));
                     }
                 });
-
             }
 
-            var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
-            var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(context, path + ".dat");
+            string path = GetAllDataPaths(context).First(x => x.Contains("menu"));
+            LUDI_PocketPC_DataFile dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(context, path + ".dat");
 
+            ExportVignette(s, dataFile, Path.Combine(outputDir, path));
+
+            if (context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCSymbian)
+            {
+                path = "bmps";
+                dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(context, path + ".dat");
+
+                ExportVignette(s, dataFile, Path.Combine(outputDir, path));
+            }
+        }
+
+        public void ExportVignette(BinaryDeserializer s, LUDI_PocketPC_DataFile dataFile, string outputDir)
+        {
             for (int i = 0; i < dataFile.BlockCount; i++)
             {
                 ushort blockID = dataFile.OffsetTable.Entries[i].BlockID;
                 Pointer blockPtr = dataFile.Resolve(blockID);
 
-                if (blockPtr == null) 
+                if (blockPtr == null)
                     continue;
 
                 bool exported = false;
@@ -150,7 +170,7 @@ namespace Ray1Map.GBC
                 try
                 {
                     var vignette = s.DoAt(blockPtr, () => s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
-                    ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{blockID}.png"));
+                    ExportVignette(vignette.Value, Path.Combine(outputDir, $"{blockID}.png"));
                     exported = true;
                 }
                 catch (Exception)
@@ -163,7 +183,7 @@ namespace Ray1Map.GBC
                     try
                     {
                         var vignette = s.DoAt(blockPtr, () => s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
-                        ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{blockID}.png"));
+                        ExportVignette(vignette.Value, Path.Combine(outputDir, $"{blockID}.png"));
                     }
                     catch (Exception)
                     {

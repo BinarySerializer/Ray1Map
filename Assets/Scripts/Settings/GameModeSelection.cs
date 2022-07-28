@@ -378,6 +378,9 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - IPAQ Demo)", typeof(GBC_R1PocketPC_Manager))]
         RaymanGBCPocketPC_LandscapeIPAQDemo,
 
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (Symbian)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCSymbian,
+
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU/US)", typeof(GBC_R1_Manager))]
         RaymanGBC,
 
