@@ -216,6 +216,11 @@ namespace Ray1Map.Psychonauts
 
             // NOTE: This is all very work in process and barely functions. PS2 graphics are complicated :/
 
+            // Some helpful links I found for when I get back to working on this again:
+            // https://psi-rockin.github.io/ps2tek
+            // https://github.com/PCSX2/pcsx2/issues/1803 > https://github.com/Fireboyd78/driver-tools/tree/dev/GMC2Snooper/PS2
+            // https://github.com/PCSX2/pcsx2/tree/master/pcsx2
+
             try
             {
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
