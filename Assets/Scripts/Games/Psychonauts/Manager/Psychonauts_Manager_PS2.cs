@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.PS2;
 using PsychoPortal;
 using PsychoPortal.Unity;
 using UnityEngine;
@@ -182,7 +183,7 @@ namespace Ray1Map.Psychonauts
                     {
                         PS2_Texture ps2Tex = Binary.ReadFromBuffer<PS2_Texture>(fileBuffer, loader.Settings, onPreSerializing: (_, x) => x.Pre_IsPacked = false, logger: logger, name: name);
 
-                        Texture2D tex = ps2Tex.ToTexture2D();
+                        Texture2D tex = ps2Tex.ToTexture2D(flipY: true);
                         tex.ExportPNG(Path.ChangeExtension(outputFile, ".png"));
                     }
                 }
@@ -195,23 +196,196 @@ namespace Ray1Map.Psychonauts
 
         public override PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
-            InitPS2MeshFrag(loader, meshFrag);
-            
-            // TODO: Once InitPS2 can successfully convert the data we need to load the mesh frag like usual
-            //return base.LoadMesh(loader, mesh, parent, textures);
-            return null;
+            // Convert PS2 mesh data to common format
+            try
+            {
+                InitPS2MeshFrag(loader, meshFrag);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Failed to initialize PS2 mesh frag: {ex.Message}");
+                return null;
+            }
+
+            return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
         }
 
         public void InitPS2MeshFrag(Ray1MapLoader loader, MeshFrag meshFrag)
         {
             const string key = "geo";
 
+            // NOTE: This is all very work in process and barely functions. PS2 graphics are complicated :/
+
             try
             {
+                // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
                 loader.Context.AddFile(new StreamFile(loader.Context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
                 PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(loader.Context, key);
 
-                // TODO: Convert the data to common format so it can be loaded
+                List<VertexNotexNorm> vertices = new();
+                List<List<PS2_UV16>> uvs = new();
+
+                float toFloat(int value) => BitConverter.ToSingle(BitConverter.GetBytes(value));
+                uint[] row = new uint[4];
+                
+                // Execute program
+                foreach (PS2_GeometryCommand cmd in cmds.Commands)
+                {
+                    if (cmd.VIFCode.IsUnpack)
+                    {
+                        VIFcode_Unpack unpack = cmd.VIFCode.GetUnpack();
+                        uint addr = unpack.ADDR;
+
+                        // TODO: Unpack these. Why is there no data? How does the masking work? Is the cycle related?
+                        if (unpack.M)
+                            continue;
+
+                        switch (addr) // TODO: Is using the address like this reliable?
+                        {
+                            // GIFTag
+                            case 0:
+                                // Verify flags match
+                                if (cmd.GIFTag.PRIM.PrimitiveType == PRIM_PrimitiveType.TriangleStrip !=
+                                    meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip))
+                                {
+                                    throw new Exception("Triangle strip flags are not set correctly");
+                                }
+
+                                // TODO: Get relevant properties from PRIM such as shading, alpha blending etc. Also get count from here!
+
+                                break;
+
+                            // Unused?
+                            case 1:
+                                throw new Exception("Data written to address 1");
+
+                            // Vertices
+                            case 2:
+                                foreach (PS2_Vector3_Int16 vec in cmd.Vertices)
+                                {
+                                    vertices.Add(new VertexNotexNorm()
+                                    {
+                                        // TODO: Fix the offset here. Hard-coding it to this only works in some levels. Game
+                                        //       seems to convert it to a float using the row data?
+                                        Vertex = new Vec3(
+                                            vec.X - 0x8000,
+                                            vec.Y - 0x8000,
+                                            vec.Z - 0x8000),
+
+                                        // TODO: Either find a defined normal or calculate it manually
+                                        Normal = new NormPacked3(),
+                                    });
+                                }
+                                break;
+
+                            case 3:
+                                // TODO: Implement. Vertex colors/normals?
+                                break;
+
+                            case 4:
+                                // TODO: Implement. Vertex colors/normals?
+                                break;
+
+                            // UV
+                            case 5:
+                            case 6:
+                            case 7:
+                                // TODO: Cleaner way of handling this. Psychonauts can have up to 3 UV-maps.
+                                int uvIndex = (int)(addr - 5);
+
+                                if (uvs.Count <= uvIndex)
+                                    uvs.Insert(uvIndex, new List<PS2_UV16>());
+
+                                foreach (PS2_UV16 uv in cmd.UVs)
+                                    uvs[uvIndex].Add(uv);
+
+                                if (uvs[uvIndex].Count != vertices.Count)
+                                    throw new Exception($"UVs count don't match vertices {uvs[uvIndex].Count} != {vertices.Count}");
+
+                                break;
+
+                        }
+                    }
+                    else
+                    {
+                        switch (cmd.VIFCode.CMD)
+                        {
+                            case VIFcode.Command.STROW:
+                                row = cmd.ROW; // Default data to fill rows with?
+                                break;
+
+                            case VIFcode.Command.STCOL:
+                                Debug.LogWarning("Column command is used"); // Hopefully this is never used
+                                break;
+
+                            case VIFcode.Command.STMASK:
+                                Debug.LogWarning("Mask command is used"); // Multiple 2-bit values?
+                                break;
+                        }
+                    }
+
+                }
+
+                // Convert to Psychonauts UV sets
+                List<UVSet> uvSets = Enumerable.Range(0, uvs.First().Count).Select(x => new UVSet()
+                {
+                    UVs = new UV[uvs.Count]
+                }).ToList();
+
+                for (var uvIndex = 0; uvIndex < uvs.Count; uvIndex++)
+                {
+                    List<PS2_UV16> uvList = uvs[uvIndex];
+
+                    if (uvList.Count != uvSets.Count)
+                        throw new Exception("UV count mismatch");
+
+                    for (int i = 0; i < uvList.Count; i++)
+                    {
+                        uvSets[i].UVs[uvIndex] = new UV()
+                        {
+                            Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
+
+                            // TODO: Is this even correct? Value range should be 0-1, but it's usually above 250...
+                            U_Float = toFloat(uvList[i].U | (int)row[0]),
+                            V_Float = toFloat(uvList[i].V | (int)row[1])
+                        };
+                    }
+                }
+
+                // TODO: This is because of some UV arrays not being defined as normal packed data. For now we just trim the data
+                //       so the count matches and Unity can load it... But we should find a better solution.
+                if (uvSets.Count > vertices.Count)
+                    uvSets.RemoveRange(vertices.Count, uvSets.Count - vertices.Count);
+                else if (vertices.Count > uvSets.Count)
+                    vertices.RemoveRange(uvSets.Count, vertices.Count - uvSets.Count);
+
+                // Vertices
+                meshFrag.Vertices = vertices.ToArray();
+
+                // TODO: Implement vertex colors - verify with PC/Xbox release to make sure they're hanled correctly
+                // Vertex colors
+                //meshFrag.HasVertexColors = 1;
+                //meshFrag.VertexColors = cmds.Commands.Where(x => x.VertexColors != null).SelectMany(x => x.VertexColors).Select(x => new PsychoPortal.RGBA8888Color
+                //{
+                //    Red = x.R,
+                //    Green = x.G,
+                //    Blue = x.B,
+                //    Alpha = 255
+                //}).ToArray();
+
+                // TODO: Optimize this by reusing polygons
+                // Polygons
+                meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
+
+                //Debug.Log(String.Join(Environment.NewLine, vertices.Select(x => x.Vertex)));
+                //Debug.Log(String.Join(Environment.NewLine, uvSets.Select(x => x.UVs[0].ToVec2())));
+
+                // UVs
+                meshFrag.UVScale = 1; // TODO: Does the PS2 version use some sort of UV scaling like other versions?
+                meshFrag.UVSets = uvSets.ToArray();
+
+                if (uvSets.Count != vertices.Count)
+                    throw new Exception($"Invalid UV count. {uvSets.Count} != {vertices.Count}");
             }
             finally
             {

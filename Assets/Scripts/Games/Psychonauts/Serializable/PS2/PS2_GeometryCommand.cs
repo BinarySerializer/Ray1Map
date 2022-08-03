@@ -26,12 +26,15 @@ namespace Ray1Map.Psychonauts
         {
             VIFCode = s.SerializeObject<VIFcode>(VIFCode, name: nameof(VIFCode));
 
-            if ((int)VIFCode.CMD >= 0x60 && (int)VIFCode.CMD <= 0x7F)
+            if (VIFCode.IsUnpack)
             {
                 // UNPACK command
-                VIFcode_Unpack unpack = new VIFcode_Unpack(VIFCode);
+                VIFcode_Unpack unpack = VIFCode.GetUnpack();
 
                 s.Log("VIF Command: [UNPACK] {0}", unpack);
+
+                if (unpack.M)
+                    return;
 
                 if (unpack.VN == VIFcode_Unpack.UnpackVN.V4 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_32)
                 {
@@ -75,7 +78,6 @@ namespace Ray1Map.Psychonauts
             }
             else
             {
-
                 s.Log("VIF Command: [{0}]", VIFCode.CMD);
 
                 switch (VIFCode.CMD)
@@ -87,12 +89,7 @@ namespace Ray1Map.Psychonauts
                     case VIFcode.Command.MSCAL:
                     case VIFcode.Command.MSCALF:
                     case VIFcode.Command.MSCNT: // Transfer data
-                        break;
-
                     case VIFcode.Command.STCYCL:
-                        // TODO: Find a real solution rather than this ugly hack
-                        if (VIFCode.IMMEDIATE == 1024)
-                            s.SerializeArray<byte>(default, 4);
                         break;
 
                     case VIFcode.Command.STROW:
