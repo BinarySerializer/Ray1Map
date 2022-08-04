@@ -7,6 +7,7 @@ using BinarySerializer.PS2;
 using PsychoPortal;
 using PsychoPortal.Unity;
 using UnityEngine;
+using RGBA8888Color = PsychoPortal.RGBA8888Color;
 
 namespace Ray1Map.Psychonauts
 {
@@ -214,9 +215,7 @@ namespace Ray1Map.Psychonauts
         {
             const string key = "geo";
 
-            // NOTE: This is all very work in process and barely functions. PS2 graphics are complicated :/
-
-            // Some helpful links I found for when I get back to working on this again:
+            // Some helpful links:
             // https://psi-rockin.github.io/ps2tek
             // https://github.com/PCSX2/pcsx2/issues/1803 > https://github.com/Fireboyd78/driver-tools/tree/dev/GMC2Snooper/PS2
             // https://github.com/PCSX2/pcsx2/tree/master/pcsx2
@@ -228,169 +227,113 @@ namespace Ray1Map.Psychonauts
                 PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(loader.Context, key);
 
                 List<VertexNotexNorm> vertices = new();
-                List<List<PS2_UV16>> uvs = new();
+                List<RGBA8888Color> vertexColors = new();
+                List<UVSet> uvSets = new();
+                bool? hasVertexColors = null;
+                bool? hasTextureMapping = null;
 
-                float toFloat(int value) => BitConverter.ToSingle(BitConverter.GetBytes(value));
-                uint[] row = new uint[4];
-                
-                // Execute program
-                foreach (PS2_GeometryCommand cmd in cmds.Commands)
+                foreach (PS2_GeometryCommands.Primitive prim in cmds.EnumeratePrimitives())
                 {
-                    if (cmd.VIFCode.IsUnpack)
+                    // Data verification
+                    try
                     {
-                        VIFcode_Unpack unpack = cmd.VIFCode.GetUnpack();
-                        uint addr = unpack.ADDR;
+                        // Verify flags match
+                        if (prim.GIFTag.PRIM.PrimitiveType == PRIM_PrimitiveType.TriangleStrip !=
+                            meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip))
+                            throw new Exception("Triangle strip flags are not set correctly");
 
-                        // TODO: Unpack these. Why is there no data? How does the masking work? Is the cycle related?
-                        if (unpack.M)
-                            continue;
+                        if (prim.GIFTag.PRIM.IIP == PRIM_IIP.FlatShading)
+                            throw new Exception("Flat shading is used");
 
-                        switch (addr) // TODO: Is using the address like this reliable?
+                        // Verify data
+                        if (prim.Vertices == null)
+                            throw new Exception("No vertices were read");
+                        if (prim.Normals == null)
+                            throw new Exception("No normals were read");
+
+                        hasVertexColors ??= prim.VertexColors != null;
+                        if ((prim.VertexColors != null) != hasVertexColors)
+                            throw new Exception("Shading flag doesn't match previous primitives");
+
+                        hasTextureMapping ??= prim.GIFTag.PRIM.TME;
+                        if (prim.GIFTag.PRIM.TME != (prim.UVs != null))
+                            throw new Exception("Texture mapping flag doesn't match data");
+                        else if (prim.GIFTag.PRIM.TME != hasTextureMapping)
+                            throw new Exception("Texture mapping flag doesn't match previous primitives");
+
+                        List<int> lengths = new();
+
+                        lengths.Add(prim.GIFTag.NLOOP);
+                        lengths.Add(prim.Vertices.Length);
+                        lengths.Add(prim.Normals.Length);
+
+                        if (hasVertexColors == true)
+                            lengths.Add(prim.VertexColors.Length);
+                        if (hasTextureMapping == true)
+                            lengths.AddRange(prim.UVs.Where(x => x != null).Select(x => x.Length));
+
+                        // Make sure all lengths match
+                        if (lengths.Distinct().Count() != 1)
+                            throw new Exception("Some data lengths don't match");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Primitive error: {ex.Message}{Environment.NewLine}{ex}");
+                        break;
+                    }
+
+                    int length = prim.GIFTag.NLOOP;
+
+                    // Add vertices and normals
+                    for (int i = 0; i < length; i++)
+                    {
+                        Vec3 vertex = prim.Vertices[i];
+                        Vec3 normal = prim.Normals[i];
+
+                        vertices.Add(new VertexNotexNorm()
                         {
-                            // GIFTag
-                            case 0:
-                                // Verify flags match
-                                if (cmd.GIFTag.PRIM.PrimitiveType == PRIM_PrimitiveType.TriangleStrip !=
-                                    meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip))
-                                {
-                                    throw new Exception("Triangle strip flags are not set correctly");
-                                }
+                            Vertex = vertex,
+                            Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
+                        });
+                    }
 
-                                // TODO: Get relevant properties from PRIM such as shading, alpha blending etc. Also get count from here!
+                    // Add vertex colors
+                    if (hasVertexColors == true)
+                        vertexColors.AddRange(prim.VertexColors);
 
-                                break;
-
-                            // Unused?
-                            case 1:
-                                throw new Exception("Data written to address 1");
-
-                            // Vertices
-                            case 2:
-                                foreach (PS2_Vector3_Int16 vec in cmd.Vertices)
-                                {
-                                    vertices.Add(new VertexNotexNorm()
-                                    {
-                                        // TODO: Fix the offset here. Hard-coding it to this only works in some levels. Game
-                                        //       seems to convert it to a float using the row data?
-                                        Vertex = new Vec3(
-                                            vec.X - 0x8000,
-                                            vec.Y - 0x8000,
-                                            vec.Z - 0x8000),
-
-                                        // TODO: Either find a defined normal or calculate it manually
-                                        Normal = new NormPacked3(),
-                                    });
-                                }
-                                break;
-
-                            case 3:
-                                // TODO: Implement. Vertex colors/normals?
-                                break;
-
-                            case 4:
-                                // TODO: Implement. Vertex colors/normals?
-                                break;
-
-                            // UV
-                            case 5:
-                            case 6:
-                            case 7:
-                                // TODO: Cleaner way of handling this. Psychonauts can have up to 3 UV-maps.
-                                int uvIndex = (int)(addr - 5);
-
-                                if (uvs.Count <= uvIndex)
-                                    uvs.Insert(uvIndex, new List<PS2_UV16>());
-
-                                foreach (PS2_UV16 uv in cmd.UVs)
-                                    uvs[uvIndex].Add(uv);
-
-                                if (uvs[uvIndex].Count != vertices.Count)
-                                    throw new Exception($"UVs count don't match vertices {uvs[uvIndex].Count} != {vertices.Count}");
-
-                                break;
-
+                    // Add UVs
+                    if (hasTextureMapping == true)
+                    {
+                        for (int i = 0; i < length; i++)
+                        {
+                            uvSets.Add(new UVSet()
+                            {
+                                UVs = prim.UVs.Select(x => x[i]).ToArray(),
+                            });
                         }
                     }
-                    else
-                    {
-                        switch (cmd.VIFCode.CMD)
-                        {
-                            case VIFcode.Command.STROW:
-                                row = cmd.ROW; // Default data to fill rows with?
-                                break;
-
-                            case VIFcode.Command.STCOL:
-                                Debug.LogWarning("Column command is used"); // Hopefully this is never used
-                                break;
-
-                            case VIFcode.Command.STMASK:
-                                Debug.LogWarning("Mask command is used"); // Multiple 2-bit values?
-                                break;
-                        }
-                    }
-
                 }
-
-                // Convert to Psychonauts UV sets
-                List<UVSet> uvSets = Enumerable.Range(0, uvs.First().Count).Select(x => new UVSet()
-                {
-                    UVs = new UV[uvs.Count]
-                }).ToList();
-
-                for (var uvIndex = 0; uvIndex < uvs.Count; uvIndex++)
-                {
-                    List<PS2_UV16> uvList = uvs[uvIndex];
-
-                    if (uvList.Count != uvSets.Count)
-                        throw new Exception("UV count mismatch");
-
-                    for (int i = 0; i < uvList.Count; i++)
-                    {
-                        uvSets[i].UVs[uvIndex] = new UV()
-                        {
-                            Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
-
-                            // TODO: Is this even correct? Value range should be 0-1, but it's usually above 250...
-                            U_Float = toFloat(uvList[i].U | (int)row[0]),
-                            V_Float = toFloat(uvList[i].V | (int)row[1])
-                        };
-                    }
-                }
-
-                // TODO: This is because of some UV arrays not being defined as normal packed data. For now we just trim the data
-                //       so the count matches and Unity can load it... But we should find a better solution.
-                if (uvSets.Count > vertices.Count)
-                    uvSets.RemoveRange(vertices.Count, uvSets.Count - vertices.Count);
-                else if (vertices.Count > uvSets.Count)
-                    vertices.RemoveRange(uvSets.Count, vertices.Count - uvSets.Count);
 
                 // Vertices
                 meshFrag.Vertices = vertices.ToArray();
 
-                // TODO: Implement vertex colors - verify with PC/Xbox release to make sure they're hanled correctly
                 // Vertex colors
-                //meshFrag.HasVertexColors = 1;
-                //meshFrag.VertexColors = cmds.Commands.Where(x => x.VertexColors != null).SelectMany(x => x.VertexColors).Select(x => new PsychoPortal.RGBA8888Color
-                //{
-                //    Red = x.R,
-                //    Green = x.G,
-                //    Blue = x.B,
-                //    Alpha = 255
-                //}).ToArray();
+                if (hasVertexColors == true)
+                {
+                    meshFrag.HasVertexColors = 1;
+                    meshFrag.VertexColors = vertexColors.ToArray();
+                }
 
-                // TODO: Optimize this by reusing polygons
                 // Polygons
                 meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
+                meshFrag.MaterialFlags |= MaterialFlags.DoubleSided; // Force double-sided on PS2
 
                 //Debug.Log(String.Join(Environment.NewLine, vertices.Select(x => x.Vertex)));
                 //Debug.Log(String.Join(Environment.NewLine, uvSets.Select(x => x.UVs[0].ToVec2())));
 
                 // UVs
-                meshFrag.UVScale = 1; // TODO: Does the PS2 version use some sort of UV scaling like other versions?
+                meshFrag.UVScale = 1;
                 meshFrag.UVSets = uvSets.ToArray();
-
-                if (uvSets.Count != vertices.Count)
-                    throw new Exception($"Invalid UV count. {uvSets.Count} != {vertices.Count}");
             }
             finally
             {

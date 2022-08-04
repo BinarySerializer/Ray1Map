@@ -8,14 +8,14 @@ namespace Ray1Map.Psychonauts
         public VIFcode VIFCode { get; set; }
 
         public GIFtag GIFTag { get; set; }
-        public PS2_Vector3_Int16[] Vertices { get; set; }
-        public RGB888Color[] VertexColors { get; set; }
 
-        // Bone weights? Could also be colors since the last byte is usually 0xFF. If so VertexColors is probably not colors.
-        public Array<byte>[] V4_VL8 { get; set; }
+        public PS2_Vector3_Int16[] Vertices { get; set; }
+        public PS2_Vector3_Int8[] Normals { get; set; }
+
+        public RGBA8888Color[] VertexColors { get; set; }
+        public PS2_UV16[] UVs { get; set; }
 
         public PS2_Vector4_Float32[] V4_VL32 { get; set; }
-        public PS2_UV16[] UVs { get; set; }
         public byte[] S_VL8 { get; set; }
 
         public uint[] ROW { get; set; }
@@ -36,44 +36,48 @@ namespace Ray1Map.Psychonauts
                 if (unpack.M)
                     return;
 
-                if (unpack.VN == VIFcode_Unpack.UnpackVN.V4 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_32)
+                switch (unpack.VN)
                 {
-                    if (unpack.ADDR == 0)
+                    case VIFcode_Unpack.UnpackVN.V4 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_32:
                     {
-                        GIFTag = s.SerializeObject<GIFtag>(GIFTag, name: nameof(GIFTag));
-                        V4_VL32 = s.SerializeObjectArray<PS2_Vector4_Float32>(V4_VL32, unpack.SIZE - 1, name: nameof(V4_VL32));
+                        if (unpack.ADDR == 0)
+                        {
+                            GIFTag = s.SerializeObject<GIFtag>(GIFTag, name: nameof(GIFTag));
+                            V4_VL32 = s.SerializeObjectArray<PS2_Vector4_Float32>(V4_VL32, unpack.SIZE - 1, name: nameof(V4_VL32));
+                        }
+                        else
+                        {
+                            throw new BinarySerializableException(this);
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        throw new BinarySerializableException(this);
-                    }
-                }
-                else if (unpack.VN == VIFcode_Unpack.UnpackVN.V4 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_8)
-                {
-                    V4_VL8 = s.SerializeObjectArray<Array<byte>>(V4_VL8, unpack.SIZE, x => x.Pre_Length = 4, name: nameof(V4_VL8));
-                }
-                else if (unpack.VN == VIFcode_Unpack.UnpackVN.V3 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_16)
-                {
-                    Vertices = s.SerializeObjectArray<PS2_Vector3_Int16>(Vertices, unpack.SIZE, name: nameof(Vertices));
-                    s.Align(4, baseOffset: Offset);
-                }
-                else if (unpack.VN == VIFcode_Unpack.UnpackVN.V3 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_8)
-                {
-                    VertexColors = s.SerializeObjectArray<RGB888Color>(VertexColors, unpack.SIZE, name: nameof(VertexColors));
-                    s.Align(4, baseOffset: Offset);
-                }
-                else if (unpack.VN == VIFcode_Unpack.UnpackVN.V2 && unpack.VL == VIFcode_Unpack.UnpackVL.VL_16)
-                {
-                    UVs = s.SerializeObjectArray<PS2_UV16>(UVs, unpack.SIZE, name: nameof(UVs));
-                }
-                else if (unpack.VN == VIFcode_Unpack.UnpackVN.S && unpack.VL == VIFcode_Unpack.UnpackVL.VL_8)
-                {
-                    S_VL8 = s.SerializeArray<byte>(S_VL8, unpack.SIZE, name: nameof(S_VL8));
-                    s.Align(4);
-                }
-                else
-                {
-                    throw new BinarySerializableException(this, $"Unknown VIF Unpack command for data type {unpack.VN}-{unpack.VL}");
+
+                    case VIFcode_Unpack.UnpackVN.V4 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_8:
+                        VertexColors = s.SerializeObjectArray<RGBA8888Color>(VertexColors, unpack.SIZE, name: nameof(VertexColors));
+                        break;
+
+                    case VIFcode_Unpack.UnpackVN.V3 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_16:
+                        Vertices = s.SerializeObjectArray<PS2_Vector3_Int16>(Vertices, unpack.SIZE, name: nameof(Vertices));
+                        s.Align(4, baseOffset: Offset);
+                        break;
+
+                    case VIFcode_Unpack.UnpackVN.V3 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_8:
+                        Normals = s.SerializeObjectArray<PS2_Vector3_Int8>(Normals, unpack.SIZE, name: nameof(Normals));
+                        s.Align(4, baseOffset: Offset);
+                        break;
+
+                    case VIFcode_Unpack.UnpackVN.V2 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_16:
+                        UVs = s.SerializeObjectArray<PS2_UV16>(UVs, unpack.SIZE, name: nameof(UVs));
+                        break;
+
+                    case VIFcode_Unpack.UnpackVN.S when unpack.VL == VIFcode_Unpack.UnpackVL.VL_8:
+                        S_VL8 = s.SerializeArray<byte>(S_VL8, unpack.SIZE, name: nameof(S_VL8));
+                        s.Align(4, baseOffset: Offset);
+                        break;
+
+                    default:
+                        throw new BinarySerializableException(this, $"Unknown VIF Unpack command for data type {unpack.VN}-{unpack.VL}");
                 }
             }
             else
@@ -105,7 +109,7 @@ namespace Ray1Map.Psychonauts
                         break;
 
                     default:
-                        throw new BinarySerializableException(this, $"Unknown VIF command: {(int)VIFCode.CMD:X2} or {VIFCode.CMD}");
+                        throw new BinarySerializableException(this, $"Unexpected VIF command: {VIFCode.CMD} ({(int)VIFCode.CMD:X2})");
                 }
             }
         }
