@@ -7,6 +7,7 @@ using BinarySerializer.PS2;
 using PsychoPortal;
 using PsychoPortal.Unity;
 using UnityEngine;
+using Mesh = PsychoPortal.Mesh;
 using RGBA8888Color = PsychoPortal.RGBA8888Color;
 
 namespace Ray1Map.Psychonauts
@@ -191,6 +192,61 @@ namespace Ray1Map.Psychonauts
             }
         }
 
+        public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, IBinarySerializerLogger logger = null)
+        {
+            convertScene(pl2);
+
+            void convertOctree(Octree octree)
+            {
+                if (octree == null)
+                    return;
+
+                octree.Primitives = octree.PS2_Primitives.Select(x => (uint)x).ToArray();
+            }
+
+            void convertScene(Scene scene)
+            {
+                convertOctree(scene.VisibilityTree?.Octree);
+                convertDomain(scene.RootDomain);
+                
+                foreach (Scene childScene in scene.ReferencedScenes)
+                    convertScene(childScene);
+            }
+
+            void convertDomain(Domain domain)
+            {
+                foreach (Mesh mesh in domain.Meshes)
+                    convertMesh(mesh);
+
+                foreach (Domain childDomain in domain.Children)
+                    convertDomain(childDomain);
+            }
+
+            void convertMesh(Mesh mesh)
+            {
+                convertOctree(mesh.CollisionTree?.Octree);
+
+                foreach (MeshFrag frag in mesh.MeshFrags)
+                    convertFrag(frag);
+
+                foreach (Mesh childMesh in mesh.Children)
+                    convertMesh(childMesh);
+
+                // TODO: Fix this
+                mesh.MeshFrags = mesh.MeshFrags.Where(x => !x.MaterialFlags.HasFlag(MaterialFlags.Specular)).ToArray();
+            }
+
+            void convertFrag(MeshFrag frag)
+            {
+                convertOctree(frag.Proto_Octree);
+                InitPS2MeshFrag(loader.Context, frag, 
+                    // TODO: Only include when needed
+                    includeVertexColors: true);
+            }
+
+            Binary.WriteToFile(pl2, outputPath, plbSettings, logger: logger);
+        }
+
         #endregion
 
         #region Load
@@ -200,7 +256,7 @@ namespace Ray1Map.Psychonauts
             // Convert PS2 mesh data to common format
             try
             {
-                InitPS2MeshFrag(loader, meshFrag);
+                InitPS2MeshFrag(loader.Context, meshFrag);
             }
             catch (Exception ex)
             {
@@ -211,7 +267,7 @@ namespace Ray1Map.Psychonauts
             return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
         }
 
-        public void InitPS2MeshFrag(Ray1MapLoader loader, MeshFrag meshFrag)
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool includeVertexColors = true)
         {
             const string key = "geo";
 
@@ -223,8 +279,8 @@ namespace Ray1Map.Psychonauts
             try
             {
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
-                loader.Context.AddFile(new StreamFile(loader.Context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
-                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(loader.Context, key);
+                context.AddFile(new StreamFile(context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
+                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(context, key);
 
                 List<VertexNotexNorm> vertices = new();
                 List<RGBA8888Color> vertexColors = new();
@@ -314,30 +370,51 @@ namespace Ray1Map.Psychonauts
                     }
                 }
 
+                // Flags
+                meshFrag.MaterialFlags |= MaterialFlags.DoubleSided; // Force double-sided on PS2
+
                 // Vertices
                 meshFrag.Vertices = vertices.ToArray();
 
                 // Vertex colors
-                if (hasVertexColors == true)
+                if (hasVertexColors == true && includeVertexColors)
                 {
                     meshFrag.HasVertexColors = 1;
                     meshFrag.VertexColors = vertexColors.ToArray();
                 }
-
-                // Polygons
-                meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
-                meshFrag.MaterialFlags |= MaterialFlags.DoubleSided; // Force double-sided on PS2
-
-                //Debug.Log(String.Join(Environment.NewLine, vertices.Select(x => x.Vertex)));
-                //Debug.Log(String.Join(Environment.NewLine, uvSets.Select(x => x.UVs[0].ToVec2())));
+                else
+                {
+                    meshFrag.HasVertexColors = 0;
+                    meshFrag.VertexColors = null;
+                }
 
                 // UVs
-                meshFrag.UVScale = 1;
-                meshFrag.UVSets = uvSets.ToArray();
+                if (hasTextureMapping == true)
+                {
+                    meshFrag.UVSetUVsCount = (uint)uvSets[0].UVs.Length;
+                    meshFrag.UVScale = 1;
+                    meshFrag.UVSets = uvSets.ToArray();
+                }
+                else
+                {
+                    meshFrag.UVSetUVsCount = 0;
+                    meshFrag.UVScale = 1;
+                    meshFrag.UVSets = null;
+                }
+
+                meshFrag.HasVertexStreamBasis = 0;
+                meshFrag.VertexStreamBasis = null;
+
+                // Polygons
+                meshFrag.PolygonCount = (uint)(meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip) 
+                    ? meshFrag.Vertices.Length - 2 
+                    : meshFrag.Vertices.Length / 3);
+                meshFrag.DegenPolygonCount = 0;
+                meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
             }
             finally
             {
-                loader.Context.RemoveFile(key);
+                context.RemoveFile(key);
             }
         }
 

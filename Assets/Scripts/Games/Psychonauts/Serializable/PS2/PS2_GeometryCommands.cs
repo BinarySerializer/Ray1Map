@@ -115,6 +115,14 @@ namespace Ray1Map.Psychonauts
                                 U_Float = toFloat(x.U | (int)row[0]),
                                 V_Float = toFloat(x.V | (int)row[1])
                             }).ToArray();
+
+                            // TODO: Correct this... We need to use the integer values instead of floats when converting to the PC format
+                            foreach (UV uv in uvs[uvIndex])
+                            {
+                                uv.U = (short)((uv.U_Float - (int)uv.U_Float) * 32767);
+                                uv.V = (short)((uv.V_Float - (int)uv.V_Float) * 32767);
+                            }
+
                             break;
 
                         case 5 when unpack.M:
