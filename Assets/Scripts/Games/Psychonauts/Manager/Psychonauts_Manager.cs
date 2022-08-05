@@ -2,6 +2,7 @@
 using PsychoPortal;
 using PsychoPortal.Unity;
 using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using Context = BinarySerializer.Context;
@@ -161,6 +162,7 @@ namespace Ray1Map.Psychonauts
                 new("Export All Level Textures", false, true, (_, output) => ExportAllLevelTextures(settings, output)),
                 new("Export Current Level Textures", false, true, (_, output) => ExportCurrentLevelTextures(settings, output)),
                 new("Export Current Level Model as OBJ", false, true, (_, output) => ExportCurrentLevelModelAsOBJ(settings, output)),
+                new("Export Packed Mesh Files", false, true, (_, output) => ExportPackedMeshFiles(settings, output)),
             };
         }
 
@@ -247,6 +249,46 @@ namespace Ray1Map.Psychonauts
             }
 
             Debug.Log($"Finished exporting");
+        }
+
+        public void ExportPackedMeshFiles(GameSettings settings, string outputPath)
+        {
+            using Ray1MapLoader loader = CreateLoader(settings);
+            loader.UseNativeTextures = false;
+
+            if (loader.Settings.Version == PsychonautsVersion.PS2)
+                loader.LoadFilePackages(loader.Logger);
+
+            loader.LoadCommonPackPack(loader.Logger);
+
+            exportMeshPack(loader.CommonMeshPack);
+
+            foreach (string lvl in Maps.Select(x => x.Name))
+            {
+                if (!loader.FileManager.FileExists(new FileRef(loader.GetPackPackFilePath(lvl), FileLocation.FileSystem)))
+                    continue;
+
+                loader.LoadLevelPackPack(lvl, loader.Logger);
+                exportMeshPack(loader.LevelMeshPack);
+
+                var filePath = Path.Combine(outputPath, $"levels/{lvl}.plb");
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                Binary.WriteToFile(loader.LevelScene, filePath, loader.Settings, logger: loader.Logger);
+
+                Debug.Log($"Exported {lvl}");
+            }
+
+            void exportMeshPack(MeshPack pack)
+            {
+                foreach (PackedScene meshFile in pack.MeshFiles)
+                {
+                    var filePath = Path.Combine(outputPath, meshFile.FileName);
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                    Binary.WriteToFile(meshFile.Scene, filePath, loader.Settings, logger: loader.Logger);
+                }
+            }
+
+            Debug.Log("Finished exporting");
         }
 
         #endregion
