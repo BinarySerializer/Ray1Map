@@ -9,13 +9,14 @@ namespace Ray1Map.Psychonauts
 
         public GIFtag GIFTag { get; set; }
 
-        public PS2_Vector3_Int16[] Vertices { get; set; }
+        public PS2_Vector3_Int16[] Vertices_16 { get; set; }
         public PS2_Vector3_Int8[] Normals { get; set; }
 
         public RGBA8888Color[] VertexColors { get; set; }
         public PS2_UV16[] UVs { get; set; }
 
         public PS2_Vector4_Float32[] V4_VL32 { get; set; }
+        public PS2_Vector3_Float32[] Vertices_32 { get; set; }
         public byte[] S_VL8 { get; set; }
 
         public uint[] ROW { get; set; }
@@ -57,8 +58,12 @@ namespace Ray1Map.Psychonauts
                         VertexColors = s.SerializeObjectArray<RGBA8888Color>(VertexColors, unpack.SIZE, name: nameof(VertexColors));
                         break;
 
+                    case VIFcode_Unpack.UnpackVN.V3 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_32:
+                        Vertices_32 = s.SerializeObjectArray<PS2_Vector3_Float32>(Vertices_32, unpack.SIZE, name: nameof(Vertices_32));
+                        break;
+
                     case VIFcode_Unpack.UnpackVN.V3 when unpack.VL == VIFcode_Unpack.UnpackVL.VL_16:
-                        Vertices = s.SerializeObjectArray<PS2_Vector3_Int16>(Vertices, unpack.SIZE, name: nameof(Vertices));
+                        Vertices_16 = s.SerializeObjectArray<PS2_Vector3_Int16>(Vertices_16, unpack.SIZE, name: nameof(Vertices_16));
                         s.Align(4, baseOffset: Offset);
                         break;
 

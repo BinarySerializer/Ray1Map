@@ -232,16 +232,25 @@ namespace Ray1Map.Psychonauts
                 foreach (Mesh childMesh in mesh.Children)
                     convertMesh(childMesh);
 
-                // TODO: Fix this
+                // TODO: Fix this - related to vertex stream basis?
                 mesh.MeshFrags = mesh.MeshFrags.Where(x => !x.MaterialFlags.HasFlag(MaterialFlags.Specular)).ToArray();
             }
 
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, 
-                    // TODO: Only include when needed
-                    includeVertexColors: true);
+                InitPS2MeshFrag(loader.Context, frag);
+
+                // TODO: Removing the flag is not enough - probably need to remove some texture reference as well?
+                // TODO: This is a temporary solution. Specular requires VertexStreamBasis to be set and I don't know how to generate that
+                //frag.MaterialFlags &= ~MaterialFlags.Specular;
+
+                // Is this correct? Ideally we want to rely on the lights when not used on a PS2.
+                if (!frag.MaterialFlags.HasFlag(MaterialFlags.Flag_6))
+                {
+                    frag.HasVertexColors = 0;
+                    frag.VertexColors = null;
+                }
             }
 
             Binary.WriteToFile(pl2, outputPath, plbSettings, logger: logger);
@@ -267,7 +276,7 @@ namespace Ray1Map.Psychonauts
             return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
         }
 
-        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool includeVertexColors = true)
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag)
         {
             const string key = "geo";
 
@@ -288,6 +297,7 @@ namespace Ray1Map.Psychonauts
                 bool? hasVertexColors = null;
                 bool? hasTextureMapping = null;
 
+                // TODO: We might need to tri-strip each primitive separetly. Separate meshes? Or update indices.
                 foreach (PS2_GeometryCommands.Primitive prim in cmds.EnumeratePrimitives())
                 {
                     // Data verification
@@ -377,7 +387,7 @@ namespace Ray1Map.Psychonauts
                 meshFrag.Vertices = vertices.ToArray();
 
                 // Vertex colors
-                if (hasVertexColors == true && includeVertexColors)
+                if (hasVertexColors == true)
                 {
                     meshFrag.HasVertexColors = 1;
                     meshFrag.VertexColors = vertexColors.ToArray();

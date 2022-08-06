@@ -55,14 +55,22 @@ namespace Ray1Map.Psychonauts
                             throw new Exception("Data written to address 1");
 
                         // Vertices
-                        case 2 when !unpack.M:
-                            vertices = cmd.Vertices.Select(x => new Vec3()
+                        case 2 when !unpack.M && cmd.Vertices_16 != null:
+                            vertices = cmd.Vertices_16.Select(x => new Vec3()
                             {
                                 // TODO: Fix the offset here. Hard-coding it to this only works in some levels. Game
                                 //       seems to convert it to a float using the row data?
                                 X = x.X - 0x8000,
                                 Y = x.Y - 0x8000,
                                 Z = x.Z - 0x8000,
+                            }).ToArray();
+                            break;
+                        case 2 when !unpack.M && cmd.Vertices_32 != null:
+                            vertices = cmd.Vertices_32.Select(x => new Vec3()
+                            {
+                                X = x.X,
+                                Y = x.Y,
+                                Z = x.Z,
                             }).ToArray();
                             break;
                         case 2 when unpack.M:
