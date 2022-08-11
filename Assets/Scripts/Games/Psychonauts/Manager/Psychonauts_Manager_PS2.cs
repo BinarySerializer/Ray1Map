@@ -267,6 +267,8 @@ namespace Ray1Map.Psychonauts
             return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
         }
 
+        public static int meshFragGlobalIndex = 0;
+
         public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool includeVertexColors = true)
         {
             const string key = "geo";
@@ -276,11 +278,14 @@ namespace Ray1Map.Psychonauts
             // https://github.com/PCSX2/pcsx2/issues/1803 > https://github.com/Fireboyd78/driver-tools/tree/dev/GMC2Snooper/PS2
             // https://github.com/PCSX2/pcsx2/tree/master/pcsx2
 
+            var newk = $"{key}_{meshFragGlobalIndex}";
             try
             {
+                //Util.ByteArrayToFile($"{context.BasePath}/{newk}.geo", meshFrag.PS2_GeometryBuffer);
+
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
-                context.AddFile(new StreamFile(context, key, new MemoryStream(meshFrag.PS2_GeometryBuffer)));
-                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(context, key);
+                context.AddFile(new StreamFile(context, newk, new MemoryStream(meshFrag.PS2_GeometryBuffer), endianness: BinarySerializer.Endian.Little));
+                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(context, newk);
 
                 List<VertexNotexNorm> vertices = new();
                 List<RGBA8888Color> vertexColors = new();
@@ -288,7 +293,40 @@ namespace Ray1Map.Psychonauts
                 bool? hasVertexColors = null;
                 bool? hasTextureMapping = null;
 
-                foreach (PS2_GeometryCommands.Primitive prim in cmds.EnumeratePrimitives())
+                var parser = new VIF_Parser() {
+                    IsVIF1 = true,
+                };
+                List<PS2_GIF_Command> gifCmds = new List<PS2_GIF_Command>();
+                var mcIndex = 0;
+                foreach (var cmd in cmds.Commands) {
+                    if (parser.StartsNewMicroProgram(cmd)) {
+                        var microProg = parser.CurrentStream;
+                        if (microProg != null) {
+                            //Util.ByteArrayToFile($"{context.BasePath}/{newk}_{mcIndex}.bin", microProg.ToArray());
+
+                            var mcKey = $"{key}_{meshFragGlobalIndex}_{mcIndex}";
+                            try {
+                                var file = new StreamFile(context, mcKey, microProg, endianness: BinarySerializer.Endian.Little);
+                                context.AddFile(file);
+                                var tops = parser.TOPS * 16;
+
+                                var s = context.Deserializer;
+                                s.Goto(file.StartPointer + tops);
+
+                                var gifCmd = s.SerializeObject<PS2_GIF_Command>(default, onPreSerialize: c => c.Pre_UVSetsCount = meshFrag.PS2_Uint_8C, name: "GIFCommand");
+                                gifCmds.Add(gifCmd);
+                            } finally {
+                                context.RemoveFile(mcKey);
+                            }
+                            mcIndex++;
+                        }
+                    }
+                    parser.ExecuteCommand(cmd, executeFull: true);
+                }
+                meshFrag.PS2_Uint_98 = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
+                meshFragGlobalIndex++;
+
+                foreach (var prim in gifCmds)
                 {
                     // Data verification
                     try
@@ -302,22 +340,22 @@ namespace Ray1Map.Psychonauts
                             throw new Exception("Flat shading is used");
 
                         // Verify data
-                        if (prim.Vertices == null)
+                        /*if (prim.Vertices == null)
                             throw new Exception("No vertices were read");
                         if (prim.Normals == null)
-                            throw new Exception("No normals were read");
+                            throw new Exception("No normals were read");*/
 
-                        hasVertexColors ??= prim.VertexColors != null;
-                        if ((prim.VertexColors != null) != hasVertexColors)
-                            throw new Exception("Shading flag doesn't match previous primitives");
+                        hasVertexColors ??= prim.GIFTag.REGS.Contains(GIFtag.Register.RGBAQ);
+                        /*if ((prim.VertexColors != null) != hasVertexColors)
+                            throw new Exception("Shading flag doesn't match previous primitives");*/
 
                         hasTextureMapping ??= prim.GIFTag.PRIM.TME;
-                        if (prim.GIFTag.PRIM.TME != (prim.UVs != null))
+                        /*if (prim.GIFTag.PRIM.TME != (prim.UVs != null))
                             throw new Exception("Texture mapping flag doesn't match data");
                         else if (prim.GIFTag.PRIM.TME != hasTextureMapping)
-                            throw new Exception("Texture mapping flag doesn't match previous primitives");
+                            throw new Exception("Texture mapping flag doesn't match previous primitives");*/
 
-                        List<int> lengths = new();
+                        /*List<int> lengths = new();
 
                         lengths.Add(prim.GIFTag.NLOOP);
                         lengths.Add(prim.Vertices.Length);
@@ -330,7 +368,7 @@ namespace Ray1Map.Psychonauts
 
                         // Make sure all lengths match
                         if (lengths.Distinct().Count() != 1)
-                            throw new Exception("Some data lengths don't match");
+                            throw new Exception("Some data lengths don't match");*/
                     }
                     catch (Exception ex)
                     {
@@ -338,35 +376,51 @@ namespace Ray1Map.Psychonauts
                         break;
                     }
 
-                    int length = prim.GIFTag.NLOOP;
+                    int length = prim.Cycles.Length;
 
-                    // Add vertices and normals
-                    for (int i = 0; i < length; i++)
-                    {
-                        Vec3 vertex = prim.Vertices[i];
-                        Vec3 normal = prim.Normals[i];
-
-                        vertices.Add(new VertexNotexNorm()
-                        {
-                            Vertex = vertex,
-                            Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
-                        });
-                    }
+                    // Add vertices
+                    //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
+                    uint baseC = meshFrag.PS2_UnknownUint;
+                    vertices.AddRange(prim.Cycles.Select(c => {
+                        var x = (baseC ^ c.Vertex.X);
+                        var y = (baseC ^ c.Vertex.Y);
+                        var z = (baseC ^ c.Vertex.Z);
+                        return new VertexNotexNorm() {
+                                Vertex = new Vec3(
+                                    BinarySerializer.BitHelpers.ExtractBits64(x, 16, 0, SignedNumberRepresentation.Unsigned) / 8f,
+                                    BinarySerializer.BitHelpers.ExtractBits64(y, 16, 0, SignedNumberRepresentation.Unsigned) / 8f,
+                                    BinarySerializer.BitHelpers.ExtractBits64(z, 19, 0, SignedNumberRepresentation.TwosComplement) / 8f
+                                ),
+                                Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
+                            };
+                        }));
 
                     // Add vertex colors
-                    if (hasVertexColors == true)
-                        vertexColors.AddRange(prim.VertexColors);
+                    vertexColors.AddRange(prim.Cycles.Select(c =>
+                        new RGBA8888Color() {
+                            /*Red = c.Color.R,
+                            Green = c.Color.G,
+                            Blue = c.Color.B,
+                            Alpha = c.Color.A*/
+                            Red = c.Color.R,
+                            Green = c.Color.G,
+                            Blue = c.Color.B,
+                            Alpha = c.Color.A
+                        }));
 
                     // Add UVs
                     if (hasTextureMapping == true)
                     {
-                        for (int i = 0; i < length; i++)
-                        {
-                            uvSets.Add(new UVSet()
-                            {
-                                UVs = prim.UVs.Select(x => x[i]).ToArray(),
-                            });
-                        }
+                        uvSets.AddRange(prim.Cycles.Select(c => new UVSet() {
+                            UVs = c.UVSets.Select(u =>
+                                new UV() {
+                                    Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
+
+                                    U_Float = u.U,
+                                    V_Float = u.V
+                                }
+                            ).ToArray()
+                        }));
                     }
                 }
 
@@ -414,7 +468,7 @@ namespace Ray1Map.Psychonauts
             }
             finally
             {
-                context.RemoveFile(key);
+                context.RemoveFile(newk);
             }
         }
 

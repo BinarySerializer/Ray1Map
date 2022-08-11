@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS2;
@@ -11,16 +12,20 @@ namespace Ray1Map.Psychonauts
 {
     public class PS2_GeometryCommands : BinarySerializable
     {
-        public PS2_GeometryCommand[] Commands { get; set; }
+        public VIF_Command[] Commands { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Commands = s.SerializeObjectArrayUntil<PS2_GeometryCommand>(Commands, x => s.CurrentFileOffset >= s.CurrentLength, name: nameof(Commands));
+            var parser = new VIF_Parser() {
+                IsVIF1 = true
+            };
+            Commands = s.SerializeObjectArrayUntil<VIF_Command>(Commands, x => s.CurrentFileOffset >= s.CurrentLength, onPreSerialize: (c,_) => c.Pre_Parser = parser, name: nameof(Commands));
         }
 
         public IEnumerable<Primitive> EnumeratePrimitives()
         {
-            // Current data
+            return null;
+            /*// Current data
             GIFtag tag = null;
             Vec3[] vertices = null;
             Vec3[] normals = null;
@@ -175,7 +180,7 @@ namespace Ray1Map.Psychonauts
                     }
                 }
 
-            }
+            }*/
         }
 
         public record Primitive(GIFtag GIFTag, Vec3[] Vertices, Vec3[] Normals, RGBA8888Color[] VertexColors, UV[][] UVs);
