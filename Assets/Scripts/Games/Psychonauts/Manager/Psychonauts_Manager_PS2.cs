@@ -293,7 +293,7 @@ namespace Ray1Map.Psychonauts
                 //Util.ByteArrayToFile($"{context.BasePath}/{newk}.geo", meshFrag.PS2_GeometryBuffer);
 
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
-                context.AddFile(new StreamFile(context, newk, new MemoryStream(meshFrag.PS2_GeometryBuffer), endianness: BinarySerializer.Endian.Little));
+                context.AddFile(new StreamFile(context, newk, new MemoryStream(meshFrag.PS2_VIFCommands), endianness: BinarySerializer.Endian.Little));
                 PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(context, newk);
 
                 List<VertexNotexNorm> vertices = new();
@@ -322,7 +322,7 @@ namespace Ray1Map.Psychonauts
                                 var s = context.Deserializer;
                                 s.Goto(file.StartPointer + tops);
 
-                                var gifCmd = s.SerializeObject<PS2_GIF_Command>(default, onPreSerialize: c => c.Pre_UVSetsCount = meshFrag.PS2_Uint_8C, name: "GIFCommand");
+                                var gifCmd = s.SerializeObject<PS2_GIF_Command>(default, onPreSerialize: c => c.Pre_UVSetsCount = meshFrag.UVSetUVsCount, name: "GIFCommand");
                                 gifCmds.Add(gifCmd);
                             } finally {
                                 context.RemoveFile(mcKey);
@@ -332,7 +332,7 @@ namespace Ray1Map.Psychonauts
                     }
                     parser.ExecuteCommand(cmd, executeFull: true);
                 }
-                meshFrag.PS2_Uint_98 = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
+                meshFrag.DegenPolygonCount = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
                 meshFragGlobalIndex++;
 
                 // TODO: We probably need to tri-strip each primitive separetly. Separate meshes? Or update indices.
@@ -363,7 +363,7 @@ namespace Ray1Map.Psychonauts
 
                     // Add vertices
                     //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
-                    uint baseC = meshFrag.PS2_UnknownUint;
+                    uint baseC = meshFrag.PS2_VertexOffset;
                     vertices.AddRange(prim.Cycles.Select(c => {
                         var x = c.Vertex.X;
                         var y = c.Vertex.Y;

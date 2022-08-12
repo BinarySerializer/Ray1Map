@@ -567,8 +567,8 @@ namespace Ray1Map.Psychonauts
         public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
-                $"IND: {meshFrag.PS2_Uint_98}, " +
-                $"Unknown: {meshFrag.PS2_UnknownUint:X8}, " +
+                $"IND: {meshFrag.DegenPolygonCount}, " +
+                $"Unknown: {meshFrag.PS2_VertexOffset:X8}, " +
                 $"Frag: {index}, " +
                 $"Blend Shapes: {meshFrag.BlendshapeData?.Streams.Length ?? 0}, " +
                 $"Flags: {meshFrag.MaterialFlags}");
