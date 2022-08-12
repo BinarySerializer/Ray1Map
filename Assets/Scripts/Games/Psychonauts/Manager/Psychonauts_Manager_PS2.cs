@@ -246,7 +246,8 @@ namespace Ray1Map.Psychonauts
                 //frag.MaterialFlags &= ~MaterialFlags.Specular;
 
                 // Is this correct? Ideally we want to rely on the lights when not used on a PS2.
-                if (!frag.MaterialFlags.HasFlag(MaterialFlags.Flag_6))
+                if (!frag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) &&
+                    !frag.MaterialFlags.HasFlag(MaterialFlags.Flag_15))
                 {
                     frag.HasVertexColors = 0;
                     frag.VertexColors = null;
@@ -299,8 +300,6 @@ namespace Ray1Map.Psychonauts
                 List<VertexNotexNorm> vertices = new();
                 List<RGBA8888Color> vertexColors = new();
                 List<UVSet> uvSets = new();
-                bool? hasVertexColors = null;
-                bool? hasTextureMapping = null;
 
                 var parser = new VIF_Parser() {
                     IsVIF1 = true,
@@ -335,30 +334,8 @@ namespace Ray1Map.Psychonauts
                 meshFrag.DegenPolygonCount = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
                 meshFragGlobalIndex++;
 
-                // TODO: We probably need to tri-strip each primitive separetly. Separate meshes? Or update indices.
                 foreach (var prim in gifCmds)
                 {
-                    // Data verification
-                    try
-                    {
-                        // Verify flags match
-                        if (prim.GIFTag.PRIM.PrimitiveType == PRIM_PrimitiveType.TriangleStrip !=
-                            meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip))
-                            throw new Exception("Triangle strip flags are not set correctly");
-
-                        if (prim.GIFTag.PRIM.IIP == PRIM_IIP.FlatShading)
-                            throw new Exception("Flat shading is used");
-
-                        hasVertexColors ??= prim.GIFTag.REGS.Contains(GIFtag.Register.RGBAQ);
-
-                        hasTextureMapping ??= prim.GIFTag.PRIM.TME;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Primitive error: {ex.Message}{Environment.NewLine}{ex}");
-                        break;
-                    }
-
                     int length = prim.Cycles.Length;
 
                     // Add vertices
@@ -382,10 +359,6 @@ namespace Ray1Map.Psychonauts
                     if (includeVertexColors) {
                         vertexColors.AddRange(prim.Cycles.Select(c =>
                             new RGBA8888Color() {
-                            /*Red = c.Color.R,
-                            Green = c.Color.G,
-                            Blue = c.Color.B,
-                            Alpha = c.Color.A*/
                                 Red = c.Color.R,
                                 Green = c.Color.G,
                                 Blue = c.Color.B,
@@ -394,19 +367,18 @@ namespace Ray1Map.Psychonauts
                     }
 
                     // Add UVs
-                    if (hasTextureMapping == true)
+                    uvSets.AddRange(prim.Cycles.Select(c => new UVSet()
                     {
-                        uvSets.AddRange(prim.Cycles.Select(c => new UVSet() {
-                            UVs = c.UVSets.Select(u =>
-                                new UV() {
-                                    Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
+                        UVs = c.UVSets.Select(u =>
+                            new UV()
+                            {
+                                Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
 
-                                    U_Float = u.U,
-                                    V_Float = u.V
-                                }
-                            ).ToArray()
-                        }));
-                    }
+                                U_Float = u.U,
+                                V_Float = u.V
+                            }
+                        ).ToArray()
+                    }));
                 }
 
                 // Flags
@@ -416,7 +388,7 @@ namespace Ray1Map.Psychonauts
                 meshFrag.Vertices = vertices.ToArray();
 
                 // Vertex colors
-                if (hasVertexColors == true)
+                if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) || meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_15))
                 {
                     meshFrag.HasVertexColors = 1;
                     meshFrag.VertexColors = vertexColors.ToArray();
@@ -428,18 +400,9 @@ namespace Ray1Map.Psychonauts
                 }
 
                 // UVs
-                if (hasTextureMapping == true)
-                {
-                    meshFrag.UVSetUVsCount = (uint)uvSets[0].UVs.Length;
-                    meshFrag.UVScale = 1;
-                    meshFrag.UVSets = uvSets.ToArray();
-                }
-                else
-                {
-                    meshFrag.UVSetUVsCount = 0;
-                    meshFrag.UVScale = 1;
-                    meshFrag.UVSets = null;
-                }
+                meshFrag.UVSetUVsCount = (uint)uvSets[0].UVs.Length;
+                meshFrag.UVScale = 1;
+                meshFrag.UVSets = uvSets.ToArray();
 
                 meshFrag.HasVertexStreamBasis = 0;
                 meshFrag.VertexStreamBasis = null;
@@ -448,7 +411,7 @@ namespace Ray1Map.Psychonauts
                 meshFrag.PolygonCount = (uint)(meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip) 
                     ? meshFrag.Vertices.Length - 2 
                     : meshFrag.Vertices.Length / 3);
-                meshFrag.DegenPolygonCount = 0;
+                //meshFrag.DegenPolygonCount = 0; // Commented out while using above hack
                 meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
             }
             finally
