@@ -283,6 +283,8 @@ namespace Ray1Map.Psychonauts
         {
             const string key = "geo";
 
+            string testPath = context.BasePath;
+
             // Some helpful links:
             // https://psi-rockin.github.io/ps2tek
             // https://github.com/PCSX2/pcsx2/issues/1803 > https://github.com/Fireboyd78/driver-tools/tree/dev/GMC2Snooper/PS2
@@ -291,7 +293,7 @@ namespace Ray1Map.Psychonauts
             var newk = $"{key}_{meshFragGlobalIndex}";
             try
             {
-                //Util.ByteArrayToFile($"{context.BasePath}/{newk}.geo", meshFrag.PS2_GeometryBuffer);
+                //Util.ByteArrayToFile(Path.Combine(testPath, $"{newk}.geo"), meshFrag.PS2_VIFCommands);
 
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
                 context.AddFile(new StreamFile(context, newk, new MemoryStream(meshFrag.PS2_VIFCommands), endianness: BinarySerializer.Endian.Little));
@@ -308,9 +310,10 @@ namespace Ray1Map.Psychonauts
                 var mcIndex = 0;
                 foreach (var cmd in cmds.Commands) {
                     if (parser.StartsNewMicroProgram(cmd)) {
-                        var microProg = parser.CurrentStream;
+                        Stream microProg = parser.CurrentStream;
                         if (microProg != null) {
-                            //Util.ByteArrayToFile($"{context.BasePath}/{newk}_{mcIndex}.bin", microProg.ToArray());
+                            microProg = new NonClosingStreamWrapper(microProg);
+                            //Util.ByteArrayToFile(Path.Combine(testPath, $"{newk}_{mcIndex}.bin"), microProg.ToArray());
 
                             var mcKey = $"{key}_{meshFragGlobalIndex}_{mcIndex}";
                             try {
@@ -334,22 +337,24 @@ namespace Ray1Map.Psychonauts
                 meshFrag.DegenPolygonCount = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
                 meshFragGlobalIndex++;
 
+                float baseC = BitConverter.ToSingle(BitConverter.GetBytes(meshFrag.PS2_VertexOffset));
+                //int baseC = (int)meshFrag.PS2_VertexOffset;
+
                 foreach (var prim in gifCmds)
                 {
                     int length = prim.Cycles.Length;
 
                     // Add vertices
                     //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
-                    uint baseC = meshFrag.PS2_VertexOffset;
                     vertices.AddRange(prim.Cycles.Select(c => {
                         var x = c.Vertex.X;
                         var y = c.Vertex.Y;
                         var z = c.Vertex.Z;
                         return new VertexNotexNorm() {
                                 Vertex = new Vec3(
-                                    x - (int)baseC,
-                                    y - (int)baseC,
-                                    z - (int)baseC
+                                    x - baseC,
+                                    y - baseC,
+                                    z - baseC
                                 ),
                                 Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
                             };
@@ -372,10 +377,12 @@ namespace Ray1Map.Psychonauts
                         UVs = c.UVSets.Select(u =>
                             new UV()
                             {
-                                Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
-
-                                U_Float = u.U,
-                                V_Float = u.V
+                                /*Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
+                                U_Float = u.UFloat,
+                                V_Float = u.VFloat*/
+                                Pre_Version = 317,
+                                U = (short)(u.U - 0x8000),
+                                V = (short)(u.V - 0x8000),
                             }
                         ).ToArray()
                     }));
@@ -401,7 +408,7 @@ namespace Ray1Map.Psychonauts
 
                 // UVs
                 meshFrag.UVSetUVsCount = (uint)uvSets[0].UVs.Length;
-                meshFrag.UVScale = 1;
+                meshFrag.UVScale = 0x7FFF / 4096f; //1;
                 meshFrag.UVSets = uvSets.ToArray();
 
                 meshFrag.HasVertexStreamBasis = 0;
