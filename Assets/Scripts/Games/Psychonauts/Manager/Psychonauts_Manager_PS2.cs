@@ -365,9 +365,9 @@ namespace Ray1Map.Psychonauts
                     //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
                     uint baseC = meshFrag.PS2_UnknownUint;
                     vertices.AddRange(prim.Cycles.Select(c => {
-                        var x = (baseC ^ c.Vertex.X);
-                        var y = (baseC ^ c.Vertex.Y);
-                        var z = (baseC ^ c.Vertex.Z);
+                        var x = (c.Vertex.X - baseC);
+                        var y = (c.Vertex.Y - baseC);
+                        var z = (c.Vertex.Z - baseC);
                         return new VertexNotexNorm() {
                                 Vertex = new Vec3(
                                     BinarySerializer.BitHelpers.ExtractBits64(x, 16, 0, SignedNumberRepresentation.Unsigned) / 8f,
