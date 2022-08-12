@@ -365,14 +365,14 @@ namespace Ray1Map.Psychonauts
                     //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
                     uint baseC = meshFrag.PS2_UnknownUint;
                     vertices.AddRange(prim.Cycles.Select(c => {
-                        var x = (c.Vertex.X - baseC);
-                        var y = (c.Vertex.Y - baseC);
-                        var z = (c.Vertex.Z - baseC);
+                        var x = c.Vertex.X;
+                        var y = c.Vertex.Y;
+                        var z = c.Vertex.Z;
                         return new VertexNotexNorm() {
                                 Vertex = new Vec3(
-                                    BinarySerializer.BitHelpers.ExtractBits64(x, 16, 0, SignedNumberRepresentation.Unsigned) / 8f,
-                                    BinarySerializer.BitHelpers.ExtractBits64(y, 16, 0, SignedNumberRepresentation.Unsigned) / 8f,
-                                    BinarySerializer.BitHelpers.ExtractBits64(z, 19, 0, SignedNumberRepresentation.TwosComplement) / 8f
+                                    x - (int)baseC,
+                                    y - (int)baseC,
+                                    z - (int)baseC
                                 ),
                                 Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
                             };
