@@ -232,16 +232,25 @@ namespace Ray1Map.Psychonauts
                 foreach (Mesh childMesh in mesh.Children)
                     convertMesh(childMesh);
 
-                // TODO: Fix this
+                // TODO: Fix this - related to vertex stream basis?
                 mesh.MeshFrags = mesh.MeshFrags.Where(x => !x.MaterialFlags.HasFlag(MaterialFlags.Specular)).ToArray();
             }
 
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, 
-                    // TODO: Only include when needed
-                    includeVertexColors: true);
+                InitPS2MeshFrag(loader.Context, frag);
+
+                // TODO: Removing the flag is not enough - probably need to remove some texture reference as well?
+                // TODO: This is a temporary solution. Specular requires VertexStreamBasis to be set and I don't know how to generate that
+                //frag.MaterialFlags &= ~MaterialFlags.Specular;
+
+                // Is this correct? Ideally we want to rely on the lights when not used on a PS2.
+                if (!frag.MaterialFlags.HasFlag(MaterialFlags.Flag_6))
+                {
+                    frag.HasVertexColors = 0;
+                    frag.VertexColors = null;
+                }
             }
 
             Binary.WriteToFile(pl2, outputPath, plbSettings, logger: logger);
@@ -326,6 +335,7 @@ namespace Ray1Map.Psychonauts
                 meshFrag.PS2_Uint_98 = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
                 meshFragGlobalIndex++;
 
+                // TODO: We probably need to tri-strip each primitive separetly. Separate meshes? Or update indices.
                 foreach (var prim in gifCmds)
                 {
                     // Data verification
@@ -339,36 +349,9 @@ namespace Ray1Map.Psychonauts
                         if (prim.GIFTag.PRIM.IIP == PRIM_IIP.FlatShading)
                             throw new Exception("Flat shading is used");
 
-                        // Verify data
-                        /*if (prim.Vertices == null)
-                            throw new Exception("No vertices were read");
-                        if (prim.Normals == null)
-                            throw new Exception("No normals were read");*/
-
                         hasVertexColors ??= prim.GIFTag.REGS.Contains(GIFtag.Register.RGBAQ);
-                        /*if ((prim.VertexColors != null) != hasVertexColors)
-                            throw new Exception("Shading flag doesn't match previous primitives");*/
 
                         hasTextureMapping ??= prim.GIFTag.PRIM.TME;
-                        /*if (prim.GIFTag.PRIM.TME != (prim.UVs != null))
-                            throw new Exception("Texture mapping flag doesn't match data");
-                        else if (prim.GIFTag.PRIM.TME != hasTextureMapping)
-                            throw new Exception("Texture mapping flag doesn't match previous primitives");*/
-
-                        /*List<int> lengths = new();
-
-                        lengths.Add(prim.GIFTag.NLOOP);
-                        lengths.Add(prim.Vertices.Length);
-                        lengths.Add(prim.Normals.Length);
-
-                        if (hasVertexColors == true)
-                            lengths.Add(prim.VertexColors.Length);
-                        if (hasTextureMapping == true)
-                            lengths.AddRange(prim.UVs.Where(x => x != null).Select(x => x.Length));
-
-                        // Make sure all lengths match
-                        if (lengths.Distinct().Count() != 1)
-                            throw new Exception("Some data lengths don't match");*/
                     }
                     catch (Exception ex)
                     {
@@ -396,17 +379,19 @@ namespace Ray1Map.Psychonauts
                         }));
 
                     // Add vertex colors
-                    vertexColors.AddRange(prim.Cycles.Select(c =>
-                        new RGBA8888Color() {
+                    if (includeVertexColors) {
+                        vertexColors.AddRange(prim.Cycles.Select(c =>
+                            new RGBA8888Color() {
                             /*Red = c.Color.R,
                             Green = c.Color.G,
                             Blue = c.Color.B,
                             Alpha = c.Color.A*/
-                            Red = c.Color.R,
-                            Green = c.Color.G,
-                            Blue = c.Color.B,
-                            Alpha = c.Color.A
-                        }));
+                                Red = c.Color.R,
+                                Green = c.Color.G,
+                                Blue = c.Color.B,
+                                Alpha = c.Color.A
+                            }));
+                    }
 
                     // Add UVs
                     if (hasTextureMapping == true)
@@ -431,7 +416,7 @@ namespace Ray1Map.Psychonauts
                 meshFrag.Vertices = vertices.ToArray();
 
                 // Vertex colors
-                if (hasVertexColors == true && includeVertexColors)
+                if (hasVertexColors == true)
                 {
                     meshFrag.HasVertexColors = 1;
                     meshFrag.VertexColors = vertexColors.ToArray();

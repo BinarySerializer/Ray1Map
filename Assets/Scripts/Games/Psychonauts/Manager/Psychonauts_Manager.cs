@@ -192,7 +192,7 @@ namespace Ray1Map.Psychonauts
                     continue;
 
                 loader.LoadLevelPackPack(lvl, loader.Logger);
-                loader.TexturesManager.DumpTextures(outputPath);
+                loader.TexturesManager.DumpPackedTextures(outputPath);
 
                 Debug.Log($"Exported {lvl}");
             }
@@ -212,7 +212,7 @@ namespace Ray1Map.Psychonauts
             
             loader.LoadLevelPackPack(lvl, loader.Logger);
 
-            loader.TexturesManager.DumpTextures(outputPath);
+            loader.TexturesManager.DumpPackedTextures(outputPath);
 
             Debug.Log("Finished exporting");
         }
@@ -227,7 +227,7 @@ namespace Ray1Map.Psychonauts
             loader.LoadLevelPackPack(lvl, loader.Logger);
 
             var exp = new PsychonautsObjExporter();
-            var textures = loader.TexturesManager.GetTextures(loader.LevelScene.TextureTranslationTable, loader.Version);
+            var textures = loader.TexturesManager.GetTextures(loader.LevelScene.TextureTranslationTable, loader.UseNativeTextures, loader.Logger);
 
             exportDomain(loader.LevelScene.RootDomain);
 
@@ -410,7 +410,7 @@ namespace Ray1Map.Psychonauts
             gaoParent.transform.localPosition = Vector3.zero;
             
             // Load models outside the map for now
-            Vector3 plbPos = new Vector3(-60000, 30000, 20000);
+            Vector3 plbPos = new(-60000, 30000, 20000);
 
             foreach (PackedScene meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
@@ -435,7 +435,7 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable, loader.Version));
+            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable, loader.UseNativeTextures, loader.Logger));
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
