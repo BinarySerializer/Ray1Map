@@ -649,8 +649,11 @@ namespace Ray1Map.Psychonauts
                 mr.sharedMaterial = mat;
             }
 
-            PsychonautsTexture tex = textures.ElementAtOrDefault((int?)meshFrag.TextureIndices?.FirstOrDefault() ?? -1);
-            
+            PsychonautsTexture tex = null;
+
+            if (meshFrag.TextureIndices?.Length > 0)
+                tex = textures.ElementAtOrDefault((int)meshFrag.TextureIndices[0]);
+
             if (tex != null)
             {
                 mat.mainTexture = tex.Texture;
