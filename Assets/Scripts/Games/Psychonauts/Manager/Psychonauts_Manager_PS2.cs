@@ -295,7 +295,7 @@ namespace Ray1Map.Psychonauts
                 List<UVSet> uvSets = new();
 
                 // Enumerate every parsed command
-                foreach (PS2_GIF_Command cmd in cmds.ParseCommands(context, key, meshFrag.UVSetUVsCount))
+                foreach (PS2_GIF_Command cmd in cmds.ParseCommands(context, key, meshFrag.UVChannelsCount))
                 {
                     // Add vertices and normals
                     vertices.AddRange(cmd.Cycles.Select(c => new VertexNotexNorm() 

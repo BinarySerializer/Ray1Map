@@ -19,7 +19,7 @@ namespace Ray1Map.Psychonauts
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings)
         {
-            using Ray1MapLoader loader = CreateLoader(settings);
+            using Ray1MapLoader loader = CreateLoader(settings, createLogger: false);
 
             if (loader.Version == PsychonautsVersion.PS2)
                 loader.LoadFilePackages();

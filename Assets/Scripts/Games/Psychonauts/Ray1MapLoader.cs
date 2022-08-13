@@ -1,6 +1,7 @@
 ﻿using BinarySerializer;
 using PsychoPortal;
 using PsychoPortal.Unity;
+using UnityEngine;
 
 namespace Ray1Map.Psychonauts
 {
@@ -28,9 +29,10 @@ namespace Ray1Map.Psychonauts
 
         public override void Dispose()
         {
-            // TODO: Find a better solution to this which supports lazy post-load animation loading
-            //base.Dispose();
-            //Logger?.Dispose();
+            base.Dispose();
+            Logger?.Dispose();
+
+            Debug.Log("Disposed loader");
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Ray1Map.Psychonauts {
 
     public class PS2_GIF_Command_Cycle : BinarySerializable
     {
-        public uint Pre_UVSetUVsCount { get; set; }
+        public uint Pre_UVChannelsCount { get; set; }
 
         public PS2_GIF_XYZF Vertex { get; set; }
         public PS2_GIF_Normal Normal { get; set; }
@@ -17,7 +17,7 @@ namespace Ray1Map.Psychonauts {
 			Vertex = s.SerializeObject<PS2_GIF_XYZF>(Vertex, name: nameof(Vertex));
 			Normal = s.SerializeObject<PS2_GIF_Normal>(Normal, name: nameof(Normal));
 			Color = s.SerializeObject<GIF_Packed_RGBA>(Color, name: nameof(Color));
-			UVs = s.SerializeObjectArray<PS2_GIF_UV>(UVs, Pre_UVSetUVsCount, name: nameof(UVs));
+			UVs = s.SerializeObjectArray<PS2_GIF_UV>(UVs, Pre_UVChannelsCount, name: nameof(UVs));
         }
     }
 }

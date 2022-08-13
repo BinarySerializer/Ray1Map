@@ -14,39 +14,45 @@ namespace Ray1Map.Psychonauts
 
         public void LoadMesh()
         {
-            Scene plb = Loader.FileManager.ReadFromFile<Scene>(MeshFilePath, logger: Loader.Logger);
-
-            if (plb == null)
+            using (Loader)
             {
-                Debug.LogWarning($"Could not read {MeshFilePath}");
-                return;
-            }
+                Scene plb = Loader.FileManager.ReadFromFile<Scene>(MeshFilePath, logger: Loader.Logger);
 
-            Manager.LoadScene(Loader, plb, transform, MeshFilePath);
+                if (plb == null)
+                {
+                    Debug.LogWarning($"Could not read {MeshFilePath}");
+                    return;
+                }
+
+                Manager.LoadScene(Loader, plb, transform, MeshFilePath);
+            }
         }
 
         public void ConvertPL2ToPLB()
         {
-            if (Manager is not Psychonauts_Manager_PS2 ps2Manager)
+            using (Loader)
             {
-                Debug.LogWarning("Can only perform this action using a PS2 manager");
-                return;
+                if (Manager is not Psychonauts_Manager_PS2 ps2Manager)
+                {
+                    Debug.LogWarning("Can only perform this action using a PS2 manager");
+                    return;
+                }
+
+                Scene plb = Loader.FileManager.ReadFromFile<Scene>(MeshFilePath, logger: Loader.Logger);
+
+                if (plb == null)
+                {
+                    Debug.LogWarning($"Could not read {MeshFilePath}");
+                    return;
+                }
+
+                string outputDir = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+                string outputFile = Path.ChangeExtension(Path.Combine(outputDir, MeshFilePath), ".plb");
+                Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
+
+                ps2Manager.ExportPL2ToPLB(Loader, plb, new PsychonautsSettings(PsychonautsVersion.PC_Digital),
+                    outputFile, logger: Loader.Logger);
             }
-
-            Scene plb = Loader.FileManager.ReadFromFile<Scene>(MeshFilePath, logger: Loader.Logger);
-
-            if (plb == null)
-            {
-                Debug.LogWarning($"Could not read {MeshFilePath}");
-                return;
-            }
-
-            string outputDir = EditorUtility.OpenFolderPanel("Select output directory", null, "");
-            string outputFile = Path.ChangeExtension(Path.Combine(outputDir, MeshFilePath), ".plb");
-            Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
-
-            ps2Manager.ExportPL2ToPLB(Loader, plb, new PsychonautsSettings(PsychonautsVersion.PC_Digital),
-                outputFile, logger: Loader.Logger);
         }
     }
 }
