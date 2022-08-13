@@ -604,11 +604,11 @@ namespace Ray1Map.Psychonauts
             Material matSrc;
 
             if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.AdditiveBlending))
-                matSrc = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsAdditive;
             else if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Decal))
-                matSrc = Controller.obj.levelController.controllerTilemap.blendedDecalMaterial;
+                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsDecal;
             else
-                matSrc = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsCutout;
 
             Material mat = new Material(matSrc);
 
@@ -649,28 +649,47 @@ namespace Ray1Map.Psychonauts
 
             PsychonautsTexture tex = null;
 
-            if (meshFrag.TextureIndices?.Length > 0)
-                tex = textures.ElementAtOrDefault((int)meshFrag.TextureIndices[0]);
+            int uvSetIndex = 0;
+            Vector4 texturesInUse = new Vector4();
+            if (meshFrag.TextureIndices != null) {
+                for (int i = 0; i < Math.Min(meshFrag.TextureIndices.Length, 4); i++) {
+                    tex = textures.ElementAtOrDefault((int)meshFrag.TextureIndices[i]);
 
-            if (tex != null)
-            {
-                mat.mainTexture = tex.Texture;
+                    if (tex != null) {
+                        texturesInUse[i] = 1;
+                        mat.SetTexture($"_Tex{i}", tex.Texture);
 
-                if (tex.IsAnimated)
-                    meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat));
+                        if (tex.IsAnimated)
+                            meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat, textureName: $"_Tex{i}"));
 
-                if (meshFrag.TexCoordTransVel.X != 0 || meshFrag.TexCoordTransVel.Y != 0)
-                {
-                    meshFragObj.AddComponent<TextureScrollComponent>(x =>
-                    {
-                        x.material = mat;
-                        x.scroll = meshFrag.TexCoordTransVel.ToVector2();
-                    });
+                        if (meshFrag.TexCoordTransVel.X != 0 || meshFrag.TexCoordTransVel.Y != 0) {
+                            meshFragObj.AddComponent<TextureScrollComponent>(x => {
+                                x.material = mat;
+                                x.textureName = $"_Tex{i}";
+                                x.scroll = meshFrag.TexCoordTransVel.ToVector2();
+                            });
 
+                        }
+
+                        unityMesh.SetUVs(meshFrag, i, uvSetIndex);
+                    }
+                    uvSetIndex++;
                 }
-
-                unityMesh.SetUVs(meshFrag, 0);
             }
+            if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Lightmap)) {
+                tex = textures.ElementAtOrDefault((int)meshFrag.LightMapTextureIndices[0]);
+
+                if (tex != null) {
+                    texturesInUse[3] = 1;
+                    mat.SetTexture($"_TexLightMap", tex.Texture);
+
+                    if (tex.IsAnimated)
+                        meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat, textureName: $"_TexLightMap"));
+
+                    unityMesh.SetUVs(meshFrag, 3, uvSetIndex);
+                }
+            }
+            mat.SetVector($"_TexturesInUse", texturesInUse);
 
             return new PsychonautsMeshFrag(meshFrag, unityMesh, blendComponent);
         }
