@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.PS2;
 using UnityEngine;
 
 namespace Ray1Map.Jade {
@@ -14,7 +15,7 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
-		public GameObject ExecuteChainPrograms(GEO_GeoObject_PS2 obj, int elementIndex, int subElementIndex) {
+		public GameObject ExecuteChainPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj, int elementIndex, int subElementIndex) {
 			Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
 			GEO_GeoObject_PS2.ElementDataBuffer.ElementData objElement = (obj.ElementData.ElementDatas.Length > elementIndex ) ? obj.ElementData.ElementDatas[elementIndex] : null;
 			MeshElementRef visuSubElement = ((visuElement?.Refs?.Length ?? 0) > subElementIndex) ? visuElement.Refs[subElementIndex] : null;
@@ -43,22 +44,64 @@ namespace Ray1Map.Jade {
 									c.Transfer(w, chainData);
 								}
 							}
+							string testPath = Path.Combine(Path.GetDirectoryName(Settings.LogFile), "test_jade_ps2");
 
-							PS2_GeometryCommand[] VIFProgram = null;
+							VIF_Commands VIFProgram = null;
+							var chainProgKey = $"ChainProgram__{jadeGao.Key}__{elementIndex}-{subElementIndex}";
 							using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(Context.SerializerLog))) {
 								ms.Position = 0;
-								var file = c.AddStreamFile($"ChainProgram__{Offset}__{elementIndex}-{subElementIndex}", ms);
+								var file = c.AddStreamFile(chainProgKey, ms);
 								var s = c.Deserializer;
-								s.DoAt(file.StartPointer, () => {
-									// Parse ms into a VIF program here
-									VIFProgram = s.SerializeObjectArrayUntil<PS2_GeometryCommand>(VIFProgram, g => s.CurrentAbsoluteOffset >= file.Length, name: nameof(VIFProgram));
-								});
-							}
-							// TODO: Execute VIF program
-							if (VIFProgram != null) {
-								PS2_GeometryCommand vertices = null;
+								var parserPass1 = new VIF_Parser() {
+									IsVIF1 = true
+								};
+								VIFProgram = FileFactory.Read<VIF_Commands>(c, file.FilePath, (_,v) => v.Pre_Parser = parserPass1);
+								c.RemoveFile(file);
+								// TODO: Execute VIF program
+								if (VIFProgram != null) {
+									var parser = new VIF_Parser() {
+										IsVIF1 = true
+									};
+									List<PS2_VU_Data> gifCmds = new List<PS2_VU_Data>();
+									var mcIndex = 0;
+									void ExecuteMicroProgram() {
+										parser.HasPendingChanges = false;
+										byte[] microProg = parser.GetCurrentBuffer();
+										if (microProg != null) {
+											//Util.ByteArrayToFile(Path.Combine(testPath, $"{jadeGao.Key}__{elementIndex}-{subElementIndex}_{mcIndex}.bin"), parser.CurrentStream.ToArray());
+											var mcKey = $"{chainProgKey}_{mcIndex}";
+											try {
+												file = new StreamFile(c, mcKey, new MemoryStream(microProg), endianness: Endian.Little);
+												c.AddFile(file);
+												//var tops = parser.TOPS * 16;
+
+												s.Goto(file.StartPointer);
+
+
+												var vuData = s.SerializeObject<PS2_VU_Data>(default,
+													onPreSerialize: v => {
+														v.Pre_HasNormals = geo.Flags_SoT.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.UseNormalsInEngine) || geo.Flags.HasFlag(GEO_GeometricObject.GEO_ObjFlags.UseNormalsInEngine);
+														v.Pre_HasColors = !v.Pre_HasNormals; // TODO
+														},
+													name: nameof(PS2_VU_Data));
+												gifCmds.Add(vuData);
+											} finally {
+												c.RemoveFile(mcKey);
+											}
+											mcIndex++;
+										}
+									}
+									foreach (var cmd in VIFProgram.Commands) {
+										if (parser.StartsNewMicroProgram(cmd)) {
+											if (parser.HasPendingChanges) ExecuteMicroProgram();
+										}
+										parser.ExecuteCommand(cmd, executeFull: true);
+									}
+									if (parser.HasPendingChanges) ExecuteMicroProgram();
+								}
+								/*PS2_GeometryCommand vertices = null;
 								PS2_GeometryCommand uvs = null;
-								foreach (var cmd in VIFProgram) {
+								foreach (var cmd in VIFProgram.Commands) {
 									if (cmd.Type == PS2_GeometryCommand.CommandType.Vertices) vertices = cmd;
 									if (cmd.Type == PS2_GeometryCommand.CommandType.UVs) uvs = cmd;
 									if (cmd.Type == PS2_GeometryCommand.CommandType.TransferData) {
@@ -108,7 +151,7 @@ namespace Ray1Map.Jade {
 											vertices = null;
 										}
 									}
-								}
+								}*/
 							}
 						}
 					}
