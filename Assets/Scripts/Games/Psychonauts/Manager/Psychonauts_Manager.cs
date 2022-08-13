@@ -2,6 +2,7 @@
 using PsychoPortal;
 using PsychoPortal.Unity;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -259,6 +260,8 @@ namespace Ray1Map.Psychonauts
             if (loader.Settings.Version == PsychonautsVersion.PS2)
                 loader.LoadFilePackages(loader.Logger);
 
+            HashSet<string> exportedFiles = new();
+
             loader.LoadCommonPackPack(loader.Logger);
 
             exportMeshPack(loader.CommonMeshPack);
@@ -283,6 +286,12 @@ namespace Ray1Map.Psychonauts
                 foreach (PackedScene meshFile in pack.MeshFiles)
                 {
                     var filePath = Path.Combine(outputPath, meshFile.FileName);
+
+                    if (exportedFiles.Contains(filePath))
+                        continue;
+
+                    exportedFiles.Add(filePath);
+
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
                     Binary.WriteToFile(meshFile.Scene, filePath, loader.Settings, logger: loader.Logger);
                 }
@@ -408,7 +417,13 @@ namespace Ray1Map.Psychonauts
             gaoParent.transform.localScale = Vector3.one;
             gaoParent.transform.localRotation = Quaternion.identity;
             gaoParent.transform.localPosition = Vector3.zero;
-            
+
+            gaoParent.AddComponent<MeshLoaderComponent>(x =>
+            {
+                x.Manager = this;
+                x.Loader = loader;
+            });
+
             // Load models outside the map for now
             Vector3 plbPos = new(-60000, 30000, 20000);
 
