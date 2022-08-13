@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.PS2;
 using PsychoPortal;
 using PsychoPortal.Unity;
 using UnityEngine;
+using Endian = BinarySerializer.Endian;
 using Mesh = PsychoPortal.Mesh;
 using RGBA8888Color = PsychoPortal.RGBA8888Color;
 
@@ -231,26 +231,22 @@ namespace Ray1Map.Psychonauts
 
                 foreach (Mesh childMesh in mesh.Children)
                     convertMesh(childMesh);
-
-                // TODO: Fix this - related to vertex stream basis?
-                mesh.MeshFrags = mesh.MeshFrags.Where(x => !x.MaterialFlags.HasFlag(MaterialFlags.Specular)).ToArray();
             }
 
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag);
+                InitPS2MeshFrag(loader.Context, frag, true);
 
-                // TODO: Removing the flag is not enough - probably need to remove some texture reference as well?
-                // TODO: This is a temporary solution. Specular requires VertexStreamBasis to be set and I don't know how to generate that
-                //frag.MaterialFlags &= ~MaterialFlags.Specular;
-
-                // Is this correct? Ideally we want to rely on the lights when not used on a PS2.
-                if (!frag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) &&
-                    !frag.MaterialFlags.HasFlag(MaterialFlags.Flag_15))
+                if (frag.HasVertexStreamBasis != 0)
                 {
-                    frag.HasVertexColors = 0;
-                    frag.VertexColors = null;
+                    frag.VertexStreamBasis = Enumerable.Range(0, frag.Vertices.Length).Select(x => new VertexStreamBasis
+                    {
+                        // TODO: Set more proper values
+                        NormPacked1 = new NormPacked3(),
+                        NormPacked2 = new NormPacked3(),
+                        NormPacked3 = new NormPacked3()
+                    }).ToArray();
                 }
             }
 
@@ -266,136 +262,81 @@ namespace Ray1Map.Psychonauts
             // Convert PS2 mesh data to common format
             try
             {
-                InitPS2MeshFrag(loader.Context, meshFrag);
+                InitPS2MeshFrag(loader.Context, meshFrag, false);
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to initialize PS2 mesh frag: {ex.Message}");
+                Debug.LogError($"Failed to initialize PS2 mesh frag: {ex.Message}");
                 return null;
             }
 
             return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
         }
 
-        public static int meshFragGlobalIndex = 0;
-
-        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool includeVertexColors = true)
+        private static int _meshFragGlobalIndex;
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors)
         {
-            const string key = "geo";
+            string key = $"vif_{_meshFragGlobalIndex}";
+            _meshFragGlobalIndex++;
 
-            string testPath = context.BasePath;
+            // The PS2 version defines vertex colors even if they're not used (in which case they're set to 0),
+            // so we need to determine when they should be used and not
+            bool useVertexColors = meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) ||
+                                   meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_15);
 
-            // Some helpful links:
-            // https://psi-rockin.github.io/ps2tek
-            // https://github.com/PCSX2/pcsx2/issues/1803 > https://github.com/Fireboyd78/driver-tools/tree/dev/GMC2Snooper/PS2
-            // https://github.com/PCSX2/pcsx2/tree/master/pcsx2
-
-            var newk = $"{key}_{meshFragGlobalIndex}";
             try
             {
-                //Util.ByteArrayToFile(Path.Combine(testPath, $"{newk}.geo"), meshFrag.PS2_VIFCommands);
-
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
-                context.AddFile(new StreamFile(context, newk, new MemoryStream(meshFrag.PS2_VIFCommands), endianness: BinarySerializer.Endian.Little));
-                PS2_GeometryCommands cmds = FileFactory.Read<PS2_GeometryCommands>(context, newk);
+                context.AddFile(new StreamFile(context, key, new MemoryStream(meshFrag.PS2_VIFCommands), endianness: Endian.Little));
+                PS2_VIFCommands cmds = FileFactory.Read<PS2_VIFCommands>(context, key);
 
                 List<VertexNotexNorm> vertices = new();
-                List<RGBA8888Color> vertexColors = new();
+                List<RGBA8888Color> vertexColors = useVertexColors ? new List<RGBA8888Color>() : null;
                 List<UVSet> uvSets = new();
 
-                var parser = new VIF_Parser() {
-                    IsVIF1 = true,
-                };
-                List<PS2_GIF_Command> gifCmds = new List<PS2_GIF_Command>();
-                var mcIndex = 0;
-                foreach (var cmd in cmds.Commands) {
-                    if (parser.StartsNewMicroProgram(cmd)) {
-                        Stream microProg = parser.CurrentStream;
-                        if (microProg != null) {
-                            microProg = new NonClosingStreamWrapper(microProg);
-                            //Util.ByteArrayToFile(Path.Combine(testPath, $"{newk}_{mcIndex}.bin"), microProg.ToArray());
-
-                            var mcKey = $"{key}_{meshFragGlobalIndex}_{mcIndex}";
-                            try {
-                                var file = new StreamFile(context, mcKey, microProg, endianness: BinarySerializer.Endian.Little);
-                                context.AddFile(file);
-                                var tops = parser.TOPS * 16;
-
-                                var s = context.Deserializer;
-                                s.Goto(file.StartPointer + tops);
-
-                                var gifCmd = s.SerializeObject<PS2_GIF_Command>(default, onPreSerialize: c => c.Pre_UVSetsCount = meshFrag.UVSetUVsCount, name: "GIFCommand");
-                                gifCmds.Add(gifCmd);
-                            } finally {
-                                context.RemoveFile(mcKey);
-                            }
-                            mcIndex++;
-                        }
-                    }
-                    parser.ExecuteCommand(cmd, executeFull: true);
-                }
-                meshFrag.DegenPolygonCount = (uint)meshFragGlobalIndex; // Hack... unable to identify specific meshfrag in log & in unity otherwise
-                meshFragGlobalIndex++;
-
-                float baseC = BitConverter.ToSingle(BitConverter.GetBytes(meshFrag.PS2_VertexOffset));
-                //int baseC = (int)meshFrag.PS2_VertexOffset;
-
-                foreach (var prim in gifCmds)
+                // Enumerate every parsed command
+                foreach (PS2_GIF_Command cmd in cmds.ParseCommands(context, key, meshFrag.UVSetUVsCount))
                 {
-                    int length = prim.Cycles.Length;
-
-                    // Add vertices
-                    //var ZSubtract = (ushort)0x8000;//(ushort)BinarySerializer.BitHelpers.ExtractBits64(meshFrag.PS2_UnknownUint, 16, 0);
-                    vertices.AddRange(prim.Cycles.Select(c => {
-                        var x = c.Vertex.X;
-                        var y = c.Vertex.Y;
-                        var z = c.Vertex.Z;
-                        return new VertexNotexNorm() {
-                                Vertex = new Vec3(
-                                    x - baseC,
-                                    y - baseC,
-                                    z - baseC
-                                ),
-                                Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
-                            };
-                        }));
+                    // Add vertices and normals
+                    vertices.AddRange(cmd.Cycles.Select(c => new VertexNotexNorm() 
+                    {
+                        Vertex = new Vec3(
+                            c.Vertex.X - meshFrag.PS2_VertexOffset,
+                            c.Vertex.Y - meshFrag.PS2_VertexOffset,
+                            c.Vertex.Z - meshFrag.PS2_VertexOffset
+                        ),
+                        Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
+                    }));
 
                     // Add vertex colors
-                    if (includeVertexColors) {
-                        vertexColors.AddRange(prim.Cycles.Select(c =>
-                            new RGBA8888Color() {
-                                Red = c.Color.R,
-                                Green = c.Color.G,
-                                Blue = c.Color.B,
-                                Alpha = c.Color.A
-                            }));
-                    }
+                    vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
+                    {
+                        Red = scaleColors ? (byte)(Math.Min(c.Color.R * 2, Byte.MaxValue)) : c.Color.R,
+                        Green = scaleColors ? (byte)(Math.Min(c.Color.G * 2, Byte.MaxValue)) : c.Color.G,
+                        Blue = scaleColors ? (byte)(Math.Min(c.Color.B * 2, Byte.MaxValue)) : c.Color.B,
+                        Alpha = c.Color.A
+                    }));
 
                     // Add UVs
-                    uvSets.AddRange(prim.Cycles.Select(c => new UVSet()
+                    uvSets.AddRange(cmd.Cycles.Select(c => new UVSet()
                     {
-                        UVs = c.UVSets.Select(u =>
-                            new UV()
-                            {
-                                /*Pre_Version = 316, // TODO: This is a hack to use floats. Convert to integer values.
-                                U_Float = u.UFloat,
-                                V_Float = u.VFloat*/
-                                Pre_Version = 317,
-                                U = (short)(u.U - 0x8000),
-                                V = (short)(u.V - 0x8000),
-                            }
-                        ).ToArray()
+                        UVs = c.UVs.Select(u => new UV()
+                        {
+                            Pre_Version = meshFrag.Pre_Version,
+                            U = (short)(u.U - 0x8000),
+                            V = (short)(u.V - 0x8000),
+                        }).ToArray()
                     }));
                 }
 
                 // Flags
                 meshFrag.MaterialFlags |= MaterialFlags.DoubleSided; // Force double-sided on PS2
 
-                // Vertices
+                // Vertices and normals
                 meshFrag.Vertices = vertices.ToArray();
 
                 // Vertex colors
-                if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) || meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_15))
+                if (useVertexColors)
                 {
                     meshFrag.HasVertexColors = 1;
                     meshFrag.VertexColors = vertexColors.ToArray();
@@ -407,23 +348,19 @@ namespace Ray1Map.Psychonauts
                 }
 
                 // UVs
-                meshFrag.UVSetUVsCount = (uint)uvSets[0].UVs.Length;
-                meshFrag.UVScale = 0x7FFF / 4096f; //1;
+                meshFrag.UVScale = 0x7FFF / 4096f;
                 meshFrag.UVSets = uvSets.ToArray();
-
-                meshFrag.HasVertexStreamBasis = 0;
-                meshFrag.VertexStreamBasis = null;
 
                 // Polygons
                 meshFrag.PolygonCount = (uint)(meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip) 
                     ? meshFrag.Vertices.Length - 2 
                     : meshFrag.Vertices.Length / 3);
-                //meshFrag.DegenPolygonCount = 0; // Commented out while using above hack
+                meshFrag.DegenPolygonCount = 0;
                 meshFrag.PolygonIndexBuffer = Enumerable.Range(0, meshFrag.Vertices.Length).Select(x => (short)x).ToArray();
             }
             finally
             {
-                context.RemoveFile(newk);
+                context.RemoveFile(key);
             }
         }
 
