@@ -305,7 +305,10 @@ namespace Ray1Map.Psychonauts
                             c.Vertex.Y - meshFrag.PS2_VertexOffset,
                             c.Vertex.Z - meshFrag.PS2_VertexOffset
                         ),
-                        Normal = new NormPacked3(), // TODO: Set normal. We need to compress it to the packed format.
+                        Normal = NormPacked3.FromVec3(new Vec3(
+                            c.Normal.XFloat,
+                            c.Normal.YFloat,
+                            c.Normal.ZFloat)),
                     }));
 
                     // Add vertex colors
