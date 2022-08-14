@@ -163,12 +163,18 @@ public class UnityWindowSerializer : SerializerObject
 
         if (Foldouts[fullName])
         {
-            Depth++;
-            Window.IndentLevel++;
-            if(obj == null) obj = new T();
-            obj.SerializeImpl(this);
-            Window.IndentLevel--;
-            Depth--;
+            try
+            {
+                Depth++;
+                Window.IndentLevel++;
+                obj ??= new T();
+                obj.SerializeImpl(this);
+            }
+            finally
+            {
+                Window.IndentLevel--;
+                Depth--;
+            }
         }
 
         CurrentName.RemoveAt(CurrentName.Count - 1);
