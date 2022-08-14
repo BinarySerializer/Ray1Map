@@ -25,6 +25,7 @@ struct v2f
 sampler2D _Tex0, _Tex1, _Tex2, _TexLightMap, _TexGlossMap, _TexReflectionMap;
 float4 _Tex0_ST, _Tex1_ST, _Tex2_ST, _TexLightMap_ST, _TexGlossMap_ST, _TexReflectionMap_ST;
 float4 _TexturesInUse, _TexturesInUse2;
+float _IsSelfIllumination;
 
 v2f process_vert(appdata v, float isAdd) {
 	v2f o;
@@ -51,7 +52,11 @@ float4 TextureOp(float4 color_in, sampler2D tex, float2 uv, float type, float in
 		}
 	} else if (type == 1) {
 		// Lightmap
-		return color_in * float4(texColor.xyz, 1) * 2;
+		if (_IsSelfIllumination == 1) {
+			return lerp(color_in * float4(texColor.xyz, 1) * 2, color_in, color_in.w);
+		} else {
+			return color_in * float4(texColor.xyz, 1) * 2;
+		}
 	}
 	return color_in;
 }
@@ -70,12 +75,20 @@ float4 process_frag(v2f i, float clipAlpha, float isAdd) : SV_TARGET {
 	} else {
 		c = c * i.color;
 	}
-	clip(c.a - clipAlpha);
-	/*if (clipAlpha < 0) { // Clip discards values below 0.
+	if (_IsSelfIllumination == 1) {
+		c = float4(c.xyz, 1);
+	}
+	/*if (clipAlpha >= 0) {
+		clip(c.a - clipAlpha);
+	} else {
+		clip(-c.a - clipAlpha);
+	}*/
+	if (clipAlpha < 0) { // Clip discards values below 0.
 		clip(clipAlpha * (c.a - 1.0)); // If clipAlpha == -1, then any color with alpha < 1 will be rendered
+		clip(c.a - 0.001);
 	} else {
 		clip(clipAlpha * (c.a - 0.999)); // If clipAlpha == 1, then any color with alpha > 1 will be rendered
-	}*/
+	}
 
 	return c;
 
