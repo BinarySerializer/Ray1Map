@@ -113,7 +113,7 @@ namespace Ray1Map.Psychonauts
 
                 exportedTextures.Add(texIndex);
 
-                tex.Texture.ExportPNG(Path.Combine(exportDir, $"{tex.GameTexture.FileName}.png"));
+                tex.GetTexture(false).ExportPNG(Path.Combine(exportDir, $"{tex.GameTexture.FileName}.png"));
             }
         }
     }

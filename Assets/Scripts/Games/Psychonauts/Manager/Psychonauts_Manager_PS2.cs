@@ -257,7 +257,7 @@ namespace Ray1Map.Psychonauts
 
         #region Load
 
-        public override PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public override PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             // Convert PS2 mesh data to common format
             try

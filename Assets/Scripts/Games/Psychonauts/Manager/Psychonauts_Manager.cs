@@ -450,7 +450,10 @@ namespace Ray1Map.Psychonauts
             sceneObj.transform.localRotation = Quaternion.identity;
             sceneObj.transform.localPosition = Vector3.zero;
 
-            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loader.TexturesManager.GetTextures(scene.TextureTranslationTable, loader.UseNativeTextures, loader.Logger));
+            LoadedTexture[] loadedTextures = scene.TextureTranslationTable.
+                Select(x => new LoadedTexture(loader.TexturesManager.GetTexture(x, loader.UseNativeTextures, loader.Logger), x)).
+                ToArray();
+            LoadDomain(loader, scene.RootDomain, sceneObj.transform, loadedTextures);
 
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
@@ -460,7 +463,7 @@ namespace Ray1Map.Psychonauts
             return sceneObj;
         }
 
-        public void LoadDomain(Ray1MapLoader loader, Domain domain, Transform parent, PsychonautsTexture[] textures)
+        public void LoadDomain(Ray1MapLoader loader, Domain domain, Transform parent, LoadedTexture[] textures)
         {
             GameObject domainObj = new GameObject($"Domain: {domain.Name}");
             domainObj.transform.SetParent(parent, false);
@@ -489,7 +492,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void LoadMesh(Ray1MapLoader loader, Mesh mesh, Transform parent, PsychonautsTexture[] textures)
+        public void LoadMesh(Ray1MapLoader loader, Mesh mesh, Transform parent, LoadedTexture[] textures)
         {
             GameObject meshObj = new GameObject($"Mesh: {mesh.Name}");
             meshObj.transform.SetParent(parent, false);
@@ -579,7 +582,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, PsychonautsTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
         {
             GameObject meshFragObj = new GameObject(
                 $"Frag: {index}, " +
@@ -665,49 +668,58 @@ namespace Ray1Map.Psychonauts
                 mr.sharedMaterial = mat;
             }
 
-            PsychonautsTexture tex = null;
+            LoadedTexture tex = null;
 
-            int uvSetIndex = 0;
+            int texStride = 0;
             Vector4 texturesInUse = new Vector4();
-            if (meshFrag.TextureIndices != null) {
-                for (int i = 0; i < Math.Min(meshFrag.TextureIndices.Length, 4); i++) {
-                    tex = textures.ElementAtOrDefault((int)meshFrag.TextureIndices[i]);
 
-                    if (tex != null) {
+            for (int i = 0; i < Math.Min(meshFrag.TextureIndices.Length, 3); i++)
+            {
+                if (meshFrag.TextureIndices[i] != -1)
+                {
+                    tex = textures[meshFrag.TextureIndices[i]];
+
+                    if (tex.Texture != null)
+                    {
                         texturesInUse[i] = 1;
-                        mat.SetTexture($"_Tex{i}", tex.Texture);
+                        mat.SetTexture($"_Tex{i}", tex.Texture.GetTexture(tex.TextureRef.GameTextureFlag_4));
 
-                        if (tex.IsAnimated)
-                            meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat, textureName: $"_Tex{i}"));
+                        if (tex.Texture.IsAnimated)
+                            meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex.Texture, tex.TextureRef, mat, textureName: $"_Tex{i}"));
 
-                        if (meshFrag.TexCoordTransVel.X != 0 || meshFrag.TexCoordTransVel.Y != 0) {
-                            meshFragObj.AddComponent<TextureScrollComponent>(x => {
+                        if (meshFrag.TexCoordTransVel.X != 0 || meshFrag.TexCoordTransVel.Y != 0)
+                        {
+                            meshFragObj.AddComponent<TextureScrollComponent>(x =>
+                            {
                                 x.material = mat;
                                 x.textureName = $"_Tex{i}";
                                 x.scroll = meshFrag.TexCoordTransVel.ToVector2();
                             });
-
                         }
 
-                        unityMesh.SetUVs(meshFrag, i, uvSetIndex);
+                        unityMesh.SetUVs(meshFrag, i, texStride);
                     }
-                    uvSetIndex++;
                 }
-            }
-            if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Lightmap)) {
-                tex = textures.ElementAtOrDefault((int)meshFrag.LightMapTextureIndices[0]);
 
-                if (tex != null) {
+                texStride++;
+            }
+
+            if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Lightmap) && meshFrag.LightMapTextureIndices[0] != -1) 
+            {
+                tex = textures[meshFrag.LightMapTextureIndices[0]];
+
+                if (tex.Texture != null)
+                {
                     texturesInUse[3] = 1;
-                    mat.SetTexture($"_TexLightMap", tex.Texture);
+                    mat.SetTexture("_TexLightMap", tex.Texture.GetTexture(tex.TextureRef.GameTextureFlag_4));
 
-                    if (tex.IsAnimated)
-                        meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex, mat, textureName: $"_TexLightMap"));
+                    if (tex.Texture.IsAnimated)
+                        meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex.Texture, tex.TextureRef, mat, textureName: "_TexLightMap"));
 
-                    unityMesh.SetUVs(meshFrag, 3, uvSetIndex);
+                    unityMesh.SetUVs(meshFrag, 3, texStride);
                 }
             }
-            mat.SetVector($"_TexturesInUse", texturesInUse);
+            mat.SetVector("_TexturesInUse", texturesInUse);
 
             return new PsychonautsMeshFrag(meshFrag, unityMesh, blendComponent);
         }
@@ -789,6 +801,12 @@ namespace Ray1Map.Psychonauts
 
             return colObj;
         }
+
+        #endregion
+
+        #region Data Types
+
+        public record LoadedTexture(PsychonautsTexture Texture, TextureReference TextureRef);
 
         #endregion
     }
