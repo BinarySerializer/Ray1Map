@@ -34,7 +34,6 @@ v2f process_vert(appdata v, float isAdd) {
 	o.uv2 = TRANSFORM_TEX(v.uv2, _Tex2);
 	o.uvLM = TRANSFORM_TEX(v.uvLM, _TexLightMap);
 	o.color = v.color;
-	UNITY_TRANSFER_FOG(o, o.vertex);
 	return o;
 }
 
@@ -65,8 +64,12 @@ float4 process_frag(v2f i, float clipAlpha, float isAdd) : SV_TARGET {
 	if (_TexturesInUse.y != 0.0) c = TextureOp(c, _Tex1, i.uv1, 0, 1);
 	if (_TexturesInUse.z != 0.0) c = TextureOp(c, _Tex2, i.uv2, 0, 2);
 	if (_TexturesInUse.w != 0.0) c = TextureOp(c, _TexLightMap, i.uvLM, 1, 3);
-
-	c = c * i.color;
+	
+	if (length(_TexturesInUse) <= 0.0) {
+		c = i.color;
+	} else {
+		c = c * i.color;
+	}
 	clip(c.a - clipAlpha);
 	/*if (clipAlpha < 0) { // Clip discards values below 0.
 		clip(clipAlpha * (c.a - 1.0)); // If clipAlpha == -1, then any color with alpha < 1 will be rendered
