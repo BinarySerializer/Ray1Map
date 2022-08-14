@@ -9,7 +9,7 @@ namespace Ray1Map
 {
     public static class ImageExtensions
     {
-        public static Texture2D ToTexture2D(this DDS_TextureItem img, bool invertY = false)
+        public static Texture2D ToTexture2D(this DDS_MipSurface img, bool invertY = false)
         {
             TextureFormat fmt = TextureFormat.RGBA32;
             if (img.Pre_Header?.PixelFormat?.FourCC == "ATI2")

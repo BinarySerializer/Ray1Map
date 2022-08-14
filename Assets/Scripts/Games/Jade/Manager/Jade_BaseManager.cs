@@ -387,8 +387,8 @@ namespace Ray1Map {
 									parsedTexs.Add(t.Key.Key);
 									var dds = t.Value.DDS;
 
-									for (int i = 0; i < dds.Textures.Length; i++) {
-										Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
+									for (int i = 0; i < dds.Faces.Length; i++) {
+										Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"{t.Key.Key:X8}_{i}.png"), dds.Faces[i].Surfaces[0].ToTexture2D().EncodeToPNG());
 									}
 								}
 							}
