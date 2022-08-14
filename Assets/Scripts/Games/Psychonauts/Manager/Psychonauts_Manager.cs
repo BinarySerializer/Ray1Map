@@ -682,7 +682,7 @@ namespace Ray1Map.Psychonauts
                     if (tex.Texture != null)
                     {
                         texturesInUse[i] = 1;
-                        mat.SetTexture($"_Tex{i}", tex.Texture.GetTexture(tex.TextureRef.GameTextureFlag_4));
+                        mat.SetTexture($"_Tex{i}", tex.Texture.GetTexture(tex.TextureRef.RepeatUV));
 
                         if (tex.Texture.IsAnimated)
                             meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex.Texture, tex.TextureRef, mat, textureName: $"_Tex{i}"));
@@ -711,7 +711,7 @@ namespace Ray1Map.Psychonauts
                 if (tex.Texture != null)
                 {
                     texturesInUse[3] = 1;
-                    mat.SetTexture("_TexLightMap", tex.Texture.GetTexture(tex.TextureRef.GameTextureFlag_4));
+                    mat.SetTexture("_TexLightMap", tex.Texture.GetTexture(tex.TextureRef.RepeatUV));
 
                     if (tex.Texture.IsAnimated)
                         meshFragObj.AddComponent<TextureAnimationComponent>(x => x.SetTexture(tex.Texture, tex.TextureRef, mat, textureName: "_TexLightMap"));
