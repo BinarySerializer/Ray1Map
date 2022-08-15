@@ -394,7 +394,7 @@ namespace Ray1Map.Psychonauts
 
             world.transform.localScale = _scaleVector;
 
-            var bounds = GetDimensions(loader);
+            var bounds = GetDimensions(loader.LevelScene);
             Vector2 min = new Vector2(bounds.min.x, bounds.min.z);
             Vector2 max = new Vector2(bounds.max.x, bounds.max.z);
             level.IsometricData.CalculateXDisplacement = () => 0;
@@ -419,10 +419,9 @@ namespace Ray1Map.Psychonauts
             return level;
         }
 
-        public Bounds GetDimensions(Ray1MapLoader loader) 
+        public Bounds GetDimensions(Scene scene) 
         {
             List<Bounds> dimensions = new List<Bounds>();
-            var scene = loader.LevelScene;
             getSceneBounds(scene);
 
             void getSceneBounds(Scene scene) 
