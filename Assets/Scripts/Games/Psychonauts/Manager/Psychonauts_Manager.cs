@@ -384,13 +384,13 @@ namespace Ray1Map.Psychonauts
                 }
             }
 
-            Controller.DetailedState = "Creating objects";
+            Controller.DetailedState = "Loading meshes";
             await Controller.WaitIfNecessary();
 
             // Create the object manager
             level.ObjManager = new Unity_ObjectManager(context);
 
-            GameObject world = LoadLevel(loader, Controller.obj.levelController.editor.layerTiles.transform, lvl);
+            GameObject world = await LoadLevelAsync(loader, Controller.obj.levelController.editor.layerTiles.transform, lvl);
 
             world.transform.localScale = _scaleVector;
 
@@ -419,32 +419,37 @@ namespace Ray1Map.Psychonauts
             return level;
         }
 
-        public Bounds GetDimensions(Ray1MapLoader loader) {
+        public Bounds GetDimensions(Ray1MapLoader loader) 
+        {
             List<Bounds> dimensions = new List<Bounds>();
             var scene = loader.LevelScene;
             getSceneBounds(scene);
 
-            void getSceneBounds(Scene scene) {
+            void getSceneBounds(Scene scene) 
+            {
                 getDomainBounds(scene.RootDomain);
 
                 if(scene.ReferencedScenes != null)
                     foreach(var sc in scene.ReferencedScenes)
                         getSceneBounds(sc);
             }
-            void getDomainBounds(Domain domain) {
-                var min = convertVector(domain.Bounds.Min);
-                var max = convertVector(domain.Bounds.Max);
-                var center = Vector3.Lerp(min, max, 0.5f);
-                var size = new Vector3(
+            void getDomainBounds(Domain domain) 
+            {
+                Vector3 min = convertVector(domain.Bounds.Min);
+                Vector3 max = convertVector(domain.Bounds.Max);
+                Vector3 center = Vector3.Lerp(min, max, 0.5f);
+                Vector3 size = new Vector3(
                     max.x - min.x,
                     max.y - min.y,
                     min.z - max.z);
                 
                 dimensions.Add(new Bounds(center, size));
+                
                 foreach(var child in domain.Children)
                     getDomainBounds(child);
             }
-            Vector3 convertVector(Vec3 v) => new Vector3(v.X, v.Y, -v.Z) / 32f;
+
+            Vector3 convertVector(Vec3 v) => new Vector3(v.X * _scaleVector.x, v.Y * _scaleVector.y, v.Z * _scaleVector.z);
 
             Vector3 totalMin = new Vector3(
                 dimensions.Min(d => d.min.x),
@@ -460,7 +465,7 @@ namespace Ray1Map.Psychonauts
                 totalMax - totalMin);
         }
 
-        public GameObject LoadLevel(Ray1MapLoader loader, Transform parent, string levelName)
+        public async UniTask<GameObject> LoadLevelAsync(Ray1MapLoader loader, Transform parent, string levelName)
         {
             GameObject gaoParent = new GameObject(levelName);
             gaoParent.transform.SetParent(parent, false);
@@ -479,19 +484,22 @@ namespace Ray1Map.Psychonauts
 
             foreach (PackedScene meshFile in loader.CommonMeshPack.MeshFiles.Concat(loader.LevelMeshPack.MeshFiles))
             {
-                GameObject obj = LoadScene(loader, meshFile.Scene, gaoParent.transform, $"{meshFile.FileName} ({meshFile.Type})");
+                GameObject obj = await LoadSceneAsync(loader, meshFile.Scene, gaoParent.transform, $"{meshFile.FileName} ({meshFile.Type})");
                 obj.transform.position = plbPos;
                 plbPos += new Vector3(meshFile.Scene.RootDomain.Bounds.Max.X - meshFile.Scene.RootDomain.Bounds.Min.X, 0, 0);
             }
 
             // Load the level scene
-            LoadScene(loader, loader.LevelScene, gaoParent.transform, "Level");
+            await LoadSceneAsync(loader, loader.LevelScene, gaoParent.transform, "Level");
 
             return gaoParent;
         }
 
-        public GameObject LoadScene(Ray1MapLoader loader, Scene scene, Transform parent, string name)
+        public async UniTask<GameObject> LoadSceneAsync(Ray1MapLoader loader, Scene scene, Transform parent, string name)
         {
+            Controller.DetailedState = $"Loading scene{Environment.NewLine}{name}";
+            await Controller.WaitIfNecessary();
+
             GameObject sceneObj = new GameObject($"Scene: {name}");
             sceneObj.transform.SetParent(parent, false);
             sceneObj.AddBinarySerializableData(loader.Settings, scene);
@@ -508,7 +516,7 @@ namespace Ray1Map.Psychonauts
             // Load referenced scenes
             if (scene.ReferencedScenes != null)
                 foreach (Scene refScene in scene.ReferencedScenes)
-                    LoadScene(loader, refScene, sceneObj.transform, $"{name} References");
+                    await LoadSceneAsync(loader, refScene, sceneObj.transform, $"{name} References");
 
             return sceneObj;
         }

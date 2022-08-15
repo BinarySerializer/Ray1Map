@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Cysharp.Threading.Tasks;
 using PsychoPortal;
 using UnityEditor;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace Ray1Map.Psychonauts
 
         public string MeshFilePath;
 
-        public void LoadMesh()
+        public async UniTask LoadMeshAsync()
         {
             using (Loader)
             {
@@ -24,7 +25,7 @@ namespace Ray1Map.Psychonauts
                     return;
                 }
 
-                Manager.LoadScene(Loader, plb, transform, MeshFilePath);
+                await Manager.LoadSceneAsync(Loader, plb, transform, MeshFilePath);
             }
         }
 

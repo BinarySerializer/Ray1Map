@@ -22,7 +22,7 @@ namespace Ray1Map.Psychonauts
                 ToArray();
         }
 
-        public override void OnInspectorGUI()
+        public override async void OnInspectorGUI()
         {
             MeshLoaderComponent comp = (MeshLoaderComponent)serializedObject.targetObject;
 
@@ -46,7 +46,7 @@ namespace Ray1Map.Psychonauts
             EditorGUILayout.Separator();
 
             if (EditorGUILayout.LinkButton("Load"))
-                comp.LoadMesh();
+                await comp.LoadMeshAsync();
 
             if (comp.Manager is Psychonauts_Manager_PS2 && EditorGUILayout.LinkButton("Convert PL2 to PLB"))
                 comp.ConvertPL2ToPLB();
