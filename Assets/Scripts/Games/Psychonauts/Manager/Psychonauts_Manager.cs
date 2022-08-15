@@ -394,6 +394,14 @@ namespace Ray1Map.Psychonauts
 
             world.transform.localScale = _scaleVector;
 
+            var bounds = GetDimensions(loader);
+            Vector2 min = new Vector2(bounds.min.x, bounds.min.z);
+            Vector2 max = new Vector2(bounds.max.x, bounds.max.z);
+            level.IsometricData.CalculateXDisplacement = () => 0;
+            level.IsometricData.CalculateYDisplacement = () => -(max.y + min.y) * 2;
+            //UnityEngine.Debug.Log($"{min} - {max}");
+
+
             level.Layers = new Unity_Layer[]
             {
                 new Unity_Layer_GameObject(true)
@@ -401,13 +409,54 @@ namespace Ray1Map.Psychonauts
                     Name = "Map",
                     ShortName = "MAP",
                     Graphics = world,
-                    DisableGraphicsWhenCollisionIsActive = true
+                    DisableGraphicsWhenCollisionIsActive = true,
+                    Dimensions = new UnityEngine.Rect(min, max - min),
                 }
             };
-
             Controller.obj.levelController.editor.cam.camera3D.farClipPlane = 10000f;
 
             return level;
+        }
+
+        public Bounds GetDimensions(Ray1MapLoader loader) {
+            List<Bounds> dimensions = new List<Bounds>();
+            var scene = loader.LevelScene;
+            getSceneBounds(scene);
+
+            void getSceneBounds(Scene scene) {
+                getDomainBounds(scene.RootDomain);
+
+                if(scene.ReferencedScenes != null)
+                    foreach(var sc in scene.ReferencedScenes)
+                        getSceneBounds(sc);
+            }
+            void getDomainBounds(Domain domain) {
+                var min = convertVector(domain.Bounds.Min);
+                var max = convertVector(domain.Bounds.Max);
+                var center = Vector3.Lerp(min, max, 0.5f);
+                var size = new Vector3(
+                    max.x - min.x,
+                    max.y - min.y,
+                    min.z - max.z);
+                
+                dimensions.Add(new Bounds(center, size));
+                foreach(var child in domain.Children)
+                    getDomainBounds(child);
+            }
+            Vector3 convertVector(Vec3 v) => new Vector3(v.X, v.Y, -v.Z) / 32f;
+
+            Vector3 totalMin = new Vector3(
+                dimensions.Min(d => d.min.x),
+                dimensions.Min(d => d.min.y),
+                dimensions.Min(d => d.min.z));
+            Vector3 totalMax = new Vector3(
+                dimensions.Max(d => d.max.x),
+                dimensions.Max(d => d.max.y),
+                dimensions.Max(d => d.max.z));
+
+            return new Bounds(
+                totalMin + (totalMax - totalMin) / 2f,
+                totalMax - totalMin);
         }
 
         public GameObject LoadLevel(Ray1MapLoader loader, Transform parent, string levelName)
