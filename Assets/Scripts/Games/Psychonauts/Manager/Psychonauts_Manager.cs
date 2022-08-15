@@ -399,6 +399,7 @@ namespace Ray1Map.Psychonauts
             Vector2 max = new Vector2(bounds.max.x, bounds.max.z);
             level.IsometricData.CalculateXDisplacement = () => 0;
             level.IsometricData.CalculateYDisplacement = () => -(max.y + min.y) * 2;
+            level.Bounds3D = bounds;
             //UnityEngine.Debug.Log($"{min} - {max}");
 
 

@@ -216,7 +216,15 @@ namespace Ray1Map
             }
 
             // Create and write screenshot
-            Util.ByteArrayToFile(destPath, await CreateLevelScreenshot());
+            if (LevelEditorData.Level?.Bounds3D == null) {
+                Util.ByteArrayToFile(destPath, await CreateLevelScreenshot());
+            } else {
+                string dir = Path.GetDirectoryName(destPath);
+                string fname = Path.GetFileNameWithoutExtension(destPath);
+                Util.ByteArrayToFile(Path.Combine(dir, $"{fname}_Front.png"), await CreateLevelScreenshot(CameraPos.Front));
+                Util.ByteArrayToFile(Path.Combine(dir, $"{fname}_Isometric.png"), await CreateLevelScreenshot(CameraPos.IsometricLeft));
+                Util.ByteArrayToFile(Path.Combine(dir, $"{fname}_Top.png"), await CreateLevelScreenshot(CameraPos.Top));
+            }
 
             if (Settings.ScreenshotEnumeration)
             {
@@ -234,7 +242,7 @@ namespace Ray1Map
             }
         }
 
-        public async UniTask<byte[]> CreateLevelScreenshot()
+        public async UniTask<byte[]> CreateLevelScreenshot(CameraPos? position3D = null)
         {
             var onFinished = new List<Action>();
 
@@ -345,7 +353,8 @@ namespace Ray1Map
             }
 
             TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
-            byte[] result = await tcb.CaptureFulllevel(false, ScreenshotRect);
+            byte[] result = await tcb.CaptureFullLevel(false, ScreenshotRect,
+                is3DOnly: position3D != null, pos3D: position3D);
 
             foreach (var a in onFinished)
                 a?.Invoke();

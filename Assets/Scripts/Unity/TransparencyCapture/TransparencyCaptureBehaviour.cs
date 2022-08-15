@@ -36,7 +36,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		return screenshotBytes;
 	}
 
-	public async UniTask<byte[]> CaptureFulllevel(bool isTransparent, RectInt? rect = null) {
+	public async UniTask<byte[]> CaptureFullLevel(bool isTransparent, RectInt? rect = null, bool is3DOnly = false, CameraPos? pos3D = null) {
 		if (isTransparent) {
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
@@ -52,46 +52,115 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		bool? prevFreeCameraMode = null;
 		ec.enabled = false;
 		List<Camera> cameras = new List<Camera>();
-		// Add main camera
-		{
-			Camera cam = Camera.main;
-			camSettings[cam] = CameraSettings.Current(cam);
+		if (!is3DOnly) {
+			// Add main camera
+			{
+				Camera cam = Camera.main;
+				camSettings[cam] = CameraSettings.Current(cam);
 
-			cam.transform.position = new Vector3(
-				(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
-				-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
-				cam.transform.position.z);
-			cam.orthographicSize = (LevelEditorData.MaxY * cellSizeInUnits / 2f);
-			cam.rect = new Rect(0, 0, 1, 1);
-			cameras.Add(cam);
-		}
-		if (LevelEditorData.Level?.IsometricData != null) {
-			// Add isometric camera
+				cam.transform.position = new Vector3(
+					(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
+					-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
+					cam.transform.position.z);
+				cam.orthographicSize = (LevelEditorData.MaxY * cellSizeInUnits / 2f);
+				cam.rect = new Rect(0, 0, 1, 1);
+				cameras.Add(cam);
+			}
+			if (LevelEditorData.Level?.IsometricData != null) {
+				// Add isometric camera
+				Camera cam = ec.camera3D;
+
+				camSettings[cam] = CameraSettings.Current(cam);
+
+				// Update 3D camera
+				float scl = 1f;
+				Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
+				cam.transform.rotation = rot3D;
+				Vector3 v = rot3D * Vector3.back;
+				float w = LevelEditorData.Level.IsometricData.TilesWidth * cellSizeInUnits;
+				float h = (LevelEditorData.Level.IsometricData.TilesHeight) * cellSizeInUnits;
+				float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
+				float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
+
+				var pos = new Vector3(
+					(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
+					-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
+					-10f);
+
+				cam.transform.position = v * 300 + rot3D * ((pos -
+					new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
+				cam.orthographicSize = Camera.main.orthographicSize / scl;
+				cam.rect = new Rect(0, 0, 1, 1);
+				cam.orthographic = true;
+				cam.gameObject.SetActive(true);
+				cameras.Add(cam);
+
+				await UniTask.WaitForEndOfFrame();
+				// Update all object positions & rotations according to this new camera pos
+				var objects = Controller.obj.levelController.Objects;
+				foreach (var obj in objects) {
+					obj.UpdatePosition3D();
+				}
+				// Now disable the tilemap controller & culling mask
+				prevFreeCameraMode = ec.FreeCameraMode;
+				ec.FreeCameraMode = false;
+				ec.UpdateCullingMask(ec.FreeCameraMode);
+				if (Controller.obj?.levelController?.controllerTilemap != null) {
+					Controller.obj.levelController.controllerTilemap.enabled = false;
+					Controller.obj.levelController.controllerTilemap.UpdateLayersVisibility();
+				}
+			}
+		} else {// Add isometric camera
 			Camera cam = ec.camera3D;
 
 			camSettings[cam] = CameraSettings.Current(cam);
+			CameraSettings newSettings = new CameraSettings() {
+				orthographic = true,
+				active = true,
+				rect = cam.rect,
+				fov = cam.fieldOfView,
+			};
+			var bounds = LevelEditorData.Level.Bounds3D.Value;
+			float orthoSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z) / 2f; // half size
+			newSettings.orthographicSize = orthoSize;
+
+			var backDistance = Camera.main.farClipPlane * 0.5f;
+
+			width = 1920 * 2f;
+			height = 1080 * 2f;
+			int i = 0;
+			Quaternion rot;
+			switch (pos3D) {
+				case CameraPos.Front:
+				case CameraPos.Left:
+				case CameraPos.Back:
+				case CameraPos.Right:
+					i = (int)pos3D - (int)CameraPos.Front;
+					rot = Quaternion.Euler(0, (90 * i), 0);
+					newSettings.position = bounds.center - rot * Vector3.forward * backDistance;
+					newSettings.rotation = rot;
+					break;
+				case CameraPos.IsometricFront:
+				case CameraPos.IsometricLeft:
+				case CameraPos.IsometricBack:
+				case CameraPos.IsometricRight:
+					i = (int)pos3D - (int)CameraPos.IsometricFront;
+					var pitch = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(Mathf.Deg2Rad * 45));
+					rot = Quaternion.Euler(pitch, 45 + (90 * i), 0);
+					newSettings.position = bounds.center - rot * Vector3.forward * backDistance;
+					newSettings.rotation = rot;
+					break;
+				case CameraPos.Top:
+				case CameraPos.Bottom:
+					i = (int)pos3D - (int)CameraPos.Top;
+					rot = Quaternion.Euler(90 - 180 * i, 0, 0);
+					newSettings.position = bounds.center - rot * Vector3.forward * backDistance;
+					newSettings.rotation = rot;
+					break;
+			}
 
 			// Update 3D camera
-			float scl = 1f;
-			Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
-			cam.transform.rotation = rot3D;
-			Vector3 v = rot3D * Vector3.back;
-			float w = LevelEditorData.Level.IsometricData.TilesWidth * cellSizeInUnits;
-			float h = (LevelEditorData.Level.IsometricData.TilesHeight) * cellSizeInUnits;
-			float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
-			float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
-
-			var pos = new Vector3(
-				(LevelEditorData.MinX + (LevelEditorData.MaxX - LevelEditorData.MinX) / 2f) * cellSizeInUnits,
-				-(LevelEditorData.MinY + (LevelEditorData.MaxY - LevelEditorData.MinY) / 2f) * cellSizeInUnits,
-				-10f);
-
-			cam.transform.position = v * 300 + rot3D * ((pos -
-				new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
-			cam.orthographicSize = Camera.main.orthographicSize / scl;
-			cam.rect = new Rect(0, 0, 1, 1);
-			cam.orthographic = true;
-			cam.gameObject.SetActive(true);
+			newSettings.Apply(cam);
 			cameras.Add(cam);
 
 			await UniTask.WaitForEndOfFrame();

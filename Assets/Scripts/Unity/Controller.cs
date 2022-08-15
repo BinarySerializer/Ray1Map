@@ -151,8 +151,10 @@ namespace Ray1Map
 
                         // Go to error state
                         LoadState = State.Error;
-                        if (loadingScreen.Active) {
-                            DetailedState = condition;
+                        if (loadingScreen != null) {
+                            if (loadingScreen.Active) {
+                                DetailedState = condition;
+                            }
                         }
                     }
                     break;
