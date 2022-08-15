@@ -19,7 +19,7 @@ public class TransparencyCaptureBehaviourEditor : Editor {
 			if (LevelEditorData.Level?.Bounds3D != null) {
 				for (int i = 0; i < (int)CameraPos.Initial; i++) {
 
-					screenshotBytes = await pb.CaptureFullLevel(true, is3DOnly: true, pos3D: (CameraPos)i);
+					screenshotBytes = await pb.CaptureFullLevel(true, pos3D: (CameraPos)i);
 					//byte[] screenshotBytes = await pb.Capture(res.width* 4, res.height * 4, true);
 					Util.ByteArrayToFile($"Screenshots/{dateTime.ToString("yyyy_MM_dd HH_mm_ss")}__{(CameraPos)i}.png", screenshotBytes);
 				}

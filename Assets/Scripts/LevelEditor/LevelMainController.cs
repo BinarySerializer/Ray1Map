@@ -353,8 +353,7 @@ namespace Ray1Map
             }
 
             TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
-            byte[] result = await tcb.CaptureFullLevel(false, ScreenshotRect,
-                is3DOnly: position3D != null, pos3D: position3D);
+            byte[] result = await tcb.CaptureFullLevel(false, ScreenshotRect, pos3D: position3D);
 
             foreach (var a in onFinished)
                 a?.Invoke();

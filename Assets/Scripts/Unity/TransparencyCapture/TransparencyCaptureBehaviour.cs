@@ -36,7 +36,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		return screenshotBytes;
 	}
 
-	public async UniTask<byte[]> CaptureFullLevel(bool isTransparent, RectInt? rect = null, bool is3DOnly = false, CameraPos? pos3D = null) {
+	public async UniTask<byte[]> CaptureFullLevel(bool isTransparent, RectInt? rect = null, CameraPos? pos3D = null) {
 		if (isTransparent) {
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
@@ -52,7 +52,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		bool? prevFreeCameraMode = null;
 		ec.enabled = false;
 		List<Camera> cameras = new List<Camera>();
-		if (!is3DOnly) {
+		if (!pos3D.HasValue) {
 			// Add main camera
 			{
 				Camera cam = Camera.main;
