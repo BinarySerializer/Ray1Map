@@ -15,8 +15,9 @@ namespace Ray1Map.Psychonauts
 
         private string[] GetMeshFilePaths(FileManager fileManager)
         {
-            return fileManager.EnumerateFiles(FileLocation.Any).
-                Where(x => x.FilePath.EndsWith(".plb", StringComparison.OrdinalIgnoreCase) ||
+            return fileManager.EnumerateFiles(FileLocation.Any, includeUnnamedPS2Files: true).
+                Where(x => x.FilePath.StartsWith("0x") || // Include every unnamed file for now
+                           x.FilePath.EndsWith(".plb", StringComparison.OrdinalIgnoreCase) ||
                            x.FilePath.EndsWith(".pl2", StringComparison.OrdinalIgnoreCase)).
                 Select(x => x.FilePath).
                 ToArray();
