@@ -615,7 +615,7 @@ namespace Ray1Map.Psychonauts
             for (var i = 0; i < mesh.MeshFrags.Length; i++)
             {
                 MeshFrag meshFrag = mesh.MeshFrags[i];
-                psychoMeshFrags[i] = LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses);
+                psychoMeshFrags[i] = LoadMeshFrag(loader, meshFrag, visualMeshObj.transform, i, textures, skeletons, bindPoses, out _);
             }
 
             var psychoMesh = new PsychonautsMesh(mesh, psychoMeshFrags, skeletons);
@@ -639,9 +639,9 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public virtual PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses, out GameObject meshFragObj)
         {
-            GameObject meshFragObj = new GameObject(
+            meshFragObj = new GameObject(
                 $"Frag: {index}, " +
                 $"Blend Shapes: {meshFrag.BlendshapeData?.Streams.Length ?? 0}, " +
                 $"Flags: {meshFrag.MaterialFlags}");

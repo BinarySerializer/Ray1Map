@@ -236,7 +236,7 @@ namespace Ray1Map.Psychonauts
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, true);
+                InitPS2MeshFrag(loader.Context, frag, true, out _);
 
                 if (frag.HasVertexStreamBasis != 0)
                 {
@@ -257,24 +257,40 @@ namespace Ray1Map.Psychonauts
 
         #region Load
 
-        public override PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses)
+        public override PsychonautsMeshFrag LoadMeshFrag(Ray1MapLoader loader, MeshFrag meshFrag, Transform parent, int index, LoadedTexture[] textures, PsychonautsSkeleton[] skeletons, Matrix4x4[][] bindPoses, out GameObject fragObj)
         {
+            PS2_GIF_Command[] parsedCommands;
+
             // Convert PS2 mesh data to common format
             try
             {
-                InitPS2MeshFrag(loader.Context, meshFrag, false);
+                InitPS2MeshFrag(loader.Context, meshFrag, false, out parsedCommands);
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Failed to initialize PS2 mesh frag: {ex.Message}");
+                fragObj = null;
                 return null;
             }
 
-            return base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses);
+            PsychonautsMeshFrag frag = base.LoadMeshFrag(loader, meshFrag, parent, index, textures, skeletons, bindPoses, out fragObj);
+
+            if (parsedCommands?.Length > 0)
+            {
+                ObjectArray<PS2_GIF_Command> parsedCommandsArray = new()
+                {
+                    Pre_Length = parsedCommands.Length,
+                    Value = parsedCommands,
+                };
+                parsedCommandsArray.Init(parsedCommands[0].Offset);
+                fragObj.AddComponent<BinarySerializer.Unity.BinarySerializableDataComponent>(x => x.Data = parsedCommandsArray);
+            }
+
+            return frag;
         }
 
         private static int _meshFragGlobalIndex;
-        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors)
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors, out PS2_GIF_Command[] parsedCommands)
         {
             string key = $"vif_{_meshFragGlobalIndex}";
             _meshFragGlobalIndex++;
@@ -294,8 +310,10 @@ namespace Ray1Map.Psychonauts
                 List<RGBA8888Color> vertexColors = useVertexColors ? new List<RGBA8888Color>() : null;
                 List<UVSet> uvSets = new();
 
+                parsedCommands = cmds.ParseCommands(context, key, meshFrag.UVChannelsCount).ToArray();
+
                 // Enumerate every parsed command
-                foreach (PS2_GIF_Command cmd in cmds.ParseCommands(context, key, meshFrag.UVChannelsCount))
+                foreach (PS2_GIF_Command cmd in parsedCommands)
                 {
                     // Add vertices and normals
                     vertices.AddRange(cmd.Cycles.Select(c => new VertexNotexNorm() 
