@@ -36,7 +36,8 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		return screenshotBytes;
 	}
 
-	public async UniTask<byte[]> CaptureFullLevel(bool isTransparent, RectInt? rect = null, CameraPos? pos3D = null) {
+	public async UniTask<byte[]> CaptureFullLevel(bool isTransparent, RectInt? rect = null, CameraPos? pos3D = null, int width3D = 1920, int height3D = 1080) 
+    {
 		if (isTransparent) {
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
@@ -126,8 +127,8 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 
 			var backDistance = Camera.main.farClipPlane * 0.5f;
 
-			width = 1920 * 2f;
-			height = 1080 * 2f;
+			width = width3D;
+			height = height3D;
 			int i = 0;
 			Quaternion rot;
 			switch (pos3D) {

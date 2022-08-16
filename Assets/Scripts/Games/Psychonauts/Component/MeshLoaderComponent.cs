@@ -23,7 +23,7 @@ namespace Ray1Map.Psychonauts
 
                 if (plb == null)
                 {
-                    Debug.LogWarning($"Could not read {MeshFilePath}");
+                    Debug.LogWarning($"Could not find {MeshFilePath}");
                     return;
                 }
 
@@ -75,23 +75,36 @@ namespace Ray1Map.Psychonauts
 
                 foreach (string meshFilePath in ScreenshotMeshFilePaths.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    Scene plb = Loader.FileManager.ReadFromFile<Scene>(meshFilePath, logger: Loader.Logger);
+                    Scene plb;
 
-                    if (plb == null)
+                    try
                     {
-                        Debug.LogWarning($"Could not read {MeshFilePath}");
+                        plb = Loader.FileManager.ReadFromFile<Scene>(meshFilePath, logger: Loader.Logger);
+
+                        if (plb == null)
+                        {
+                            Debug.LogWarning($"Could not find {MeshFilePath}");
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Could not read {MeshFilePath}. Exception: {ex.Message}{Environment.NewLine}{ex}");
                         continue;
                     }
 
+                    // Load mesh scene
                     GameObject obj = await Manager.LoadSceneAsync(Loader, plb, transform, MeshFilePath);
 
+                    // Re-calculate bounds
                     Bounds bounds = Manager.GetDimensions(plb);
-                    Vector2 min = new Vector2(bounds.min.x, bounds.min.z);
-                    Vector2 max = new Vector2(bounds.max.x, bounds.max.z);
+                    Vector2 min = new(bounds.min.x, bounds.min.z);
+                    Vector2 max = new(bounds.max.x, bounds.max.z);
                     LevelEditorData.Level.IsometricData.CalculateXDisplacement = () => 0;
                     LevelEditorData.Level.IsometricData.CalculateYDisplacement = () => -(max.y + min.y) * 2;
                     LevelEditorData.Level.Bounds3D = bounds;
 
+                    // Save screenshots
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{meshFilePath}_Front.png"), 
                         await tcb.CaptureFullLevel(true, pos3D: CameraPos.Front));
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{meshFilePath}_Isometric.png"), 
@@ -100,6 +113,9 @@ namespace Ray1Map.Psychonauts
                         await tcb.CaptureFullLevel(true, pos3D: CameraPos.Top));
 
                     Destroy(obj);
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
                 }
             }
         }
