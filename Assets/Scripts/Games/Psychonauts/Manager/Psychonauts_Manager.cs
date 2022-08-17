@@ -274,9 +274,20 @@ namespace Ray1Map.Psychonauts
                 loader.LoadLevelPackPack(lvl, loader.Logger);
                 exportMeshPack(loader.LevelMeshPack);
 
-                var filePath = Path.Combine(outputPath, $"levels/{lvl}.plb");
+                string ext = loader.Version == PsychonautsVersion.PS2 ? ".pl2" : ".plb";
+                var filePath = Path.Combine(outputPath, $"levels\\{lvl}{ext}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
                 Binary.WriteToFile(loader.LevelScene, filePath, loader.Settings, logger: loader.Logger);
+
+                for (var i = 0; i < loader.ReferencedLevelScenes.Length; i++)
+                {
+                    Scene scene = loader.ReferencedLevelScenes[i];
+                    string name = normalizePath(loader.LevelScene.RootDomain.RuntimeReferences[i]);
+
+                    filePath = Path.Combine(outputPath, name);
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                    Binary.WriteToFile(scene, filePath, loader.Settings, logger: loader.Logger);
+                }
 
                 Debug.Log($"Exported {lvl}");
             }
@@ -296,6 +307,8 @@ namespace Ray1Map.Psychonauts
                     Binary.WriteToFile(meshFile.Scene, filePath, loader.Settings, logger: loader.Logger);
                 }
             }
+
+            string normalizePath(string filePath) => new FileRef(filePath).GetNormalizedFilePathRoot();
 
             Debug.Log("Finished exporting");
         }
