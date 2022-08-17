@@ -97,7 +97,7 @@ namespace Ray1Map.Psychonauts
                     GameObject obj = await Manager.LoadSceneAsync(Loader, plb, transform, MeshFilePath);
 
                     // Re-calculate bounds
-                    Bounds bounds = Manager.GetDimensions(plb);
+                    Bounds bounds = Manager.GetDimensions(plb.Yield());
                     Vector2 min = new(bounds.min.x, bounds.min.z);
                     Vector2 max = new(bounds.max.x, bounds.max.z);
                     LevelEditorData.Level.IsometricData.CalculateXDisplacement = () => 0;

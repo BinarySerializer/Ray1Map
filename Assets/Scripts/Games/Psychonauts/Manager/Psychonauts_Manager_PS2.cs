@@ -194,7 +194,8 @@ namespace Ray1Map.Psychonauts
 
         public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, IBinarySerializerLogger logger = null)
         {
-            convertScene(pl2);
+            convertOctree(pl2.VisibilityTree?.Octree);
+            convertDomain(pl2.RootDomain);
 
             void convertOctree(Octree octree)
             {
@@ -202,15 +203,6 @@ namespace Ray1Map.Psychonauts
                     return;
 
                 octree.Primitives = octree.PS2_Primitives.Select(x => (uint)x).ToArray();
-            }
-
-            void convertScene(Scene scene)
-            {
-                convertOctree(scene.VisibilityTree?.Octree);
-                convertDomain(scene.RootDomain);
-                
-                foreach (Scene childScene in scene.ReferencedScenes)
-                    convertScene(childScene);
             }
 
             void convertDomain(Domain domain)

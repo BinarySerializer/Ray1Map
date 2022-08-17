@@ -394,7 +394,7 @@ namespace Ray1Map.Psychonauts
 
             world.transform.localScale = _scaleVector;
 
-            var bounds = GetDimensions(loader.LevelScene);
+            var bounds = GetDimensions(loader.ReferencedLevelScenes.Append(loader.LevelScene));
             Vector2 min = new Vector2(bounds.min.x, bounds.min.z);
             Vector2 max = new Vector2(bounds.max.x, bounds.max.z);
             level.IsometricData.CalculateXDisplacement = () => 0;
@@ -419,19 +419,13 @@ namespace Ray1Map.Psychonauts
             return level;
         }
 
-        public Bounds GetDimensions(Scene scene) 
+        public Bounds GetDimensions(IEnumerable<Scene> scenes)
         {
-            List<Bounds> dimensions = new List<Bounds>();
-            getSceneBounds(scene);
+            List<Bounds> dimensions = new();
 
-            void getSceneBounds(Scene scene) 
-            {
+            foreach (Scene scene in scenes)
                 getDomainBounds(scene.RootDomain);
 
-                if(scene.ReferencedScenes != null)
-                    foreach(var sc in scene.ReferencedScenes)
-                        getSceneBounds(sc);
-            }
             void getDomainBounds(Domain domain) 
             {
                 Vector3 min = convertVector(domain.Bounds.Min);
@@ -489,7 +483,17 @@ namespace Ray1Map.Psychonauts
             }
 
             // Load the level scene
-            await LoadSceneAsync(loader, loader.LevelScene, gaoParent.transform, "Level");
+            string ext = loader.Settings.Version == PsychonautsVersion.PS2 ? ".pl2" : ".plb";
+            await LoadSceneAsync(loader, loader.LevelScene, gaoParent.transform, $"levels\\{levelName}{ext}");
+
+            // Load referenced level scenes
+            for (var i = 0; i < loader.ReferencedLevelScenes.Length; i++)
+            {
+                Scene scene = loader.ReferencedLevelScenes[i];
+                string name = loader.LevelScene.RootDomain.RuntimeReferences[i];
+
+                await LoadSceneAsync(loader, scene, gaoParent.transform, name);
+            }
 
             return gaoParent;
         }
@@ -511,11 +515,6 @@ namespace Ray1Map.Psychonauts
                 Select(x => new LoadedTexture(loader.TexturesManager.GetTexture(x, loader.UseNativeTextures, loader.Logger), x)).
                 ToArray();
             LoadDomain(loader, scene.RootDomain, sceneObj.transform, loadedTextures);
-
-            // Load referenced scenes
-            if (scene.ReferencedScenes != null)
-                foreach (Scene refScene in scene.ReferencedScenes)
-                    await LoadSceneAsync(loader, refScene, sceneObj.transform, $"{name} References");
 
             return sceneObj;
         }
