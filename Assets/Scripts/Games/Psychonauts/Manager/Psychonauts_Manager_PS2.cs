@@ -228,7 +228,7 @@ namespace Ray1Map.Psychonauts
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, true, out _);
+                InitPS2MeshFrag(loader.Context, frag, true, false, out _);
 
                 if (frag.HasVertexStreamBasis != 0)
                 {
@@ -256,7 +256,7 @@ namespace Ray1Map.Psychonauts
             // Convert PS2 mesh data to common format
             try
             {
-                InitPS2MeshFrag(loader.Context, meshFrag, false, out parsedCommands);
+                InitPS2MeshFrag(loader.Context, meshFrag, false, false, out parsedCommands);
             }
             catch (Exception ex)
             {
@@ -282,10 +282,13 @@ namespace Ray1Map.Psychonauts
         }
 
         private static int _meshFragGlobalIndex;
-        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors, out PS2_GIF_Command[] parsedCommands)
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors, bool createDummyColors, out PS2_GIF_Command[] parsedCommands)
         {
             string key = $"vif_{_meshFragGlobalIndex}";
             _meshFragGlobalIndex++;
+
+            if (createDummyColors)
+                meshFrag.MaterialFlags |= MaterialFlags.Flag_6;
 
             // The PS2 version defines vertex colors even if they're not used (in which case they're set to 0),
             // so we need to determine when they should be used and not
@@ -322,13 +325,22 @@ namespace Ray1Map.Psychonauts
                     }));
 
                     // Add vertex colors
-                    vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
-                    {
-                        Red = scaleColors ? (byte)(Math.Min(c.Color.R * 2, Byte.MaxValue)) : c.Color.R,
-                        Green = scaleColors ? (byte)(Math.Min(c.Color.G * 2, Byte.MaxValue)) : c.Color.G,
-                        Blue = scaleColors ? (byte)(Math.Min(c.Color.B * 2, Byte.MaxValue)) : c.Color.B,
-                        Alpha = c.Color.A
-                    }));
+                    if (createDummyColors)
+                        vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
+                        {
+                            Red = c.Normal.X,
+                            Green = c.Normal.Y,
+                            Blue = c.Normal.Z,
+                            Alpha = Byte.MaxValue
+                        }));
+                    else
+                        vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
+                        {
+                            Red = scaleColors ? (byte)(Math.Min(c.Color.R * 2, Byte.MaxValue)) : c.Color.R,
+                            Green = scaleColors ? (byte)(Math.Min(c.Color.G * 2, Byte.MaxValue)) : c.Color.G,
+                            Blue = scaleColors ? (byte)(Math.Min(c.Color.B * 2, Byte.MaxValue)) : c.Color.B,
+                            Alpha = c.Color.A
+                        }));
 
                     // Add UVs
                     uvSets.AddRange(cmd.Cycles.Select(c => new UVSet()
