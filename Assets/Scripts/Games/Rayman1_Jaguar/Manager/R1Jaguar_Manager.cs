@@ -49,6 +49,7 @@ namespace Ray1Map.Rayman1_Jaguar
         {
             return new GameAction[]
             {
+                new GameAction("Calculate Tings", false, false, (input, output) => CalculateTingsCountAsync(settings)),
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
@@ -58,6 +59,37 @@ namespace Ray1Map.Rayman1_Jaguar
                 new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
+        }
+
+        public async UniTask CalculateTingsCountAsync(GameSettings settings)
+        {
+            int count = 0;
+
+            foreach (GameInfo_Volume vol in GetLevels(settings))
+            {
+                foreach (GameInfo_World world in vol.Worlds)
+                {
+                    foreach (int map in world.Maps)
+                    {
+                        GameSettings newSettings = new(settings.GameModeSelection, settings.GameDirectory, world.Index, map)
+                        {
+                            EduVolume = vol.Name
+                        };
+
+                        using Context context = new Ray1MapContext(newSettings);
+
+                        await LoadFilesAsync(context);
+
+                        Unity_Level level = await LoadAsync(context);
+
+                        count += level.EventData.OfType<Unity_Object_R1Jaguar>().Count(x => x.ObjManager.EventDefinitions[x.EventDefinitionIndex].Pointer.FileOffset is 0x820 or 0x848 or 0x870 or 0x898 or 0x8C0 or 0x8E8 or 0x910 or 0x938);
+
+                        Debug.Log($"{newSettings.R1_World} {map}");
+                    }
+                }
+            }
+
+            Debug.Log($"Tings: {count}");
         }
 
         protected class ExportAnim {

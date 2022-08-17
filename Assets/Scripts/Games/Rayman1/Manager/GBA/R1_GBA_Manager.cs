@@ -17,7 +17,7 @@ namespace Ray1Map.Rayman1
     /// <summary>
     /// Base game manager for GBA
     /// </summary>
-    public class R1_GBA_Manager : R1_BaseManager
+    public class R1_GBA_Manager : R1_BaseMultiplatformManager
     {
         #region Values and paths
 
@@ -85,13 +85,13 @@ namespace Ray1Map.Rayman1
         /// <returns>The game actions</returns>
         public override GameAction[] GetGameActions(GameSettings settings)
         {
-            return new GameAction[]
+            return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
                 new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
-            };
+            }).ToArray();
         }
 
         /// <summary>

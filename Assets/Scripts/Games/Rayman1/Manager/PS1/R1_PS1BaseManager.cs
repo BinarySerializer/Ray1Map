@@ -17,7 +17,7 @@ namespace Ray1Map.Rayman1
     /// <summary>
     /// Base game manager for PS1
     /// </summary>
-    public abstract class R1_PS1BaseManager : R1_BaseManager
+    public abstract class R1_PS1BaseManager : R1_BaseMultiplatformManager
     {
         #region Values and paths
 
@@ -69,14 +69,14 @@ namespace Ray1Map.Rayman1
         /// <returns>The game actions</returns>
         public override GameAction[] GetGameActions(GameSettings settings)
         {
-            return new GameAction[]
+            return base.GetGameActions(settings).Concat(new[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllAnimationFramesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteTextures(settings, output)),
                 new GameAction("Export Menu Sprites", false, true, (input, output) => ExportMenuSpritesAsync(settings, output, false)),
                 new GameAction("Export Menu Animation Frames", false, true, (input, output) => ExportMenuSpritesAsync(settings, output, true)),
-            };
+            }).ToArray();
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace Ray1Map.Rayman1
     /// <summary>
     /// Base game manager for PC
     /// </summary>
-    public abstract class R1_PCBaseManager : R1_BaseManager
+    public abstract class R1_PCBaseManager : R1_BaseMultiplatformManager
     {
         #region Values and paths
 
@@ -926,7 +926,7 @@ namespace Ray1Map.Rayman1
         /// <returns>The game actions</returns>
         public override GameAction[] GetGameActions(GameSettings settings)
         {
-            return new GameAction[]
+            return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
@@ -938,7 +938,7 @@ namespace Ray1Map.Rayman1
                 new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
                 new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
                 new GameAction("Export Movies", false, true, (input, output) => ExportMoviesAsync(settings, output)),
-            };
+            }).ToArray();
         }
 
         /// <summary>
