@@ -6,6 +6,7 @@ namespace Ray1Map.Psychonauts
     public class PS2_GIF_Command : BinarySerializable
     {
         public uint Pre_UVChannelsCount { get; set; }
+        public int Pre_JointInfluencesPerVertex { get; set; }
 
         public GIFtag GIFTag { get; set; }
         public float[] FirstRow { get; set; }
@@ -19,8 +20,11 @@ namespace Ray1Map.Psychonauts
 
 			if (GIFTag.FLG == GIF_FLG.PACKED) 
             {
-				Cycles = s.SerializeObjectArray<PS2_GIF_Command_Cycle>(Cycles, GIFTag.NLOOP, 
-                    onPreSerialize: c => c.Pre_UVChannelsCount = Pre_UVChannelsCount, name: nameof(Cycles));
+				Cycles = s.SerializeObjectArray<PS2_GIF_Command_Cycle>(Cycles, GIFTag.NLOOP, onPreSerialize: c =>
+                {
+                    c.Pre_UVChannelsCount = Pre_UVChannelsCount;
+                    c.Pre_JointInfluencesPerVertex = Pre_JointInfluencesPerVertex;
+                }, name: nameof(Cycles));
 			} 
             else 
             {

@@ -16,7 +16,7 @@ namespace Ray1Map.Psychonauts
                 onPreSerialize: (c,_) => c.Pre_Parser = parser, name: nameof(Commands));
         }
 
-        public IEnumerable<PS2_GIF_Command> ParseCommands(Context context, string key, uint uvChannelsCount)
+        public IEnumerable<PS2_GIF_Command> ParseCommands(Context context, string key, uint uvChannelsCount, int jointInfluencesPerVertex)
         {
             // Create a parser
             var parser = new VIF_Parser() { IsVIF1 = true, };
@@ -40,8 +40,11 @@ namespace Ray1Map.Psychonauts
                         BinaryDeserializer s = context.Deserializer;
                         s.Goto(file.StartPointer + tops);
 
-                        var gifCmd = s.SerializeObject<PS2_GIF_Command>(default,
-                            onPreSerialize: c => c.Pre_UVChannelsCount = uvChannelsCount, name: "GIFCommand");
+                        var gifCmd = s.SerializeObject<PS2_GIF_Command>(default, onPreSerialize: c =>
+                        {
+                            c.Pre_UVChannelsCount = uvChannelsCount;
+                            c.Pre_JointInfluencesPerVertex = jointInfluencesPerVertex;
+                        }, name: "GIFCommand");
 
                         return gifCmd;
                     } finally {

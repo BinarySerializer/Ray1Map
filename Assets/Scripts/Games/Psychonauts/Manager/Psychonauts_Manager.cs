@@ -704,8 +704,7 @@ namespace Ray1Map.Psychonauts
             mat.color = meshFrag.MaterialColor.ToVector4();
             mat.SetFloat("_IsSelfIllumination", isSelfIllum ? 1 : 0);
 
-            // TODO: We only need to check AnimInfo, but PS2 does not have skin weights defined here so we do this for now to avoid a crash
-            if (meshFrag.AnimInfo?.OriginalSkinWeights != null)
+            if (meshFrag.AnimInfo != null)
             {
                 int[] skelOffsets = skeletons.Length > 1 ? new int[skeletons.Length] : null;
 

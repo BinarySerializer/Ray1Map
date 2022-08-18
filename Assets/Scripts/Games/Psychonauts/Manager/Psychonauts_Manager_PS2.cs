@@ -295,6 +295,8 @@ namespace Ray1Map.Psychonauts
             bool useVertexColors = meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_6) ||
                                    meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_15);
 
+            int jointInfluencesPerVertex = meshFrag.AnimInfo?.InfluencesPerVertex ?? 0;
+
             try
             {
                 // Serialize using BinarySerializer for now (Psychonauts normally uses PsychoPortal)
@@ -304,8 +306,9 @@ namespace Ray1Map.Psychonauts
                 List<VertexNotexNorm> vertices = new();
                 List<RGBA8888Color> vertexColors = useVertexColors ? new List<RGBA8888Color>() : null;
                 List<UVSet> uvSets = new();
+                List<SkinWeight> skinWeights = jointInfluencesPerVertex > 0 ? new List<SkinWeight>() : null;
 
-                parsedCommands = cmds.ParseCommands(context, key, meshFrag.UVChannelsCount).ToArray();
+                parsedCommands = cmds.ParseCommands(context, key, meshFrag.UVChannelsCount, jointInfluencesPerVertex).ToArray();
 
                 // Enumerate every parsed command
                 foreach (PS2_GIF_Command cmd in parsedCommands)
@@ -352,6 +355,17 @@ namespace Ray1Map.Psychonauts
                             V = (short)(u.V - 0x8000),
                         }).ToArray()
                     }));
+
+                    // Add skin weight
+                    if (jointInfluencesPerVertex > 0)
+                    {
+                        skinWeights?.AddRange(cmd.Cycles.Select(x => new SkinWeight
+                        {
+                            Joint1 = (int)(x.Vertex.JointOffset1 / 4),
+                            Joint2 = (int)(x.Normal.JointOffset2 / 4),
+                            Weight = new Vec2(x.UVs[0].SkinWeightFloat, 1 - x.UVs[0].SkinWeightFloat),
+                        }));
+                    }
                 }
 
                 // Flags
@@ -375,6 +389,10 @@ namespace Ray1Map.Psychonauts
                 // UVs
                 meshFrag.UVScale = 0x7FFF / 4096f;
                 meshFrag.UVSets = uvSets.ToArray();
+
+                // Skin weights
+                if (jointInfluencesPerVertex > 0)
+                    meshFrag.AnimInfo!.OriginalSkinWeights = skinWeights!.ToArray();
 
                 // Polygons
                 meshFrag.PolygonCount = (uint)(meshFrag.MaterialFlags.HasFlag(MaterialFlags.Tristrip) 
