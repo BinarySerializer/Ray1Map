@@ -706,6 +706,9 @@ namespace Ray1Map.Psychonauts
 
             if (meshFrag.AnimInfo != null)
             {
+                if (meshFrag.Pre_Version < 308)
+                    Debug.LogWarning($"Mesh frag of version {meshFrag.Pre_Version} is animated");
+
                 int[] skelOffsets = skeletons.Length > 1 ? new int[skeletons.Length] : null;
 
                 if (skelOffsets != null)
