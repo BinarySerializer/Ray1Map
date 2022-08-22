@@ -21,7 +21,7 @@ public class UnityWindowSerializer : SerializerObject
     public Dictionary<string, bool> Foldouts { get; }
     public override bool FullSerialize => false;
     private bool tempFlag = false;
-    protected List<string> CurrentName { get; }
+    public List<string> CurrentName { get; }
     public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
     public override long CurrentLength => 0;
