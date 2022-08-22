@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS2;
-using UnityEngine;
 
 namespace Ray1Map.Jade {
 	public class GEO_GaoVisu_PS2 : BinarySerializable {
@@ -15,153 +14,290 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
-		public GameObject ExecuteChainPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj, int elementIndex, int subElementIndex) {
-			Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
-			GEO_GeoObject_PS2.ElementDataBuffer.ElementData objElement = (obj.ElementData.ElementDatas.Length > elementIndex ) ? obj.ElementData.ElementDatas[elementIndex] : null;
-			MeshElementRef visuSubElement = ((visuElement?.Refs?.Length ?? 0) > subElementIndex) ? visuElement.Refs[subElementIndex] : null;
-			GEO_GeoObject_PS2.ElementDataBuffer.MeshElement objSubElement = ((objElement?.MeshElements?.Length ?? 0) > subElementIndex) ? objElement.MeshElements[subElementIndex] : null;
+		public void ExecuteChainPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
+			List<Jade_Vector> vertices = new List<Jade_Vector>();
+			List<Jade_Vector> normals = new List<Jade_Vector>();
+			List<GEO_GeometricObject.UV> uvs = new List<GEO_GeometricObject.UV>();
+			List<Jade_Color> colors = new List<Jade_Color>();
+			int elementsLength = System.Math.Max((obj.ElementData?.ElementDatas?.Length ?? 0), (Elements?.Length ?? 0));
+			List<GEO_GeometricObjectElement> elements = new List<GEO_GeometricObjectElement>();
 
-			GameObject gao = new GameObject($"{Offset}");
+			for (int elementIndex = 0; elementIndex < elementsLength; elementIndex++) {
+				Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
+				GEO_GeoObject_PS2.ElementDataBuffer.ElementData objElement = (obj.ElementData.ElementDatas.Length > elementIndex) ? obj.ElementData.ElementDatas[elementIndex] : null;
+				int subElementsLength = System.Math.Max((objElement?.MeshElements?.Length ?? 0), (visuElement?.Refs?.Length ?? 0));
 
-			List<PS2_DMAChainData> chainData = new List<PS2_DMAChainData>();
-			List<PS2_DMAChainProgram> chainPrograms = new List<PS2_DMAChainProgram>();
-			if (visuSubElement != null) {
-				chainData.AddRange(visuSubElement.InstanceVIFPrograms);
-				chainPrograms.AddRange(visuSubElement.DMAChainPrograms);
-			}
-			if (objSubElement != null) {
-				chainData.AddRange(objSubElement.VIFPrograms);
-				chainPrograms.AddRange(objSubElement.DMAChainPrograms);
-			}
-			// TODO: Write each ChainData element with Negative ID as a VIF program
-			if (chainPrograms.Any() ) {
-				chainPrograms.Sort((x,y) => x.ID.CompareTo(y.ID));
-				foreach (var prog in chainPrograms) {
-					if (prog.Commands.Length > 0) {
-						using (MemoryStream ms = new MemoryStream()) {
-							using (Writer w = new Writer(ms, isLittleEndian: true, leaveOpen: true)) {
-								foreach (var c in prog.Commands) {
-									c.Transfer(w, chainData);
+				List<GEO_GeometricObjectElement.Triangle> triangles = new List<GEO_GeometricObjectElement.Triangle>();
+
+
+
+				for (int subElementIndex = 0; subElementIndex < subElementsLength; subElementIndex++) {
+					MeshElementRef visuSubElement = ((visuElement?.Refs?.Length ?? 0) > subElementIndex) ? visuElement.Refs[subElementIndex] : null;
+					GEO_GeoObject_PS2.ElementDataBuffer.MeshElement objSubElement = ((objElement?.MeshElements?.Length ?? 0) > subElementIndex) ? objElement.MeshElements[subElementIndex] : null;
+
+					List<PS2_DMAChainData> chainData = new List<PS2_DMAChainData>();
+					List<PS2_DMAChainProgram> chainPrograms = new List<PS2_DMAChainProgram>();
+					if (visuSubElement != null) {
+						chainData.AddRange(visuSubElement.InstanceVIFPrograms);
+						chainPrograms.AddRange(visuSubElement.DMAChainPrograms);
+					}
+					if (objSubElement != null) {
+						chainData.AddRange(objSubElement.VIFPrograms);
+						chainPrograms.AddRange(objSubElement.DMAChainPrograms);
+					}
+					//string testPath = Path.Combine(Path.GetDirectoryName(Settings.LogFile), "test_jade_ps2");
+					int curDMAId = 0;
+
+
+					int minBonesCount = 2;
+					// TODO: Determine based on Visu? check code?
+					if (geo.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+						minBonesCount = 1;
+					}
+					bool hasBones = objSubElement?.BonesCount >= minBonesCount;
+
+
+					IEnumerable<byte[]> EnumerateVIFPrograms() {
+						if (chainPrograms.Any()) {
+							chainPrograms.Sort((x, y) => x.DMAChainProgramID.CompareTo(y.DMAChainProgramID));
+							foreach (var prog in chainPrograms) {
+								if (prog.Commands.Length > 0) {
+									using (MemoryStream ms = new MemoryStream()) {
+										using (Writer w = new Writer(ms, isLittleEndian: true, leaveOpen: true)) {
+											foreach (var c in prog.Commands) {
+												c.Transfer(w, chainData);
+											}
+										}
+										curDMAId = prog.DMAChainProgramID;
+										yield return ms.ToArray();
+									}
 								}
 							}
-							string testPath = Path.Combine(Path.GetDirectoryName(Settings.LogFile), "test_jade_ps2");
-
-							VIF_Commands VIFProgram = null;
-							var chainProgKey = $"ChainProgram__{jadeGao.Key}__{elementIndex}-{subElementIndex}";
-							using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(Context.SerializerLog))) {
-								ms.Position = 0;
-								var file = c.AddStreamFile(chainProgKey, ms);
+						}
+						foreach (var c in chainData) {
+							curDMAId = -1;
+							if (c.DMAChainDataID == -1) yield return c.Bytes;
+						}
+					}
+					IEnumerable<PS2_VU_Data> EnumerateVUData(byte[] vifProg, int vifProgIndex) {
+						VIF_Commands VIFProgram = null;
+						var chainProgKey = $"ChainProgram_DMA{curDMAId}__{jadeGao.Key}__{elementIndex}-{subElementIndex}-{vifProgIndex}";
+						using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(Context.SerializerLog))) {
+							// Parse VIF program
+							var file = c.AddStreamFile(chainProgKey, new MemoryStream(vifProg));
+							try {
 								var s = c.Deserializer;
 								var parserPass1 = new VIF_Parser() {
 									IsVIF1 = true
 								};
-								VIFProgram = FileFactory.Read<VIF_Commands>(c, file.FilePath, (_,v) => v.Pre_Parser = parserPass1);
+								VIFProgram = FileFactory.Read<VIF_Commands>(c, file.FilePath, (_, v) => v.Pre_Parser = parserPass1);
+							} finally {
 								c.RemoveFile(file);
-								// TODO: Execute VIF program
-								if (VIFProgram != null) {
-									var parser = new VIF_Parser() {
-										IsVIF1 = true
-									};
-									List<PS2_VU_Data> gifCmds = new List<PS2_VU_Data>();
-									var mcIndex = 0;
-									void ExecuteMicroProgram() {
-										parser.HasPendingChanges = false;
-										byte[] microProg = parser.GetCurrentBuffer();
-										if (microProg != null) {
-											//Util.ByteArrayToFile(Path.Combine(testPath, $"{jadeGao.Key}__{elementIndex}-{subElementIndex}_{mcIndex}.bin"), parser.CurrentStream.ToArray());
-											var mcKey = $"{chainProgKey}_{mcIndex}";
-											try {
-												file = new StreamFile(c, mcKey, new MemoryStream(microProg), endianness: Endian.Little);
-												c.AddFile(file);
-												//var tops = parser.TOPS * 16;
+							}
+							// Execute VIF program
+							if (VIFProgram != null) {
+								var s = c.Deserializer;
+								var parser = new VIF_Parser() {
+									IsVIF1 = true
+								};
+								var mcIndex = 0;
+								PS2_VU_Data ExecuteMicroProgram() {
+									parser.HasPendingChanges = false;
+									byte[] microProg = parser.GetCurrentBuffer();
+									if (microProg != null) {
+										//Util.ByteArrayToFile(Path.Combine(testPath, $"{jadeGao.Key}__{geo.GRO.Object.Key}__{elementIndex}-{subElementIndex}-{vifProgramIndex}_DMA{curDMAId}_{mcIndex}.bin"), microProg);
+										var mcKey = $"{chainProgKey}_{mcIndex}";
+										mcIndex++;
+										try {
+											file = new StreamFile(c, mcKey, new MemoryStream(microProg), endianness: Endian.Little);
+											c.AddFile(file);
+											//var tops = parser.TOPS * 16;
 
-												s.Goto(file.StartPointer);
+											s.Goto(file.StartPointer);
 
-
-												var vuData = s.SerializeObject<PS2_VU_Data>(default,
-													onPreSerialize: v => {
-														v.Pre_HasNormals = geo.Flags_SoT.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.UseNormalsInEngine) || geo.Flags.HasFlag(GEO_GeometricObject.GEO_ObjFlags.UseNormalsInEngine);
-														v.Pre_HasColors = !v.Pre_HasNormals; // TODO
-														},
-													name: nameof(PS2_VU_Data));
-												gifCmds.Add(vuData);
-											} finally {
-												c.RemoveFile(mcKey);
-											}
-											mcIndex++;
+											var vuData = s.SerializeObject<PS2_VU_Data>(default,
+												onPreSerialize: v => {
+													v.Pre_DMAId = curDMAId;
+													v.Pre_HasBones = hasBones;
+												},
+												name: nameof(PS2_VU_Data));
+											return vuData;
+										} finally {
+											c.RemoveFile(mcKey);
 										}
 									}
-									foreach (var cmd in VIFProgram.Commands) {
-										if (parser.StartsNewMicroProgram(cmd)) {
-											if (parser.HasPendingChanges) ExecuteMicroProgram();
-										}
-										parser.ExecuteCommand(cmd, executeFull: true);
-									}
-									if (parser.HasPendingChanges) ExecuteMicroProgram();
+									return null;
 								}
-								/*PS2_GeometryCommand vertices = null;
-								PS2_GeometryCommand uvs = null;
 								foreach (var cmd in VIFProgram.Commands) {
-									if (cmd.Type == PS2_GeometryCommand.CommandType.Vertices) vertices = cmd;
-									if (cmd.Type == PS2_GeometryCommand.CommandType.UVs) uvs = cmd;
-									if (cmd.Type == PS2_GeometryCommand.CommandType.TransferData) {
-										if (vertices != null) {
-											var verts = vertices.V3_VL32;
-											var uv = uvs.UV3;
-											List<Vector3> unityVerts = new List<Vector3>();
-
-											Vector3 getVector3(PS2_Vector3_32 v) {
-												return new Vector3(v.X, v.Z, v.Y);
-											}
-											int numTriangle = 0;
-											for(int i = 0; i < verts.Length; i++) {
-												if(uv[i].Z == 1) continue;
-												if (numTriangle % 2 == 1) {
-													unityVerts.Add(getVector3(verts[i - 2]));
-													unityVerts.Add(getVector3(verts[i - 1]));
-													unityVerts.Add(getVector3(verts[i - 0]));
-													unityVerts.Add(getVector3(verts[i - 1]));
-													unityVerts.Add(getVector3(verts[i - 2]));
-													unityVerts.Add(getVector3(verts[i - 0]));
-												} else {
-													unityVerts.Add(getVector3(verts[i - 1]));
-													unityVerts.Add(getVector3(verts[i - 2]));
-													unityVerts.Add(getVector3(verts[i - 0]));
-													unityVerts.Add(getVector3(verts[i - 2]));
-													unityVerts.Add(getVector3(verts[i - 1]));
-													unityVerts.Add(getVector3(verts[i - 0]));
-												}
-												numTriangle++;
-											}
-											int[] tris = Enumerable.Range(0, numTriangle * 6).ToArray();
-
-											Mesh m = new Mesh();
-											m.vertices = unityVerts.ToArray();
-											m.triangles = tris;
-											m.RecalculateNormals();
-
-											GameObject g_geo_e = new GameObject($"Element");
-											g_geo_e.transform.SetParent(gao.transform, false);
-											g_geo_e.layer = LayerMask.NameToLayer("3D Collision");
-											MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
-											mf.mesh = m;
-											MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
-											mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
-
-											vertices = null;
-										}
+									if (parser.StartsNewMicroProgram(cmd) && parser.HasPendingChanges) {
+										var vuData = ExecuteMicroProgram();
+										if (vuData != null) yield return vuData;
 									}
-								}*/
+									parser.ExecuteCommand(cmd, executeFull: true);
+								}
+								if (parser.HasPendingChanges) {
+									var vuData = ExecuteMicroProgram();
+									if (vuData != null) yield return vuData;
+								}
 							}
 						}
 					}
+
+					int vifProgramIndex = 0;
+
+
+					List<Jade_Vector> currentVertices = new List<Jade_Vector>();
+					List<Jade_Vector> currentNormals = new List<Jade_Vector>();
+					List<GEO_GeometricObject.UV> currentUVs = new List<GEO_GeometricObject.UV>();
+					List<Jade_Color> currentColors = new List<Jade_Color>();
+					List<GEO_GeometricObjectElement.Triangle> currentTriangles = new List<GEO_GeometricObjectElement.Triangle>();
+
+					bool isFillingVertices = true;
+					bool isFillingUVs = true;
+					bool isFillingNormals = true;
+					bool isFillingColors = true;
+					bool isFillingTriangles = true;
+
+					foreach (var vifProg in EnumerateVIFPrograms()) {
+						int triIndex = 0;
+						int verticesCount = 0;
+						int uvsCount = 0;
+						foreach (var vuData in EnumerateVUData(vifProg, vifProgramIndex)) {
+							int curCount = vuData.GIFTag.NLOOP;
+							int verticesCountStart = verticesCount;
+							int uvsCountStart = uvsCount;
+
+							// Vertices
+							if (isFillingVertices) {
+								currentVertices.AddRange(vuData.Vertices.Take(curCount).Select(v => new Jade_Vector(v.X, v.Y, v.Z)));
+							}
+							verticesCount += curCount;
+							
+							// UVs
+							if (vuData.UVs != null && isFillingUVs) {
+								currentUVs.AddRange(vuData.UVs.Take(curCount).Select(v => new GEO_GeometricObject.UV(v.UFloat, v.VFloat)));
+							}
+							if (vuData.UVs != null) uvsCount += curCount;
+
+							// Normals
+							if (vuData.Normals != null && isFillingNormals) {
+								currentNormals.AddRange(vuData.Normals.Take(curCount).Select(v => new Jade_Vector(v.X, v.Y, v.Z)));
+							}
+
+							// Colors
+							if (vuData.Colors != null && isFillingColors) {
+								currentColors.AddRange(vuData.Colors.Take(curCount).Select(v => new Jade_Color(v.Red, v.Green, v.Blue, v.Alpha)));
+							}
+
+							// Triangles
+							for (int i = 0; i < curCount; i++) {
+								//bool order = i % 2 == 0;//vuData.Vertices[i].F < 0;
+								int isNotInStrip = vuData.UVs?[i]?.IsNotIncludedInStrip
+									?? vuData.Normals?[i]?.IsNotIncludedInStrip
+									?? ((i >= 2) ? 0 : 1);
+								if (isNotInStrip == 0) {
+									if (isFillingTriangles && (verticesCountStart + (i - 2) < 0)) {
+										throw new System.Exception($"{jadeGao.Key}: Incorrect triangle strip. See GEO_GaoVisu_PS2");
+									}
+									if (isFillingTriangles) {
+										var tri = new GEO_GeometricObjectElement.Triangle();
+										tri.SmoothingGroup = (uint)subElementIndex;
+										tri.Vertex0 = (ushort)(verticesCountStart + (i - 2));
+										tri.Vertex1 = (ushort)(verticesCountStart + (i - 1));
+										tri.Vertex2 = (ushort)(verticesCountStart + (i - 0));
+										if (vuData.UVs != null) {
+											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+										}
+										currentTriangles.Add(tri);
+
+										tri = new GEO_GeometricObjectElement.Triangle() {
+											SmoothingGroup = tri.SmoothingGroup,
+											Vertex0 = tri.Vertex0,
+											Vertex1 = tri.Vertex2,
+											Vertex2 = tri.Vertex1,
+											UV0 = tri.UV0,
+											UV1 = tri.UV2,
+											UV2 = tri.UV1,
+										};
+										currentTriangles.Add(tri);
+									} else if (isFillingUVs) {
+										var tri = currentTriangles[triIndex];
+										if (vuData.UVs != null) {
+											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+										}
+										tri = currentTriangles[triIndex + 1];
+										if (vuData.UVs != null) {
+											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+										}
+									}
+									triIndex += 2;
+								}
+							}
+						}
+
+						if(verticesCount > 0) isFillingVertices = false;
+						if(uvsCount > 0) isFillingUVs = false;
+						if(currentNormals.Any()) isFillingNormals = false;
+						if(currentColors.Any()) isFillingColors = false;
+						if(currentTriangles.Any()) isFillingTriangles = false;
+
+						vifProgramIndex++;
+					}
+
+					int totalVerticesCount = vertices.Count;
+					int totalUVsCount = uvs.Count;
+					int currentUVsCount = currentUVs.Count;
+					vertices.AddRange(currentVertices);
+					normals.AddRange(currentNormals);
+					uvs.AddRange(currentUVs);
+					colors.AddRange(currentColors);
+					foreach (var tri in currentTriangles) {
+						if (currentUVsCount > 0) {
+							tri.UV0 += (ushort)totalUVsCount;
+							tri.UV1 += (ushort)totalUVsCount;
+							tri.UV2 += (ushort)totalUVsCount;
+						}
+						tri.Vertex0 += (ushort)totalVerticesCount;
+						tri.Vertex1 += (ushort)totalVerticesCount;
+						tri.Vertex2 += (ushort)totalVerticesCount;
+					}
+					triangles.AddRange(currentTriangles);
 				}
-			} else {
-				/*if (chainData.Any()) {
-					throw new Exception($"GAO Visu {Offset} with object {obj} for element indices {elementIndex}-{subElementIndex} doesn't have any chain programs!");
-				}*/
+				GEO_GeometricObjectElement element = new GEO_GeometricObjectElement() {
+					GeometricObject = geo,
+					MaterialID = obj.Elements_MaterialId[elementIndex],
+					Triangles = triangles.ToArray()
+
+				};
+				element.TrianglesCount = (uint)element.Triangles.Length;
+				elements.Add(element);
 			}
-			return gao;
+			geo.Elements = elements.ToArray();
+			geo.ElementsCount = (uint)geo.Elements.Length;
+			geo.Vertices = vertices.ToArray();
+			geo.VerticesCount = (uint)geo.Vertices.Length;
+			geo.UVs = uvs.ToArray();
+			geo.UVsCount = (uint)geo.UVs.Length;
+			if (normals.Count > 0) {
+				geo.Normals = normals.ToArray();
+				geo.Montreal_HasNormals = 1;
+			}
+			if (colors.Count > 0) {
+				if (jadeGao?.Base?.Visual != null) {
+					jadeGao.Base.Visual.VertexColors = colors.ToArray();
+					jadeGao.Base.Visual.VertexColorsCount = (uint)jadeGao.Base.Visual.VertexColors.Length;
+				} else {
+					geo.Colors = colors.ToArray();
+					geo.Montreal_HasColors = 1;
+					geo.ColorsCount = (uint)geo.Colors.Length;
+				}
+			}
 		}
 
 		public class Element : BinarySerializable {

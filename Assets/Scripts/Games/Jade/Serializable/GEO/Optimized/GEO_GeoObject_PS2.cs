@@ -68,7 +68,7 @@ namespace Ray1Map.Jade {
 				public float Float0 { get; set; }
 				public Jade_Vector BoundingVolumeMax { get; set; }
 				public float Float1 { get; set; }
-				public uint UInt2 { get; set; } // Unused
+				public uint TrianglesCount { get; set; } // Unused
 				public uint BonesCount { get; set; }
 				public byte[] Bones { get; set; }
 				public uint VIFProgramsCount { get; set; }
@@ -81,7 +81,7 @@ namespace Ray1Map.Jade {
 					if(s.GetR1Settings().Platform != Platform.PSP) Float0 = s.Serialize<float>(Float0, name: nameof(Float0));
 					BoundingVolumeMax = s.SerializeObject<Jade_Vector>(BoundingVolumeMax, name: nameof(BoundingVolumeMax));
 					Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
-					UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
+					TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
 					BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 					Bones = s.SerializeArray<byte>(Bones, BonesCount, name: nameof(Bones));
 					VIFProgramsCount = s.Serialize<uint>(VIFProgramsCount, name: nameof(VIFProgramsCount));

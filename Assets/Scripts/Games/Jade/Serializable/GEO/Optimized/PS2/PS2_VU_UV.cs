@@ -19,8 +19,8 @@ namespace Ray1Map.Jade
 
 		public override bool UseShortLog => true;
 		public override string ShortLog => $"{GetType()}({UFloat}, {VFloat}, {IsNotIncludedInStrip})";
-        public float UFloat => (float)U / 0x100;
-        public float VFloat => (float)V / 0x100;
+        public float UFloat => (float)U / 0x200;
+        public float VFloat => (float)V / 0x200;
 
     }
 }

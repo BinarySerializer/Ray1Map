@@ -75,11 +75,12 @@ namespace Ray1Map.Jade {
 		}
 		public bool Montreal_HasUnoptimizedData(GameSettings s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
+			return (!(Montreal_IsOptimized(s) && Loader.IsBinaryData))
 				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC || s.Platform == Platform.iOS || s.Platform == Platform.Wii))
 				|| (s.Platform == Platform.Xbox && (s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723))
 				|| (s.Platform == Platform.PS3 && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
 		}
+		public bool Montreal_FilledUnoptimizedData { get; set; } = false;
 
 		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
 		public Jade_Key OptimizedGeoObjectKey_GC { get; set; }
@@ -110,8 +111,7 @@ namespace Ray1Map.Jade {
 				}
 				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
 				if (Montreal_HasUnoptimizedData(s.GetR1Settings())
-					|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)
-					&& s.GetR1Settings().Platform == Platform.Xbox)) {
+					|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T) && s.GetR1Settings().Platform == Platform.Xbox)) {
 					VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
 					Code_00 = VerticesCount;
 				}
@@ -128,6 +128,8 @@ namespace Ray1Map.Jade {
 				}
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Montreal_HasUnoptimizedData(s.GetR1Settings())) {
+				Montreal_FilledUnoptimizedData = true;
+
 				ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
 				if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
 				UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
@@ -224,6 +226,13 @@ namespace Ray1Map.Jade {
 		public class UV : BinarySerializable {
 			public float U { get; set; }
 			public float V { get; set; }
+			
+			public UV() { }
+			public UV(float u, float v) {
+				U = u;
+				V = v;
+			}
+
 			public override void SerializeImpl(SerializerObject s) {
 				U = s.Serialize<float>(U, name: nameof(U));
 				V = s.Serialize<float>(V, name: nameof(V));

@@ -32,7 +32,7 @@ namespace Ray1Map.Jade {
                     uint addr = DMATag.ADDR;
                     int id = BitHelpers.ExtractBits((int)addr, 8, 24);
                     int offset = BitHelpers.ExtractBits((int)addr, 24, 0);
-                    var data = chainData.FirstOrDefault(d => d.ID == id);
+                    var data = chainData.FirstOrDefault(d => d.DMAChainDataID == id);
                     if(data == null)
                         throw new BinarySerializableException(this, $"No suitable data block found for REF DMATag with ID {id}");
                     w.Write(data.Bytes, offset, DMATag.QWC * 16);

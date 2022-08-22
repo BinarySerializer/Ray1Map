@@ -2,12 +2,12 @@
 
 namespace Ray1Map.Jade {
     public class PS2_DMAChainProgram : BinarySerializable {
-		public int ID { get; set; } // Used as address (ADDR = ID << 24)
+		public int DMAChainProgramID { get; set; } // Used as address (ADDR = ID << 24)
 		public uint DataSize { get; set; }
 		//public byte[] Bytes { get; set; }
 		public PS2_DMACommand[] Commands { get; set; }
 		public override void SerializeImpl(SerializerObject s) {
-			ID = s.Serialize<int>(ID, name: nameof(ID));
+			DMAChainProgramID = s.Serialize<int>(DMAChainProgramID, name: nameof(DMAChainProgramID));
 			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 			//Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
 

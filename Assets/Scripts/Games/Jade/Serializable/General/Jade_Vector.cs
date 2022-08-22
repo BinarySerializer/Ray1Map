@@ -6,6 +6,13 @@ namespace Ray1Map.Jade {
 		public float Y { get; set; }
 		public float Z { get; set; }
 
+		public Jade_Vector() { }
+		public Jade_Vector(float x, float y, float z) {
+			X = x;
+			Y = y;
+			Z = z;
+		}
+
 		public override void SerializeImpl(SerializerObject s) {
 			X = s.Serialize<float>(X, name: nameof(X));
 			Y = s.Serialize<float>(Y, name: nameof(Y));

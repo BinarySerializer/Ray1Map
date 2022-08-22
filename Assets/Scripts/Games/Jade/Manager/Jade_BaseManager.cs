@@ -1975,6 +1975,14 @@ namespace Ray1Map {
 							GameObject g_geo = new GameObject($"Geo {gro.Key}");
 							g_geo.transform.SetParent(g_gao.transform, false);
 							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
+
+							if (geo.OptimizedGeoObject_PS2 != null
+								&& geo.Context.GetR1Settings().Platform == Platform.PS2
+								&& !geo.Montreal_FilledUnoptimizedData) {
+								geo.Montreal_FilledUnoptimizedData = true;
+								var ps2 = geo.OptimizedGeoObject_PS2;
+								gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2);
+							}
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 								var uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
@@ -1989,6 +1997,10 @@ namespace Ray1Map {
 								} else if (gao.Base?.Visual?.RLI?.Value != null) {
 									if (gao.Base?.Visual?.RLI?.Value?.VertexRLI.Length == verts.Length) {
 										colors = gao.Base?.Visual?.RLI?.Value?.VertexRLI?.Select(c => ComputeColor(c.GetColor())).ToArray();
+									}
+								} else if (geo.Colors != null) {
+									if (geo.Colors?.Length == verts.Length) {
+										colors = geo.Colors?.Select(c => ComputeColor(c.GetColor())).ToArray();
 									}
 								}
 								foreach (var e in geo.Elements) {
@@ -2020,15 +2032,6 @@ namespace Ray1Map {
 												mr.material.SetTexture("_MainTex", tex[e.MaterialID]);
 											}
 										}
-									}
-								}
-							}
-							if (geo.OptimizedGeoObject_PS2 != null && geo.Context.GetR1Settings().Platform == Platform.PS2) {
-								var ps2 = geo.OptimizedGeoObject_PS2;
-								for(int i = 0; i < (ps2.ElementData?.ElementDatas?.Length ?? 0); i++) {
-									for (int j = 0; j < ps2.ElementData.ElementDatas[i].MeshElements.Length; j++) {
-										GameObject g = gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2, i, j);
-										if(g != null) g.transform.SetParent(g_geo.transform, false);
 									}
 								}
 							}
