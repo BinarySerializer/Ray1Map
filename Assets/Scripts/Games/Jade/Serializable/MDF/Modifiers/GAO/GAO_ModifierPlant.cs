@@ -40,7 +40,7 @@ namespace Ray1Map.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				Matrix0 = s.SerializeObject<Jade_Matrix>(Matrix0, name: nameof(Matrix0));
 				Matrix1 = s.SerializeObject<Jade_Matrix>(Matrix1, name: nameof(Matrix1));
-				if (Modifier.Version == 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+				if (Modifier.Version == 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 					V3_UInt = s.Serialize<uint>(V3_UInt, name: nameof(V3_UInt));
 				}

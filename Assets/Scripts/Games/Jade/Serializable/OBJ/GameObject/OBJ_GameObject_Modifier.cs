@@ -82,7 +82,7 @@ namespace Ray1Map.Jade {
             Type_Montreal = s.Serialize<MDF_ModifierType_Montreal>(Type_Montreal, name: nameof(Type_Montreal));
             if (Type_Montreal != MDF_ModifierType_Montreal.None) {
                 Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
-                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && (Flags & 0x20000000) != 0) {
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920) && (Flags & 0x20000000) != 0) {
 					Platform = s.Serialize<uint>(Platform, name: nameof(Platform));
 				}
             }

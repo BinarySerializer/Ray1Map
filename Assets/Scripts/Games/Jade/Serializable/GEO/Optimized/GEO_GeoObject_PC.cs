@@ -75,7 +75,7 @@ namespace Ray1Map.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				PointDataSize = s.Serialize<uint>(PointDataSize, name: nameof(PointDataSize));
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && s.GetR1Settings().Platform == Platform.PS3) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920) && s.GetR1Settings().Platform == Platform.PS3) {
 					PS3PoP_OriginalSize = s.Serialize<uint>(PS3PoP_OriginalSize, name: nameof(PS3PoP_OriginalSize));
 					PS3PoP_OffsetInBF = s.Serialize<uint>(PS3PoP_OffsetInBF, name: nameof(PS3PoP_OffsetInBF));
 				} else {

@@ -851,10 +851,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS2)", typeof(Jade_PoP_WW_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaWarriorWithinPS2,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS2 - Demo 2004/09/20)", typeof(Jade_PoP_WW_PS2_20040920_Manager), Platform.PS2)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW_20040920, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS2 - Demo 2004/09/20)", typeof(Jade_PoP_WW_PS2_20040920_Manager), Platform.PS2)]
         PrinceOfPersiaWarriorWithinPS2_20040920,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS2 - Prototype 2004/10/24)", typeof(Jade_PoP_WW_PS2_20041024_Manager), Platform.PS2)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW_20041024, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS2 - Prototype 2004/10/24)", typeof(Jade_PoP_WW_PS2_20041024_Manager), Platform.PS2)]
         PrinceOfPersiaWarriorWithinPS2_20041024,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PSP)", typeof(Jade_PoP_WW_PSP_Manager), Platform.PSP)]

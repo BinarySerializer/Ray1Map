@@ -57,7 +57,7 @@ namespace Ray1Map.Jade {
 				StaticDisturberForce = s.Serialize<float>(StaticDisturberForce, name: nameof(StaticDisturberForce));
 				StaticDisturberDelay = s.Serialize<float>(StaticDisturberDelay, name: nameof(StaticDisturberDelay));
 			}
-			bool isPoPSoT = !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier);
+			bool isPoPSoT = !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier);
 			if (Version == 2 || (isPoPSoT && Version >= 2)) {
 				V2_UInt_3  = s.Serialize<uint>(V2_UInt_3 , name: nameof(V2_UInt_3 ));
 				V2_UInt_4  = s.Serialize<uint>(V2_UInt_4 , name: nameof(V2_UInt_4 ));

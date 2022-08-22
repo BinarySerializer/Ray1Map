@@ -43,7 +43,7 @@ namespace Ray1Map.Jade {
 					Vectors1 = s.SerializeObjectArray<Jade_Vector>(Vectors1, GeometricObject.VerticesCount, name: nameof(Vectors1));
 				}
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
 				Flags = s.Serialize<GEO_GeometricObject.GEO_ObjFlags>(Flags ?? 0, name: nameof(Flags));
 			} else {
 				Flags_SoT = s.Serialize<GEO_GeometricObject.GEO_ObjFlags_PoPSoT>(Flags_SoT ?? 0, name: nameof(Flags_SoT));

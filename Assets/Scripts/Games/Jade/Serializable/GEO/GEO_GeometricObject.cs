@@ -54,7 +54,7 @@ namespace Ray1Map.Jade {
 				case Platform.PS3:
 					return (Montreal_Flags2 & 4) == 4;
 				case Platform.PC:
-					if (s.EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+					if (s.EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
 						return (Montreal_Flags2 & 8) == 8;
 					} else {
 						return (Montreal_Flags2 & 4) == 4;
@@ -95,7 +95,7 @@ namespace Ray1Map.Jade {
 
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				if (ObjectVersion >= 4) {
-					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
 						Flags = s.Serialize<GEO_ObjFlags>(Flags, name: nameof(Flags));
 					} else {
 						Flags_SoT = s.Serialize<GEO_ObjFlags_PoPSoT>(Flags_SoT, name: nameof(Flags_SoT));
