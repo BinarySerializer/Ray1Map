@@ -14,6 +14,36 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
+		public void ExecuteGEPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
+			int elementsLength = System.Math.Max((obj.ElementData?.ElementDatas?.Length ?? 0), (Elements?.Length ?? 0));
+			List<GEO_GeometricObjectElement> elements = new List<GEO_GeometricObjectElement>();
+
+			for (int elementIndex = 0; elementIndex < elementsLength; elementIndex++) {
+				Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
+				GEO_GeoObject_PS2.ElementDataBuffer.ElementData objElement = (obj.ElementData.ElementDatas.Length > elementIndex) ? obj.ElementData.ElementDatas[elementIndex] : null;
+				int subElementsLength = System.Math.Max((objElement?.MeshElements?.Length ?? 0), (visuElement?.Refs?.Length ?? 0));
+
+				List<GEO_GeometricObjectElement.Triangle> triangles = new List<GEO_GeometricObjectElement.Triangle>();
+
+				for (int subElementIndex = 0; subElementIndex < subElementsLength; subElementIndex++) {
+					MeshElementRef visuSubElement = ((visuElement?.Refs?.Length ?? 0) > subElementIndex) ? visuElement.Refs[subElementIndex] : null;
+					GEO_GeoObject_PS2.ElementDataBuffer.MeshElement objSubElement = ((objElement?.MeshElements?.Length ?? 0) > subElementIndex) ? objElement.MeshElements[subElementIndex] : null;
+
+					List<PSP_GEData> geData = new List<PSP_GEData>();
+					if (visuSubElement != null) {
+						geData.AddRange(visuSubElement.GEPrograms);;
+					}
+					if (objSubElement != null) {
+						geData.AddRange(objSubElement.GEPrograms);
+					}
+
+					foreach (var ge in geData) {
+						ge.Execute(geo.Context);
+					}
+				}
+			}
+		}
+
 		public void ExecuteChainPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
 			List<Jade_Vector> vertices = new List<Jade_Vector>();
 			List<Jade_Vector> normals = new List<Jade_Vector>();
@@ -321,12 +351,18 @@ namespace Ray1Map.Jade {
 			public uint DMAChainProgramsCount { get; set; }
 			public PS2_DMAChainProgram[] DMAChainPrograms { get; set; }
 
+			public uint GEProgramsCount { get; set; }
+			public PSP_GEData[] GEPrograms { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
-				InstanceVIFProgramsCount = s.Serialize<uint>(InstanceVIFProgramsCount, name: nameof(InstanceVIFProgramsCount));
-				InstanceVIFPrograms = s.SerializeObjectArray<PS2_DMAChainData>(InstanceVIFPrograms, InstanceVIFProgramsCount, onPreSerialize: p => p.Pre_IsInstance = true, name: nameof(InstanceVIFPrograms));
 				if (s.GetR1Settings().Platform == Platform.PS2) {
+					InstanceVIFProgramsCount = s.Serialize<uint>(InstanceVIFProgramsCount, name: nameof(InstanceVIFProgramsCount));
+					InstanceVIFPrograms = s.SerializeObjectArray<PS2_DMAChainData>(InstanceVIFPrograms, InstanceVIFProgramsCount, name: nameof(InstanceVIFPrograms));
 					DMAChainProgramsCount = s.Serialize<uint>(DMAChainProgramsCount, name: nameof(DMAChainProgramsCount));
 					DMAChainPrograms = s.SerializeObjectArray<PS2_DMAChainProgram>(DMAChainPrograms, DMAChainProgramsCount, name: nameof(DMAChainPrograms));
+				} else if (s.GetR1Settings().Platform == Platform.PSP) {
+					GEProgramsCount = s.Serialize<uint>(GEProgramsCount, name: nameof(GEProgramsCount));
+					GEPrograms = s.SerializeObjectArray<PSP_GEData>(GEPrograms, GEProgramsCount, onPreSerialize: p => p.Pre_IsInstance = true, name: nameof(GEPrograms));
 				}
 			}
 		}

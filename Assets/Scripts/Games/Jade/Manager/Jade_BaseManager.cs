@@ -1977,11 +1977,16 @@ namespace Ray1Map {
 							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
 
 							if (geo.OptimizedGeoObject_PS2 != null
-								&& geo.Context.GetR1Settings().Platform == Platform.PS2
+								//&& geo.Context.GetR1Settings().Platform == Platform.PS2
 								&& !geo.Montreal_FilledUnoptimizedData) {
-								geo.Montreal_FilledUnoptimizedData = true;
 								var ps2 = geo.OptimizedGeoObject_PS2;
-								gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2);
+								if (geo.Context.GetR1Settings().Platform == Platform.PS2) {
+									geo.Montreal_FilledUnoptimizedData = true;
+									gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2);
+								} else if (geo.Context.GetR1Settings().Platform == Platform.PSP) {
+									geo.Montreal_FilledUnoptimizedData = true;
+									gao?.Base?.Visual?.VisuPS2?.ExecuteGEPrograms(gao, geo, ps2);
+								}
 							}
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();

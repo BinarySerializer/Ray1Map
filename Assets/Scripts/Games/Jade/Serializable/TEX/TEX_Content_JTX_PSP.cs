@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace Ray1Map.Jade
 {
+    // TODO: This is actually a GE program - parse it as one
     public class TEX_Content_JTX_PSP : BinarySerializable {
         public TEX_Content_JTX JTX { get; set; }
 

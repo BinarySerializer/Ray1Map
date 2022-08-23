@@ -23,6 +23,17 @@ namespace BinarySerializer.PSP
                     GE_CommandType.JUMP or
                     GE_CommandType.BJUMP or
                     GE_CommandType.CALL => SerializeData<GE_Command_Address>(),
+
+                    GE_CommandType.END or
+                    GE_CommandType.RET or
+                    GE_CommandType.NOP => null,
+
+                    GE_CommandType.VTYPE => SerializeData<GE_Command_VertexType>(),
+
+                    GE_CommandType.BASE => SerializeData<GE_Command_Base>(),
+
+                    GE_CommandType.PRIM => SerializeData<GE_Command_PrimitiveKick>(),
+
                     _ => SerializeData<GE_Command_Placeholder>(),
                 };
             });

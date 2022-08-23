@@ -71,10 +71,16 @@ namespace Ray1Map.Jade {
 				public uint TrianglesCount { get; set; } // Unused
 				public uint BonesCount { get; set; }
 				public byte[] Bones { get; set; }
+
+				// PS2
 				public uint VIFProgramsCount { get; set; }
 				public PS2_DMAChainData[] VIFPrograms { get; set; }
 				public uint DMAChainProgramsCount { get; set; }
 				public PS2_DMAChainProgram[] DMAChainPrograms { get; set; }
+
+				// PSP
+				public uint GEProgramsCount { get; set; }
+				public PSP_GEData[] GEPrograms { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					BoundingVolumeMin = s.SerializeObject<Jade_Vector>(BoundingVolumeMin, name: nameof(BoundingVolumeMin));
@@ -84,11 +90,14 @@ namespace Ray1Map.Jade {
 					TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
 					BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 					Bones = s.SerializeArray<byte>(Bones, BonesCount, name: nameof(Bones));
-					VIFProgramsCount = s.Serialize<uint>(VIFProgramsCount, name: nameof(VIFProgramsCount));
-					VIFPrograms = s.SerializeObjectArray<PS2_DMAChainData>(VIFPrograms, VIFProgramsCount, onPreSerialize: p => p.Pre_IsInstance = false, name: nameof(VIFPrograms));
 					if (s.GetR1Settings().Platform == Platform.PS2) {
+						VIFProgramsCount = s.Serialize<uint>(VIFProgramsCount, name: nameof(VIFProgramsCount));
+						VIFPrograms = s.SerializeObjectArray<PS2_DMAChainData>(VIFPrograms, VIFProgramsCount, name: nameof(VIFPrograms));
 						DMAChainProgramsCount = s.Serialize<uint>(DMAChainProgramsCount, name: nameof(DMAChainProgramsCount));
 						DMAChainPrograms = s.SerializeObjectArray<PS2_DMAChainProgram>(DMAChainPrograms, DMAChainProgramsCount, name: nameof(DMAChainPrograms));
+					} else if (s.GetR1Settings().Platform == Platform.PSP) {
+						GEProgramsCount = s.Serialize<uint>(GEProgramsCount, name: nameof(GEProgramsCount));
+						GEPrograms = s.SerializeObjectArray<PSP_GEData>(GEPrograms, GEProgramsCount, onPreSerialize: p => p.Pre_IsInstance = false, name: nameof(GEPrograms));
 					}
 				}
 			}
