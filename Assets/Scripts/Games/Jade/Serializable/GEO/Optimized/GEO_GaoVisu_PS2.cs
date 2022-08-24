@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS2;
+using BinarySerializer.PSP;
 
 namespace Ray1Map.Jade {
 	public class GEO_GaoVisu_PS2 : BinarySerializable {
@@ -14,9 +15,16 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
+		#region Un-optimize GeometricObject data (PSP)
 		public void ExecuteGEPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
 			int elementsLength = System.Math.Max((obj.ElementData?.ElementDatas?.Length ?? 0), (Elements?.Length ?? 0));
 			List<GEO_GeometricObjectElement> elements = new List<GEO_GeometricObjectElement>();
+
+			List<Jade_Vector> vertices = new List<Jade_Vector>();
+			List<Jade_Vector> normals = new List<Jade_Vector>();
+			List<GEO_GeometricObject.UV> uvs = new List<GEO_GeometricObject.UV>();
+			List<Jade_Color> colors = new List<Jade_Color>();
+			uint smoothingGroup = 0;
 
 			for (int elementIndex = 0; elementIndex < elementsLength; elementIndex++) {
 				Element visuElement = (Elements.Length > elementIndex) ? Elements[elementIndex] : null;
@@ -37,13 +45,202 @@ namespace Ray1Map.Jade {
 						geData.AddRange(objSubElement.GEPrograms);
 					}
 
+
 					foreach (var ge in geData) {
-						ge.Execute(geo.Context);
+						if(ge.SerializedCommands == null) continue;
+
+						List<Jade_Vector> currentVertices = new List<Jade_Vector>();
+						List<Jade_Vector> currentNormals = new List<Jade_Vector>();
+						List<GEO_GeometricObject.UV> currentUVs = new List<GEO_GeometricObject.UV>();
+						List<Jade_Color> currentColors = new List<Jade_Color>();
+						List<GEO_GeometricObjectElement.Triangle> currentTriangles = new List<GEO_GeometricObjectElement.Triangle>();
+
+						GE_PrimitiveType primitiveType = GE_PrimitiveType.Triangles;
+						GE_Command_VertexType vertexType = null;
+						foreach (var cmd in ge.SerializedCommands) {
+							switch (cmd.Command) {
+								case GE_CommandType.PRIM:
+									primitiveType = ((GE_Command_PrimitiveKick)cmd.Data).PrimitiveType;
+									break;
+								case GE_CommandType.VTYPE:
+									vertexType = (GE_Command_VertexType)cmd.Data;
+									break;
+							}
+							if (cmd.LinkedVertices != null) {
+								int lastVerticesCount = currentVertices.Count;
+								int lastUVsCount = currentUVs.Count;
+								foreach (var vtxLine in cmd.LinkedVertices) {
+									foreach (var vtx in vtxLine.Vertices) {
+										if (vtx.Position != null) {
+											var vec = new Jade_Vector(
+												vtx.Position[0].Value,
+												vtx.Position[1].Value,
+												vtx.Position[2].Value);
+											currentVertices.Add(vec);
+										}
+										if (vtx.Normal != null) {
+											var vec = new Jade_Vector(
+												vtx.Normal[0].Value,
+												vtx.Normal[1].Value,
+												vtx.Normal[2].Value);
+											currentNormals.Add(vec);
+										}
+										if (vtx.UV != null) {
+											var uv = new GEO_GeometricObject.UV(
+												vtx.UV[0].Value * 8f,
+												vtx.UV[1].Value * 8f);
+											currentUVs.Add(uv);
+										}
+										if (vtx.Color != null) {
+											var usedCol = vtx.Color.Color;
+											var col = new Jade_Color(usedCol.Red, usedCol.Green, usedCol.Blue, usedCol.Alpha);
+											currentColors.Add(col);
+										}
+									}
+								}
+								int newVerticesCount = currentVertices.Count;
+								int newUVsCount = currentUVs.Count;
+								int curVerticesCount = (newVerticesCount - lastVerticesCount);
+								switch (primitiveType) {
+									case GE_PrimitiveType.TriangleStrips:
+										for (int i = 2; i < curVerticesCount; i++) {
+											var tri = new GEO_GeometricObjectElement.Triangle();
+											if (vertexType.PositionFormat != GE_VertexNumberFormat.None) {
+												tri.Vertex0 = (ushort)(lastVerticesCount + i - 2);
+												tri.Vertex1 = (ushort)(lastVerticesCount + i - 1);
+												tri.Vertex2 = (ushort)(lastVerticesCount + i - 0);
+											}
+											if (vertexType.TextureFormat != GE_VertexNumberFormat.None) {
+												tri.UV0 = (ushort)(lastUVsCount + i - 2);
+												tri.UV1 = (ushort)(lastUVsCount + i - 1);
+												tri.UV2 = (ushort)(lastUVsCount + i - 0);
+											}
+											if (i % 2 == 1) {
+												ushort tmp = tri.Vertex0;
+												tri.Vertex0 = tri.Vertex1;
+												tri.Vertex1 = tmp;
+												tmp = tri.UV0;
+												tri.UV0 = tri.UV1;
+												tri.UV1 = tmp;
+											}
+											tri.SmoothingGroup = smoothingGroup;
+											currentTriangles.Add(tri);
+
+											/*tri = new GEO_GeometricObjectElement.Triangle() {
+												SmoothingGroup = tri.SmoothingGroup,
+												Vertex0 = tri.Vertex0,
+												Vertex1 = tri.Vertex2,
+												Vertex2 = tri.Vertex1,
+												UV0 = tri.UV0,
+												UV1 = tri.UV2,
+												UV2 = tri.UV1,
+											};
+											currentTriangles.Add(tri);*/
+										}
+										break;
+									case GE_PrimitiveType.Triangles:
+										for (int i = 0; i < curVerticesCount / 3; i++) {
+											var tri = new GEO_GeometricObjectElement.Triangle();
+											if (vertexType.PositionFormat != GE_VertexNumberFormat.None) {
+												tri.Vertex0 = (ushort)(lastVerticesCount + i * 3 + 0);
+												tri.Vertex1 = (ushort)(lastVerticesCount + i * 3 + 1);
+												tri.Vertex2 = (ushort)(lastVerticesCount + i * 3 + 2);
+											}
+											if (vertexType.TextureFormat != GE_VertexNumberFormat.None) {
+												tri.UV0 = (ushort)(lastUVsCount + i * 3 + 0);
+												tri.UV1 = (ushort)(lastUVsCount + i * 3 + 1);
+												tri.UV2 = (ushort)(lastUVsCount + i * 3 + 2);
+											}
+											/*if (i % 2 == 1) {
+												ushort tmp = tri.Vertex0;
+												tri.Vertex0 = tri.Vertex1;
+												tri.Vertex1 = tmp;
+												tmp = tri.UV0;
+												tri.UV0 = tri.UV1;
+												tri.UV1 = tmp;
+											}*/
+											tri.SmoothingGroup = smoothingGroup;
+											currentTriangles.Add(tri);
+
+
+											/*tri = new GEO_GeometricObjectElement.Triangle() {
+												SmoothingGroup = tri.SmoothingGroup,
+												Vertex0 = tri.Vertex0,
+												Vertex1 = tri.Vertex2,
+												Vertex2 = tri.Vertex1,
+												UV0 = tri.UV0,
+												UV1 = tri.UV2,
+												UV2 = tri.UV1,
+											};
+											currentTriangles.Add(tri);*/
+										}
+										break;
+									default:
+										throw new System.NotImplementedException($"Unsupported PrimitiveType {primitiveType}");
+								}
+								smoothingGroup++;
+							}
+						}
+
+
+						int totalVerticesCount = vertices.Count;
+						int totalUVsCount = uvs.Count;
+						int currentUVsCount = currentUVs.Count;
+						vertices.AddRange(currentVertices);
+						normals.AddRange(currentNormals);
+						uvs.AddRange(currentUVs);
+						colors.AddRange(currentColors);
+						foreach (var tri in currentTriangles) {
+							if (currentUVsCount > 0) {
+								tri.UV0 += (ushort)totalUVsCount;
+								tri.UV1 += (ushort)totalUVsCount;
+								tri.UV2 += (ushort)totalUVsCount;
+							}
+							tri.Vertex0 += (ushort)totalVerticesCount;
+							tri.Vertex1 += (ushort)totalVerticesCount;
+							tri.Vertex2 += (ushort)totalVerticesCount;
+						}
+						triangles.AddRange(currentTriangles);
 					}
+					/*foreach (var ge in geData) {
+						ge.Execute(geo.Context);
+					}*/
+				}
+
+				GEO_GeometricObjectElement element = new GEO_GeometricObjectElement() {
+					GeometricObject = geo,
+					MaterialID = obj.Elements_MaterialId[elementIndex],
+					Triangles = triangles.ToArray()
+
+				};
+				element.TrianglesCount = (uint)element.Triangles.Length;
+				elements.Add(element);
+			}
+
+			geo.Elements = elements.ToArray();
+			geo.ElementsCount = (uint)geo.Elements.Length;
+			geo.Vertices = vertices.ToArray();
+			geo.VerticesCount = (uint)geo.Vertices.Length;
+			geo.UVs = uvs.ToArray();
+			geo.UVsCount = (uint)geo.UVs.Length;
+			if (normals.Count > 0) {
+				geo.Normals = normals.ToArray();
+				geo.Montreal_HasNormals = 1;
+			}
+			if (colors.Count > 0) {
+				if (jadeGao?.Base?.Visual != null) {
+					jadeGao.Base.Visual.VertexColors = colors.ToArray();
+					jadeGao.Base.Visual.VertexColorsCount = (uint)jadeGao.Base.Visual.VertexColors.Length;
+				} else {
+					geo.Colors = colors.ToArray();
+					geo.Montreal_HasColors = 1;
+					geo.ColorsCount = (uint)geo.Colors.Length;
 				}
 			}
 		}
+		#endregion
 
+		#region Un-optimize GeometricObject data (PS2)
 		public void ExecuteChainPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
 			List<Jade_Vector> vertices = new List<Jade_Vector>();
 			List<Jade_Vector> normals = new List<Jade_Vector>();
@@ -329,7 +526,9 @@ namespace Ray1Map.Jade {
 				}
 			}
 		}
+		#endregion
 
+		#region Serialize elements
 		public class Element : BinarySerializable {
 			public Jade_Code Foceface { get; set; }
 			public uint Count { get; set; }
@@ -366,5 +565,6 @@ namespace Ray1Map.Jade {
 				}
 			}
 		}
+		#endregion
 	}
 }

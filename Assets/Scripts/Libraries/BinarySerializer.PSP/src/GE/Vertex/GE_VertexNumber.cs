@@ -37,15 +37,22 @@ namespace BinarySerializer.PSP
             }
         }
 
-        public float? Value {
+        public float Value {
             get {
-                return Pre_Format switch {
-                    GE_VertexNumberFormat.None => null,
-                    GE_VertexNumberFormat.FixedPoint_8Bit => (float)ValueSByte / sbyte.MaxValue,
-                    GE_VertexNumberFormat.FixedPoint_16Bit => (float)ValueShort / short.MaxValue,
-                    GE_VertexNumberFormat.FloatingPoint_32Bit => ValueFloat,
-                    _ => null
-                };
+                switch (Pre_Format) {
+                    case GE_VertexNumberFormat.FixedPoint_8Bit:
+                        return ValueSByte / (float)sbyte.MaxValue;
+                    case GE_VertexNumberFormat.FixedPoint_16Bit:
+                        if (Pre_Type == GE_VertexNumberType.Position) {
+                            return ValueShort / (float)0x400;
+                        } else {
+                            return ValueShort / (float)short.MaxValue;
+                        }
+                    case GE_VertexNumberFormat.FloatingPoint_32Bit:
+                        return ValueFloat;
+                    default:
+                        throw new BinarySerializableException(this, $"Bad VertexNumberFormat {Pre_Format}");
+                }
             }
         }
     }

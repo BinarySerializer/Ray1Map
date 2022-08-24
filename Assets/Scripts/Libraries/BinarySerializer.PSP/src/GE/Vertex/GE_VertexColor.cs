@@ -25,24 +25,32 @@ namespace BinarySerializer.PSP
                 case GE_ColorFormat.BGR565:
                     s.Align(2, Pre_AlignOffset);
                     Color565 = s.SerializeObject<RGB565Color>(Color565, name: nameof(Color565));
-                    s.SystemLog?.LogDebug($"{Offset}: Check color format: {Pre_Format}");
-                    break;
-                case GE_ColorFormat.ABGR4444:
-                    s.Align(2, Pre_AlignOffset);
-                    Color4444 = s.SerializeObject<BGRA4444Color>(Color4444, name: nameof(Color4444));
-                    s.SystemLog?.LogDebug($"{Offset}: Check color format: {Pre_Format}");
+                    //s.SystemLog?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
                 case GE_ColorFormat.ABGR5551:
                     s.Align(2, Pre_AlignOffset);
                     Color5551 = s.SerializeObject<RGBA5551Color>(Color5551, name: nameof(Color5551));
-                    s.SystemLog?.LogDebug($"{Offset}: Check color format: {Pre_Format}");
+                    s.SystemLog?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
+                    break;
+                case GE_ColorFormat.ABGR4444:
+                    s.Align(2, Pre_AlignOffset);
+                    Color4444 = s.SerializeObject<BGRA4444Color>(Color4444, name: nameof(Color4444));
+                    s.SystemLog?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
                 case GE_ColorFormat.ABGR8888:
                     s.Align(4, Pre_AlignOffset);
                     Color8888 = s.SerializeObject<RGBA8888Color>(Color8888, name: nameof(Color8888));
-                    s.SystemLog?.LogDebug($"{Offset}: Check color format: {Pre_Format}");
+                    s.SystemLog?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
             }
         }
+
+        public BaseColor Color => Pre_Format switch {
+            GE_ColorFormat.BGR565 => Color565,
+            GE_ColorFormat.ABGR5551 => Color5551,
+            GE_ColorFormat.ABGR4444 => Color4444,
+            GE_ColorFormat.ABGR8888 => Color8888,
+            _ => null
+        };
     }
 }

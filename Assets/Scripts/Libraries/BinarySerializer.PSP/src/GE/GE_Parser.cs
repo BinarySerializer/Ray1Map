@@ -7,7 +7,7 @@ namespace BinarySerializer.PSP
 {
     public class GE_Parser
     {
-        public List<GE_Command> SerializedCommands { get; set; }
+        public List<GE_Command> SerializedCommands { get; set; } = new List<GE_Command>();
 
         public Pointer StartPointer { get; set; }
         public bool AlignVertices { get; set; } = true;
@@ -36,6 +36,7 @@ namespace BinarySerializer.PSP
 
             while (parse) {
                 Command = s.SerializeObject<GE_Command>(Command, name: nameof(Command));
+                SerializedCommands.Add(Command);
                 switch (Command.Command) {
                     case GE_CommandType.END:
                         CallStack.Clear();
@@ -71,9 +72,10 @@ namespace BinarySerializer.PSP
                     case GE_CommandType.PRIM:
                         var primData = (GE_Command_PrimitiveKick)Command.Data;
                         s.DoAt(vertexListAddress, () => {
-                            Vertices = s.SerializeObjectArray<GE_VertexLine>(Vertices, primData.VerticesCount,
+                            Vertices = s.SerializeObjectArray<GE_VertexLine>(default, primData.VerticesCount,
                                 onPreSerialize: v => v.Pre_VertexType = CurrentVertexType,
                                 name: nameof(Vertices));
+                            Command.LinkedVertices = Vertices;
                             vertexListAddress = s.CurrentPointer;
                         });
                         break;

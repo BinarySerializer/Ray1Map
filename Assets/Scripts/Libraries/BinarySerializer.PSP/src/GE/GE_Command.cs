@@ -6,6 +6,10 @@ namespace BinarySerializer.PSP
         public GE_CommandType Command { get; set; }
         public GE_CommandData Data { get; set; }
 
+
+        // Linked data
+        public GE_VertexLine[] LinkedVertices { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             s.DoBits<uint>(b => {

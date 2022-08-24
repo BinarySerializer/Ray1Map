@@ -7,9 +7,10 @@ namespace Ray1Map.Jade {
 		public uint Flags { get; set; }
 		public uint DataSize { get; set; }
 		public byte[] Bytes { get; set; }
-		// TODO: PSP's data is in GE commands format http://hitmen.c02.at/files/yapspd/psp_doc/chap11.html#sec11.1
 
 		public bool Pre_IsInstance { get; set; }
+
+		public GE_Command[] SerializedCommands { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (!Pre_IsInstance) {
@@ -19,6 +20,10 @@ namespace Ray1Map.Jade {
 			}
 			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 			Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
+
+			if (IsFirstLoad && SerializedCommands == null) {
+				Execute(Context);
+			}
 		}
 
 		public void Execute(Context context) {
@@ -30,6 +35,7 @@ namespace Ray1Map.Jade {
 					var s = c.Deserializer;
 					var parser = new GE_Parser();
 					parser.Parse(s, file.StartPointer);
+					SerializedCommands = parser.SerializedCommands.ToArray();
 				} finally {
 					c.RemoveFile(file);
 				}
