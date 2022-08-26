@@ -11,9 +11,11 @@ namespace BinarySerializer.PSP
 
         // 8-Bit
         public sbyte ValueSByte { get; set; }
+        public byte ValueByte { get; set; }
 
         // 16-Bit
         public short ValueShort { get; set; }
+        public ushort ValueUShort { get; set; }
 
         // 32-Bit
         public float ValueFloat { get; set; }
@@ -24,11 +26,19 @@ namespace BinarySerializer.PSP
                 case GE_VertexNumberFormat.None:
                     break;
                 case GE_VertexNumberFormat.FixedPoint_8Bit:
-                    ValueSByte = s.Serialize<sbyte>(ValueSByte, name: nameof(ValueSByte));
+                    if (Pre_Type == GE_VertexNumberType.Texture) {
+                        ValueByte = s.Serialize<byte>(ValueByte, name: nameof(ValueByte));
+                    } else {
+                        ValueSByte = s.Serialize<sbyte>(ValueSByte, name: nameof(ValueSByte));
+                    }
                     break;
                 case GE_VertexNumberFormat.FixedPoint_16Bit:
                     s.Align(2, Pre_AlignOffset);
-                    ValueShort = s.Serialize<short>(ValueShort, name: nameof(ValueShort));
+                    if (Pre_Type == GE_VertexNumberType.Texture) {
+                        ValueUShort = s.Serialize<ushort>(ValueUShort, name: nameof(ValueUShort));
+                    } else {
+                        ValueShort = s.Serialize<short>(ValueShort, name: nameof(ValueShort));
+                    }
                     break;
                 case GE_VertexNumberFormat.FloatingPoint_32Bit:
                     s.Align(4, Pre_AlignOffset);
@@ -41,10 +51,14 @@ namespace BinarySerializer.PSP
             get {
                 switch (Pre_Format) {
                     case GE_VertexNumberFormat.FixedPoint_8Bit:
-                        return ValueSByte / (float)sbyte.MaxValue;
+                        if (Pre_Type == GE_VertexNumberType.Texture) {
+                            return ValueByte / (float)(byte.MaxValue);
+                        } else {
+                            return ValueSByte / (float)sbyte.MaxValue;
+                        }
                     case GE_VertexNumberFormat.FixedPoint_16Bit:
-                        if (Pre_Type == GE_VertexNumberType.Position) {
-                            return ValueShort / (float)0x400;
+                        if (Pre_Type == GE_VertexNumberType.Texture) {
+                            return ValueUShort / (float)(ushort.MaxValue);
                         } else {
                             return ValueShort / (float)short.MaxValue;
                         }

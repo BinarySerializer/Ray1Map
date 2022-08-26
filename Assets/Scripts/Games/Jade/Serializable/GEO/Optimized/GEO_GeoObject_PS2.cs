@@ -64,6 +64,9 @@ namespace Ray1Map.Jade {
 				}
 			}
 			public class MeshElement : BinarySerializable {
+				public Jade_Vector VertexScale { get; set; }
+				public Jade_Vector VertexOffset { get; set; }
+
 				public Jade_Vector BoundingVolumeMin { get; set; }
 				public float Float0 { get; set; }
 				public Jade_Vector BoundingVolumeMax { get; set; }
@@ -83,10 +86,16 @@ namespace Ray1Map.Jade {
 				public PSP_GEData[] GEPrograms { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
-					BoundingVolumeMin = s.SerializeObject<Jade_Vector>(BoundingVolumeMin, name: nameof(BoundingVolumeMin));
-					if(s.GetR1Settings().Platform != Platform.PSP) Float0 = s.Serialize<float>(Float0, name: nameof(Float0));
-					BoundingVolumeMax = s.SerializeObject<Jade_Vector>(BoundingVolumeMax, name: nameof(BoundingVolumeMax));
-					Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
+					if (s.GetR1Settings().Platform == Platform.PSP) {
+						VertexScale = s.SerializeObject<Jade_Vector>(VertexScale, name: nameof(VertexScale));
+						VertexOffset = s.SerializeObject<Jade_Vector>(VertexOffset, name: nameof(VertexOffset));
+						Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
+					} else {
+						BoundingVolumeMin = s.SerializeObject<Jade_Vector>(BoundingVolumeMin, name: nameof(BoundingVolumeMin));
+						Float0 = s.Serialize<float>(Float0, name: nameof(Float0));
+						BoundingVolumeMax = s.SerializeObject<Jade_Vector>(BoundingVolumeMax, name: nameof(BoundingVolumeMax));
+						Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
+					}
 					TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
 					BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 					Bones = s.SerializeArray<byte>(Bones, BonesCount, name: nameof(Bones));
