@@ -15,6 +15,14 @@ namespace Ray1Map.Jade {
 			Elements = s.SerializeObjectArray<Element>(Elements, ElementsCount, name: nameof(Elements));
 		}
 
+		#region Helpers
+
+		float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
+		Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha) => new Jade_Color(
+			ProcessColorValue(color.Red), ProcessColorValue(color.Green), ProcessColorValue(color.Blue), multiplyAlpha ? ProcessColorValue(color.Alpha) : color.Alpha);
+
+		#endregion
+
 		#region Un-optimize GeometricObject data (PSP)
 		public void ExecuteGEPrograms(OBJ_GameObject jadeGao, GEO_GeometricObject geo, GEO_GeoObject_PS2 obj) {
 			int elementsLength = System.Math.Max((obj.ElementData?.ElementDatas?.Length ?? 0), (Elements?.Length ?? 0));
@@ -98,8 +106,7 @@ namespace Ray1Map.Jade {
 										}
 										if (vtx.Color != null) {
 											var usedCol = vtx.Color.Color;
-											var col = new Jade_Color(usedCol.Red, usedCol.Green, usedCol.Blue, usedCol.Alpha);
-											currentColors.Add(col);
+											currentColors.Add(ProcessColor(usedCol, false));
 										}
 									}
 								}
@@ -410,7 +417,7 @@ namespace Ray1Map.Jade {
 
 							// Colors
 							if (vuData.Colors != null && isFillingColors) {
-								currentColors.AddRange(vuData.Colors.Take(curCount).Select(v => new Jade_Color(v.Red, v.Green, v.Blue, v.Alpha)));
+								currentColors.AddRange(vuData.Colors.Take(curCount).Select(v => ProcessColor(v, true)));
 							}
 
 							// Triangles
