@@ -109,6 +109,7 @@ namespace Ray1Map.Jade {
 					if (Buffer.Geo.VertexDataBufferType != 0) Normal = s.SerializeObject<Jade_Vector>(Normal, name: nameof(Normal));
 					if (Buffer.Geo.VertexDataBufferType == 3) {
 						BoneIndices = s.SerializeArray<ushort>(BoneIndices, 3, name: nameof(BoneIndices));
+						if (s.GetR1Settings().Platform == Platform.PC) s.Align(4, Offset);
 						Ponderations = s.SerializeObjectArray<GEO_GeometricObject_VertexPonderation>(Ponderations, 3, name: nameof(Ponderations));
 					}
 					UV = s.SerializeObject<GEO_GeometricObject.UV>(UV, name: nameof(UV));
