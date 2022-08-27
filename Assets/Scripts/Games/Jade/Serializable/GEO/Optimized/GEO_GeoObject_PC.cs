@@ -99,8 +99,10 @@ namespace Ray1Map.Jade {
 				public Jade_Vector StaticMesh { get; set; }
 				public ushort[] BoneIndices { get; set; }
 				public GEO_GeometricObject_VertexPonderation[] Ponderations { get; set; }
-				public byte[] PointBytes { get; set; }
 				public GEO_GeometricObject.UV UV { get; set; }
+
+				public BGRA8888Color Color { get; set; }
+				public float[] UnknownFloats { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					Vertex = s.SerializeObject<Jade_Vector>(Vertex, name: nameof(Vertex));
@@ -109,8 +111,17 @@ namespace Ray1Map.Jade {
 						BoneIndices = s.SerializeArray<ushort>(BoneIndices, 3, name: nameof(BoneIndices));
 						Ponderations = s.SerializeObjectArray<GEO_GeometricObject_VertexPonderation>(Ponderations, 3, name: nameof(Ponderations));
 					}
-					PointBytes = s.SerializeArray<byte>(PointBytes, (Buffer.PointDataSize - (s.CurrentAbsoluteOffset - Offset.AbsoluteOffset) - 8), name: nameof(PointBytes));
 					UV = s.SerializeObject<GEO_GeometricObject.UV>(UV, name: nameof(UV));
+
+					if (Buffer.Geo.VertexDataBufferType == 8) {
+						Color = s.SerializeObject<BGRA8888Color>(Color, name: nameof(Color));
+						UnknownFloats = s.SerializeArray<float>(UnknownFloats, 2, name: nameof(UnknownFloats));
+					}
+
+					if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + Buffer.PointDataSize) {
+						s.SystemLog?.LogWarning($"Vertex Data at {Offset} wasn't serialized properly.");
+						s.Goto(Offset + Buffer.PointDataSize);
+					}
 				}
 			}
 		}
@@ -163,6 +174,14 @@ namespace Ray1Map.Jade {
 			}
 		}
 
+		#region Helpers
+
+		public static float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
+		public static Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha = false) => new Jade_Color(
+			ProcessColorValue(color.Red), ProcessColorValue(color.Green), ProcessColorValue(color.Blue), multiplyAlpha ? ProcessColorValue(color.Alpha) : color.Alpha);
+
+		#endregion
+
 		public void Unoptimize() {
 			if(VertexDataBufferSize == 0) return;
 			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920) && Context.GetR1Settings().Platform == Platform.PS3) {
@@ -175,20 +194,26 @@ namespace Ray1Map.Jade {
 			GeometricObject.UVs = VertexData.Points.Select(p => p.UV).ToArray();
 
 			GeometricObject.Montreal_HasNormals = VertexDataBufferType != 0 ? 1 : 0;
+			GeometricObject.Montreal_HasColors = VertexDataBufferType == 8 ? 1 : 0;
 
 			if (restoreOriginalVertexIndices) {
 				uint verticesCount = (uint)VertexData.Points.Max(p => p.Ponderations[0].Index) + 1;
 				GeometricObject.Vertices = new Jade_Vector[verticesCount];
 				GeometricObject.Normals = new Jade_Vector[verticesCount];
+				if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors = new Jade_Color[verticesCount];
 
 				foreach (var point in VertexData.Points) {
 					GeometricObject.Vertices[point.OriginalVertexIndex] = point.Vertex;
 					GeometricObject.Normals[point.OriginalVertexIndex] = point.Normal;
+					if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors[point.OriginalVertexIndex] = ProcessColor(point.Color);
 				}
 			} else {
 				GeometricObject.Vertices = VertexData.Points.Select(v => v.Vertex).ToArray();
 				GeometricObject.Normals = VertexData.Points.Select(v => v.Normal).ToArray();
+				if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors = VertexData.Points.Select(v => ProcessColor(v.Color)).ToArray();
 			}
+			GeometricObject.VerticesCount = (uint)GeometricObject.Vertices.Length;
+			if (GeometricObject.Montreal_HasColors == 1) GeometricObject.ColorsCount = (uint)GeometricObject.Colors.Length;
 
 			GeometricObject.ElementsCount = ElementsCount;
 			GeometricObject.Elements = new GEO_GeometricObjectElement[ElementsCount];

@@ -1991,6 +1991,9 @@ namespace Ray1Map {
 								&& !geo.Montreal_FilledUnoptimizedData) {
 								geo.OptimizedGeoObject_PC.Unoptimize();
 							}
+							if (geo.Montreal_WasOptimized && geo.OptimizedGeoObject_PC != null) {
+								gao?.Base?.Visual?.VisuPC?.Unoptimize(gao?.Base?.Visual, geo, geo?.OptimizedGeoObject_PC);
+							}
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 								var uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();

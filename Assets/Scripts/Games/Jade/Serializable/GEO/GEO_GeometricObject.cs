@@ -81,6 +81,7 @@ namespace Ray1Map.Jade {
 				|| (s.Platform == Platform.PS3 && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
 		}
 		public bool Montreal_FilledUnoptimizedData { get; set; } = false;
+		public bool Montreal_WasOptimized { get; set; } = false;
 
 		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
 		public Jade_Key OptimizedGeoObjectKey_GC { get; set; }
@@ -185,6 +186,8 @@ namespace Ray1Map.Jade {
 					throw new NotImplementedException($"TODO: Implement {GetType()}: SpritesElements");
 				}
 				if (Version >= 2) Version2_EndCode = s.Serialize<uint>(Version2_EndCode, name: nameof(Version2_EndCode));
+			} else {
+				Montreal_WasOptimized = true;
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && ObjectVersion >= 7 && !Loader.IsBinaryData) {
 				OptimizedGeoObjectKey_PS2 = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_PS2, name: nameof(OptimizedGeoObjectKey_PS2));

@@ -17,8 +17,8 @@ namespace Ray1Map.Jade {
 
 		#region Helpers
 
-		float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
-		Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha) => new Jade_Color(
+		public static float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
+		public static Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha) => new Jade_Color(
 			ProcessColorValue(color.Red), ProcessColorValue(color.Green), ProcessColorValue(color.Blue), multiplyAlpha ? ProcessColorValue(color.Alpha) : color.Alpha);
 
 		#endregion
