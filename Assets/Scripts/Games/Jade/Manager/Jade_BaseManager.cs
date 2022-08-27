@@ -1987,6 +1987,9 @@ namespace Ray1Map {
 									geo.Montreal_FilledUnoptimizedData = true;
 									gao?.Base?.Visual?.VisuPS2?.ExecuteGEPrograms(gao, geo, ps2);
 								}
+							} else if (geo.OptimizedGeoObject_PC != null
+								&& !geo.Montreal_FilledUnoptimizedData) {
+								geo.OptimizedGeoObject_PC.Unoptimize();
 							}
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();

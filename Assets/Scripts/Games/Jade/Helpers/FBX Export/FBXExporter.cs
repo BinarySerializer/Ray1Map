@@ -911,12 +911,12 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine("\t\tUserData: \"\", \"\"");
 
 					// Indices
-					tempObjectSb.AppendLine($"\t\tIndexes: *{p.Indices.Length} {{");
+					tempObjectSb.AppendLine($"\t\tIndexes: *{p.Ponderations.Length} {{");
 					tempObjectSb.Append("\t\t\ta: ");
-					for (int i = 0; i < p.Indices.Length; i++) {
+					for (int i = 0; i < p.Ponderations.Length; i++) {
 						if (i > 0) tempObjectSb.Append(",");
 
-						tempObjectSb.AppendFormat("{0}", p.Indices[i]);
+						tempObjectSb.AppendFormat("{0}", p.Ponderations[i].Index);
 					}
 					tempObjectSb.AppendLine();
 					tempObjectSb.AppendLine("\t\t}");

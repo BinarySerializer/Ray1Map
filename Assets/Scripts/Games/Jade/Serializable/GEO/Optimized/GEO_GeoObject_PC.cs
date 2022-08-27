@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System.Linq;
 
 namespace Ray1Map.Jade {
 	// Found in GEO_LoadPCGeoObject
@@ -91,15 +92,23 @@ namespace Ray1Map.Jade {
 			public class Point : BinarySerializable {
 				public PointDataBuffer Buffer { get; set; }
 
+				public ushort OriginalVertexIndex => Ponderations[0].Index;
+
 				public Jade_Vector Vertex { get; set; }
 				public Jade_Vector Normal { get; set; }
 				public Jade_Vector StaticMesh { get; set; }
+				public ushort[] BoneIndices { get; set; }
+				public GEO_GeometricObject_VertexPonderation[] Ponderations { get; set; }
 				public byte[] PointBytes { get; set; }
 				public GEO_GeometricObject.UV UV { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					Vertex = s.SerializeObject<Jade_Vector>(Vertex, name: nameof(Vertex));
 					if (Buffer.Geo.VertexDataBufferType != 0) Normal = s.SerializeObject<Jade_Vector>(Normal, name: nameof(Normal));
+					if (Buffer.Geo.VertexDataBufferType == 3) {
+						BoneIndices = s.SerializeArray<ushort>(BoneIndices, 3, name: nameof(BoneIndices));
+						Ponderations = s.SerializeObjectArray<GEO_GeometricObject_VertexPonderation>(Ponderations, 3, name: nameof(Ponderations));
+					}
 					PointBytes = s.SerializeArray<byte>(PointBytes, (Buffer.PointDataSize - (s.CurrentAbsoluteOffset - Offset.AbsoluteOffset) - 8), name: nameof(PointBytes));
 					UV = s.SerializeObject<GEO_GeometricObject.UV>(UV, name: nameof(UV));
 				}
@@ -151,6 +160,64 @@ namespace Ray1Map.Jade {
 						Index2 = s.Serialize<ushort>(Index2, name: nameof(Index2));
 					}
 				}
+			}
+		}
+
+		public void Unoptimize() {
+			if(VertexDataBufferSize == 0) return;
+			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920) && Context.GetR1Settings().Platform == Platform.PS3) {
+				throw new System.NotImplementedException("Read points data from geometry BF");
+			}
+			bool restoreOriginalVertexIndices = VertexDataBufferType == 3; // Due to original indices being stored in Ponderations, we can determine the original vertex index ^^
+
+			// TODO: Only keep unique UVs?
+			GeometricObject.UVsCount = VertexData.Count;
+			GeometricObject.UVs = VertexData.Points.Select(p => p.UV).ToArray();
+
+			GeometricObject.Montreal_HasNormals = VertexDataBufferType != 0 ? 1 : 0;
+
+			if (restoreOriginalVertexIndices) {
+				uint verticesCount = (uint)VertexData.Points.Max(p => p.Ponderations[0].Index) + 1;
+				GeometricObject.Vertices = new Jade_Vector[verticesCount];
+				GeometricObject.Normals = new Jade_Vector[verticesCount];
+
+				foreach (var point in VertexData.Points) {
+					GeometricObject.Vertices[point.OriginalVertexIndex] = point.Vertex;
+					GeometricObject.Normals[point.OriginalVertexIndex] = point.Normal;
+				}
+			} else {
+				GeometricObject.Vertices = VertexData.Points.Select(v => v.Vertex).ToArray();
+				GeometricObject.Normals = VertexData.Points.Select(v => v.Normal).ToArray();
+			}
+
+			GeometricObject.ElementsCount = ElementsCount;
+			GeometricObject.Elements = new GEO_GeometricObjectElement[ElementsCount];
+			for (int i = 0; i < ElementsCount; i++) {
+				GEO_GeometricObjectElement element = new GEO_GeometricObjectElement();
+				element.GeometricObject = GeometricObject;
+				element.MaterialID = ElementHeaders[i].MaterialId;
+				element.TrianglesCount = ElementData.ElementDatas[i]?.TriCount ?? 0;
+				if (element.TrianglesCount == 0) {
+					element.Triangles = new GEO_GeometricObjectElement.Triangle[0];
+				} else {
+					element.Triangles = ElementData.ElementDatas[i].Triangles.Select(t => new GEO_GeometricObjectElement.Triangle() {
+						UV0 = t.Index0,
+						UV1 = t.Index1,
+						UV2 = t.Index2,
+						Vertex0 = t.Index0,
+						Vertex1 = t.Index1,
+						Vertex2 = t.Index2,
+						SmoothingGroup = (uint)i, // TODO
+					}).ToArray();
+					if (restoreOriginalVertexIndices) {
+						foreach (var tri in element.Triangles) {
+							tri.Vertex0 = VertexData.Points[tri.Vertex0].OriginalVertexIndex;
+							tri.Vertex1 = VertexData.Points[tri.Vertex1].OriginalVertexIndex;
+							tri.Vertex2 = VertexData.Points[tri.Vertex2].OriginalVertexIndex;
+						}
+					}
+				}
+				GeometricObject.Elements[i] = element;
 			}
 		}
 	}
