@@ -13,6 +13,7 @@
         _TexturesInUse("Textures In Use", Vector) = (0,0,0,0) // 0, 1, 2, LightMap
         _TexturesInUse2("Textures In Use", Vector) = (0,0,0,0) // GlossMap, ReflectionMap
         [MaterialToggle] _IsSelfIllumination("Is Self-Illuminated", Float) = 0
+        _MaterialColor("Material Color", Vector) = (1,1,1,1)
 
         _Cutoff("Alpha cutoff", Range(0,1)) = 0.1
     }

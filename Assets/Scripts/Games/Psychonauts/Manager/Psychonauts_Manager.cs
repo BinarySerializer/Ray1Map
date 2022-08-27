@@ -701,7 +701,8 @@ namespace Ray1Map.Psychonauts
 
             var isSelfIllum = meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_29) || meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_31);
 
-            mat.color = meshFrag.MaterialColor.ToVector4();
+            //mat.color = meshFrag.MaterialColor.ToVector4();
+            mat.SetVector("_MaterialColor", meshFrag.MaterialColor.ToVector4());
             mat.SetFloat("_IsSelfIllumination", isSelfIllum ? 1 : 0);
 
             if (meshFrag.AnimInfo != null)
