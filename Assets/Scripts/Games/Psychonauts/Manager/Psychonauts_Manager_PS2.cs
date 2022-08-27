@@ -8,7 +8,7 @@ using PsychoPortal.Unity;
 using UnityEngine;
 using Endian = BinarySerializer.Endian;
 using Mesh = PsychoPortal.Mesh;
-using RGBA8888Color = PsychoPortal.RGBA8888Color;
+using BGRA8888Color = PsychoPortal.BGRA8888Color;
 
 namespace Ray1Map.Psychonauts
 {
@@ -304,7 +304,7 @@ namespace Ray1Map.Psychonauts
                 PS2_VIFCommands cmds = FileFactory.Read<PS2_VIFCommands>(context, key);
 
                 List<VertexNotexNorm> vertices = new();
-                List<RGBA8888Color> vertexColors = useVertexColors ? new List<RGBA8888Color>() : null;
+                List<BGRA8888Color> vertexColors = useVertexColors ? new List<BGRA8888Color>() : null;
                 List<UVSet> uvSets = new();
                 List<SkinWeight> skinWeights = jointInfluencesPerVertex > 0 ? new List<SkinWeight>() : null;
 
@@ -329,7 +329,7 @@ namespace Ray1Map.Psychonauts
 
                     // Add vertex colors
                     if (createDummyColors)
-                        vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
+                        vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
                         {
                             Red = c.Normal.X,
                             Green = c.Normal.Y,
@@ -337,7 +337,7 @@ namespace Ray1Map.Psychonauts
                             Alpha = Byte.MaxValue
                         }));
                     else
-                        vertexColors?.AddRange(cmd.Cycles.Select(c => new RGBA8888Color()
+                        vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
                         {
                             Red = scaleColors ? (byte)(Math.Min(c.Color.R * 2, Byte.MaxValue)) : c.Color.R,
                             Green = scaleColors ? (byte)(Math.Min(c.Color.G * 2, Byte.MaxValue)) : c.Color.G,
