@@ -14,6 +14,7 @@ namespace Ray1Map.Psychonauts
 
         public string MeshFilePath;
         public string ScreenshotMeshFilePaths;
+        public bool CreateDummyColorsWhenConverting;
 
         public async UniTask LoadMeshAsync()
         {
@@ -58,7 +59,7 @@ namespace Ray1Map.Psychonauts
                 Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
 
                 ps2Manager.ExportPL2ToPLB(Loader, plb, new PsychonautsSettings(PsychonautsVersion.PC_Digital),
-                    outputFile, logger: Loader.Logger);
+                    outputFile, CreateDummyColorsWhenConverting, logger: Loader.Logger);
             }
         }
 

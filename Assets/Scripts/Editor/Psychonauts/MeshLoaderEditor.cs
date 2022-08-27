@@ -52,6 +52,8 @@ namespace Ray1Map.Psychonauts
             if (comp.Manager is Psychonauts_Manager_PS2 && EditorGUILayout.LinkButton("Convert PL2 to PLB"))
                 comp.ConvertPL2ToPLB();
 
+            comp.CreateDummyColorsWhenConverting = EditorGUILayout.Toggle("Create dummy colors when converting", comp.CreateDummyColorsWhenConverting);
+
             EditorGUILayout.Separator();
 
             comp.ScreenshotMeshFilePaths = EditorGUILayout.TextArea(comp.ScreenshotMeshFilePaths);

@@ -192,7 +192,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, IBinarySerializerLogger logger = null)
+        public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, bool createDummyColors, IBinarySerializerLogger logger = null)
         {
             convertOctree(pl2.VisibilityTree?.Octree);
             convertDomain(pl2.RootDomain);
@@ -228,7 +228,7 @@ namespace Ray1Map.Psychonauts
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, true, false, out _);
+                InitPS2MeshFrag(loader.Context, frag, true, createDummyColors, out _);
 
                 if (frag.HasVertexStreamBasis != 0)
                 {
