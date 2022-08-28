@@ -640,6 +640,7 @@ namespace Ray1Map.Psychonauts
                     x.AnimationManager = loader.AnimationManager;
                     x.FileManager = loader.FileManager;
                     x.Logger = loader.Logger;
+                    x.Settings = loader.Settings;
                 });
             }
 
