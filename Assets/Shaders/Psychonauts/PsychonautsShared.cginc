@@ -26,6 +26,7 @@ sampler2D _Tex0, _Tex1, _Tex2, _TexLightMap, _TexGlossMap, _TexReflectionMap;
 float4 _Tex0_ST, _Tex1_ST, _Tex2_ST, _TexLightMap_ST, _TexGlossMap_ST, _TexReflectionMap_ST;
 float4 _TexturesInUse, _TexturesInUse2;
 float _IsSelfIllumination;
+float4 _MaterialColor;
 
 v2f process_vert(appdata v, float isAdd) {
 	v2f o;
@@ -71,9 +72,9 @@ float4 process_frag(v2f i, float clipAlpha, float isAdd) : SV_TARGET {
 	if (_TexturesInUse.w != 0.0) c = TextureOp(c, _TexLightMap, i.uvLM, 1, 3);
 	
 	if (length(_TexturesInUse) <= 0.0) {
-		c = i.color;
+		c = i.color * _MaterialColor;
 	} else {
-		c = c * i.color;
+		c = c * i.color * _MaterialColor;
 	}
 	if (_IsSelfIllumination == 1) {
 		c = float4(c.xyz, 1);
