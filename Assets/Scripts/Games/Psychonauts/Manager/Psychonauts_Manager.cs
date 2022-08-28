@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine;
 using Context = BinarySerializer.Context;
 using Debug = UnityEngine.Debug;
+using Light = PsychoPortal.Light;
 using Mesh = PsychoPortal.Mesh;
 using UnityMesh = UnityEngine.Mesh;
 
@@ -649,6 +650,13 @@ namespace Ray1Map.Psychonauts
             {
                 var triggerObj = new Unity_Object_Psychonauts_Trigger(t, _scale);
                 loader.Level.EventData.Add(triggerObj);
+            }
+
+            // Show light positions
+            foreach (Light l in mesh.Lights)
+            {
+                var lightObj = new Unity_Object_Psychonauts_Light(l, _scale);
+                loader.Level.EventData.Add(lightObj);
             }
         }
 
