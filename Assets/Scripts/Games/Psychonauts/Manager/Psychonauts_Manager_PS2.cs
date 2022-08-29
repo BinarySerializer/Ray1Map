@@ -192,7 +192,7 @@ namespace Ray1Map.Psychonauts
             }
         }
 
-        public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, bool createDummyColors, IBinarySerializerLogger logger = null)
+        public void ExportPL2ToPLB(Ray1MapLoader loader, Scene pl2, PsychonautsSettings plbSettings, string outputPath, IBinarySerializerLogger logger = null)
         {
             convertOctree(pl2.VisibilityTree?.Octree);
             convertDomain(pl2.RootDomain);
@@ -228,7 +228,7 @@ namespace Ray1Map.Psychonauts
             void convertFrag(MeshFrag frag)
             {
                 convertOctree(frag.Proto_Octree);
-                InitPS2MeshFrag(loader.Context, frag, true, createDummyColors, out _);
+                InitPS2MeshFrag(loader.Context, frag, out _);
 
                 if (frag.HasVertexStreamBasis != 0)
                 {
@@ -256,7 +256,7 @@ namespace Ray1Map.Psychonauts
             // Convert PS2 mesh data to common format
             try
             {
-                InitPS2MeshFrag(loader.Context, meshFrag, false, false, out parsedCommands);
+                InitPS2MeshFrag(loader.Context, meshFrag, out parsedCommands);
             }
             catch (Exception ex)
             {
@@ -282,12 +282,19 @@ namespace Ray1Map.Psychonauts
         }
 
         private static int _meshFragGlobalIndex;
-        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, bool scaleColors, bool createDummyColors, out PS2_GIF_Command[] parsedCommands)
+        public void InitPS2MeshFrag(Context context, MeshFrag meshFrag, out PS2_GIF_Command[] parsedCommands)
         {
+            // Get optional settings for configuring the mesh frag conversion
+            PS2MeshFragSettings settings = context.GetStoredObject<PS2MeshFragSettings>(PS2MeshFragSettingsKey);
+            PS2MeshFragFlags flags = settings?.Flags ?? PS2MeshFragFlags.None;
+            bool invertNormals = false;
+            if (settings != null && meshFrag.TextureIndices.Length > 0)
+                invertNormals = settings.InvertNormalsForTextures.Contains(meshFrag.TextureIndices[0]);
+
             string key = $"vif_{_meshFragGlobalIndex}";
             _meshFragGlobalIndex++;
 
-            if (createDummyColors)
+            if (flags.HasFlag(PS2MeshFragFlags.CreateDummyColors))
                 meshFrag.MaterialFlags |= MaterialFlags.Flag_6;
 
             // The PS2 version defines vertex colors even if they're not used (in which case they're set to 0),
@@ -321,28 +328,42 @@ namespace Ray1Map.Psychonauts
                             c.Vertex.Y - meshFrag.PS2_VertexOffset,
                             c.Vertex.Z - meshFrag.PS2_VertexOffset
                         ),
-                        Normal = NormPacked3.FromVec3(new Vec3(
-                            c.Normal.XFloat,
-                            c.Normal.YFloat,
-                            c.Normal.ZFloat)),
+                        Normal = NormPacked3.FromVec3(invertNormals 
+                            ? new Vec3(
+                                c.Normal.XFloat * -1,
+                                c.Normal.YFloat * -1,
+                                c.Normal.ZFloat * -1)
+                            : new Vec3(
+                                c.Normal.XFloat,
+                                c.Normal.YFloat,
+                                c.Normal.ZFloat)),
                     }));
 
                     // Add vertex colors
-                    if (createDummyColors)
+                    if (flags.HasFlag(PS2MeshFragFlags.CreateDummyColors))
                         vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
                         {
-                            Red = c.Normal.X,
-                            Green = c.Normal.Y,
-                            Blue = c.Normal.Z,
+                            Red = (byte)(c.Normal.XFloat * Byte.MaxValue),
+                            Green = (byte)(c.Normal.YFloat * Byte.MaxValue),
+                            Blue = (byte)(c.Normal.ZFloat * Byte.MaxValue),
                             Alpha = Byte.MaxValue
+                        }));
+                    else if (flags.HasFlag(PS2MeshFragFlags.IgnoreColorsForFlag19) && 
+                             meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_19))
+                        vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
+                        {
+                            Red = 127,
+                            Green = 127,
+                            Blue = 127,
+                            Alpha = 255,
                         }));
                     else
                         vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
                         {
-                            Red = scaleColors ? (byte)(Math.Min(c.Color.R * 2, Byte.MaxValue)) : c.Color.R,
-                            Green = scaleColors ? (byte)(Math.Min(c.Color.G * 2, Byte.MaxValue)) : c.Color.G,
-                            Blue = scaleColors ? (byte)(Math.Min(c.Color.B * 2, Byte.MaxValue)) : c.Color.B,
-                            Alpha = c.Color.A
+                            Red = c.Color.RByte,
+                            Green = c.Color.GByte,
+                            Blue = c.Color.BByte,
+                            Alpha = c.Color.AByte
                         }));
 
                     // Add UVs
@@ -351,8 +372,8 @@ namespace Ray1Map.Psychonauts
                         UVs = c.UVs.Select(u => new UV()
                         {
                             Pre_Version = meshFrag.Pre_Version,
-                            U = (short)(u.U - 0x8000),
-                            V = (short)(u.V - 0x8000),
+                            U = (short)Mathf.RoundToInt(u.UCorrected * 0x1000),
+                            V = (short)Mathf.RoundToInt(u.VCorrected * 0x1000),
                         }).ToArray()
                     }));
 
@@ -363,7 +384,7 @@ namespace Ray1Map.Psychonauts
                         {
                             Joint1 = (int)(x.Vertex.JointOffset1 / 4),
                             Joint2 = (int)(x.Normal.JointOffset2 / 4),
-                            Weight = new Vec2(x.UVs[0].SkinWeightFloat, 1 - x.UVs[0].SkinWeightFloat),
+                            Weight = new Vec2(x.UVs[0].SkinWeightCorrected, 1 - x.UVs[0].SkinWeightCorrected),
                         }));
                     }
                 }
@@ -405,6 +426,22 @@ namespace Ray1Map.Psychonauts
             {
                 context.RemoveFile(key);
             }
+        }
+
+        public const string PS2MeshFragSettingsKey = nameof(PS2MeshFragSettings);
+
+        [Flags]
+        public enum PS2MeshFragFlags
+        {
+            None = 0,
+            CreateDummyColors = 1 << 0,
+            IgnoreColorsForFlag19 = 1 << 1,
+        }
+
+        public class PS2MeshFragSettings
+        {
+            public PS2MeshFragFlags Flags { get; set; }
+            public int[] InvertNormalsForTextures { get; set; } // Used to fix hallway in cmbt map
         }
 
         #endregion

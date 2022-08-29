@@ -679,7 +679,7 @@ namespace Ray1Map.Psychonauts
             unityMesh.SetVertices(meshFrag);
             unityMesh.SetNormals(meshFrag);
             unityMesh.SetPolygons(meshFrag);
-            unityMesh.SetVertexColors(meshFrag, loader.Version == PsychonautsVersion.PS2 ? 2f : 1f);
+            unityMesh.SetVertexColors(meshFrag);
 
             MeshFilter mf = meshFragObj.AddComponent<MeshFilter>();
             meshFragObj.layer = LayerMask.NameToLayer("3D Collision");

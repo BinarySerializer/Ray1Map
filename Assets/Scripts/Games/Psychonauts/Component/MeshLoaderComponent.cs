@@ -14,7 +14,37 @@ namespace Ray1Map.Psychonauts
 
         public string MeshFilePath;
         public string ScreenshotMeshFilePaths;
-        public bool CreateDummyColorsWhenConverting;
+        
+        public bool PS2_CreateDummyColors;
+        public bool PS2_IgnoreColorsForFlag19;
+        public int PS2_InvertNormalsForTexture = -1; // Set to 20 for CMBT level to fix the hallway
+
+        private async UniTask DoMeshFragLoadAsync(Func<UniTask> task)
+        {
+            try
+            {
+                Psychonauts_Manager_PS2.PS2MeshFragFlags flags = Psychonauts_Manager_PS2.PS2MeshFragFlags.None;
+
+                if (PS2_CreateDummyColors)
+                    flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.CreateDummyColors;
+
+                if (PS2_IgnoreColorsForFlag19)
+                    flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.IgnoreColorsForFlag19;
+
+                Loader.Context.StoreObject(Psychonauts_Manager_PS2.PS2MeshFragSettingsKey,
+                    new Psychonauts_Manager_PS2.PS2MeshFragSettings()
+                    {
+                        Flags = flags,
+                        InvertNormalsForTextures = new [] { PS2_InvertNormalsForTexture },
+                    });
+
+                await task();
+            }
+            finally
+            {
+                Loader.Context.RemoveStoredObject(Psychonauts_Manager_PS2.PS2MeshFragSettingsKey);
+            }
+        }
 
         public async UniTask LoadMeshAsync()
         {
@@ -28,11 +58,11 @@ namespace Ray1Map.Psychonauts
                     return;
                 }
 
-                await Manager.LoadSceneAsync(Loader, plb, transform, MeshFilePath);
+                await DoMeshFragLoadAsync(() => Manager.LoadSceneAsync(Loader, plb, transform, MeshFilePath));
             }
         }
 
-        public void ConvertPL2ToPLB()
+        public async UniTask ConvertPL2ToPLBAsync()
         {
             using (Loader)
             {
@@ -58,8 +88,12 @@ namespace Ray1Map.Psychonauts
                 string outputFile = Path.ChangeExtension(Path.Combine(outputDir, MeshFilePath), ".plb");
                 Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
 
-                ps2Manager.ExportPL2ToPLB(Loader, plb, new PsychonautsSettings(PsychonautsVersion.PC_Digital),
-                    outputFile, CreateDummyColorsWhenConverting, logger: Loader.Logger);
+                await DoMeshFragLoadAsync(() =>
+                {
+                    ps2Manager.ExportPL2ToPLB(Loader, plb, new PsychonautsSettings(PsychonautsVersion.PC_Digital), 
+                        outputFile, logger: Loader.Logger);
+                    return UniTask.CompletedTask;
+                });
             }
         }
 

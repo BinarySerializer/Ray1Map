@@ -49,10 +49,16 @@ namespace Ray1Map.Psychonauts
             if (EditorGUILayout.LinkButton("Load"))
                 await comp.LoadMeshAsync();
 
-            if (comp.Manager is Psychonauts_Manager_PS2 && EditorGUILayout.LinkButton("Convert PL2 to PLB"))
-                comp.ConvertPL2ToPLB();
+            // PS2 specific
+            if (comp.Manager is Psychonauts_Manager_PS2)
+            {
+                if (EditorGUILayout.LinkButton("Convert PL2 to PLB"))
+                    await comp.ConvertPL2ToPLBAsync();
 
-            comp.CreateDummyColorsWhenConverting = EditorGUILayout.Toggle("Create dummy colors when converting", comp.CreateDummyColorsWhenConverting);
+                comp.PS2_CreateDummyColors = EditorGUILayout.Toggle("Create dummy colors", comp.PS2_CreateDummyColors);
+                comp.PS2_IgnoreColorsForFlag19 = EditorGUILayout.Toggle("Ignore colors for Flag_19", comp.PS2_IgnoreColorsForFlag19);
+                comp.PS2_InvertNormalsForTexture = EditorGUILayout.IntField("Invert normals for texture", comp.PS2_InvertNormalsForTexture);
+            }
 
             EditorGUILayout.Separator();
 

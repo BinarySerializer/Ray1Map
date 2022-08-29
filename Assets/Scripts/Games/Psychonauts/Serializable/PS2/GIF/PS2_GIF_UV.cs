@@ -6,33 +6,30 @@ namespace Ray1Map.Psychonauts
     {
         public int Pre_JointInfluencesPerVertex { get; set; }
 
-        public ushort U { get; set; }
-        public ushort V { get; set; }
-        public ushort SkinWeight { get; set; }
+        public float U { get; set; }
+        public float V { get; set; }
+        public float SkinWeight { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            U = s.Serialize<ushort>(U, name: nameof(U));
-            s.Align(4, Offset);
-            V = s.Serialize<ushort>(V, name: nameof(V));
-            s.Align(4, Offset);
+            U = s.Serialize<float>(U, name: nameof(U));
+            V = s.Serialize<float>(V, name: nameof(V));
 
             if (Pre_JointInfluencesPerVertex > 0)
-            {
-                SkinWeight = s.Serialize<ushort>(SkinWeight, name: nameof(SkinWeight));
-                s.Align(4, Offset);
-                s.SerializePadding(4); // Repeated data
-            }
+                SkinWeight = s.Serialize<float>(SkinWeight, name: nameof(SkinWeight));
             else
-            {
-                s.SerializePadding(8); // Repeated data
-            }
+                s.SerializePadding(4); // Indeterminate (repeated data)
+
+            s.SerializePadding(4); // Indeterminate (repeated data)
         }
 
-        public float UFloat => ((U - 0x8000) / 4096f);// / QFloat;
-        public float VFloat => ((V - 0x8000) / 4096f);// / QFloat;
-        public float SkinWeightFloat => ((SkinWeight - 0x8000) / 4096f);
+        public float UCorrected => U - 2056;
+        public float VCorrected => V - 2056;
+        public float SkinWeightCorrected => SkinWeight - 2056;
 
-		//public override string ShortLog => $"PS2_GIF_UV({U:X4}, {V:X4} | {UFloat}, {VFloat})";
+        public override bool UseShortLog => true;
+        public override string ShortLog => Pre_JointInfluencesPerVertex > 0
+            ? $"UV({UCorrected}, {VCorrected})+SkinWeight({SkinWeightCorrected})"
+            : $"UV({UCorrected}, {VCorrected})";
     }
 }
