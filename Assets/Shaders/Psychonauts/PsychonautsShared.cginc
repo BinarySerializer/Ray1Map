@@ -54,9 +54,9 @@ float4 TextureOp(float4 color_in, sampler2D tex, float2 uv, float type, float in
 	} else if (type == 1) {
 		// Lightmap
 		if (_IsSelfIllumination == 1) {
-			return lerp(color_in * float4(texColor.xyz, 1) * 2, color_in, color_in.w);
+			return lerp(color_in * float4(texColor.z, texColor.y, texColor.x, 1) * 2, color_in, color_in.w);
 		} else {
-			return color_in * float4(texColor.xyz, 1) * 2;
+			return color_in * float4(texColor.z, texColor.y, texColor.x, 1) * 2;
 		}
 	}
 	return color_in;
