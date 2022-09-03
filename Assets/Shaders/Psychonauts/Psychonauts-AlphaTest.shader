@@ -41,7 +41,6 @@
             }
             ENDCG
         }
-        Lighting Off
         Pass{
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
