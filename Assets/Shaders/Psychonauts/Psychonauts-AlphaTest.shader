@@ -1,4 +1,4 @@
-Shader "Psychonauts/Psychonauts-Decal"
+﻿Shader "Psychonauts/Psychonauts-AlphaTest"
 {
     Properties
     {
@@ -15,23 +15,19 @@ Shader "Psychonauts/Psychonauts-Decal"
         [MaterialToggle] _IsSelfIllumination("Is Self-Illuminated", Float) = 0
         _MaterialColor("Material Color", Vector) = (1,1,1,1)
     }
-   
     SubShader
     {
+        Tags{ "Queue" = "AlphaTest" "IgnoreProjector" = "True" "RenderType" = "TransparentCutout" }
         Lighting Off
-        ZTest LEqual
-        ZWrite Off
-        Tags {"Queue" = "Transparent"}
-        Pass
-        {
-            Alphatest Greater 0
+		Pass{
+			ZWrite On
             Blend SrcAlpha OneMinusSrcAlpha
-            Offset -1, -1
 
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
+
+            #pragma target 3.0
+            #pragma vertex vert  
+            #pragma fragment frag 
             #pragma multi_compile_fog
 
             #include "PsychonautsShared.cginc"
@@ -41,7 +37,29 @@ Shader "Psychonauts/Psychonauts-Decal"
             }
 
             fixed4 frag(v2f i) : SV_Target{
-                return process_frag(i, 0.0, 0.0, 0.001);
+                return process_frag(i, 1.0, 0.0, 0.6);
+            }
+            ENDCG
+        }
+        Lighting Off
+        Pass{
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            CGPROGRAM
+
+            #pragma target 3.0
+            #pragma vertex vert  
+            #pragma fragment frag 
+
+            #include "PsychonautsShared.cginc"
+
+            v2f vert(appdata v) {
+                return process_vert(v, 0.0);
+            }
+
+            fixed4 frag(v2f i) : SV_Target{
+                return process_frag(i, -1.0, 0.0, 0.6);
             }
             ENDCG
         }

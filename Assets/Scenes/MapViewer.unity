@@ -2183,7 +2183,9 @@ MonoBehaviour:
     type: 2}
   blendedDecalMaterial: {fileID: 2100000, guid: f521543e2dc86e24f95f97a82c5d2d51,
     type: 2}
-  MaterialPsychonautsCutout: {fileID: 2100000, guid: 481fe85b200e5cc4ab45ce54e3c16405,
+  MaterialPsychonautsAlphaTest: {fileID: 2100000, guid: 481fe85b200e5cc4ab45ce54e3c16405,
+    type: 2}
+  MaterialPsychonautsTransparent: {fileID: 2100000, guid: 11ab27ba94abe0d4baecf452c8b8b192,
     type: 2}
   MaterialPsychonautsAdditive: {fileID: 2100000, guid: edb9d66a3b3d8664d98705d84f60b2b8,
     type: 2}

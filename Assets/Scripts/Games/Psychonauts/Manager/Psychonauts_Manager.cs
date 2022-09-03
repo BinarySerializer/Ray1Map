@@ -697,19 +697,42 @@ namespace Ray1Map.Psychonauts
                     x.UnityMesh = unityMesh;
                 });
 
+            var isSelfIllum = meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_29) || meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_31);
+            var isAlphaTest = meshFrag.MaterialFlags.HasFlag(MaterialFlags.BinaryAlpha);
+
+            // EMeshFrag::HasAlphaFlags
+            var tempAlphaFlags = meshFrag.MaterialFlags;
+            if (tempAlphaFlags.HasFlag(MaterialFlags.BinaryAlpha)) {
+                tempAlphaFlags &= ~MaterialFlags.Alpha;
+            }
+            if (tempAlphaFlags.HasFlag(MaterialFlags.AdditiveBlending)) {
+                tempAlphaFlags &= ~(MaterialFlags.InvEdgeAlpha | MaterialFlags.EdgeAlpha);
+            }
+            bool hasTransparency =
+                !meshFrag.MaterialFlags.HasFlag(MaterialFlags.DetailTexture)
+                && !meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_28)
+                && (tempAlphaFlags.HasFlag(MaterialFlags.Alpha)
+                || tempAlphaFlags.HasFlag(MaterialFlags.Flag_12)
+                || tempAlphaFlags.HasFlag(MaterialFlags.EdgeAlpha)
+                || tempAlphaFlags.HasFlag(MaterialFlags.InvEdgeAlpha)
+                || tempAlphaFlags.HasFlag(MaterialFlags.Flag_15)
+                || tempAlphaFlags.HasFlag(MaterialFlags.GlareOnly));
+
+
             Material matSrc;
 
             if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.AdditiveBlending))
                 matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsAdditive;
             else if (meshFrag.MaterialFlags.HasFlag(MaterialFlags.Decal))
                 matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsDecal;
+            else if(!isSelfIllum && (hasTransparency || meshFrag.MaterialColor.W != 1))
+                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsTransparent;
             else
-                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsCutout;
+                matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsAlphaTest;
 
             Material mat = new Material(matSrc);
 
-            var isSelfIllum = meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_29) || meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_31);
-
+            
             //mat.color = meshFrag.MaterialColor.ToVector4();
             mat.SetVector("_MaterialColor", meshFrag.MaterialColor.ToVector4());
             mat.SetFloat("_IsSelfIllumination", isSelfIllum ? 1 : 0);

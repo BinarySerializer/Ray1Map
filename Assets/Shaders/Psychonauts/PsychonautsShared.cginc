@@ -62,7 +62,7 @@ float4 TextureOp(float4 color_in, sampler2D tex, float2 uv, float type, float in
 	return color_in;
 }
 
-float4 process_frag(v2f i, float clipAlpha, float isAdd) : SV_TARGET {
+float4 process_frag(v2f i, float clipAlpha, float isAdd, float alphaTest) : SV_TARGET {
 	float4 c = float4(0.0, 0.0, 0.0, 0.0);
 
 	// sample the texture
@@ -85,10 +85,10 @@ float4 process_frag(v2f i, float clipAlpha, float isAdd) : SV_TARGET {
 		clip(-c.a - clipAlpha);
 	}*/
 	if (clipAlpha < 0) { // Clip discards values below 0.
-		clip(clipAlpha * (c.a - 1.0)); // If clipAlpha == -1, then any color with alpha < 1 will be rendered
-		clip(c.a - 0.001);
-	} else {
-		clip(clipAlpha * (c.a - 0.999)); // If clipAlpha == 1, then any color with alpha > 1 will be rendered
+		clip(1.0 - c.a); // If clipAlpha == -1, then any color with alpha < 1 will be rendered
+		clip(c.a - alphaTest);
+	} else if(clipAlpha > 0) {
+		clip(c.a - (1-alphaTest)); // If clipAlpha == 1, then any color with alpha > 1 will be rendered
 	}
 
 	return c;

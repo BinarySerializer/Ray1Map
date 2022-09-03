@@ -93,7 +93,8 @@ namespace Ray1Map
         public Material unlitTransparentMaterial;
         public Material blendedDecalMaterial;
 
-        public Material MaterialPsychonautsCutout;
+        public Material MaterialPsychonautsAlphaTest;
+        public Material MaterialPsychonautsTransparent;
         public Material MaterialPsychonautsAdditive;
         public Material MaterialPsychonautsDecal;
 

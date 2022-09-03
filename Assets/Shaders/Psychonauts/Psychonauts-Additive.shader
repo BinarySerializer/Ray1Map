@@ -38,7 +38,7 @@
             }
 
             fixed4 frag(v2f i) : SV_Target{
-                return process_frag(i, 0.0, 0.0);
+                return process_frag(i, 0.0, 0.0, 0.001);
             }
             ENDCG
         }
