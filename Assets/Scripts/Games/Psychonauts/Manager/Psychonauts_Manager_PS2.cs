@@ -348,8 +348,9 @@ namespace Ray1Map.Psychonauts
                             Blue = (byte)(c.Normal.ZFloat * Byte.MaxValue),
                             Alpha = Byte.MaxValue
                         }));
-                    else if (flags.HasFlag(PS2MeshFragFlags.IgnoreColorsForFlag19) && 
-                             meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_19))
+                    else if ((flags.HasFlag(PS2MeshFragFlags.IgnoreColorsForFlag19) && meshFrag.MaterialFlags.HasFlag(MaterialFlags.Flag_19)) ||
+                             flags.HasFlag(PS2MeshFragFlags.IgnoreColors) ||
+                             (flags.HasFlag(PS2MeshFragFlags.IgnoreBlackColors) && cmd.Cycles.All(x => x.Color.RByte == 0 && x.Color.GByte == 0 && x.Color.BByte == 0)))
                         vertexColors?.AddRange(cmd.Cycles.Select(c => new BGRA8888Color()
                         {
                             Red = 127,
@@ -391,6 +392,9 @@ namespace Ray1Map.Psychonauts
 
                 // Flags
                 meshFrag.MaterialFlags |= MaterialFlags.DoubleSided; // Force double-sided on PS2
+
+                if (flags.HasFlag(PS2MeshFragFlags.RemoveFlag19))
+                    meshFrag.MaterialFlags &= ~MaterialFlags.Flag_19;
 
                 // Vertices and normals
                 meshFrag.Vertices = vertices.ToArray();
@@ -436,6 +440,9 @@ namespace Ray1Map.Psychonauts
             None = 0,
             CreateDummyColors = 1 << 0,
             IgnoreColorsForFlag19 = 1 << 1,
+            IgnoreColors = 1 << 2,
+            IgnoreBlackColors = 1 << 3,
+            RemoveFlag19 = 1 << 4,
         }
 
         public class PS2MeshFragSettings

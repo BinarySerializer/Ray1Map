@@ -57,6 +57,9 @@ namespace Ray1Map.Psychonauts
 
                 comp.PS2_CreateDummyColors = EditorGUILayout.Toggle("Create dummy colors", comp.PS2_CreateDummyColors);
                 comp.PS2_IgnoreColorsForFlag19 = EditorGUILayout.Toggle("Ignore colors for Flag_19", comp.PS2_IgnoreColorsForFlag19);
+                comp.PS2_IgnoreColors = EditorGUILayout.Toggle("Ignore colors", comp.PS2_IgnoreColors);
+                comp.PS2_IgnoreBlackColors = EditorGUILayout.Toggle("Ignore black colors", comp.PS2_IgnoreBlackColors);
+                comp.PS2_RemoveFlag19 = EditorGUILayout.Toggle("Remove Flag_19", comp.PS2_RemoveFlag19);
                 comp.PS2_InvertNormalsForTexture = EditorGUILayout.IntField("Invert normals for texture", comp.PS2_InvertNormalsForTexture);
             }
 

@@ -17,6 +17,9 @@ namespace Ray1Map.Psychonauts
         
         public bool PS2_CreateDummyColors;
         public bool PS2_IgnoreColorsForFlag19;
+        public bool PS2_IgnoreColors;
+        public bool PS2_IgnoreBlackColors;
+        public bool PS2_RemoveFlag19;
         public int PS2_InvertNormalsForTexture = -1; // Set to 20 for CMBT level to fix the hallway
 
         private async UniTask DoMeshFragLoadAsync(Func<UniTask> task)
@@ -30,6 +33,15 @@ namespace Ray1Map.Psychonauts
 
                 if (PS2_IgnoreColorsForFlag19)
                     flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.IgnoreColorsForFlag19;
+
+                if (PS2_IgnoreColors)
+                    flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.IgnoreColors;
+
+                if (PS2_IgnoreBlackColors)
+                    flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.IgnoreBlackColors;
+
+                if (PS2_RemoveFlag19)
+                    flags |= Psychonauts_Manager_PS2.PS2MeshFragFlags.RemoveFlag19;
 
                 Loader.Context.StoreObject(Psychonauts_Manager_PS2.PS2MeshFragSettingsKey,
                     new Psychonauts_Manager_PS2.PS2MeshFragSettings()
