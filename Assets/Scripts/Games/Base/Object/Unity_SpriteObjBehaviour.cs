@@ -82,6 +82,7 @@ namespace Ray1Map
         public Unity_ObjectType PrevObjType;
 
         private GameObject detectionSphere;
+        private GameObject detectionCube;
         public Material detectionSphereMaterial;
 
         public void Init() {
@@ -198,6 +199,62 @@ namespace Ray1Map
             }
         }
 
+        private void UpdateDetectionCube()
+        {
+            if (ObjData.DetectionCube == null)
+                return;
+
+            if (detectionCube == null)
+            {
+                detectionCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                detectionCube.name = "Detection Cube";
+                detectionCube.layer = LayerMask.NameToLayer("3D Collision");
+                Destroy(detectionCube.GetComponent<Collider>());
+                detectionCube.GetComponent<Renderer>().material = detectionSphereMaterial;
+
+                detectionCube.transform.localPosition = ObjData.DetectionCube.Position;
+                detectionCube.transform.rotation = ObjData.DetectionCube.Rotation;
+                detectionCube.transform.localScale = ObjData.DetectionCube.Size;
+
+                detectionCube.transform.SetParent(transform, false);
+
+                Mesh mesh = detectionCube.GetComponent<MeshFilter>().mesh;
+
+                Vector3[] vertices = mesh.vertices;
+                Vector3[] normals = mesh.normals;
+                int len = vertices.Length;
+                Array.Resize(ref vertices, len * 2);
+                Array.Resize(ref normals, len * 2);
+
+                for (int i = 0; i < len; i++)
+                {
+                    vertices[i + len] = vertices[i];
+                    normals[i + len] = -normals[i];
+                }
+
+                mesh.vertices = vertices;
+                mesh.normals = normals;
+
+                int[] triangles = mesh.triangles;
+                int trianglesLen = triangles.Length;
+                Array.Resize(ref triangles, trianglesLen * 2);
+
+                for (int i = 0; i < trianglesLen; i += 3)
+                {
+                    triangles[i + 0 + trianglesLen] = triangles[i + 0];
+                    triangles[i + 1 + trianglesLen] = triangles[i + 2];
+                    triangles[i + 2 + trianglesLen] = triangles[i + 1];
+                }
+
+                mesh.triangles = triangles;
+            }
+
+            bool shouldBeActive = ShowCollision;
+
+            if (detectionCube.activeSelf != shouldBeActive) 
+                detectionCube.SetActive(shouldBeActive);
+        }
+
         private void UpdatePosition()
         {
             
@@ -294,6 +351,10 @@ namespace Ray1Map
                 cam.transform.rotation * Vector3.forward,
                 cam.transform.rotation * Vector3.up));
             transform.localRotation = lookRot;
+
+            // Temporary hack to prevent the detection cube from rotating with the sprite
+            if (detectionCube != null)
+                detectionCube.transform.rotation = ObjData.DetectionCube.Rotation;
 
             // Create boxCollider
 
@@ -786,6 +847,7 @@ namespace Ray1Map
                     oneWayLinkLines[i].enabled = (enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked && connectedOneWayLinkLines[i]) || ForceShowOneWayLinks;
 
             UpdateDetectionSphere();
+            UpdateDetectionCube();
 
             HasInitialized = true;
         }

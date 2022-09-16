@@ -177,7 +177,7 @@ namespace Ray1Map
             }
 
             if (gameMemoryContext != null)
-                return DoMemoryLoading(gameMemoryContext, gameMemoryContext.GetFile(memFileKey).StartPointer);
+                return DoMemoryLoading(gameMemoryContext, gameMemoryContext.GetRequiredFile(memFileKey).StartPointer);
 
             return false;
         }

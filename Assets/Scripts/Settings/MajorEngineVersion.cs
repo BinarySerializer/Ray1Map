@@ -19,5 +19,6 @@
         GBAKlonoa,      // Klonoa (GBA)
         KlonoaHeroes,   // Klonoa Heroes (GBA)
         PSKlonoa,       // Klonoa (PS1/PS2)
+        Psychonauts,    // Psychonauts (Xbox, PS2, PC)
     }
 }

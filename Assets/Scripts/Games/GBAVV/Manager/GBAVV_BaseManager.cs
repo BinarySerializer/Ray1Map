@@ -53,7 +53,7 @@ namespace Ray1Map.GBAVV
                 
                 await LoadFilesAsync(context);
 
-                var file = s.Context.GetFile(GetROMFilePath);
+                var file = s.Context.GetRequiredFile(GetROMFilePath);
 
                 Pointer SongOffset = songCount > 0 ? new Pointer(GAXInfo.MusicOffset, file) : null;
                 Pointer FXOffset = fxCount > 0 ? new Pointer(GAXInfo.FXOffset, file) : null;
@@ -1140,7 +1140,7 @@ namespace Ray1Map.GBAVV
                     if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
                     {
                         // Serialize the script
-                        var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
+                        var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetRequiredFile(GetROMFilePath)));
 
                         // If the script is invalid we ignore it
                         if (!script.IsValid)
@@ -1205,7 +1205,7 @@ namespace Ray1Map.GBAVV
 
             var str = new StringBuilder();
 
-            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
+            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetRequiredFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
             var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).ToArray();
 
             // Enumerate every obj init function

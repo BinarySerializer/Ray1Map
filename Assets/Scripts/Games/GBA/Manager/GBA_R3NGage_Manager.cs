@@ -142,7 +142,7 @@ namespace Ray1Map.GBA
 
                     // Get offsets
                     var gbaBase = gbaData.UiOffsetTable.Offset;
-                    var ngageNewBase = ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath(gbaContext))).StartPointer + ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath(gbaContext))).Length;
+                    var ngageNewBase = ((MemoryMappedFile)gbaContext.GetRequiredFile(gbaManager.GetROMFilePath(gbaContext))).StartPointer + ((MemoryMappedFile)gbaContext.GetRequiredFile(gbaManager.GetROMFilePath(gbaContext))).Length;
                     var ngageOffset = (ngageNewBase - gbaBase) / 4;
 
                     // Read all N-Gage blocks

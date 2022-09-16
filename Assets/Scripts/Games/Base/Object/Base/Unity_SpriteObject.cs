@@ -39,6 +39,7 @@ namespace Ray1Map
         // Animations
         public virtual Unity_ObjAnimationCollisionPart[] ObjCollision => new Unity_ObjAnimationCollisionPart[0];
         public virtual float? DetectionRadius => null;
+        public virtual DetectionCubeData DetectionCube => null;
         public abstract Unity_ObjAnimation CurrentAnimation { get; }
         public virtual int AnimationFrame { get; set; }
         public virtual int? AnimationIndex { get; set; }
@@ -114,5 +115,7 @@ namespace Ray1Map
             Reset,
             ResetWakeUp
         }
+
+        public record DetectionCubeData(Vector3 Position, Quaternion Rotation, Vector3 Size);
     }
 }

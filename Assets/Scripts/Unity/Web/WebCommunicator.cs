@@ -967,7 +967,7 @@ public class WebCommunicator : MonoBehaviour {
 				try {
 					if (msg.Type == WebJSON.Screenshot.ScreenshotType.FullLevel) {
 						System.DateTime dateTime = System.DateTime.Now;
-						byte[] screenshotBytes = await tcb.CaptureFulllevel(msg.IsTransparent ?? true);
+						byte[] screenshotBytes = await tcb.CaptureFullLevel(msg.IsTransparent ?? true);
 						SaveFile(screenshotBytes, screenshotBytes.Length, $"Screenshot_{dateTime.ToString("yyyy_MM_dd HH_mm_ss")}.png");
 					} else {
 						Resolution res = TransparencyCaptureBehaviour.GetCurrentResolution();

@@ -559,7 +559,7 @@ namespace Ray1Map.GBARRR
         public async UniTask<Mode7Data> LoadMode7SpritesAsync(Context context) {
             var s = context.Deserializer;
             var romPath = GetROMFilePath;
-            var pointerTable = PointerTables.GBARRR_PointerTable(context.GetR1Settings().GameModeSelection, context.GetFile(romPath));
+            var pointerTable = PointerTables.GBARRR_PointerTable(context.GetR1Settings().GameModeSelection, context.GetRequiredFile(romPath));
 
             // Read animation frame indices
             Controller.DetailedState = $"Loading animation frames";

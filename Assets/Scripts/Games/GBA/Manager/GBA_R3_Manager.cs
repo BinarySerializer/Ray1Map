@@ -134,7 +134,7 @@ namespace Ray1Map.GBA
                 await LoadFilesAsync(context);
 
                 // Get the file
-                var file = context.GetFile(GetROMFilePath(context));
+                var file = context.GetRequiredFile(GetROMFilePath(context));
 
                 // Get the deserialize
                 var s = context.Deserializer;

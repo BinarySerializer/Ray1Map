@@ -85,7 +85,7 @@ namespace Ray1Map.GBA
                 await LoadFilesAsync(context);
 
                 // Get the file
-                var file = context.GetFile(GetROMFilePath(context));
+                var file = context.GetRequiredFile(GetROMFilePath(context));
 
                 // Get the deserialize
                 var s = context.Deserializer;
@@ -611,7 +611,7 @@ namespace Ray1Map.GBA
                 //    filePath = GetGameCubeManifestFilePath
                 //});
 
-                //s.DoAt(context.GetFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
+                //s.DoAt(context.GetRequiredFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
 
                 var gcnFile = await context.AddLinearFileAsync($"map.{context.GetR1Settings().Level:000}");
 

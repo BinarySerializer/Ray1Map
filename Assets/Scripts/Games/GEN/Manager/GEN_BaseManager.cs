@@ -164,7 +164,7 @@ namespace Ray1Map.GEN
             if (!s.Context.FileExists(fileName)) {
                 file = await s.Context.AddLinearFileAsync(fileName, Endian.Little);
             } else {
-                file = s.Context.GetFile(fileName);
+                file = s.Context.GetRequiredFile(fileName);
             }
             BGRA8888Color[] Palette = null;
             return s.DoAt(file.StartPointer + 0x36, () => s.SerializeObjectArray<BGRA8888Color>(Palette, 256, name: nameof(Palette)));

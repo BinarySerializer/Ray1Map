@@ -40,7 +40,7 @@ namespace Ray1Map.GBC
 
             XlateID = s.Serialize<ushort>(XlateID, name: nameof(XlateID));
             UnkByte0 = s.Serialize<byte>(UnkByte0, name: nameof(UnkByte0));
-            ActorID = s.Serialize<byte?>(ActorID, name: nameof(ActorID));
+            ActorID = s.SerializeNullable<byte>(ActorID, name: nameof(ActorID));
 
             if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC)
             {

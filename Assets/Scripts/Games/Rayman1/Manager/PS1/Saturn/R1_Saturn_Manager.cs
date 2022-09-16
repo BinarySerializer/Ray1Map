@@ -235,7 +235,7 @@ namespace Ray1Map.Rayman1
         {
             if (img.ImageType != 2 && img.ImageType != 3) return null;
             if (img.Unknown2 == 0) return null;
-            ImageBuffer buf = context.GetStoredObject<ImageBuffer>("vram");
+            ImageBuffer buf = context.GetRequiredStoredObject<ImageBuffer>("vram");
 
             // Get the image properties
             var width = img.Width;

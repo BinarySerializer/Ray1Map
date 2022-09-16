@@ -27,7 +27,7 @@ namespace Ray1Map.GEN {
 					LookupTable = s.SerializeArray<byte>(LookupTable, LookupTableCount, name: nameof(LookupTable));
 				}
 				DataLength = FileSize.Value - (uint)(s.CurrentPointer - Offset);
-				Data = s.DoEncoded(new GEN_RLXEncoder(this), () => s.SerializeArray<byte>(Data, s.CurrentLength, name: nameof(Data)));
+				s.DoEncoded(new GEN_RLXEncoder(this), () => Data = s.SerializeArray<byte>(Data, s.CurrentLength, name: nameof(Data)));
 			} else {
 				DataLength = FileSize.Value - (uint)(s.CurrentPointer - Offset);
 				Data = s.SerializeArray<byte>(Data, DataLength, name: nameof(Data));

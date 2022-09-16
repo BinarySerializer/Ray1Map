@@ -65,7 +65,7 @@ namespace Ray1Map
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetSettings<Ray1Settings>(), random.Next(0, 1) == 1);
+                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetRequiredSettings<Ray1Settings>(), random.Next(0, 1) == 1);
                     eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
                 }
 

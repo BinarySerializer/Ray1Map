@@ -4,6 +4,8 @@ namespace Ray1Map
 {
     public class EngineVersionTree : VersionTree<EngineVersion>
     {
+        public EngineVersionTree(Node root) : base(root) { }
+
         public static EngineVersionTree Create(GameSettings settings)
         {
             return settings.MajorEngineVersion switch
@@ -14,8 +16,8 @@ namespace Ray1Map
         }
 
         public static EngineVersionTree Create_Jade(GameSettings settings) {
-            EngineVersionTree tree = new EngineVersionTree() {
-                Root = new Node(EngineVersion.Jade_Engine).SetChildren(
+            EngineVersionTree tree = new EngineVersionTree(
+                root: new Node(EngineVersion.Jade_Engine).SetChildren(
                     new Node(EngineVersion.Jade_Montpellier).SetChildren(
                         new Node(EngineVersion.Jade_BGE).SetChildren(
                             new Node(EngineVersion.Jade_BGE_HD),
@@ -72,8 +74,7 @@ namespace Ray1Map
                             )
                         )
                     )
-                )
-            };
+                ));
             tree.Init();
             tree.Current = tree.FindVersion(settings.EngineVersion);
             

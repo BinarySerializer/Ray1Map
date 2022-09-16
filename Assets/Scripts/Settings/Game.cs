@@ -137,5 +137,8 @@
 
         // Klonoa PS1
         PS1Klonoa_DoorToPhantomile,
+
+        // Psychonauts
+        Psychonauts_Psychonauts,
     }
 }

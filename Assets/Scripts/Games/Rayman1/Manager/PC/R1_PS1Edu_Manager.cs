@@ -228,7 +228,7 @@ namespace Ray1Map.Rayman1
         public async UniTask<PS1EDU_GRX> LoadGRXAsync(Context context, string grxFilePath)
         {
             var s = context.Deserializer;
-            s.Goto(context.GetFile(grxFilePath).StartPointer);
+            s.Goto(context.GetRequiredFile(grxFilePath).StartPointer);
 
             var grx = new PS1EDU_GRX();
             await grx.SerializeHeaderAsync(s);

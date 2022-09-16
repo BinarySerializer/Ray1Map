@@ -49,6 +49,7 @@ namespace Ray1Map.Rayman1_Jaguar
         {
             return new GameAction[]
             {
+                new GameAction("Calculate Tings", false, false, (input, output) => CalculateTingsCountAsync(settings)),
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
@@ -58,6 +59,37 @@ namespace Ray1Map.Rayman1_Jaguar
                 new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
+        }
+
+        public async UniTask CalculateTingsCountAsync(GameSettings settings)
+        {
+            int count = 0;
+
+            foreach (GameInfo_Volume vol in GetLevels(settings))
+            {
+                foreach (GameInfo_World world in vol.Worlds)
+                {
+                    foreach (int map in world.Maps)
+                    {
+                        GameSettings newSettings = new(settings.GameModeSelection, settings.GameDirectory, world.Index, map)
+                        {
+                            EduVolume = vol.Name
+                        };
+
+                        using Context context = new Ray1MapContext(newSettings);
+
+                        await LoadFilesAsync(context);
+
+                        Unity_Level level = await LoadAsync(context);
+
+                        count += level.EventData.OfType<Unity_Object_R1Jaguar>().Count(x => x.ObjManager.EventDefinitions[x.EventDefinitionIndex].Pointer.FileOffset is 0x820 or 0x848 or 0x870 or 0x898 or 0x8C0 or 0x8E8 or 0x910 or 0x938);
+
+                        Debug.Log($"{newSettings.R1_World} {map}");
+                    }
+                }
+            }
+
+            Debug.Log($"Tings: {count}");
         }
 
         protected class ExportAnim {
@@ -94,7 +126,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     await mainManger.LoadFilesAsync(mainRomContext);
 
                     // Get the main Jaguar rom
-                    mainRomOffset = mainRomContext.GetFile(mainManger.GetROMFilePath).StartPointer;
+                    mainRomOffset = mainRomContext.GetRequiredFile(mainManger.GetROMFilePath).StartPointer;
                 }
 
                 // Create the context
@@ -109,7 +141,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     // Serialize the rom
                     var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
-                    var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                    var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                     // Get the level counts
                     var levels = config.NumLevels;
@@ -526,7 +558,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
-                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                 // Export every vignette
                 foreach (var vig in config.Vignette)
@@ -708,7 +740,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
                 s.Goto(file.StartPointer);
 
-                s.DoAt(s.GetPreDefinedPointer(JAG_DefinedPointer.Music), () => {
+                s.DoAt(s.GetRequiredPreDefinedPointer(JAG_DefinedPointer.Music), () => {
                     // Read the music table
                     JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
@@ -1413,7 +1445,7 @@ namespace Ray1Map.Rayman1_Jaguar
             
             if (rom.Background != null)
             {
-                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                 var width = context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : config.Vignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
                 bg = TextureHelpers.CreateTexture2D(width, rom.Background.Length / width);

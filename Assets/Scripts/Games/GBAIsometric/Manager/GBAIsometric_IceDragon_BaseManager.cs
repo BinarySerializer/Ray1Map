@@ -76,7 +76,7 @@ namespace Ray1Map.GBAIsometric
         {
             var langIndex = 0;
 
-            foreach (var lang in context.GetSettings<GBAIsometricSettings>().Languages)
+            foreach (var lang in context.GetRequiredSettings<GBAIsometricSettings>().Languages)
             {
                 if (dialogEntries != null)
                 {
@@ -186,7 +186,7 @@ namespace Ray1Map.GBAIsometric
             const int tileSize = 0x20;
 
             Color[] pal = Util.ConvertGBAPalette(PaletteHelpers.CreateDummyPalette(256, wrap: 16));
-            string[] langs = context.GetSettings<GBAIsometricSettings>().Languages;
+            string[] langs = context.GetRequiredSettings<GBAIsometricSettings>().Languages;
 
             for (int lang = 0; lang < loc.LocBlocks.Length; lang++)
             {
@@ -275,7 +275,7 @@ namespace Ray1Map.GBAIsometric
 
         public KeyValuePair<string, string[]>[] LoadLocalization(Context context, GBAIsometric_IceDragon_Localization loc)
         {
-            string[] langages = context.GetSettings<GBAIsometricSettings>().Languages;
+            string[] langages = context.GetRequiredSettings<GBAIsometricSettings>().Languages;
 
             return loc?.LocBlocks?.Select((x, i) => new KeyValuePair<string, string[]>(langages[i], x.Strings)).ToArray();
         }

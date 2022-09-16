@@ -42,7 +42,7 @@ namespace Ray1Map.GBA
                     if (!context.FileExists(fileName)) {
                         file = await context.AddLinearFileAsync(fileName, Endian.Little);
                     } else {
-                        file = context.GetFile(fileName);
+                        file = context.GetRequiredFile(fileName);
                     }
                     Array<short> sample = FileFactory.Read<Array<short>>(context, fileName, onPreSerialize: (s, f) => f.Pre_Length = s.CurrentLength / 2);
                     return sample.Value;
@@ -54,7 +54,7 @@ namespace Ray1Map.GBA
                     if (!context.FileExists(fileName)) {
                         file = await context.AddLinearFileAsync(fileName, Endian.Little);
                     } else {
-                        file = context.GetFile(fileName);
+                        file = context.GetRequiredFile(fileName);
                     }
                     XM xm = FileFactory.Read<XM>(context, fileName);
                     foreach (var inst in xm.Instruments) {

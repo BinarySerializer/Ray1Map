@@ -91,6 +91,12 @@ namespace Ray1Map
         public Material unlitTransparentCutoutMaterial;
         public Material unlitAdditiveMaterial;
         public Material unlitTransparentMaterial;
+        public Material blendedDecalMaterial;
+
+        public Material MaterialPsychonautsAlphaTest;
+        public Material MaterialPsychonautsTransparent;
+        public Material MaterialPsychonautsAdditive;
+        public Material MaterialPsychonautsDecal;
 
         public bool IsAnimated { get; private set; } = false;
 

@@ -90,7 +90,7 @@ namespace Ray1Map.GBA
             var output = new List<GBA_R3MadTraxSprite>();
 
             var file = (Files)context.GetR1Settings().World;
-            var pointerTable = PointerTables.GBA_PointerTable(context, context.GetFile(GetROMFilePath(context)));
+            var pointerTable = PointerTables.GBA_PointerTable(context, context.GetRequiredFile(GetROMFilePath(context)));
             var s = context.Deserializer;
 
             s.Goto(pointerTable[DefinedPointer.MadTrax_Sprites]);

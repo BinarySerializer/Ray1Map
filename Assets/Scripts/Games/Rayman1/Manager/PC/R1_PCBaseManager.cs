@@ -15,7 +15,7 @@ namespace Ray1Map.Rayman1
     /// <summary>
     /// Base game manager for PC
     /// </summary>
-    public abstract class R1_PCBaseManager : R1_BaseManager
+    public abstract class R1_PCBaseManager : R1_BaseMultiplatformManager
     {
         #region Values and paths
 
@@ -278,7 +278,7 @@ namespace Ray1Map.Rayman1
                 var desNames = WorldHelpers.EnumerateWorlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
-                    context.GetSettings<Ray1Settings>().World = world;
+                    context.GetRequiredSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -296,7 +296,7 @@ namespace Ray1Map.Rayman1
                 var etaNames = WorldHelpers.EnumerateWorlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
-                    context.GetSettings<Ray1Settings>().World = world;
+                    context.GetRequiredSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -310,7 +310,7 @@ namespace Ray1Map.Rayman1
                 });
 
                 context.GetR1Settings().R1_World = World.Jungle;
-                context.GetSettings<Ray1Settings>().World = World.Jungle;
+                context.GetRequiredSettings<Ray1Settings>().World = World.Jungle;
 
                 // Keep track of Rayman's anim
                 PC_Animation[] rayAnim = null;
@@ -345,7 +345,7 @@ namespace Ray1Map.Rayman1
                 foreach (World world in WorldHelpers.EnumerateWorlds()) {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
-                    context.GetSettings<Ray1Settings>().World = world;
+                    context.GetRequiredSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -385,7 +385,7 @@ namespace Ray1Map.Rayman1
             foreach (var i in GetLevels(context.GetR1Settings()).First(x => x.Name == context.GetR1Settings().EduVolume || x.Name == null).Worlds.First(x => x.Index == context.GetR1Settings().World).Maps.OrderBy(x => x)) {
                 // Set the level number
                 context.GetR1Settings().Level = i;
-                context.GetSettings<Ray1Settings>().Level = i;
+                context.GetRequiredSettings<Ray1Settings>().Level = i;
 
                 // Get the level file path
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
@@ -482,7 +482,7 @@ namespace Ray1Map.Rayman1
             {
                 // Set the level number
                 context.GetR1Settings().Level = i;
-                context.GetSettings<Ray1Settings>().Level = i;
+                context.GetRequiredSettings<Ray1Settings>().Level = i;
 
                 // Get the level file path
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
@@ -926,7 +926,7 @@ namespace Ray1Map.Rayman1
         /// <returns>The game actions</returns>
         public override GameAction[] GetGameActions(GameSettings settings)
         {
-            return new GameAction[]
+            return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
@@ -938,7 +938,7 @@ namespace Ray1Map.Rayman1
                 new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
                 new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
                 new GameAction("Export Movies", false, true, (input, output) => ExportMoviesAsync(settings, output)),
-            };
+            }).ToArray();
         }
 
         /// <summary>
@@ -1036,13 +1036,13 @@ namespace Ray1Map.Rayman1
                 foreach (var world in GetLevels(settings).First().Worlds)
                 {
                     settings.World = world.Index;
-                    context.GetSettings<Ray1Settings>().World = (World)world.Index;
+                    context.GetRequiredSettings<Ray1Settings>().World = (World)world.Index;
 
                     // Enumerate every level
                     foreach (var lvl in world.Maps)
                     {
                         settings.Level = lvl;
-                        context.GetSettings<Ray1Settings>().Level = lvl;
+                        context.GetRequiredSettings<Ray1Settings>().Level = lvl;
 
                         // Get the file path
                         var path = GetLevelFilePath(settings);
@@ -1626,7 +1626,7 @@ namespace Ray1Map.Rayman1
             {
                 // Set the world
                 context.GetR1Settings().World = world;
-                context.GetSettings<Ray1Settings>().World = (World)world;
+                context.GetRequiredSettings<Ray1Settings>().World = (World)world;
 
                 // Add world file
                 context.AddFile(GetFile(context, GetWorldFilePath(context.GetR1Settings())));
@@ -1636,7 +1636,7 @@ namespace Ray1Map.Rayman1
                 {
                     // Set the level
                     context.GetR1Settings().Level = lvl;
-                    context.GetSettings<Ray1Settings>().Level = lvl;
+                    context.GetRequiredSettings<Ray1Settings>().Level = lvl;
 
                     // Add level file
                     context.AddFile(GetFile(context, GetLevelFilePath(context.GetR1Settings())));
@@ -1718,7 +1718,7 @@ namespace Ray1Map.Rayman1
                     {
                         var index = archive.Archive.Entries.FindItemIndex(x => x.FileName == fileName.ToString());
                         context.GetR1Settings().EduVolume = archive.Volume;
-                        context.GetSettings<Ray1Settings>().Volume = archive.Volume;
+                        context.GetRequiredSettings<Ray1Settings>().Volume = archive.Volume;
                         archive.Archive.ReadFile<T>(context, index);
                     }
                 }
