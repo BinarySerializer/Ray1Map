@@ -35,7 +35,7 @@ namespace Ray1Map.GBAKlonoa
             if (Flags1.HasFlag(GraphicsFlags1.IsCompressed))
             {
                 if (Pre_IsReferencedInLevel)
-                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetRequiredFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
             }
             else
             {

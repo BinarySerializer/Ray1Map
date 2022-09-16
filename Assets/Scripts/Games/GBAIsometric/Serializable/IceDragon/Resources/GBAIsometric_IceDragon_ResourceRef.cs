@@ -14,7 +14,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void DoAt(Action<long> action)
         {
-            Context.GetStoredObject<GBAIsometric_IceDragon_Resources>(nameof(GBAIsometric_Dragon_ROM.Resources)).
+            Context.GetRequiredStoredObject<GBAIsometric_IceDragon_Resources>(nameof(GBAIsometric_Dragon_ROM.Resources)).
                 DoAtResource(Context, Index, action);
         }
 

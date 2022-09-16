@@ -25,7 +25,7 @@ namespace Ray1Map.Jade {
 			public Entry[] Entries { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
-				Entries = s.SerializeArray<Entry>(Entries, Count, name: nameof(Entries));
+				Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
 			}
 
 			public class Entry : BinarySerializable {

@@ -124,7 +124,7 @@ namespace Ray1Map.Rayman1
                                                      (!flags.HasFlag(EventMatchFlags.FollowSprite) || x.FollowSprite == e.FollowSprite) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitPoints) || x.HitPoints == e.ActualHitPoints) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitSprite) || x.HitSprite == e.HitSprite) &&
-                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetSettings<Ray1Settings>())) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetRequiredSettings<Ray1Settings>())) &&
                                                      (!flags.HasFlag(EventMatchFlags.Commands) || compareCommands(x)));
             }
 
@@ -223,7 +223,7 @@ namespace Ray1Map.Rayman1
                 LabelOffsets = labelOffsets
             }, this, ETAIndex: ETA.FindItemIndex(x => x.Name == e.ETA));
 
-            eventData.EventData.SetFollowEnabled(Context.GetSettings<Ray1Settings>(), e.FollowEnabled);
+            eventData.EventData.SetFollowEnabled(Context.GetRequiredSettings<Ray1Settings>(), e.FollowEnabled);
 
             // We need to set the hit points after the type
             eventData.EventData.ActualHitPoints = e.HitPoints;

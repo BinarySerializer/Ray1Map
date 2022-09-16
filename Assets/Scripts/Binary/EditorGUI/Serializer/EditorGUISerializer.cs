@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace BinarySerializer.Unity.Editor {
 	// TODO: Rather than using the name to keep track of the value states we could use an index. That way resolved generic pointers will work.
+    // TODO: Enable nullable
 	public class EditorGUISerializer : SerializerObject
 	{
 		#region Constructor
@@ -32,7 +33,8 @@ namespace BinarySerializer.Unity.Editor {
 
 		public override bool FullSerialize => false;
 		public override long CurrentLength => 0;
-		public override BinaryFile CurrentBinaryFile => null;
+        public override bool HasCurrentPointer => false;
+        public override BinaryFile CurrentBinaryFile => null;
 		public override long CurrentFileOffset => 0;
 		public override long CurrentAbsoluteOffset => 0;
 
@@ -95,8 +97,9 @@ namespace BinarySerializer.Unity.Editor {
 		#region Positioning
 
 		public override void Goto(Pointer offset) { }
+        public override void Align(int alignBytes = 4, Pointer baseOffset = null, bool? logIfNotNull = null) { }
 
-		public override void DoAt(Pointer offset, Action action)
+        public override void DoAt(Pointer offset, Action action)
 		{
 			if (offset == null)
 				return;
@@ -165,49 +168,27 @@ namespace BinarySerializer.Unity.Editor {
 				case TypeCode.Double:
 					return (T)(object)EditorGUILayout.DoubleField(name, (double)(object)obj);
 
-				case TypeCode.String:
-					return (T)(object)EditorGUILayout.TextField(name, (string)(object)obj);
 
-				case TypeCode.Decimal:
-				case TypeCode.Char:
-				case TypeCode.DateTime:
-				case TypeCode.Empty:
-				case TypeCode.DBNull:
+				case TypeCode.Object when type == typeof(UInt24):
+                    return (T)(object)(UInt24)(uint)EditorGUILayout.LongField(name ?? DefaultName, (uint)(UInt24)(object)obj);
 
-				case TypeCode.Object:
-					if (type == typeof(UInt24))
-					{
-						return (T)(object)(UInt24)(uint)EditorGUILayout.LongField(name ?? DefaultName, (uint)(UInt24)(object)obj);
-					}
-					else if (type == typeof(byte?))
-					{
-						var b = (byte?)(object)obj;
-						byte byteValue;
-						bool hasValue = b.HasValue;
-
-						hasValue = EditorGUILayout.Toggle(name, hasValue);
-
-						if (hasValue)
-							byteValue = (byte)EditorGUILayout.IntField(name, b ?? 0);
-						else
-							byteValue = 0;
-
-						if (hasValue)
-							return (T)(object)(byte?)byteValue;
-
-						return (T)(object)null;
-					}
-					else
-					{
-						throw new NotSupportedException($"The generic type for ('{name}') is not supported");
-					}
-				default:
+                case TypeCode.String:
+                case TypeCode.Decimal:
+                case TypeCode.Char:
+                case TypeCode.DateTime:
+                case TypeCode.Empty:
+                case TypeCode.DBNull:
+                default:
 					throw new NotSupportedException($"The generic type for ('{name}') is not supported");
 			}
+        }
 
-		}
+        public override T? SerializeNullable<T>(T? obj, string name = null)
+        {
+            throw new NotImplementedException();
+        }
 
-		public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
+        public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
 		{
 			if (obj == null)
 				return null;
@@ -311,7 +292,26 @@ namespace BinarySerializer.Unity.Editor {
 			return obj;
 		}
 
-		public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T, int> onPreSerialize = null, string name = null)
+        public override T?[] SerializeNullableArray<T>(T?[] obj, long count, string name = null)
+        {
+            name ??= DefaultName;
+
+            if (obj == null)
+                obj = new T?[count];
+
+            else if (count != obj.Length)
+                Array.Resize(ref obj, (int)count);
+
+            DoFoldout($"{name}[{obj.Length}]", () =>
+            {
+                for (int i = 0; i < obj.Length; i++)
+                    SerializeNullable<T>(obj[i], name: $"{name}[{i}]");
+            });
+
+            return obj;
+        }
+
+        public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T, int> onPreSerialize = null, string name = null)
 		{
 			name ??= DefaultName;
 
@@ -334,12 +334,31 @@ namespace BinarySerializer.Unity.Editor {
 			return SerializeArray<T>(obj, obj.Length, name: name);
 		}
 
-		public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T, int> onPreSerialize = null, string name = null)
+        public override T?[] SerializeNullableArrayUntil<T>(T?[] obj, Func<T?, bool> conditionCheckFunc, Func<T?> getLastObjFunc = null,
+            string name = null)
+        {
+            return SerializeNullableArray<T>(obj, obj.Length, name: name);
+        }
+
+        public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T, int> onPreSerialize = null, string name = null)
 		{
 			return SerializeObjectArray<T>(obj, obj.Length, onPreSerialize: onPreSerialize, name: name);
 		}
 
-		public override Pointer[] SerializePointerArray(Pointer[] obj, long count, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool allowInvalid = false, long? nullValue = null,
+        public override Pointer[] SerializePointerArrayUntil(
+            Pointer[] obj, 
+            Func<Pointer, bool> conditionCheckFunc, 
+            Func<Pointer> getLastObjFunc = null,
+            PointerSize size = PointerSize.Pointer32, 
+            Pointer anchor = null, 
+            bool allowInvalid = false, 
+            long? nullValue = null,
+            string name = null)
+        {
+            return SerializePointerArray(obj, obj.Length, size: size, anchor: anchor, allowInvalid: allowInvalid, nullValue: nullValue, name: name);
+        }
+
+        public override Pointer[] SerializePointerArray(Pointer[] obj, long count, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool allowInvalid = false, long? nullValue = null,
 			string name = null)
 		{
 			name ??= DefaultName;

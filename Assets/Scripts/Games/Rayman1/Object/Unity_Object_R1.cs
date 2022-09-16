@@ -119,7 +119,7 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetSettings<Ray1Settings>());
+        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetRequiredSettings<Ray1Settings>());
 
         public override BinarySerializable SerializableData => EventData;
 
@@ -513,8 +513,8 @@ namespace Ray1Map.Rayman1
 
             public override bool FollowEnabled
             {
-                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetSettings<Ray1Settings>());
-                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetSettings<Ray1Settings>(), value);
+                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetRequiredSettings<Ray1Settings>());
+                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetRequiredSettings<Ray1Settings>(), value);
             }
         }
 

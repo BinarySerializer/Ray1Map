@@ -69,10 +69,10 @@ namespace Ray1Map.GBC
 
 			public override void SerializeImpl(SerializerObject s) {
 				HasVignette = s.Serialize<bool>(HasVignette, name: nameof(HasVignette));
-                Index = s.Serialize<byte?>(Index, name: nameof(Index));
+                Index = s.SerializeNullable<byte>(Index, name: nameof(Index));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
                 Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-                Byte_04 = s.Serialize<byte?>(Byte_04, name: nameof(Byte_04));
+                Byte_04 = s.SerializeNullable<byte>(Byte_04, name: nameof(Byte_04));
             }
 
             public void SerializeVignettes(SerializerObject s, GBC_BaseBlock parentBlock) {

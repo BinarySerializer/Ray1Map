@@ -104,7 +104,7 @@ namespace Ray1Map.Rayman1
         public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
         {
             // Get the loaded v-ram
-            PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
+            PS1_VRAM vram = context.GetRequiredStoredObject<PS1_VRAM>("vram");
 
             // Get the image properties
             var width = s.Width;
@@ -982,9 +982,9 @@ namespace Ray1Map.Rayman1
                 EventData = x
             }).Concat(LevelEditorData.NameTable_R1PS1DES?.Where(d => context.FileExists(d.Key)).SelectMany(d => d.Value.Select(des => new DES
             {
-                ImageDescriptorsPointer = des.Value.ImageDescriptors != null ? new Pointer(des.Value.ImageDescriptors.Value, context.GetFile(d.Key)) : null,
-                AnimationDescriptorsPointer = des.Value.AnimationDescriptors != null ? new Pointer(des.Value.AnimationDescriptors.Value, context.GetFile(d.Key)) : null,
-                ImageBufferPointer = des.Value.ImageBuffer != null ? new Pointer(des.Value.ImageBuffer.Value, context.GetFile(d.Key)) : null,
+                ImageDescriptorsPointer = des.Value.ImageDescriptors != null ? new Pointer(des.Value.ImageDescriptors.Value, context.GetRequiredFile(d.Key)) : null,
+                AnimationDescriptorsPointer = des.Value.AnimationDescriptors != null ? new Pointer(des.Value.AnimationDescriptors.Value, context.GetRequiredFile(d.Key)) : null,
+                ImageBufferPointer = des.Value.ImageBuffer != null ? new Pointer(des.Value.ImageBuffer.Value, context.GetRequiredFile(d.Key)) : null,
                 ImageDescriptorCount = des.Value.ImageDescriptorsCount,
                 AnimationDescriptorCount = des.Value.AnimationDescriptorsCount,
                 ImageBufferLength = des.Value.ImageBufferLength,
@@ -1002,7 +1002,7 @@ namespace Ray1Map.Rayman1
                 EventData = x
             }).Concat(LevelEditorData.NameTable_R1PS1ETA?.Where(d => context.FileExists(d.Key)).SelectMany(d => d.Value.Select(des => new ETA
             {
-                ETAPointer = new Pointer(des.Value, context.GetFile(d.Key)),
+                ETAPointer = new Pointer(des.Value, context.GetRequiredFile(d.Key)),
                 Name = des.Key,
                 EventData = null
             })) ?? new ETA[0]);

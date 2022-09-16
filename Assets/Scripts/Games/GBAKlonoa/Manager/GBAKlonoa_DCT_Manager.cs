@@ -341,7 +341,7 @@ namespace Ray1Map.GBAKlonoa
 
             if (isMap)
             {
-                var palPointers = FixedWorldMapPalettes.Concat(WorldMapPalettes[worldIndex]).Select(x => new Pointer(x, context.GetFile(GetROMFilePath)));
+                var palPointers = FixedWorldMapPalettes.Concat(WorldMapPalettes[worldIndex]).Select(x => new Pointer(x, context.GetRequiredFile(GetROMFilePath)));
                 var s = context.Deserializer;
 
                 var index = 0;

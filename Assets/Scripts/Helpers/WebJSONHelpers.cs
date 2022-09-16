@@ -84,7 +84,7 @@ namespace Ray1Map
                     {
                         var vol = v.Name;
                         settings.EduVolume = vol;
-                        context.GetSettings<Ray1Settings>().Volume = vol;
+                        context.GetRequiredSettings<Ray1Settings>().Volume = vol;
                         var specialPath = m.GetSpecialArchiveFilePath(vol);
 
                         context.AddFile(new LinearFile(context, specialPath));

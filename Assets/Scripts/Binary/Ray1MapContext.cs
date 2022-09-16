@@ -25,7 +25,7 @@ namespace Ray1Map
         }
         public Ray1MapContext(GameSettings settings) : this(settings.GameDirectory, settings) { }
 
-        public GameSettings GameSettings => GetSettings<GameSettings>();
+        public GameSettings GameSettings => GetRequiredSettings<GameSettings>();
 
         public class R1SerializerSettings : ISerializerSettings
         {
@@ -48,6 +48,11 @@ namespace Ray1Map
             /// Indicates if caching read objects should be ignored
             /// </summary>
             public bool IgnoreCacheOnRead => false;
+
+            // TODO: Set to true when debugging? It's set to false now to match previous behavior, but ideally it should be
+            //       true when debugging to avoid missing data. Season of Ice specifically gives a lot of warnings - fix?
+            public bool LogAlignIfNotNull => false;
+            //public bool LogAlignIfNotNull => FileSystem.mode != FileSystem.Mode.Web;
 
             /// <summary>
             /// The pointer size to use when logging a <see cref="Pointer"/>. Set to <see langword="null"/> to dynamically determine the appropriate size.

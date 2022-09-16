@@ -22,7 +22,7 @@ namespace Ray1Map
 
         public static Context MainContext { get; set; }
         public static GameSettings CurrentSettings => MainContext?.GetR1Settings();
-        public static Ray1Settings CurrentRay1Settings => MainContext?.GetSettings<Ray1Settings>();
+        public static Ray1Settings CurrentRay1Settings => MainContext?.GetRequiredSettings<Ray1Settings>();
 
         public static Unity_Level Level { get; set; }
         public static Unity_ObjectManager ObjManager => Level.ObjManager;

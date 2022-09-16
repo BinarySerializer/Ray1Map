@@ -13,7 +13,7 @@ namespace Ray1Map.Rayman1
             var tex = TextureHelpers.CreateTexture2D(vig.Width, vig.Height);
 
             // Get the block width
-            var blockWidth = vig.GetBlockWidth(context.GetSettings<Ray1Settings>().EngineVersion);
+            var blockWidth = vig.GetBlockWidth(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
             // Write each block
             for (int blockIndex = 0; blockIndex < vig.ImageBlocks.Length; blockIndex++)

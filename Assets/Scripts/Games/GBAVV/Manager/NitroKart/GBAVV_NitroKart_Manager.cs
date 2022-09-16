@@ -205,7 +205,7 @@ namespace Ray1Map.GBAVV
 
             var str = new StringBuilder();
 
-            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
+            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetRequiredFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
             var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).Distinct().ToArray();
 
             // Enumerate every obj init function

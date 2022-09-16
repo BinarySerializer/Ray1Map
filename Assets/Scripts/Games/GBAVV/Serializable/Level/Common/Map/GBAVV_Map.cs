@@ -49,7 +49,8 @@ namespace Ray1Map.GBAVV
                 s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom ||
                 s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_ThatsSoRaven ||
                 s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
-                MapCollision = s.DoAtEncoded(MapCollisionPointer, new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => s.SerializeObject<GBAVV_MapCollision>(MapCollision, name: nameof(MapCollision)));
+                s.DoAtEncoded(MapCollisionPointer, new BinarySerializer.Nintendo.GBA.LZSSEncoder(), () => 
+                    MapCollision = s.SerializeObject<GBAVV_MapCollision>(MapCollision, name: nameof(MapCollision)));
             else
                 LineCollision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_LineCollisionSector>(LineCollision, name: nameof(LineCollision)));
         }

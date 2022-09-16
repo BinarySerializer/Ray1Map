@@ -799,9 +799,9 @@ namespace Ray1Map.GBAIsometric
             var d = euContext.Deserializer;
             var s = jpContext.Serializer;
 
-            Pointer remapOffset = new Pointer(startOffset, jpContext.GetFile(jpName));
+            Pointer remapOffset = new Pointer(startOffset, jpContext.GetRequiredFile(jpName));
             Dictionary<Spyro_DefinedPointer, Pointer> jpPointers = PointerTables.GBAIsometric_Spyro_PointerTable(
-                jpContext.GetR1Settings().GameModeSelection, jpContext.GetFile(jpName));
+                jpContext.GetR1Settings().GameModeSelection, jpContext.GetRequiredFile(jpName));
 
             // Replace portraits
             if (replacePortraits)
@@ -951,7 +951,7 @@ namespace Ray1Map.GBAIsometric
                 0x08011fcc, 0x08011fd4, 0x08011fdc, 0x08011fe4, 0x08012088,
             };
 
-            s.Goto(new Pointer(startOffset, context.GetFile(romName)));
+            s.Goto(new Pointer(startOffset, context.GetRequiredFile(romName)));
 
             for (int i = 0; i < 15; i++)
             {
@@ -960,7 +960,7 @@ namespace Ray1Map.GBAIsometric
                 Pointer remapPointer = s.CurrentPointer;
 
                 // Update the pointer
-                s.DoAt(new Pointer(pointerOffsets[i], context.GetFile(romName)), () => s.SerializePointer(remapPointer));
+                s.DoAt(new Pointer(pointerOffsets[i], context.GetRequiredFile(romName)), () => s.SerializePointer(remapPointer));
 
                 // Write the palette
                 s.SerializeObject<Palette>(rom.Level3D_LevelMaps[i].Palette);

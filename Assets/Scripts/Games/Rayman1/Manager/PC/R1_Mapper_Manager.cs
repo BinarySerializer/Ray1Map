@@ -230,7 +230,7 @@ namespace Ray1Map.Rayman1
                         Commands = CommandCollection.FromBytes(def.EventCommands, () => new Ray1MapContext(context.GetR1Settings())),
                     };
 
-                    ed.SetFollowEnabled(context.GetSettings<Ray1Settings>(), def.FollowEnabled > 0);
+                    ed.SetFollowEnabled(context.GetRequiredSettings<Ray1Settings>(), def.FollowEnabled > 0);
 
                     // Add the event
                     levelEvents.Add(new Unity_Object_R1(

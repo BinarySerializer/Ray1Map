@@ -126,7 +126,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     await mainManger.LoadFilesAsync(mainRomContext);
 
                     // Get the main Jaguar rom
-                    mainRomOffset = mainRomContext.GetFile(mainManger.GetROMFilePath).StartPointer;
+                    mainRomOffset = mainRomContext.GetRequiredFile(mainManger.GetROMFilePath).StartPointer;
                 }
 
                 // Create the context
@@ -141,7 +141,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     // Serialize the rom
                     var rom = FileFactory.Read<JAG_ROM>(context, GetROMFilePath);
 
-                    var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                    var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                     // Get the level counts
                     var levels = config.NumLevels;
@@ -558,7 +558,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
-                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                 // Export every vignette
                 foreach (var vig in config.Vignette)
@@ -740,7 +740,7 @@ namespace Ray1Map.Rayman1_Jaguar
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
                 s.Goto(file.StartPointer);
 
-                s.DoAt(s.GetPreDefinedPointer(JAG_DefinedPointer.Music), () => {
+                s.DoAt(s.GetRequiredPreDefinedPointer(JAG_DefinedPointer.Music), () => {
                     // Read the music table
                     JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
@@ -1445,7 +1445,7 @@ namespace Ray1Map.Rayman1_Jaguar
             
             if (rom.Background != null)
             {
-                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetRequiredSettings<Ray1Settings>().EngineVersion);
 
                 var width = context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : config.Vignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
                 bg = TextureHelpers.CreateTexture2D(width, rom.Background.Length / width);

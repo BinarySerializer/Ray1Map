@@ -150,7 +150,7 @@ namespace Ray1Map.Rayman1
             var s = context.Deserializer;
             PCX pcx = null;
 
-            s.DoAt(context.GetFile(path).StartPointer, () =>
+            s.DoAt(context.GetRequiredFile(path).StartPointer, () =>
             {
                 s.DoXOR(xor, () =>
                 {
@@ -168,7 +168,7 @@ namespace Ray1Map.Rayman1
 
             const string key = "VIGNET_Header";
 
-            byte[] headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetSettings<Ray1Settings>(), "VIGNET.DAT");
+            byte[] headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetRequiredSettings<Ray1Settings>(), "VIGNET.DAT");
             int headerLength = headerBytes.Length / 12;
 
             if (!context.FileExists(key))
@@ -177,7 +177,7 @@ namespace Ray1Map.Rayman1
                 s.Context.AddStreamFile(key, headerStream);
             }
 
-            BinaryFile file = context.GetFile(key);
+            BinaryFile file = context.GetRequiredFile(key);
 
             return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<PC_FileArchiveEntry>(default, headerLength, name: "Entries"));
         }

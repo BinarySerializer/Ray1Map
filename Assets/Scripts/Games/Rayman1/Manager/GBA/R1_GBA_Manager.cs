@@ -108,7 +108,7 @@ namespace Ray1Map.Rayman1
             // Create the context
             using var context = new Ray1MapContext(baseGameSettings);
 
-            var settings = context.GetSettings<Ray1Settings>();
+            var settings = context.GetRequiredSettings<Ray1Settings>();
 
             // Load the game data
             await LoadFilesAsync(context);
@@ -138,16 +138,16 @@ namespace Ray1Map.Rayman1
 
                     if (isGBA)
                         eventData.SerializeData(context.Deserializer, 
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file), 
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file), 
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file), 
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file), 
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file), 
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file), 
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
                     else
                         eventData.SerializeData(context.Deserializer,
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
 
                     // Get the event graphics
                     for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -166,17 +166,17 @@ namespace Ray1Map.Rayman1
             // Add unused graphics
             if (isGBA)
             {
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_DrumWalkerGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_InkGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Alpha, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Alpha2, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
-                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_PinsGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_DrumWalkerGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_InkGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_Alpha, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_Alpha2, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.DES_PinsGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
             }
             else
             {
                 // TODO: Where is the font?
-                graphics.Add(context.GetPreDefinedPointer(DSi_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
             }
 
             var desIndex = 0;
@@ -223,7 +223,7 @@ namespace Ray1Map.Rayman1
                 const ushort width = 64;
                 const ushort height = 64;
 
-                s.DoAt(context.GetPreDefinedPointer(GBA_DefinedPointer.MultiplayerImgBuffers, file), () =>
+                s.DoAt(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.MultiplayerImgBuffers, file), () =>
                 {
                     for (int i = 0; i < 16; i++)
                         exportExtDES(i);
@@ -231,7 +231,7 @@ namespace Ray1Map.Rayman1
 
                 extDES++;
 
-                s.DoAt(context.GetPreDefinedPointer(GBA_DefinedPointer.ExtFontImgBuffers, file), () =>
+                s.DoAt(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.ExtFontImgBuffers, file), () =>
                 {
                     for (int i = 0; i < 44; i++)
                         exportExtDES(i);
@@ -277,7 +277,7 @@ namespace Ray1Map.Rayman1
             // Create the context
             using var context = new Ray1MapContext(baseGameSettings);
             
-            var settings = context.GetSettings<Ray1Settings>();
+            var settings = context.GetRequiredSettings<Ray1Settings>();
 
             // Load the rom
             await LoadFilesAsync(context);
@@ -309,16 +309,16 @@ namespace Ray1Map.Rayman1
 
                     if (isGBA)
                         eventData.SerializeData(context.Deserializer, 
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file),
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file),
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
-                            context.GetPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file),
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
                     else
                         eventData.SerializeData(context.Deserializer,
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
-                            context.GetPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetRequiredPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
 
                     // Get the event graphics
                     for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -467,7 +467,7 @@ namespace Ray1Map.Rayman1
                         tilePals.Add(data.LevelMapData.TilePalettes);
 
                     // Add the sprite palette
-                    var spritePal = data.GetSpritePalettes(context.GetSettings<Ray1Settings>());
+                    var spritePal = data.GetSpritePalettes(context.GetRequiredSettings<Ray1Settings>());
 
                     if (spritePal != null && !spritePals.Any(x => x.SequenceEqual(spritePal)))
                         spritePals.Add(spritePal);
@@ -539,7 +539,7 @@ namespace Ray1Map.Rayman1
                 var rom = FileFactory.Read<BinarySerializer.Ray1.GBA.GBA_ROM>(context, GetROMFilePath);
 
                 MusyX_File musyxFile = null;
-                s.DoAt(s.GetPreDefinedPointer(GBA_DefinedPointer.MusyxFile), () => {
+                s.DoAt(s.GetRequiredPreDefinedPointer(GBA_DefinedPointer.MusyxFile), () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
                 });
                 string outPath = Path.Combine(outputPath, "Sounds");
@@ -932,7 +932,7 @@ namespace Ray1Map.Rayman1
                 eventData = null;
             }
 
-            var spritePalette = data.GetSpritePalettes(context.GetSettings<Ray1Settings>());
+            var spritePalette = data.GetSpritePalettes(context.GetRequiredSettings<Ray1Settings>());
 
             var maps = new Unity_Map[]
             {
@@ -1133,7 +1133,7 @@ namespace Ray1Map.Rayman1
                             LabelOffsets = new ushort[0]
                         };
 
-                        e.SetFollowEnabled(context.GetSettings<Ray1Settings>(), dat.FollowEnabled);
+                        e.SetFollowEnabled(context.GetRequiredSettings<Ray1Settings>(), dat.FollowEnabled);
 
                         // Add the event
                         events.Add(new Unity_Object_R1(e, objManager));

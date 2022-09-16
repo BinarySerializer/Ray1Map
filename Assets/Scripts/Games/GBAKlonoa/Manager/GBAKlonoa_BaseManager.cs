@@ -325,7 +325,7 @@ namespace Ray1Map.GBAKlonoa
 
         public void LoadAnimSets_SpecialAnims(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, Context context, IEnumerable<SpecialAnimation> specialAnims, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, GBAKlonoa_ObjectOAMCollection[] oamCollections, int fixCount, GBAKlonoa_DCT_GraphicsData[] graphicsDatas = null)
         {
-            var romFile = context.GetFile(GetROMFilePath);
+            var romFile = context.GetRequiredFile(GetROMFilePath);
             var s = context.Deserializer;
             var specialAnimIndex = 0;
             var shapes = Constants.SpriteShapes;
@@ -439,8 +439,8 @@ namespace Ray1Map.GBAKlonoa
         public void LoadAnimSets_AllocatedTiles(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, Context context, MapVRAMAllocationInfo[] allocationInfos, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes)
         {
             var s = context.Deserializer;
-            var romFile = context.GetFile(GetROMFilePath);
-            var memFile = context.GetFile(CompressedObjTileBlockName);
+            var romFile = context.GetRequiredFile(GetROMFilePath);
+            var memFile = context.GetFile(CompressedObjTileBlockName); // TODO: Required?
 
             var vramTileIndex = 0;
             var isEncoded = false;

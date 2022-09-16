@@ -1,6 +1,7 @@
-﻿using BinarySerializer;
+﻿using System;
+using BinarySerializer;
 
-public class UnityWindowBitSerializer : BitSerializerObject 
+public class UnityWindowBitSerializer : BitSerializerObject
 {
     public UnityWindowBitSerializer(SerializerObject serializerObject, Pointer valueOffset, string logPrefix, long value) 
         : base(serializerObject, valueOffset, logPrefix, value) { }
@@ -12,5 +13,10 @@ public class UnityWindowBitSerializer : BitSerializerObject
         Position += length;
 
         return t;
+    }
+
+    public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1503,7 +1503,7 @@ namespace Ray1Map {
 		}
 		public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
-			s.Goto(context.GetFile(bfPath).StartPointer);
+			s.Goto(context.GetRequiredFile(bfPath).StartPointer);
 			await s.FillCacheForReadAsync((int)BIG_BigFile.HeaderLength);
 			var bfFile = FileFactory.Read<BIG_BigFile>(context, bfPath);
 			await s.FillCacheForReadAsync((int)bfFile.TotalFatFilesLength);
@@ -1512,7 +1512,7 @@ namespace Ray1Map {
 		}
 		public async UniTask<GEAR_BigFile> LoadGearBF(Context context, string bfPath) {
 			var s = context.Deserializer;
-			s.Goto(context.GetFile(bfPath).StartPointer);
+			s.Goto(context.GetRequiredFile(bfPath).StartPointer);
 			await s.FillCacheForReadAsync(GEAR_BigFile.HeaderSize);
 			var bfFile = FileFactory.Read<GEAR_BigFile>(context, bfPath);
 			await s.FillCacheForReadAsync((int)bfFile.ArraysSize);

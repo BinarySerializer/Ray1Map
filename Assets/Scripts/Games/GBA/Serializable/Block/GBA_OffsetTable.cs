@@ -29,7 +29,7 @@ namespace Ray1Map.GBA
             UsedOffsets[index] = true;
 
             var manager = (GBA_Manager)Offset.Context.GetR1Settings().GetGameManager;
-            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(manager.GetROMFilePath(Context)));
+            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetRequiredFile(manager.GetROMFilePath(Context)));
 
             var root = pointerTable[DefinedPointer.UiOffsetTable];
 

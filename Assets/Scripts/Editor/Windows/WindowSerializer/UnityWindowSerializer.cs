@@ -6,6 +6,8 @@ using BinarySerializer;
 using UnityEditor;
 using UnityEngine;
 
+// TODO: Enable nullable
+
 public class UnityWindowSerializer : SerializerObject
 {
     public UnityWindowSerializer(Context context, UnityWindow window, HashSet<string> forceWrite) : base(context)
@@ -25,9 +27,11 @@ public class UnityWindowSerializer : SerializerObject
     public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
     public override long CurrentLength => 0;
+    public override bool HasCurrentPointer => false;
     public override BinaryFile CurrentBinaryFile => null;
     public override long CurrentFileOffset => 0;
     public override void Goto(Pointer offset) { }
+    public override void Align(int alignBytes = 4, Pointer baseOffset = null, bool? logIfNotNull = null) { }
 
     public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {
         action();
@@ -114,38 +118,24 @@ public class UnityWindowSerializer : SerializerObject
             case TypeCode.Double:
                 return (T)(object)Window.EditorField(String.Empty, (double)(object)obj, rect: rect);
 
-            case TypeCode.String:
-                return (T)(object)Window.EditorField(String.Empty, (string)(object)obj, rect: rect);
+            case TypeCode.Object when type == typeof(UInt24):
+                return (T)(object)(UInt32)(uint)Window.EditorField(String.Empty, (uint)(UInt24)(object)obj, rect: rect);
 
+            case TypeCode.String:
             case TypeCode.Decimal:
             case TypeCode.Char:
             case TypeCode.DateTime:
             case TypeCode.Empty:
             case TypeCode.DBNull:
-
-            case TypeCode.Object:
-                if (type == typeof(UInt24)) {
-                    return (T)(object)(UInt32)(uint)Window.EditorField(String.Empty, (uint)(UInt24)(object)obj, rect: rect);
-                } else if(type == typeof(byte?)) {
-                    var b = (byte?)(object)obj;
-                    byte value = 0;
-                    bool hasValue = b.HasValue;
-                    if(hasValue) {
-                        rect = Window.PrefixToggle(rect, ref hasValue);
-                        value = (byte)Window.EditorField(String.Empty, b.Value, rect: rect);
-                    } else {
-                        rect = Window.PrefixToggle(rect, ref hasValue);
-                        value = 0;
-                    }
-                    if(hasValue) return (T)(object)(byte?)value;
-                    return (T)(object)(byte?)null;
-                } else {
-                    throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
-                }
             default:
                 throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
         }
 
+    }
+
+    public override T? SerializeNullable<T>(T? obj, string name = null)
+    {
+        throw new NotImplementedException();
     }
 
     public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) => default;
@@ -203,6 +193,15 @@ public class UnityWindowSerializer : SerializerObject
         else if (count != obj.Length) Array.Resize(ref obj, (int)count);
         for (int i = 0; i < obj.Length; i++)
             Serialize(obj[i], name: $"{name}[{i}]");
+        return obj;
+    }
+
+    public override T?[] SerializeNullableArray<T>(T?[] obj, long count, string name = null)
+    {
+        if (obj == null) obj = new T?[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+        for (int i = 0; i < obj.Length; i++)
+            SerializeNullable(obj[i], name: $"{name}[{i}]");
         return obj;
     }
 
@@ -281,9 +280,30 @@ public class UnityWindowSerializer : SerializerObject
         return SerializeArray<T>(array, array.Length, name: name);
     }
 
+    public override T?[] SerializeNullableArrayUntil<T>(T?[] obj, Func<T?, bool> conditionCheckFunc, Func<T?> getLastObjFunc = null,
+        string name = null)
+    {
+        T?[] array = obj;
+
+        return SerializeNullableArray<T>(array, array.Length, name: name);
+    }
+
     public override T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, Action<T, int> onPreSerialize = null, string name = null) {
         T[] array = obj;
 
         return SerializeObjectArray<T>(array, array.Length, onPreSerialize: onPreSerialize, name: name);
+    }
+
+    public override Pointer[] SerializePointerArrayUntil(
+        Pointer[] obj,
+        Func<Pointer, bool> conditionCheckFunc,
+        Func<Pointer> getLastObjFunc = null,
+        PointerSize size = PointerSize.Pointer32,
+        Pointer anchor = null,
+        bool allowInvalid = false,
+        long? nullValue = null,
+        string name = null)
+    {
+        return SerializePointerArray(obj, obj.Length, size: size, anchor: anchor, allowInvalid: allowInvalid, nullValue: nullValue, name: name);
     }
 }

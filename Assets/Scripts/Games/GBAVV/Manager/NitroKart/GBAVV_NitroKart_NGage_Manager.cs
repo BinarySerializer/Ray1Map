@@ -289,7 +289,7 @@ namespace Ray1Map.GBAVV
 
             var str = new StringBuilder();
 
-            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(ExeFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
+            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetRequiredFile(ExeFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
             var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).Distinct().ToArray();
 
             // Enumerate every obj init function
@@ -528,7 +528,7 @@ namespace Ray1Map.GBAVV
             if (context.GetStoredObject<Dictionary<uint, string>>(id) == null)
                 context.StoreObject(id, FilePaths.ToDictionary(x => CalculateCRC(x, polynomialData)));
 
-            return context.GetStoredObject<Dictionary<uint, string>>(id);
+            return context.GetRequiredStoredObject<Dictionary<uint, string>>(id);
         }
 
         public GameObject CreateS3DGameObject(Context context, GBAVV_NitroKart_NGage_S3D s3d, out bool isAnimated) {

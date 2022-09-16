@@ -53,7 +53,7 @@ namespace Ray1Map.GBAKlonoa
                 if (Pre_IsMapAnimation)
                 {
                     if ((ImgDataPointerValue & 0x10000000) != 0)
-                        ImgDataPointer = new Pointer((ushort)ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedWorldObjTileBlockName));
+                        ImgDataPointer = new Pointer((ushort)ImgDataPointerValue, Offset.Context.GetRequiredFile(GBAKlonoa_BaseManager.CompressedWorldObjTileBlockName));
                     else
                         ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
                 }
@@ -72,7 +72,7 @@ namespace Ray1Map.GBAKlonoa
                         // data might not match this animation, thus showing the wrong frames
 
                         if (Pre_IsReferencedInLevel)
-                            ImgDataPointer = new Pointer(ImgDataPointerValue - 0x40000000, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
+                            ImgDataPointer = new Pointer(ImgDataPointerValue - 0x40000000, Offset.Context.GetRequiredFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
                     }
                     else
                     {
@@ -85,7 +85,7 @@ namespace Ray1Map.GBAKlonoa
                 if (ImgDataPointerValue >= Constants.Address_ROM)
                     ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
                 else
-                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetRequiredFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
             }
 
             s.Log("{0}: {1}", nameof(ImgDataPointer), ImgDataPointer);
