@@ -120,7 +120,7 @@ public class ObjPropertiesWindow : UnityWindow
 
                     if (selectedObj?.ObjData?.AdditionalSerializableDatas != null)
                     {
-                        foreach (var data in selectedObj.ObjData.AdditionalSerializableDatas)
+                        foreach (var data in selectedObj.ObjData.AdditionalSerializableDatas.Where(x => x != null))
                         {
                             DrawHeader($"Additional Object ({data.GetType().Name})");
 
