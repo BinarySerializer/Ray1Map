@@ -1420,18 +1420,17 @@ namespace Ray1Map.Rayman1_Jaguar
             }
 
             // Use this to load every single event
-
-            /*commonLev.EventData.Clear();
+            /*eventDataList.Clear();
             var ind = 0;
-            foreach (var def in eventDefs)
+            foreach (JAG_MultiSprite def in eventDefs)
             {
                 try
                 {
-                    var eventData = CreateEventData(context, def, eventDesigns, eventETA, eventETANames, loadTextures);
+                    var eventData = CreateEventData(context, def, eventDefinitions, objManager);
                     eventData.LinkIndex = ind;
-                    eventData.Data.XPosition = (short)(ind * 20);
-                    eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
-                    commonLev.EventData.Add(eventData);
+                    eventData.XPosition = (short)(ind * 20);
+                    //eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
+                    eventDataList.Add(eventData);
                     ind++;
                 }
                 catch (Exception ex)
