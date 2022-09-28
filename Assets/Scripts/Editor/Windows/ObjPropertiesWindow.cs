@@ -116,7 +116,11 @@ public class ObjPropertiesWindow : UnityWindow
 
                     DrawHeader("Object");
 
-                    selectedObj?.ObjData?.SerializableData?.SerializeImpl(Serializer);
+                    if (selectedObj?.ObjData?.SerializableData != null)
+                    {
+                        Serializer.Goto(selectedObj.ObjData.SerializableData.Offset);
+                        selectedObj.ObjData.SerializableData.SerializeImpl(Serializer);
+                    }
 
                     if (selectedObj?.ObjData?.AdditionalSerializableDatas != null)
                     {
@@ -124,6 +128,7 @@ public class ObjPropertiesWindow : UnityWindow
                         {
                             DrawHeader($"Additional Object ({data.GetType().Name})");
 
+                            Serializer.Goto(data.Offset);
                             data.SerializeImpl(Serializer);
                         }
                     }

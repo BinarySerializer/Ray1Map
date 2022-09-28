@@ -62,6 +62,10 @@ namespace Ray1Map
         GBA_TMNT,                            // 2007
         GBA_SurfsUp,                         // 2007
 
+        // Onyx DS
+
+        OnyxDS_RaymanRavingRabbids2,
+
         // GBA RRR
 
         GBARRR,

@@ -9,6 +9,7 @@
         Rayman1_Jaguar, // Rayman 1 (Jaguar)
         SNES,           // Rayman (SNES)
         GBA,            // Ubisoft (GBA) - GBASimilar
+        OnyxDS,        // Onyx DS
         GBARRR,         // Rayman Raving Rabbids (GBA)
         GBAIsometric,   // Digital Eclipse (GBA) - Dragon
         GBC,            // Ubisoft (GBC)

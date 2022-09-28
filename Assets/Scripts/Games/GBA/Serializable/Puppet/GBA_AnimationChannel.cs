@@ -41,8 +41,8 @@ namespace Ray1Map.GBA
             Attr0 = s.Serialize<ushort>(Attr0, name: nameof(Attr0));
 
             // Parse
-            if ((Attr0 & BOX_FLAG) == 0x800) ChannelType = Type.Unknown8;
-            if ((Attr0 & BOX_FLAG) == 0xC00) ChannelType = Type.UnknownC;
+            if ((Attr0 & BOX_FLAG) == 0x800) ChannelType = Type.Unknown8; // TODO: Attr1 is sound index here
+            if ((Attr0 & BOX_FLAG) == 0xC00) ChannelType = Type.UnknownC; // TODO: Attr1 and Attr2 are two signed values
             if ((Attr0 & BOX_FLAG) == 0x1000) ChannelType = Type.AttackBox;
             if ((Attr0 & BOX_FLAG) == 0x1400) ChannelType = Type.VulnerabilityBox;
 
@@ -60,11 +60,14 @@ namespace Ray1Map.GBA
                 } else {
                     if (YPosition >= 128) YPosition -= 256;
                 }*/
-                if (YPosition >= 128) YPosition -= 256;
+                if (YPosition >= 128) YPosition -= 256; // TODO: Use SignedNumberRepresentation.TwosComplement
                 TransformMode = (AffineObjectMode)BitHelpers.ExtractBits(Attr0, 2, 8);
+
+                // TODO: RenderMode and Color don't exist here
                 RenderMode = (GfxMode)BitHelpers.ExtractBits(Attr0, 2, 10);
                 //Controller.print(BitHelpers.ExtractBits(Attr0, 2, 10));
                 Color = (GBA_ColorMode)BitHelpers.ExtractBits(Attr0, 1, 13);
+
                 SpriteShape = (Shape)BitHelpers.ExtractBits(Attr0, 2, 14);
 
                 // Attr1

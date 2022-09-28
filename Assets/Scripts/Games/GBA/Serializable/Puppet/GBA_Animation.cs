@@ -5,7 +5,7 @@ namespace Ray1Map.GBA
 {
     public class GBA_Animation : GBA_BaseBlock
     {
-        public byte Flags { get; set; }
+        public byte Flags { get; set; } // TODO: All except last bit are speed. Last bit is flag for if it should oscillate.
         public byte Byte_01 { get; set; } // TODO: Palette index in puppet
         public ushort Index_AffineMatrices { get; set; }
         public byte Byte_03 { get; set; }

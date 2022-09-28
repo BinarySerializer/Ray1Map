@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using BinarySerializer.Ubisoft.Onyx;
+using BinarySerializer.Ubisoft.Onyx.NDS;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Ray1Map.Gameloft;
 using Ray1Map.GBA;
@@ -297,6 +299,13 @@ namespace Ray1Map
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - US)", typeof(GBA_SurfsUp_Manager))]
         SurfsUpUS,
+
+        #endregion
+
+        #region Onyx DS
+
+        [GameMode(MajorEngineVersion.OnyxDS, EngineVersion.OnyxDS_RaymanRavingRabbids2, Game.OnyxDS_RaymanRavingRabbids2, "Rayman Raving Rabbids 2 (NDS)", typeof(Onyx_NDS_Manager))]
+        RaymanRavingRabbids2NDS,
 
         #endregion
 

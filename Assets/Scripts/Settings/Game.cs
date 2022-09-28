@@ -45,6 +45,10 @@
         GBA_TMNT,
         GBA_SurfsUp,
 
+        // Onyx DS
+
+        OnyxDS_RaymanRavingRabbids2,
+
         // GBA RRR
         
         GBARRR_RavingRabbids,
