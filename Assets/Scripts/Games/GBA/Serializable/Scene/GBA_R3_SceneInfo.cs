@@ -23,7 +23,7 @@ namespace Ray1Map.GBA
 
         public Pointer LoadFunctionPointer { get; set; }
 
-        public byte Byte_14 { get; set; }
+        public byte NextLevelIndex { get; set; }
         public byte Byte_15 { get; set; }
 
         // The index of the level the map belongs to
@@ -43,7 +43,7 @@ namespace Ray1Map.GBA
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
             Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
             LoadFunctionPointer = s.SerializePointer(LoadFunctionPointer, name: nameof(LoadFunctionPointer));
-            Byte_14 = s.Serialize<byte>(Byte_14, name: nameof(Byte_14));
+            NextLevelIndex = s.Serialize<byte>(NextLevelIndex, name: nameof(NextLevelIndex));
             Byte_15 = s.Serialize<byte>(Byte_15, name: nameof(Byte_15));
             LevelIndex = s.Serialize<ushort>(LevelIndex, name: nameof(LevelIndex));
             Ushort_18 = s.Serialize<ushort>(Ushort_18, name: nameof(Ushort_18));
