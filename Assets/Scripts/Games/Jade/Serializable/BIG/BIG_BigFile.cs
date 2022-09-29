@@ -101,8 +101,7 @@ namespace Ray1Map.Jade {
 			bool writeFilenameInPadding = true, bool increaseSizeOfFat = true) {
 			BIG_BigFile bf = new BIG_BigFile();
 			bf.BIG_gst = "BIG";
-			bf.Context = startPointer.Context;
-			bf.Offset = startPointer;
+            bf.Init(startPointer);
 			bf.Version = og.Version;
 			bf.SizeOfFat = og.SizeOfFat;
 			if (increaseSizeOfFat) {

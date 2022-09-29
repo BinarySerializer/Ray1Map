@@ -20,7 +20,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var settings = s.GetSettings<GBAIsometricSettings>();
+            var settings = s.GetRequiredSettings<GBAIsometricSettings>();
 
             // Get the language count for the current game
             int langCount = settings.Languages.Length;

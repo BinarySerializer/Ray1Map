@@ -18,7 +18,7 @@ namespace Ray1Map.GBAIsometric
 
             // Get the settings and pointers
             Dictionary<Spyro_DefinedPointer, Pointer> pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
-            GBAIsometricSettings settings = s.GetSettings<GBAIsometricSettings>();
+            GBAIsometricSettings settings = s.GetRequiredSettings<GBAIsometricSettings>();
 
             // Serialize the resources and store it so we can access them later
             Resources = s.DoAt(pointerTable[Spyro_DefinedPointer.DataTable], 

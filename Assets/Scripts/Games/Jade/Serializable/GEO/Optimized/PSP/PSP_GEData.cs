@@ -21,14 +21,14 @@ namespace Ray1Map.Jade {
 			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 			Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
 
-			if (IsFirstLoad && SerializedCommands == null) {
+			if (SerializedCommands == null) {
 				Execute(Context);
 			}
 		}
 
 		public void Execute(Context context) {
 			var progKey = $"GEData_{Offset}_{Flags:X8}";
-			using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(context.SerializerLog), systemLog: context.SystemLog)) {
+			using (Context c = new Context("", serializerLogger: new ParentContextSerializerLogger(context.SerializerLogger), systemLogger: context.SystemLogger)) {
 				// Parse GE program
 				var file = c.AddStreamFile(progKey, new MemoryStream(Bytes));
 				try {

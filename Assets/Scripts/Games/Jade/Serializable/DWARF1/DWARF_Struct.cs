@@ -53,7 +53,7 @@ namespace Ray1Map.DWARF1 {
 		public void CheckFileSize(SerializerObject s) {
 			long readSize = s.CurrentPointer - Offset;
 			if (StructSize != readSize) {
-				s.SystemLog?.LogWarning($"XMW Struct @ {Offset} with type {GetType()} was not fully serialized: Struct Size: {StructSize:X8} / Serialized: {readSize:X8}");
+				s.SystemLogger?.LogWarning($"XMW Struct @ {Offset} with type {GetType()} was not fully serialized: Struct Size: {StructSize:X8} / Serialized: {readSize:X8}");
 			}
 			s.Goto(NextStructPointer);
 		}

@@ -11,7 +11,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GetSettings<GBAIsometricSettings>().EngineVersion == GBAIsometricEngineVersion.Spyro1)
+            if (s.GetRequiredSettings<GBAIsometricSettings>().EngineVersion == GBAIsometricEngineVersion.Spyro1)
             {
                 Index = s.Serialize<int>(Index, name: nameof(Index));
                 LocIndex = s.SerializeObject<GBAIsometric_LocIndex>(LocIndex, x => x.Pre_Is32Bit = true, name: nameof(LocIndex));

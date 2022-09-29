@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Psychonauts
 {
-    public class PS2_GIF_UV : BinarySerializable
+    public class PS2_GIF_UV : BinarySerializable, ISerializerShortLog
     {
         public int Pre_JointInfluencesPerVertex { get; set; }
 
@@ -27,8 +27,7 @@ namespace Ray1Map.Psychonauts
         public float VCorrected => V - 2056;
         public float SkinWeightCorrected => SkinWeight - 2056;
 
-        public override bool UseShortLog => true;
-        public override string ShortLog => Pre_JointInfluencesPerVertex > 0
+        public string ShortLog => Pre_JointInfluencesPerVertex > 0
             ? $"UV({UCorrected}, {VCorrected})+SkinWeight({SkinWeightCorrected})"
             : $"UV({UCorrected}, {VCorrected})";
     }

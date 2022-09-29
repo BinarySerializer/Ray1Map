@@ -253,7 +253,7 @@ namespace Ray1Map.GBARRR
                         using (var outputStream = File.Create(outputFilePath)) {
                             // Create a context
                             using (var xmContext = new Ray1MapContext(settings)) {
-                                ((Ray1MapContext.R1SerializerLog)xmContext.SerializerLog).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.txt");
+                                ((Ray1MapContext.R1SerializerLogger)xmContext.SerializerLogger).OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.Info.ParsedName}.txt");
                                 // Create a key
                                 string xmKey = $"{h.Info.ParsedName}.xm";
 

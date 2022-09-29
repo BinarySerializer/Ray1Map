@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_TextReference : BinarySerializable {
+	public class Jade_TextReference : BinarySerializable, ISerializerShortLog {
 		public Jade_Key Key { get; set; }
 		public bool ForceResolve { get; set; }
 		public bool IsNull => Key.IsNull;
@@ -66,7 +66,6 @@ namespace Ray1Map.Jade {
 			return this;
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => Key.ToString();
+		public string ShortLog => Key.ToString();
 	}
 }

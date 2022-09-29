@@ -45,7 +45,7 @@ namespace Ray1Map.Jade {
 					ElementDatas = s.SerializeObjectArray<ElementData>(ElementDatas, Geo.ElementsCount, name: nameof(ElementDatas));
 				}
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + ElementDataBufferSize && ElementDataBufferSize > 4) {
-					s.SystemLog?.LogWarning($"Element Data Buffer at {Offset} wasn't serialized properly: current:{s.CurrentPointer} vs expected:{Offset + ElementDataBufferSize}");
+					s.SystemLogger?.LogWarning($"Element Data Buffer at {Offset} wasn't serialized properly: current:{s.CurrentPointer} vs expected:{Offset + ElementDataBufferSize}");
 					s.Goto(Offset + ElementDataBufferSize);
 				}
 

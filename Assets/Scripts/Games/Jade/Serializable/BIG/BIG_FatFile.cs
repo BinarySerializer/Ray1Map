@@ -95,7 +95,7 @@ namespace Ray1Map.Jade {
 					PreviousFile = s.Serialize<int>(PreviousFile, name: nameof(PreviousFile));
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					DateLastModifiedUInt = s.Serialize<uint>(DateLastModifiedUInt, name: nameof(DateLastModifiedUInt));
-					if(s.IsSerializerLogEnabled) s.Log("Date: {0:ddd, dd/MM/yyyy - HH:mm:ss}", DateLastModified);
+					if(s.IsSerializerLoggerEnabled) s.Log("Date: {0:ddd, dd/MM/yyyy - HH:mm:ss}", DateLastModified);
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
@@ -134,9 +134,9 @@ namespace Ray1Map.Jade {
 		}
 
 		public BIG_FatFile() { }
-		public BIG_FatFile(Pointer offset) {
-			Offset = offset;
-			Context = offset.Context;
+		public BIG_FatFile(Pointer offset) 
+        {
+            Init(offset);
 		}
 
 	}

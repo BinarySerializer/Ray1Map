@@ -32,7 +32,7 @@ namespace Ray1Map
             var fullName = String.Join(".", CurrentName.Append(name).Where(x => !String.IsNullOrWhiteSpace(x)));
             var s = ShouldWriteFunc(fullName) ? Serializer : Deserializer;
             if (CurrentSerializer != s) {
-                SystemLog?.LogInfo("{0} - {1}", fullName, s);
+                SystemLogger?.LogInfo("{0} - {1}", fullName, s);
                 SwitchSerializer(s);
             }
         }

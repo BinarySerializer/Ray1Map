@@ -3,7 +3,7 @@ using System;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_GenericReference : BinarySerializable {
+	public class Jade_GenericReference : BinarySerializable, ISerializerShortLog {
 		public Jade_Key Key { get; set; }
 		public Jade_FileType FileType { get; set; }
 		public Jade_File Value { get; set; }
@@ -174,7 +174,7 @@ namespace Ray1Map.Jade {
 			onPostSerialize?.Invoke(s, Value);
 		}
 
-		public override bool UseShortLog => true;
-		public override string ToString() => $"GenericReference({Key}{FileType.Extension} - {Type})";
+        public string ShortLog => ToString();
+        public override string ToString() => $"GenericReference({Key}{FileType.Extension} - {Type})";
 	}
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
-	public class AI_Node : BinarySerializable {
+	public class AI_Node : BinarySerializable, ISerializerShortLog {
 		public int Parameter { get; set; }
 		public ushort NodeType { get; set; }
 		public byte Flags { get; set; }
@@ -68,8 +68,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => ToString(null, null);
+		public string ShortLog => ToString(null, null);
 
 		public string ToString(Dictionary<long, int> stringOffsetDictionary, string[] stringList) {
 			var cat = Link_CategoryType?.Name ?? ("Category_" + CategoryType);

@@ -49,7 +49,7 @@ namespace Ray1Map.GBAIsometric
             base.SerializeImpl(s);
 
             Dictionary<Spyro_DefinedPointer, Pointer> pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
-            GBAIsometricSettings settings = s.GetSettings<GBAIsometricSettings>();
+            GBAIsometricSettings settings = s.GetRequiredSettings<GBAIsometricSettings>();
 
             var id = GetLevelDataID(s.GetR1Settings());
 

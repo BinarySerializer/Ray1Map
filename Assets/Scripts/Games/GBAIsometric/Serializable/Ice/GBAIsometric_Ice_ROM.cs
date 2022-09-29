@@ -60,7 +60,7 @@ namespace Ray1Map.GBAIsometric
                 SerializePortraits(s, pointerTable);
 
             if (Pre_SerializeSprites)
-                SerializeSpriteSets(s, s.GetSettings<GBAIsometricSettings>());
+                SerializeSpriteSets(s, s.GetRequiredSettings<GBAIsometricSettings>());
         }
 
         private void SerializeLevel3D(

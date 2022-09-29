@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Psychonauts
 {
-    public class PS2_GIF_Vertex : BinarySerializable
+    public class PS2_GIF_Vertex : BinarySerializable, ISerializerShortLog
     {
         public int Pre_JointInfluencesPerVertex { get; set; }
 
@@ -23,8 +23,7 @@ namespace Ray1Map.Psychonauts
                 s.SerializePadding(4); // Indeterminate (repeated data)
         }
 
-        public override bool UseShortLog => true;
-        public override string ShortLog => Pre_JointInfluencesPerVertex >= 1
+        public string ShortLog => Pre_JointInfluencesPerVertex >= 1
             ? $"Vertex({X}, {Y}, {Z})+Joint({JointOffset1 / 4})"
             : $"Vertex({X}, {Y}, {Z})";
     }

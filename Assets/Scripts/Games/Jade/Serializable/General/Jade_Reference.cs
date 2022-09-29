@@ -3,7 +3,7 @@ using System;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_Reference<T> : BinarySerializable where T : Jade_File, new() {
+	public class Jade_Reference<T> : BinarySerializable, ISerializerShortLog where T : Jade_File, new() {
 		public Jade_Key Key { get; set; }
 		public T Value { get; set; }
 		public bool IsNull => Key.IsNull;
@@ -78,8 +78,7 @@ namespace Ray1Map.Jade {
 			onPostSerialize?.Invoke(s, Value);
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => Key.ToString();
+		public string ShortLog => Key.ToString();
 
 		public override string ToString() {
 			return $"Reference<{typeof(T)}({Key})>";

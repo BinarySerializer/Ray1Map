@@ -42,7 +42,7 @@ namespace Ray1Map.Jade {
 				}
 
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + TotalSize) {
-					s.SystemLog?.LogWarning($"VISU Vertex Buffer at {Offset} wasn't serialized properly.");
+					s.SystemLogger?.LogWarning($"VISU Vertex Buffer at {Offset} wasn't serialized properly.");
 					s.Goto(Offset + TotalSize);
 				}
 			}
@@ -60,7 +60,7 @@ namespace Ray1Map.Jade {
 					PointBytes = s.SerializeArray<byte>(PointBytes, Buffer.PointDataSize - (s.CurrentAbsoluteOffset - Offset.AbsoluteOffset), name: nameof(PointBytes));
 
 					if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + Buffer.PointDataSize) {
-						s.SystemLog?.LogWarning($"VISU Vertex Data at {Offset} wasn't serialized properly.");
+						s.SystemLogger?.LogWarning($"VISU Vertex Data at {Offset} wasn't serialized properly.");
 						s.Goto(Offset + Buffer.PointDataSize);
 					}
 				}

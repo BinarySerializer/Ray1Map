@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_CompressedQuaternion16 : BinarySerializable {
+	public class Jade_CompressedQuaternion16 : BinarySerializable, ISerializerShortLog {
 		public short X { get; set; }
 		public short Y { get; set; }
 		public short Z { get; set; }
@@ -13,7 +13,8 @@ namespace Ray1Map.Jade {
 			Z = s.Serialize<short>(Z, name: nameof(Z));
 			W = s.Serialize<short>(W, name: nameof(W));
 		}
-        public override bool UseShortLog => true;
-		public override string ToString() => $"CompressedQuaternion16({X}, {Y}, {Z}, {W})";
+
+        public string ShortLog => ToString();
+        public override string ToString() => $"CompressedQuaternion16({X}, {Y}, {Z}, {W})";
 	}
 }

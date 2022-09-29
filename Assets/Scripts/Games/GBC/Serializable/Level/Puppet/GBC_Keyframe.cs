@@ -41,7 +41,7 @@ namespace Ray1Map.GBC
                 catch (Exception ex)
                 {
                     s.Log("Error parsing instruction: {0}", ex.Message);
-                    s.SystemLog?.LogWarning("Error parsing instruction at {0}: {1}", Offset, ex.Message);
+                    s.SystemLogger?.LogWarning("Error parsing instruction at {0}: {1}", Offset, ex.Message);
 
                     s.Goto(endPointer);
                 }

@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Psychonauts
 {
-    public class PS2_GIF_Normal : BinarySerializable
+    public class PS2_GIF_Normal : BinarySerializable, ISerializerShortLog
     {
         public int Pre_JointInfluencesPerVertex { get; set; }
 
@@ -27,8 +27,7 @@ namespace Ray1Map.Psychonauts
         public float YFloat => Y - 65537f;
         public float ZFloat => Z - 65537f;
 
-        public override bool UseShortLog => true;
-        public override string ShortLog => Pre_JointInfluencesPerVertex >= 2 
+        public string ShortLog => Pre_JointInfluencesPerVertex >= 2 
             ? $"Normal({XFloat}, {YFloat}, {ZFloat})+Joint({JointOffset2 / 4})"
             : $"Normal({XFloat}, {YFloat}, {ZFloat})";
     }

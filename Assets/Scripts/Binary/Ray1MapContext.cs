@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
 using UnityEngine;
-using ISystemLog = BinarySerializer.ISystemLog;
 
 namespace Ray1Map
 {
@@ -13,9 +12,9 @@ namespace Ray1Map
         public Ray1MapContext(string basePath, GameSettings settings) : base(
             basePath: basePath, // Pass in the base path
             settings: new R1SerializerSettings(), // Pass in the settings
-            serializerLog: new R1SerializerLog(), // Use R1 serializer log for logging to a file
+            serializerLogger: new R1SerializerLogger(), // Use R1 serializer log for logging to a file
             fileManager: new R1FileManager(), // Use R1 file manager for use with FileSystem
-            systemLog: new UnitySystemLog()) // Use Unity logger
+            systemLogger: new UnitySystemLogger()) // Use Unity logger
         {
             // Add the game settings
             AddSettings(settings);
@@ -81,7 +80,7 @@ namespace Ray1Map
             }
         }
         
-        public class UnitySystemLog : ISystemLog
+        public class UnitySystemLogger : ISystemLogger
         {
             public void Log(BinarySerializer.LogLevel logLevel, object log, params object[] args) {
                 switch (logLevel) {
@@ -98,7 +97,7 @@ namespace Ray1Map
             }
         }
 
-        public class R1SerializerLog : ISerializerLog
+        public class R1SerializerLogger : ISerializerLogger
         {
             public bool IsEnabled => Ray1Map.Settings.Log;
 

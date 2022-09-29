@@ -421,7 +421,7 @@ namespace BinarySerializer.Ubisoft.Onyx.NDS
             return des;
         }
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context)
+        public override UniTask<Unity_Level> LoadAsync(Context context)
         {
             ROMBase rom = FileFactory.Read<ROMBase>(context, ROMFilePath);
             OnyxFileResolver resolver = new(rom.Header);

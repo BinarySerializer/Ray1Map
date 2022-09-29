@@ -328,8 +328,8 @@ namespace Ray1Map.Jade {
 			// Attach this
 			if (!Loader.IsGameObjectAttached(gao)) Loader.AttachedGameObjects.Add(gao);
 			//if (gao?.Value == null || BitHelpers.ExtractBits(gao.Value.FlagsFix, 1, 4) != 0) continue;
-			//if (gao?.Value == null || gao.Value.IsInitialized) continue;
-			gao.IsInitialized = true;
+			//if (gao?.Value == null || gao.Value.IsObjInitialized) continue;
+			gao.IsObjInitialized = true;
 
 			// Resolve references in ANI_pst_Load
 			var actionData = gao.Base?.ActionData;

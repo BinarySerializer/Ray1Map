@@ -41,7 +41,7 @@ namespace Ray1Map.Jade {
 		public uint UInt_AfterName_Editor_0C { get; set; }
 		public long PhoenixMontreal_V12_Long { get; set; }
 
-		public bool IsInitialized { get; set; }
+		public bool IsObjInitialized { get; set; }
 
 		protected override void SerializeFile(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));

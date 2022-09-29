@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_Vector : BinarySerializable {
+	public class Jade_Vector : BinarySerializable, ISerializerShortLog {
 		public float X { get; set; }
 		public float Y { get; set; }
 		public float Z { get; set; }
@@ -18,7 +18,8 @@ namespace Ray1Map.Jade {
 			Y = s.Serialize<float>(Y, name: nameof(Y));
 			Z = s.Serialize<float>(Z, name: nameof(Z));
 		}
-        public override bool UseShortLog => true;
-		public override string ToString() => $"Vector({X}, {Y}, {Z})";
+
+        public string ShortLog => ToString();
+        public override string ToString() => $"Vector({X}, {Y}, {Z})";
 	}
 }

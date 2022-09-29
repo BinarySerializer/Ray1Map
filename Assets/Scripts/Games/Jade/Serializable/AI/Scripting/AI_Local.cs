@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class AI_Local : BinarySerializable {
+	public class AI_Local : BinarySerializable, ISerializerShortLog {
 		public int LocalOffset { get; set; }
 		public uint Type { get; set; }
 		public string Name { get; set; }
@@ -26,8 +26,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => LocalToString();
+		public string ShortLog => LocalToString();
 
 		public string LocalToString() {
 			var cat = Link_Type?.Name ?? ("Type_" + Type);

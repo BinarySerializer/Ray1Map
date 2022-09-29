@@ -25,13 +25,13 @@ namespace Ray1Map.Jade {
 					SerializeImpl_Version3(s);
 					break;
 				default:
-					s.SystemLog?.LogWarning($"{Offset}: DARE_ModifierSound: Unhandled version {Version}");
+					s.SystemLogger?.LogWarning($"{Offset}: DARE_ModifierSound: Unhandled version {Version}");
 					break;
 			}
 
 			uint readSize = (uint)(s.CurrentPointer - Offset);
 			if (readSize != DataSize) {
-				s.SystemLog?.LogWarning($"{Offset}: DARE_ModifierSound was not fully serialized: Data Size: {DataSize:X8} / Serialized: {readSize:X8}");
+				s.SystemLogger?.LogWarning($"{Offset}: DARE_ModifierSound was not fully serialized: Data Size: {DataSize:X8} / Serialized: {readSize:X8}");
 				s.Goto(Offset + DataSize);
 			}
 		}

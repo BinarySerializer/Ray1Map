@@ -1,6 +1,6 @@
 ﻿namespace BinarySerializer.Ubisoft.Onyx.NDS
 {
-    public class FileReference : BinarySerializable
+    public class FileReference : BinarySerializable, ISerializerShortLog
     {
         public uint FilePathLength { get; set; }
         public string FilePath { get; set; }
@@ -11,8 +11,7 @@
             FilePath = s.SerializeString(FilePath, length: FilePathLength, name: nameof(FilePath));
         }
 
-        public override bool UseShortLog => true;
-        public override string ShortLog => $"FileRef: {FilePath}";
+        public string ShortLog => $"FileRef: {FilePath}";
     }
 
     public class FileReference<T> : FileReference
@@ -28,7 +27,7 @@
 
             if (filePointer == null)
             {
-                s.SystemLog?.LogWarning("File {0} was not found", FilePath);
+                s.SystemLogger?.LogWarning("File {0} was not found", FilePath);
                 return;
             }
 

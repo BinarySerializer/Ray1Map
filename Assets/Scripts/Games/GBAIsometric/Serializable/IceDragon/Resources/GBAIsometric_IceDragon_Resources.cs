@@ -31,7 +31,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var settings = s.GetSettings<GBAIsometricSettings>();
+            var settings = s.GetRequiredSettings<GBAIsometricSettings>();
 
             DataEntries = s.SerializeObjectArray<GBAIsometric_IceDragon_ResourceEntry>(DataEntries, settings.ResourcesCount, name: nameof(DataEntries));
         }

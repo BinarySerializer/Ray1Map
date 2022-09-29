@@ -83,7 +83,7 @@ namespace BinarySerializer.Ubisoft.Onyx.NDS
                 if (type == null)
                 {
                     file = null;
-                    s.SystemLog?.LogWarning("File format {0} does not have a matching type", formatID);
+                    s.SystemLogger?.LogWarning("File format {0} does not have a matching type", formatID);
                     return;
                 }
 

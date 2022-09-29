@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class AI_Node_DebugLink : BinarySerializable {
+	public class AI_Node_DebugLink : BinarySerializable, ISerializerShortLog {
 		public int LineNumber { get; set; }
 		public Jade_Key FileKey { get; set; } // in the original .fct file
 
@@ -16,8 +16,7 @@ namespace Ray1Map.Jade {
 			FileKey = s.SerializeObject<Jade_Key>(FileKey, name: nameof(FileKey));
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => $"DebugLink({DebugLinkContent})";
+		public string ShortLog => $"DebugLink({DebugLinkContent})";
 
 		public string DebugLinkContent => IsNull ? "" : $"{FileKey}:{LineNumber}";
 	}

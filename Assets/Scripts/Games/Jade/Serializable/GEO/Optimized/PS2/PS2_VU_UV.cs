@@ -2,7 +2,7 @@ using BinarySerializer;
 
 namespace Ray1Map.Jade
 {
-    public class PS2_VU_UV : BinarySerializable
+    public class PS2_VU_UV : BinarySerializable, ISerializerShortLog
     {
         public int U { get; set; }
         public int V { get; set; }
@@ -17,10 +17,9 @@ namespace Ray1Map.Jade
 			UCopy = s.Serialize<int>(UCopy, name: nameof(UCopy));
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => $"{GetType()}({UFloat}, {VFloat}, {IsNotIncludedInStrip})";
+		public string ShortLog => $"{GetType()}({UFloat}, {VFloat}, {IsNotIncludedInStrip})";
+
         public float UFloat => (float)U / 0x200;
         public float VFloat => (float)V / 0x200;
-
     }
 }

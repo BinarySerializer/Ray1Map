@@ -2,7 +2,7 @@
 using System;
 
 namespace Ray1Map.Jade {
-	public class GEO_GeometricObject_VertexPonderation : BinarySerializable {
+	public class GEO_GeometricObject_VertexPonderation : BinarySerializable, ISerializerShortLog {
 		public float Weight {
 			get => BitConverter.Int32BitsToSingle(WeightUpperBits << 16);
 			set {
@@ -21,6 +21,6 @@ namespace Ray1Map.Jade {
 		}
 
 		public override string ToString() => $"VertexPonderation({Index}, {Weight})";
-		public override bool UseShortLog => true;
-	}
+        public string ShortLog => ToString();
+    }
 }

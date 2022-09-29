@@ -3,7 +3,7 @@ using System;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_TextureReference : BinarySerializable {
+	public class Jade_TextureReference : BinarySerializable, ISerializerShortLog {
 		public Jade_Key Key { get; set; }
 		public bool IsNull => Key.IsNull;
 		public TEX_File Info { get; set; }
@@ -134,7 +134,6 @@ namespace Ray1Map.Jade {
 			return this;
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => RRR2_Bool ? $"{Key},{RRR2_Bool}" : Key.ToString();
+		public string ShortLog => RRR2_Bool ? $"{Key},{RRR2_Bool}" : Key.ToString();
 	}
 }

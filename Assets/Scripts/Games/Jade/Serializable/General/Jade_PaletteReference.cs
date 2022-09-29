@@ -3,7 +3,7 @@ using System;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_PaletteReference : BinarySerializable {
+	public class Jade_PaletteReference : BinarySerializable, ISerializerShortLog {
 		public Jade_Key Key { get; set; }
 		public bool IsNull => Key.IsNull;
 		public TEX_Palette Value { get; set; }
@@ -70,7 +70,6 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog => Key.ToString();
+		public string ShortLog => Key.ToString();
 	}
 }

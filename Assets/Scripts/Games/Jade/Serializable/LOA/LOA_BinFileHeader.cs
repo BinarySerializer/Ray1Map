@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class LOA_BinFileHeader : BinarySerializable {
+	public class LOA_BinFileHeader : BinarySerializable, ISerializerShortLog {
 		public uint FileSize { get; set; }
 		public uint Mark { get; set; } // 0x99C0FFEE
 		public Jade_Key Key { get; set; }
@@ -14,8 +14,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public override bool UseShortLog => true;
-		public override string ShortLog {
+		public string ShortLog {
 			get {
 				if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 					return $"BinFileHeader(Size: 0x{FileSize:X}, Mark: {BitHelpers.ExtractBits((int)Mark,8,0):X2}{BitHelpers.ExtractBits((int)Mark, 8, 8):X2}{BitHelpers.ExtractBits((int)Mark, 8, 16):X2}{BitHelpers.ExtractBits((int)Mark, 8, 24):X2}, Key: {Key})";

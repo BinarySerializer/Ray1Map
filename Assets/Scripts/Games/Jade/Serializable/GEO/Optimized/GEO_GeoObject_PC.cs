@@ -84,7 +84,7 @@ namespace Ray1Map.Jade {
 				}
 
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + TotalSize) {
-					s.SystemLog?.LogWarning($"Vertex Buffer at {Offset} wasn't serialized properly.");
+					s.SystemLogger?.LogWarning($"Vertex Buffer at {Offset} wasn't serialized properly.");
 					s.Goto(Offset + TotalSize);
 				}
 
@@ -120,7 +120,7 @@ namespace Ray1Map.Jade {
 					}
 
 					if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + Buffer.PointDataSize) {
-						s.SystemLog?.LogWarning($"Vertex Data at {Offset} wasn't serialized properly.");
+						s.SystemLogger?.LogWarning($"Vertex Data at {Offset} wasn't serialized properly.");
 						s.Goto(Offset + Buffer.PointDataSize);
 					}
 				}
@@ -147,7 +147,7 @@ namespace Ray1Map.Jade {
 				}
 
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + TotalSize) {
-					s.SystemLog?.LogWarning($"Element Data Buffer at {Offset} wasn't serialized properly.");
+					s.SystemLogger?.LogWarning($"Element Data Buffer at {Offset} wasn't serialized properly.");
 					s.Goto(Offset + TotalSize);
 				}
 

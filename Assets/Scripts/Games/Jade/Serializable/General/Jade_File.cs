@@ -43,7 +43,7 @@ namespace Ray1Map.Jade {
 		public void CheckFileSize(SerializerObject s) {
 			long readSize = s.CurrentPointer - Offset;
 			if (Loader.IsBinaryData && FileSize != readSize && !UnknownFileSize) {
-				s.SystemLog?.LogWarning($"File {Key} with type {GetType()} was not fully serialized: File Size: {FileSize:X8} / Serialized: {readSize:X8}");
+				s.SystemLogger?.LogWarning($"File {Key} with type {GetType()} was not fully serialized: File Size: {FileSize:X8} / Serialized: {readSize:X8}");
 			} else if(UnknownFileSize) FileSize = (uint)readSize;
 		}
 

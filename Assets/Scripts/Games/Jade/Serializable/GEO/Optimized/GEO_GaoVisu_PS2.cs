@@ -313,7 +313,7 @@ namespace Ray1Map.Jade {
 					IEnumerable<PS2_VU_Data> EnumerateVUData(byte[] vifProg, int vifProgIndex) {
 						VIF_Commands VIFProgram = null;
 						var chainProgKey = $"ChainProgram_DMA{curDMAId}__{jadeGao.Key}__{elementIndex}-{subElementIndex}-{vifProgIndex}";
-						using (Context c = new Context("", serializerLog: new ParentContextSerializerLog(Context.SerializerLog))) {
+						using (Context c = new Context("", serializerLogger: new ParentContextSerializerLogger(Context.SerializerLogger))) {
 							// Parse VIF program
 							var file = c.AddStreamFile(chainProgKey, new MemoryStream(vifProg));
 							try {

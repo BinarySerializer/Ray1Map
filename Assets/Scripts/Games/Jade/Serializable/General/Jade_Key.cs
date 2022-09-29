@@ -2,12 +2,12 @@
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class Jade_Key : BinarySerializable, IEquatable<Jade_Key> {
+	public class Jade_Key : BinarySerializable, IEquatable<Jade_Key>, ISerializerShortLog {
 		public uint Key { get; set; }
 		public bool IsNull => Key == 0 || Key == 0xFFFFFFFF;
-		public override bool UseShortLog => true;
+        public string ShortLog => ToString();
 
-		public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!IsNull && Loader != null && Loader.Raw_RelocateKeys) {
 				if (Loader.Raw_KeysToRelocate.ContainsKey(Key)) {

@@ -9,7 +9,7 @@ namespace Ray1Map.GBAIsometric
         public byte Width { get; set; }
         public byte Height { get; set; }
         public byte Byte_01 { get; set; } // Always 0
-        public bool IsInitialized { get; set; } // Only used for when loaded in memory
+        public bool IsSetInitialized { get; set; } // Only used for when loaded in memory
         public bool Is8Bit { get; set; } // Never used by the game
         public bool IsMulti { get; set; }
         public CompressionType Compression { get; set; }
@@ -32,7 +32,7 @@ namespace Ray1Map.GBAIsometric
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             s.DoBits<byte>(b =>
             {
-                IsInitialized = b.SerializeBits<bool>(IsInitialized, 1, name: nameof(IsInitialized));
+                IsSetInitialized = b.SerializeBits<bool>(IsSetInitialized, 1, name: nameof(IsSetInitialized));
                 Is8Bit = b.SerializeBits<bool>(Is8Bit, 1, name: nameof(Is8Bit));
                 IsMulti = b.SerializeBits<bool>(IsMulti, 1, name: nameof(IsMulti));
                 Compression = b.SerializeBits<CompressionType>(Compression, 2, name: nameof(Compression));
