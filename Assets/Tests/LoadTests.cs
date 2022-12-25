@@ -1101,7 +1101,10 @@ public class Jade_RRR
     [UnityTest]
     public IEnumerator RaymanRavingRabbidsPCUnbinarized() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsPCUnbinarized);
 
-    [UnityTest]
+	[UnityTest]
+	public IEnumerator RaymanRavingRabbidsPCPrototype() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsPCPrototype);
+
+	[UnityTest]
     public IEnumerator RaymanRavingRabbidsWii() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsWii);
 
     [UnityTest]

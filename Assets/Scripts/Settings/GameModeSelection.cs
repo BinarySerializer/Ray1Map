@@ -766,7 +766,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Demo)", typeof(Jade_RRR_PCDemo_Manager), Platform.PC)]
         RaymanRavingRabbidsPCDemo,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Unbinarized)", typeof(Jade_RRR_PC_Unbinarized_Modded_Manager), Platform.PC)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Prototype)", typeof(Jade_RRR_PC_Prototype_Manager), Platform.PC)]
+		RaymanRavingRabbidsPCPrototype,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Unbinarized)", typeof(Jade_RRR_PC_Unbinarized_Modded_Manager), Platform.PC)]
         RaymanRavingRabbidsPCUnbinarized,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Wii)", typeof(Jade_RRR_Wii_Manager), Platform.Wii)]
