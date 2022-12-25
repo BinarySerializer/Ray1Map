@@ -128,6 +128,7 @@ namespace Ray1Map {
 								string fileName = null;
 								if (fi.Name != null) {
 									fileName = fi.Name;
+									fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
