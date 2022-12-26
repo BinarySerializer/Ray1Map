@@ -33,7 +33,7 @@ namespace Ray1Map.Jade {
 			if (!HasSound || !Loader.IsBinaryData) {
 				ObjKey = s.SerializeObject<Jade_Key>(ObjKey, name: nameof(ObjKey));
 				OffsetInBuffer = s.Serialize<int>(OffsetInBuffer, name: nameof(OffsetInBuffer));
-				s.DoBits<int>(b => {
+				s.DoBits<uint>(b => {
 					Priority = (ushort)b.SerializeBits<int>(Priority, 16, name: nameof(Priority));
 					Version = (ushort)b.SerializeBits<int>(Version, 16, name: nameof(Version));
 				});

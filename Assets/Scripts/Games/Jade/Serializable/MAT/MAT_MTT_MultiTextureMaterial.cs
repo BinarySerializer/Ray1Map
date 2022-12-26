@@ -134,7 +134,7 @@ namespace Ray1Map.Jade {
 					DispOffsetV = s.Serialize<float>(DispOffsetV, name: nameof(DispOffsetV));
 				}
 				if (Material.ObjectVersion >= 3) {
-					s.DoBits<int>(b => {
+					s.DoBits<uint>(b => {
 						RotationSpeed = b.SerializeBits<int>(RotationSpeed, 15, name: nameof(RotationSpeed));
 						IsRotationAnim = b.SerializeBits<int>(IsRotationAnim ? 1 : 0, 1, name: nameof(IsRotationAnim)) == 1;
 						FrameCycle = b.SerializeBits<int>(FrameCycle, 4, name: nameof(FrameCycle));

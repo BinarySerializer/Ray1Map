@@ -94,7 +94,7 @@ namespace Ray1Map.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-				s.DoBits<int>(b => {
+				s.DoBits<uint>(b => {
 					VertexCount = b.SerializeBits<int>(VertexCount, 31, name: nameof(VertexCount));
 					HasNoEditorInts = b.SerializeBits<bool>(HasNoEditorInts, 1, name: nameof(HasNoEditorInts));
 				});

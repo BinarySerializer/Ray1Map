@@ -29,12 +29,12 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				s.DoBits<int>(b => {
+				s.DoBits<uint>(b => {
 					Type = (LightType)b.SerializeBits<int>((int)Type, 4, name: nameof(Type));
 					Flags = (LightFlags)b.SerializeBits<int>((int)Flags, 28, name: nameof(Flags));
 				});
 			} else {
-				s.DoBits<int>(b => {
+				s.DoBits<uint>(b => {
 					Type = (LightType)b.SerializeBits<int>((int)Type, 3, name: nameof(Type));
 					// TODO: Flags are different for Montpellier
 					Flags = (LightFlags)b.SerializeBits<int>((int)Flags, 29, name: nameof(Flags));
