@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
 	public class TEXT_OneText : BinarySerializable {
@@ -16,9 +17,10 @@ namespace Ray1Map.Jade {
 		public int AnimIdx { get; set; }
 		public byte DumIdx { get; set; }
 
-		public uint EditorStringLength { get; set; }
+		public uint CommentLength { get; set; }
 		public string IDString { get; set; }
-		public string EditorString { get; set; }
+		public byte[] CommentBytes { get; set; }
+		public string[] Comments { get; set; }
 
 		public string Text { get; set; }
 		//public string ProcessedText { get; set; }
@@ -48,10 +50,26 @@ namespace Ray1Map.Jade {
 					DumIdx = s.Serialize<byte>(DumIdx, name: nameof(DumIdx));
 				}
 			}
-			EditorStringLength = s.Serialize<uint>(EditorStringLength, name: nameof(EditorStringLength));
+			CommentLength = s.Serialize<uint>(CommentLength, name: nameof(CommentLength));
 			if (!Loader.IsBinaryData) {
 				IDString = s.SerializeString(IDString, length: 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(IDString));
-				EditorString = s.SerializeString(EditorString, length: EditorStringLength, encoding: Jade_BaseManager.Encoding, name: nameof(EditorString));
+				var commentOffset = s.CurrentPointer;
+				CommentBytes = s.SerializeArray<byte>(CommentBytes, CommentLength, name: nameof(CommentBytes));
+
+				// TODO: less hacky code
+				if (CommentLength > 0 && Comments == null) {
+					List<string> comments = new List<string>();
+					for (int i = 0; i < CommentLength; i++) {
+						if (CommentBytes[i] == 0) continue;
+
+						s.DoAt(commentOffset + i, () => {
+							var comment = s.SerializeString(default, length: CommentLength - i, encoding: Jade_BaseManager.Encoding, name: $"{nameof(Comments)}[{i}]");
+							comments.Add(comment);
+							i += comment.Length - 1;
+						});
+					}
+					Comments = comments.ToArray();
+				}
 			}
 			if (!Loader.IsBinaryData) {
 				ResolveSound(s);

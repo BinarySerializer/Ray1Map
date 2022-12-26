@@ -54,7 +54,8 @@ namespace Ray1Map {
 			}
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
-					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output))
+					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output)),
+					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output))
 				}).ToArray();
 			}
 			if (TexturesGearBFPath != null) {
@@ -302,6 +303,100 @@ namespace Ray1Map {
 				}*/
 			}
 			if(!perWorld) ExportLangTable("localization");
+
+			Debug.Log($"Finished export");
+		}
+
+		public async UniTask ExportLocalizationUnbinarizedAsync(GameSettings settings, string outputDir) {
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
+				Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]> textGroups
+					= new Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]>();
+
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && fileInfo.FileName.EndsWith(".txg")) {
+						try {
+							Jade_Reference<TEXT_TextGroup> textRef = new Jade_Reference<TEXT_TextGroup>(context, fileInfo.Key);
+							textRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							if (textRef.Value?.Text == null || textRef.Value.Text.Length == 0) continue;
+
+							KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[] curTextGroup = null;
+
+							for (int curLang = 0; curLang < textRef.Value.Text.Length; curLang++) {
+								var text = textRef.Value.Text[curLang];
+								if (text.IsNull || text.TextList.Text == null) continue;
+								var txl = text.TextList;
+								if (curTextGroup == null) {
+									curTextGroup = new KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[txl.Text.Length];
+									textGroups[fileInfo.FilePath] = curTextGroup;
+								}
+								for (int j = 0; j < txl.Text.Length; j++) {
+									if (curTextGroup[j] == null) {
+										curTextGroup[j] = new KeyValuePair<string, Dictionary<int, TEXT_OneText>>(
+											txl.Text[j].IDString,
+											new Dictionary<int, TEXT_OneText>());
+									}
+									curTextGroup[j].Value.Value.Add(curLang, txl.Text[j]);
+								}
+							}
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+
+
+				var output = textGroups.Select(langTable => new {
+					Group = langTable.Key, //((TEXT_Language)langTable.Key).ToString(),
+					Text = langTable.Value.Where(v => v.HasValue).Select(v => new {
+						ID = v.Value.Key,
+						Comments = v.Value.Value.FirstOrDefault().Value.Comments,
+						/*Text = v.Value.Value.Where(t => t.Value.Text != "[need translation]").Select(t => new {
+							Language = ((TEXT_Language)t.Key).ToString(),
+							Text = t.Value.Text
+						}),*/
+						Text = new Dictionary<string, string>(v.Value.Value
+						.Where(t => t.Value.Text != "[need translation]")
+						.Select(t => new KeyValuePair<string, string>(
+							((TEXT_Language)t.Key).ToString(),
+							t.Value.Text)
+						))
+					})
+				});
+				string json = JsonConvert.SerializeObject(output, Formatting.Indented);
+				Util.ByteArrayToFile(Path.Combine(outputDir, $"localization_{settings.GameModeSelection}.json"), Encoding.UTF8.GetBytes(json));
+			}
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
 
 			Debug.Log($"Finished export");
 		}
