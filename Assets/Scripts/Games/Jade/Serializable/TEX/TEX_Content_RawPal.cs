@@ -68,12 +68,14 @@ namespace Ray1Map.Jade
                 case GameModeSelection.RaymanRavingRabbidsWii:
                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
                 case GameModeSelection.RaymanRavingRabbids2Wii:
-                case GameModeSelection.RaymanRavingRabbids2PC:
+				case GameModeSelection.RaymanRavingRabbids2Wii_20070901:
+				case GameModeSelection.RaymanRavingRabbids2PC:
                 case GameModeSelection.KingKongGC:
                 case GameModeSelection.BeyondGoodAndEvilGC:
                     return SlotOrderWii;
                 case GameModeSelection.RaymanRavingRabbidsXbox360:
-                    return SlotOrderXbox360;
+				case GameModeSelection.RaymanRavingRabbidsXbox360_20070213:
+					return SlotOrderXbox360;
                 default:
                     return SlotOrderPC;
             }

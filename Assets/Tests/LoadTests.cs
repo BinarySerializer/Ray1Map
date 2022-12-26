@@ -1113,7 +1113,10 @@ public class Jade_RRR
     [UnityTest]
     public IEnumerator RaymanRavingRabbidsXbox360() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsXbox360);
 
-    [UnityTest]
+	[UnityTest]
+	public IEnumerator RaymanRavingRabbidsXbox360_20070213() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsXbox360_20070213);
+
+	[UnityTest]
     public IEnumerator RaymanRavingRabbidsPS2() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsPS2);
 
 }
@@ -1171,6 +1174,9 @@ public class Jade_RRR2
 
     [UnityTest]
     public IEnumerator RaymanRavingRabbids2Wii() => LoadTests.Load(GameModeSelection.RaymanRavingRabbids2Wii);
+
+	[UnityTest]
+	public IEnumerator RaymanRavingRabbids2Wii_20070901() => LoadTests.Load(GameModeSelection.RaymanRavingRabbids2Wii_20070901);
 
 }
 

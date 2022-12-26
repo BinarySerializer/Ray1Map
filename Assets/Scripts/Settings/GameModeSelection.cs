@@ -781,7 +781,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
         RaymanRavingRabbidsXbox360,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360 - 2007/02/13)", typeof(Jade_RRR_Xbox360_20070213_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
+		RaymanRavingRabbidsXbox360_20070213,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
         RaymanRavingRabbidsPS2,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez, Game.Jade_Horsez, "Horsez (PS2)", typeof(Jade_Horsez_PS2_Manager), Platform.PS2)]
@@ -824,7 +827,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii)", typeof(Jade_RRR2_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbids2Wii,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2)", typeof(Jade_PoP_SoT_PS2_Manager), Platform.PS2)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii - 2007/09/01)", typeof(Jade_RRR2_Wii_20070901_Manager), Platform.Wii)]
+		RaymanRavingRabbids2Wii_20070901,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2)", typeof(Jade_PoP_SoT_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2 - Demo 2003/07/23)", typeof(Jade_PoP_SoT_PS2_20030723_Manager), Platform.PS2)]
