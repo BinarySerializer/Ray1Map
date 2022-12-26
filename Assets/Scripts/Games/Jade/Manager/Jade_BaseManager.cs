@@ -55,6 +55,7 @@ namespace Ray1Map {
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output)),
+					new GameAction("Export models (unbinarized)", false, true, (input, output) => ExportModelsUnbinarizedAsync(settings, output)),
 					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output))
 				}).ToArray();
 			}
@@ -306,7 +307,6 @@ namespace Ray1Map {
 
 			Debug.Log($"Finished export");
 		}
-
 		public async UniTask ExportLocalizationUnbinarizedAsync(GameSettings settings, string outputDir) {
 			using (var context = new Ray1MapContext(settings)) {
 				await LoadFilesAsync(context);
@@ -586,6 +586,88 @@ namespace Ray1Map {
 				}
 			}
 
+			Debug.Log($"Finished export");
+		}
+		public async UniTask ExportModelsUnbinarizedAsync(GameSettings settings, string outputDir) {
+
+			var parsedTexs = new HashSet<uint>();
+
+			var levIndex = 0;
+			uint currentKey = 0;
+			HashSet<uint> exportedObjects = new HashSet<uint>();
+			HashSet<string> exportedObjectIDs = new HashSet<string>();
+
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
+				// Set up AI types
+				AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
+				context.StoreObject<AI_Links>(AIKey, aiLinks);
+
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".gao"))) {
+						try {
+							Jade_Reference<OBJ_GameObject> gaoRef = new Jade_Reference<OBJ_GameObject>(context, fileInfo.Key);
+							gaoRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							var o = gaoRef;
+
+							if (o.IsNull || exportedObjects.Contains(o.Key.Key)) continue;
+							exportedObjects.Add(o.Key.Key);
+							string objectID = "";
+							if (o?.Value?.Base?.Visual != null) {
+								var visu = o?.Value?.Base?.Visual;
+								objectID += $"G{visu.GeometricObject.Key.Key:X8}-M{visu.Material.Key.Key:X8}";
+							}
+							if (o?.Value?.Base?.ActionData?.SkeletonGroup != null) {
+								objectID += $"-S{o.Value.Base.ActionData.SkeletonGroup.Key.Key:X8}";
+							}
+							if (o?.Value?.Extended?.Group != null) {
+								objectID += $"-Gr{o?.Value.Extended?.Group.Key.Key:X8}";
+							}
+							if (exportedObjectIDs.Contains(objectID)) continue;
+							exportedObjectIDs.Add(objectID);
+							if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
+
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+			}
+
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
+			if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				await UniTask.Delay(2000);
+			}
 			Debug.Log($"Finished export");
 		}
 		public async UniTask ExportSoundsAsync(GameSettings settings, string outputDir, bool useComplexNames) {
