@@ -955,10 +955,26 @@ namespace Ray1Map {
 				originalLoader = await InitJadeAsync(readContext, initAI: false);
 				originalBF = originalLoader.BigFiles[0];
 
+				Dictionary<string, List<LOA_Loader.FileInfo>> fileInfos = null;
+				List<LOA_Loader.FileInfo> GetJadeFileByPath(string path) {
+					if (fileInfos == null) {
+						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
+						foreach (var fi in originalLoader.FileInfos) {
+							var fp = fi.Value.FilePath;
+							if (!fileInfos.ContainsKey(fp)) fileInfos[fp] = new List<LOA_Loader.FileInfo>();
+							fileInfos[fp].Add(fi.Value);
+						}
+					}
+					if (fileInfos.TryGetValue(path, out List<LOA_Loader.FileInfo> val)) {
+						return val;
+					} else
+						return null;
+				}
 				// Read file keys (unbinarized)
 				string keyListPath = Path.Combine(inputDir, "original/filekeys.txt");
 				Dictionary<uint, string> fileKeysUnbinarized = new Dictionary<uint, string>();
-				{
+
+				if (File.Exists(keyListPath)) {
 					string[] lines = File.ReadAllLines(keyListPath);
 					foreach (var l in lines) {
 						var lineSplit = l.Split(',');
@@ -991,11 +1007,19 @@ namespace Ray1Map {
 				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
 					string configPath = Path.Combine(modDir, "config.txt");
 					bool overwrite = true;
+					bool useKeysFromBFFilenameOnly = false;
 					if (File.Exists(configPath)) {
 						string[] lines = File.ReadAllLines(configPath);
 						foreach (var l in lines) {
-							if (l.Trim() == "overwrite=false") {
-								overwrite = false;
+							switch (l.Trim()) {
+								case "overwrite=false":
+									overwrite = false;
+									break;
+								case "use_keys_from_bf_filename_only=true":
+									useKeysFromBFFilenameOnly = true;
+									break;
+								default:
+									break;
 							}
 						}
 					}
@@ -1031,6 +1055,31 @@ namespace Ray1Map {
 								}
 							}
 						}
+					} else if (useKeysFromBFFilenameOnly) {
+						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
+						mods.Add(mod);
+						var modFilesDir = Path.Combine(modDir, $"files");
+						foreach (string file in Directory.EnumerateFiles(modFilesDir, "*", SearchOption.AllDirectories)) {
+							string relPath = file.Substring(modFilesDir.Length + 1).Replace('\\', '/');
+							var fil = GetJadeFileByPath(relPath);
+							if (fil != null) {
+								foreach (var fi in fil) {
+									uint k = fi.Key;
+									bool addModFile = true;
+									if (fileKeysUnbinarized.ContainsKey(k)) {
+										if (overwrite) fileKeysUnbinarized.Remove(k);
+										else addModFile = false;
+									}
+									if (fileKeysExisting.ContainsKey(k)) {
+										if (overwrite) fileKeysExisting.Remove(k);
+										else addModFile = false;
+									} else {
+										Debug.Log(relPath);
+									}
+									if(addModFile) mod.Value[k] = relPath;
+								}
+							}
+						}
 					}
 				}
 
@@ -1059,33 +1108,53 @@ namespace Ray1Map {
 					})
 					).ToArray();
 				}
+				FilesToPack = FilesToPack.OrderBy(f => f.Key.Key).ToArray();
 
 				// Create directories
 				List<BIG_BigFile.DirectoryInfoForCreate> directories = new List<BIG_BigFile.DirectoryInfoForCreate>();
 				int curDirectoriesCount = 0;
 				foreach (var fileToPack in FilesToPack) {
-					var originalFullPath = fileToPack.FullPath;
-					var currentFullPath = fileToPack.FullPath;
-					Stack<string> pathStrings = new Stack<string>();
-					int currentPathIndexInOriginalFullPath = 0;
-					while (!string.IsNullOrEmpty(currentFullPath) && currentFullPath.Contains('/')) {
-						var firstIndex = currentFullPath.IndexOf('/');
-						var firstFolder = currentFullPath.Substring(0, firstIndex);
-						var dirIndex = directories.FindItemIndex(dir => dir.ParentIndex == fileToPack.DirectoryIndex);
-						if (dirIndex == -1) {
-							directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
-								DirectoryName = firstFolder,
-								FullDirectoryString = originalFullPath.Substring(0, currentPathIndexInOriginalFullPath + firstIndex),
-								ParentIndex = fileToPack.DirectoryIndex,
-							});
-							fileToPack.DirectoryIndex = curDirectoriesCount;
+					var filePath = fileToPack.FullPath;
+
+					int AddOrFindDirectoryRecursive(string dirPath) {
+						if (string.IsNullOrEmpty(dirPath)) return -1;
+						var indexInList = directories.FindItemIndex(d => d.FullDirectoryString == dirPath);
+
+						if (indexInList == -1) {
+							if (dirPath.Contains('/')) {
+								var lastDirIndex = dirPath.LastIndexOf('/');
+								var parentPath = dirPath.Substring(0, lastDirIndex);
+								var curDirName = dirPath.Substring(lastDirIndex + 1);
+								int parentIndex = AddOrFindDirectoryRecursive(parentPath);
+								directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
+									DirectoryName = curDirName,
+									FullDirectoryString = dirPath,
+									ParentIndex = parentIndex,
+								});
+							} else {
+								directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
+									DirectoryName = dirPath,
+									FullDirectoryString = dirPath,
+									ParentIndex = -1,
+								});
+							}
+							indexInList = curDirectoriesCount;
 							curDirectoriesCount++;
-						} else {
-							fileToPack.DirectoryIndex = dirIndex;
 						}
-						currentFullPath = currentFullPath.Substring(firstIndex + 1, currentFullPath.Length - firstIndex - 1);
+						return indexInList;
 					}
-					fileToPack.Filename = currentFullPath;
+					fileToPack.DirectoryIndex = AddOrFindDirectoryRecursive(filePath.Substring(0, filePath.LastIndexOf('/')));
+
+					if (!string.IsNullOrEmpty(filePath) && filePath.Contains('/')) {
+						var lastDirIndex = filePath.LastIndexOf('/');
+						var directoryString = filePath.Substring(0, lastDirIndex);
+						var filenameString = filePath.Substring(lastDirIndex + 1);
+						var dirIndex = AddOrFindDirectoryRecursive(directoryString);
+						fileToPack.DirectoryIndex = dirIndex;
+						fileToPack.Filename = filenameString;
+					} else {
+						fileToPack.Filename = filePath;
+					}
 				}
 				DirectoriesToPack = directories.ToArray();
 
@@ -1102,7 +1171,7 @@ namespace Ray1Map {
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
 							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await originalLoader.LoadLoop(s);
-							file.Bytes = reference.Value.Bytes;
+							file.Bytes = reference.Value?.Bytes ?? new byte[0];
 
 							/*if (file.Bytes.Length >= 0x3966C0 - 2
 								&& file.Bytes[0] == 0x52 && file.Bytes[1] == 0x49 && file.Bytes[2] == 0x46 && file.Bytes[3] == 0x46 // RIFF
