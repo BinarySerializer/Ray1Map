@@ -591,9 +591,6 @@ namespace Ray1Map {
 		public async UniTask ExportModelsUnbinarizedAsync(GameSettings settings, string outputDir) {
 
 			var parsedTexs = new HashSet<uint>();
-
-			var levIndex = 0;
-			uint currentKey = 0;
 			HashSet<uint> exportedObjects = new HashSet<uint>();
 			HashSet<string> exportedObjectIDs = new HashSet<string>();
 

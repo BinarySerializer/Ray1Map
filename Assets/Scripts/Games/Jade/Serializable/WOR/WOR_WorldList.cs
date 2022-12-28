@@ -46,6 +46,13 @@ namespace Ray1Map.Jade {
 							}
 						}
 					}
+
+					foreach (var gao in w.SerializedGameObjects) {
+						var ai = gao?.Extended?.AI?.Value;
+						if (ai != null) {
+							ai.CheckVariables();
+						}
+					}
 				}
 				worldIndex++;
 

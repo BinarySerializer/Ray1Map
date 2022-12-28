@@ -23,7 +23,7 @@ namespace Ray1Map.Jade
             Gizmo = s.Serialize<ushort>(Gizmo, name: nameof(Gizmo));
             DataLength = s.Serialize<uint>(DataLength, name: nameof(DataLength));
 
-            if (Flags.HasFlag(TrackFlags.Flag_15))
+            if (Flags.HasFlag(TrackFlags.Anims))
             {
                 if (((ushort)Flags & 0x3F00) == 0)
                     Type = s.Serialize<int>(Type, name: nameof(Type));
@@ -46,22 +46,22 @@ namespace Ray1Map.Jade
         public enum TrackFlags : ushort
         {
             None = 0,
-            Flag_0 = 1 << 0,
-            Flag_1 = 1 << 1,
-            Flag_2 = 1 << 2,
-            Flag_3 = 1 << 3,
-            Flag_4 = 1 << 4,
-            Flag_5 = 1 << 5,
-            Flag_6 = 1 << 6,
-            Flag_7 = 1 << 7,
-            Flag_8 = 1 << 8,
-            Flag_9 = 1 << 9,
-            Flag_10 = 1 << 10,
-            Flag_11 = 1 << 11,
-            Flag_12 = 1 << 12,
-            Flag_13 = 1 << 13,
-            Flag_14 = 1 << 14,
-            Flag_15 = 1 << 15,
+            RunningInit = 1 << 0,
+            AutoLoop = 1 << 1,
+            AutoStop = 1 << 2,
+            Time = 1 << 3,
+            MustResolve = 1 << 4,
+            Hidden = 1 << 5,
+            Selected = 1 << 6,
+            Curve = 1 << 7,
+            FirstEvent = 1 << 8,
+            Under256 = 1 << 9,
+            Flash = 1 << 10,
+            SameFlags = 1 << 11,
+            SameType = 1 << 12,
+            SameSize = 1 << 13,
+            Optimized = 1 << 14,
+            Anims = 1 << 15,
         }
     }
 }

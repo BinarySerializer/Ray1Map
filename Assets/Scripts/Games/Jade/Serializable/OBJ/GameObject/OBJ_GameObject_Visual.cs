@@ -53,21 +53,25 @@ namespace Ray1Map.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			GeometricObject = s.SerializeObject<Jade_Reference<GEO_Object>>(GeometricObject, name: nameof(GeometricObject))?.Resolve(onPostSerialize: (_, f) => {
-				if (f.RenderObject.Type != GRO_Type.GEO
-				&& f.RenderObject.Type != GRO_Type.PAG
-				&& f.RenderObject.Type != GRO_Type.GEO_StaticLOD
-				&& f.RenderObject.Type != GRO_Type.GEO_SubGeometry
-				&& f.RenderObject.Type != GRO_Type.CAM
-				&& f.RenderObject.Type != GRO_Type.STR
-				&& f.RenderObject.Type != GRO_Type.Unknown) {
-					throw new Exception($"{f.Key}: Expected GEO, got {f.RenderObject.Type}");
+				if (f?.RenderObject != null) {
+					if (f.RenderObject.Type != GRO_Type.GEO
+					&& f.RenderObject.Type != GRO_Type.PAG
+					&& f.RenderObject.Type != GRO_Type.GEO_StaticLOD
+					&& f.RenderObject.Type != GRO_Type.GEO_SubGeometry
+					&& f.RenderObject.Type != GRO_Type.CAM
+					&& f.RenderObject.Type != GRO_Type.STR
+					&& f.RenderObject.Type != GRO_Type.Unknown) {
+						throw new Exception($"{f.Key}: Expected GEO, got {f.RenderObject.Type}");
+					}
 				}
 			});
 			Material = s.SerializeObject<Jade_Reference<GEO_Object>>(Material, name: nameof(Material))?.Resolve(onPostSerialize: (_,f) => {
-				if(f.RenderObject.Type != GRO_Type.MAT_MSM
-				&& f.RenderObject.Type != GRO_Type.MAT_MTT
-				&& f.RenderObject.Type != GRO_Type.MAT_SIN) {
-					throw new Exception($"{f.Key}: Expected material, got {f.RenderObject.Type}");
+				if (f?.RenderObject != null) {
+					if (f.RenderObject.Type != GRO_Type.MAT_MSM
+					&& f.RenderObject.Type != GRO_Type.MAT_MTT
+					&& f.RenderObject.Type != GRO_Type.MAT_SIN) {
+						throw new Exception($"{f.Key}: Expected material, got {f.RenderObject.Type}");
+					}
 				}
 			});
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {

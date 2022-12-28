@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace Ray1Map.Jade
 {
@@ -9,7 +10,7 @@ namespace Ray1Map.Jade
         public Jade_Reference<EVE_ListTracks> ListTracks_TRS { get; set; }
         public ushort TracksCount { get; set; }
         public ushort TracksCount2 { get; set; }
-        public ushort Flags { get; set; }
+        public TracksFlags Flags { get; set; }
         public EVE_Track[] Tracks { get; set; }
         public ushort Montreal_Version { get; set; }
 
@@ -30,7 +31,7 @@ namespace Ray1Map.Jade
                 TracksCount2 = s.Serialize<ushort>(TracksCount2, name: nameof(TracksCount2));
                 useCount2 = true;
             }
-			Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
+			Flags = s.Serialize<TracksFlags>(Flags, name: nameof(Flags));
             Tracks = s.SerializeObjectArray<EVE_Track>(Tracks, useCount2 ? TracksCount2 : TracksCount, onPreSerialize: trk => trk.ListTracks = this, name: nameof(Tracks));
         }
 
@@ -41,6 +42,27 @@ namespace Ray1Map.Jade
                 TracksCount2 = 0;
                 Tracks = new EVE_Track[0];
             }
+		}
+
+		[Flags]
+		public enum TracksFlags : ushort {
+			None = 0,
+			NoFlash = 1 << 0, // Do never matrix flash
+			Resolved = 1 << 1, // List of tracks has been resolved
+			Flag_2 = 1 << 2,
+			Flag_3 = 1 << 3,
+			Flag_4 = 1 << 4,
+			Flag_5 = 1 << 5,
+			Flag_6 = 1 << 6,
+			Flag_7 = 1 << 7,
+			Flag_8 = 1 << 8,
+			Flag_9 = 1 << 9,
+			Flag_10 = 1 << 10,
+			Flag_11 = 1 << 11,
+			Flag_12 = 1 << 12,
+			Flag_13 = 1 << 13,
+			ForceARAM = 1 << 14,
+			Anims = 1 << 15, // List of tracks is part of an anim (Load/Save only)
 		}
 	}
 }
