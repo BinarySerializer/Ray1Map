@@ -25,7 +25,7 @@ namespace Ray1Map.Jade {
 		public uint Editor_UInt_Montreal_AfterBackgroundColor { get; set; }
 		public uint UInt_9C_Version5 { get; set; }
 		public uint LODCut { get; set; }
-		public byte[] Bytes_A4 { get; set; }
+		public byte[] XenonDummyBytes { get; set; }
 		public XenonStruct Xenon { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid0 { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid1 { get; set; }
@@ -34,7 +34,7 @@ namespace Ray1Map.Jade {
 		public Jade_Reference<WOR_GameObjectGroup> GameObjects { get; set; }
 		public Jade_Reference<WAY_AllNetworks> AllNetworks { get; set; }
 		public Jade_TextReference Text { get; set; }
-		public Secto[] AllSectos { get; set; }
+		public WOR_Secto[] AllSectos { get; set; }
 		public Jade_Reference<LIGHT_Rejection> LightRejection { get; set; }
 		public Jade_Reference<WOR_MagmaGroup> MagmaGroup { get; set; }
 
@@ -79,7 +79,7 @@ namespace Ray1Map.Jade {
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
 				Xenon = s.SerializeObject<XenonStruct>(Xenon, onPreSerialize: x => x.Version = Version, name: nameof(Xenon));
 			} else {
-				if (!Loader.IsBinaryData) Bytes_A4 = s.SerializeArray<byte>(Bytes_A4, 44, name: nameof(Bytes_A4));
+				if (!Loader.IsBinaryData) XenonDummyBytes = s.SerializeArray<byte>(XenonDummyBytes, 44, name: nameof(XenonDummyBytes));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				Grid0 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid0, name: nameof(Grid0))?.Resolve();
@@ -99,7 +99,7 @@ namespace Ray1Map.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				// Montpellier branches only
 				if (Version >= 4) {
-					AllSectos = s.SerializeObjectArray<Secto>(AllSectos, 64, name: nameof(AllSectos));
+					AllSectos = s.SerializeObjectArray<WOR_Secto>(AllSectos, 64, name: nameof(AllSectos));
 				}
 				if (Version > 4 && s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
 					LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
@@ -109,150 +109,110 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public class Secto : BinarySerializable {
-			public uint Flags { get; set; }
-			public byte[] RefVis { get; set; }
-			public byte[] RefAct { get; set; }
-			public byte[] Bytes_24 { get; set; }
-			public Portal[] Portals { get; set; }
-			public override void SerializeImpl(SerializerObject s) {
-				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
-				RefVis = s.SerializeArray<byte>(RefVis, 0x10, name: nameof(RefVis));
-				RefAct = s.SerializeArray<byte>(RefAct, 0x10, name: nameof(RefAct));
-				if (!Loader.IsBinaryData) Bytes_24 = s.SerializeArray<byte>(Bytes_24, 0x40, name: nameof(Bytes_24));
-				Portals = s.SerializeObjectArray<Portal>(Portals, 16, name: nameof(Portals));
-			}
-
-			public class Portal : BinarySerializable {
-				public short Flags { get; set; }
-				public byte ShareSect { get; set; }
-				public byte SharePortal { get; set; }
-				public Jade_Vector vA { get; set; }
-				public Jade_Vector vB { get; set; }
-				public Jade_Vector vC { get; set; }
-				public Jade_Vector vD { get; set; }
-				public byte[] Bytes_34 { get; set; }
-
-				public override void SerializeImpl(SerializerObject s) {
-					LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-					Flags = s.Serialize<short>(Flags, name: nameof(Flags));
-					ShareSect = s.Serialize<byte>(ShareSect, name: nameof(ShareSect));
-					SharePortal = s.Serialize<byte>(SharePortal, name: nameof(SharePortal));
-					vA = s.SerializeObject<Jade_Vector>(vA, name: nameof(vA));
-					vB = s.SerializeObject<Jade_Vector>(vB, name: nameof(vB));
-					vC = s.SerializeObject<Jade_Vector>(vC, name: nameof(vC));
-					vD = s.SerializeObject<Jade_Vector>(vD, name: nameof(vD));
-					if (!Loader.IsBinaryData) Bytes_34 = s.SerializeArray<byte>(Bytes_34, 0x40, name: nameof(Bytes_34));
-				}
-			}
-		}
-
 		public class XenonStruct : BinarySerializable {
 			public uint Version { get; set; } // Set in onPreSerialize
 
-			public float Float_00 { get; set; }
-			public float Float_04 { get; set; }
-			public float Float_08 { get; set; }
-			public int Int_0C { get; set; }
-			public float Float_10 { get; set; }
+			public float GlowLuminosityMin { get; set; }
+			public float GlowZNear { get; set; }
+			public float GlowZFar { get; set; }
+			public int GlowColor { get; set; }
+			public float GlowLuminosityMax { get; set; }
 
-			public float Float_14 { get; set; }
-			public float Float_18 { get; set; }
-			public float Float_1C { get; set; }
-			public float Float_20 { get; set; }
-			public float Float_24 { get; set; }
+			public float GlowIntensity { get; set; }
+			public float GaussianStrength { get; set; }
+			public float RLIScale { get; set; }
+			public float RLIOffset { get; set; }
+			public float MipMapLODBias { get; set; }
 
-			public float Type6_Float_00 { get; set; }
-			public float Type6_Float_04 { get; set; }
-			public float Type6_Float_08 { get; set; }
-			public float Type6_Float_0C { get; set; }
+			public float DrySpecularBoost { get; set; }
+			public float WetSpecularBoost { get; set; }
+			public float RainEffectDelay { get; set; }
+			public float RainEffectDryDelay { get; set; }
 
-			public float Type7_Float_00 { get; set; }
-			public float Type7_Float_04 { get; set; }
+			public float DryDiffuseFactor { get; set; }
+			public float WetDiffuseFactor { get; set; }
 
-			public uint Type8_UInt_00 { get; set; } // A color? RGBA (0xFF808080)
-			public uint Type8_UInt_04 { get; set; } // same
+			public uint DiffuseColor { get; set; } // A color? RGBA (0xFF808080)
+			public uint SpecularColor { get; set; } // same
 
-			public float Type9_Float_00 { get; set; }
-			public int Type9_Int_04 { get; set; }
+			public float GodRayIntensity { get; set; }
+			public int GodRayIntensityColor { get; set; }
 
-			public float Type10_Float_00 { get; set; }
-			public float Type10_Float_04 { get; set; }
+			public float SpecularShiny { get; set; }
+			public float SpecularStrength { get; set; }
 
-			public uint Type11_UInt_00 { get; set; }
-			public float Type11_Float_04 { get; set; }
-			public float Type11_Float_08 { get; set; }
-			public uint Type11_UInt_0C { get; set; }
-			public float Type11_Float_10 { get; set; }
-			public float Type11_Float_14 { get; set; }
+			public uint MaterialLODEnable { get; set; }
+			public float MaterialLODNear { get; set; }
+			public float MaterialLODFar { get; set; }
+			public uint MaterialLODDetailEnable { get; set; }
+			public float MaterialLODDetailNear { get; set; }
+			public float MaterialLODDetailFar { get; set; }
 
-			public float Type12_Float_00 { get; set; }
-			public float Type12_Float_04 { get; set; }
-			public float Type12_Float_08 { get; set; }
+			public float Saturation { get; set; }
+			public float Brightness { get; set; }
+			public float ContrastDividedBy5 { get; set; }
 
-			public float Type13_Float_00 { get; set; }
-			public float Type13_Float_04 { get; set; }
-			public float Type13_Float_08 { get; set; }
-			public float Type13_Float_0C { get; set; }
-			public float Type13_Float_10 { get; set; }
+			public float BrightnessX { get; set; }
+			public float BrightnessY { get; set; }
+			public float BrightnessZ { get; set; }
+			public float Contrast { get; set; }
 
-			public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
+			public Jade_Reference<OBJ_GameObject> SPG2LightGameObject { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Float_00 = s.Serialize<float>(Float_00, name: nameof(Float_00));
-				Float_04 = s.Serialize<float>(Float_04, name: nameof(Float_04));
-				Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-				Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
-				Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
-				Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
-				Float_18 = s.Serialize<float>(Float_18, name: nameof(Float_18));
-				Float_1C = s.Serialize<float>(Float_1C, name: nameof(Float_1C));
-				Float_20 = s.Serialize<float>(Float_20, name: nameof(Float_20));
-				Float_24 = s.Serialize<float>(Float_24, name: nameof(Float_24));
+				GlowLuminosityMin = s.Serialize<float>(GlowLuminosityMin, name: nameof(GlowLuminosityMin));
+				GlowZNear = s.Serialize<float>(GlowZNear, name: nameof(GlowZNear));
+				GlowZFar = s.Serialize<float>(GlowZFar, name: nameof(GlowZFar));
+				GlowColor = s.Serialize<int>(GlowColor, name: nameof(GlowColor));
+				GlowLuminosityMax = s.Serialize<float>(GlowLuminosityMax, name: nameof(GlowLuminosityMax));
+				GlowIntensity = s.Serialize<float>(GlowIntensity, name: nameof(GlowIntensity));
+				GaussianStrength = s.Serialize<float>(GaussianStrength, name: nameof(GaussianStrength));
+				RLIScale = s.Serialize<float>(RLIScale, name: nameof(RLIScale));
+				RLIOffset = s.Serialize<float>(RLIOffset, name: nameof(RLIOffset));
+				MipMapLODBias = s.Serialize<float>(MipMapLODBias, name: nameof(MipMapLODBias));
 				if (Version >= 6) {
-					Type6_Float_00 = s.Serialize<float>(Type6_Float_00, name: nameof(Type6_Float_00));
-					Type6_Float_04 = s.Serialize<float>(Type6_Float_04, name: nameof(Type6_Float_04));
-					Type6_Float_08 = s.Serialize<float>(Type6_Float_08, name: nameof(Type6_Float_08));
-					Type6_Float_0C = s.Serialize<float>(Type6_Float_0C, name: nameof(Type6_Float_0C));
+					DrySpecularBoost = s.Serialize<float>(DrySpecularBoost, name: nameof(DrySpecularBoost));
+					WetSpecularBoost = s.Serialize<float>(WetSpecularBoost, name: nameof(WetSpecularBoost));
+					RainEffectDelay = s.Serialize<float>(RainEffectDelay, name: nameof(RainEffectDelay));
+					RainEffectDryDelay = s.Serialize<float>(RainEffectDryDelay, name: nameof(RainEffectDryDelay));
 				}
 				if (Version >= 7) {
-					Type7_Float_00 = s.Serialize<float>(Type7_Float_00, name: nameof(Type7_Float_00));
-					Type7_Float_04 = s.Serialize<float>(Type7_Float_04, name: nameof(Type7_Float_04));
+					DryDiffuseFactor = s.Serialize<float>(DryDiffuseFactor, name: nameof(DryDiffuseFactor));
+					WetDiffuseFactor = s.Serialize<float>(WetDiffuseFactor, name: nameof(WetDiffuseFactor));
 				}
 				if (Version >= 8) {
-					Type8_UInt_00 = s.Serialize<uint>(Type8_UInt_00, name: nameof(Type8_UInt_00));
-					Type8_UInt_04 = s.Serialize<uint>(Type8_UInt_04, name: nameof(Type8_UInt_04));
+					DiffuseColor = s.Serialize<uint>(DiffuseColor, name: nameof(DiffuseColor));
+					SpecularColor = s.Serialize<uint>(SpecularColor, name: nameof(SpecularColor));
 				}
 				if (Version >= 9) {
-					Type9_Float_00 = s.Serialize<float>(Type9_Float_00, name: nameof(Type9_Float_00));
-					Type9_Int_04 = s.Serialize<int>(Type9_Int_04, name: nameof(Type9_Int_04));
+					GodRayIntensity = s.Serialize<float>(GodRayIntensity, name: nameof(GodRayIntensity));
+					GodRayIntensityColor = s.Serialize<int>(GodRayIntensityColor, name: nameof(GodRayIntensityColor));
 				}
 				if (Version >= 10) {
-					Type10_Float_00 = s.Serialize<float>(Type10_Float_00, name: nameof(Type10_Float_00));
-					Type10_Float_04 = s.Serialize<float>(Type10_Float_04, name: nameof(Type10_Float_04));
+					SpecularShiny = s.Serialize<float>(SpecularShiny, name: nameof(SpecularShiny));
+					SpecularStrength = s.Serialize<float>(SpecularStrength, name: nameof(SpecularStrength));
 				}
 				if (Version >= 11) {
-					Type11_UInt_00 = s.Serialize<uint>(Type11_UInt_00, name: nameof(Type11_UInt_00));
-					Type11_Float_04 = s.Serialize<float>(Type11_Float_04, name: nameof(Type11_Float_04));
-					Type11_Float_08 = s.Serialize<float>(Type11_Float_08, name: nameof(Type11_Float_08));
-					Type11_UInt_0C = s.Serialize<uint>(Type11_UInt_0C, name: nameof(Type11_UInt_0C));
-					Type11_Float_10 = s.Serialize<float>(Type11_Float_10, name: nameof(Type11_Float_10));
-					Type11_Float_14 = s.Serialize<float>(Type11_Float_14, name: nameof(Type11_Float_14));
+					MaterialLODEnable = s.Serialize<uint>(MaterialLODEnable, name: nameof(MaterialLODEnable));
+					MaterialLODNear = s.Serialize<float>(MaterialLODNear, name: nameof(MaterialLODNear));
+					MaterialLODFar = s.Serialize<float>(MaterialLODFar, name: nameof(MaterialLODFar));
+					MaterialLODDetailEnable = s.Serialize<uint>(MaterialLODDetailEnable, name: nameof(MaterialLODDetailEnable));
+					MaterialLODDetailNear = s.Serialize<float>(MaterialLODDetailNear, name: nameof(MaterialLODDetailNear));
+					MaterialLODDetailFar = s.Serialize<float>(MaterialLODDetailFar, name: nameof(MaterialLODDetailFar));
 				}
 				if (Version == 12) {
-					Type12_Float_00 = s.Serialize<float>(Type12_Float_00, name: nameof(Type12_Float_00));
-					Type12_Float_04 = s.Serialize<float>(Type12_Float_04, name: nameof(Type12_Float_04));
-					Type12_Float_08 = s.Serialize<float>(Type12_Float_08, name: nameof(Type12_Float_08));
+					Saturation = s.Serialize<float>(Saturation, name: nameof(Saturation));
+					Brightness = s.Serialize<float>(Brightness, name: nameof(Brightness));
+					ContrastDividedBy5 = s.Serialize<float>(ContrastDividedBy5, name: nameof(ContrastDividedBy5));
 				}
 				if (Version >= 13) {
-					Type13_Float_00 = s.Serialize<float>(Type13_Float_00, name: nameof(Type13_Float_00));
-					Type13_Float_04 = s.Serialize<float>(Type13_Float_04, name: nameof(Type13_Float_04));
-					Type13_Float_08 = s.Serialize<float>(Type13_Float_08, name: nameof(Type13_Float_08));
-					Type13_Float_0C = s.Serialize<float>(Type13_Float_0C, name: nameof(Type13_Float_0C));
-					Type13_Float_10 = s.Serialize<float>(Type13_Float_10, name: nameof(Type13_Float_10));
+					Saturation = s.Serialize<float>(Saturation, name: nameof(Saturation));
+					BrightnessX = s.Serialize<float>(BrightnessX, name: nameof(BrightnessX));
+					BrightnessY = s.Serialize<float>(BrightnessY, name: nameof(BrightnessY));
+					BrightnessZ = s.Serialize<float>(BrightnessZ, name: nameof(BrightnessZ));
+					Contrast = s.Serialize<float>(Contrast, name: nameof(Contrast));
 				}
-				GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
+				SPG2LightGameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(SPG2LightGameObject, name: nameof(SPG2LightGameObject))?.Resolve();
 			}
 		}
 

@@ -184,6 +184,7 @@ namespace Ray1Map.Jade {
 						ParentDirectory = f.DirectoryIndex,
 						NextFile = -1,
 						PreviousFile = -1,
+						Big = bf
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
 
