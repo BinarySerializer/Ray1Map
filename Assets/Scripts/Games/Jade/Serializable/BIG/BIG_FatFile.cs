@@ -72,8 +72,7 @@ namespace Ray1Map.Jade {
 			public int PreviousFile { get; set; }
 			public int ParentDirectory { get; set; }
 			public uint DateLastModifiedUInt { get; set; }
-			public uint UInt_14 { get; set; }
-			public uint UInt_54 { get; set; }
+			public uint P4Version { get; set; }
 			public string Hash { get; set; }
 			public uint V43_UInt { get; set; }
 
@@ -98,7 +97,7 @@ namespace Ray1Map.Jade {
 					if(s.IsSerializerLoggerEnabled) s.Log("Date: {0:ddd, dd/MM/yyyy - HH:mm:ss}", DateLastModified);
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
-						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
+						P4Version = s.Serialize<uint>(P4Version, name: nameof(P4Version));
 					}
 					if (Big.Version >= 42) {
 						Hash = s.SerializeString(Hash, 0x20, encoding: Jade_BaseManager.Encoding, name: nameof(Hash));

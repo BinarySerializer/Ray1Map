@@ -56,7 +56,7 @@ namespace Ray1Map {
 				actions = actions.Concat(new GameAction[] {
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output)),
 					new GameAction("Export models (unbinarized)", false, true, (input, output) => ExportModelsUnbinarizedAsync(settings, output)),
-					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output))
+					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output)),
 				}).ToArray();
 			}
 			if (TexturesGearBFPath != null) {
@@ -1174,7 +1174,6 @@ namespace Ray1Map {
 						}
 					}
 				}
-
 				// Read file keys (modded)
 				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
 				var modDirectory = Path.Combine(inputDir, "mod");
@@ -1248,7 +1247,12 @@ namespace Ray1Map {
 										if (overwrite) fileKeysExisting.Remove(k);
 										else addModFile = false;
 									} else {
-										Debug.Log(relPath);
+										foreach (var otherMod in mods) {
+											if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+												if (overwrite) otherMod.Value.Remove(k);
+												else addModFile = false;
+											}
+										}
 									}
 									if(addModFile) mod.Value[k] = relPath;
 								}
@@ -1287,6 +1291,7 @@ namespace Ray1Map {
 				// Create directories
 				List<BIG_BigFile.DirectoryInfoForCreate> directories = new List<BIG_BigFile.DirectoryInfoForCreate>();
 				int curDirectoriesCount = 0;
+				int curFileToPackIndex = 0;
 				foreach (var fileToPack in FilesToPack) {
 					var filePath = fileToPack.FullPath;
 
@@ -1295,24 +1300,33 @@ namespace Ray1Map {
 						var indexInList = directories.FindItemIndex(d => d.FullDirectoryString == dirPath);
 
 						if (indexInList == -1) {
+							BIG_BigFile.DirectoryInfoForCreate createdDirectory = null;
 							if (dirPath.Contains('/')) {
 								var lastDirIndex = dirPath.LastIndexOf('/');
 								var parentPath = dirPath.Substring(0, lastDirIndex);
 								var curDirName = dirPath.Substring(lastDirIndex + 1);
 								int parentIndex = AddOrFindDirectoryRecursive(parentPath);
-								directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
+
+								createdDirectory = new BIG_BigFile.DirectoryInfoForCreate() {
 									DirectoryName = curDirName,
 									FullDirectoryString = dirPath,
 									ParentIndex = parentIndex,
-								});
+									DirectoryIndex = curDirectoriesCount
+								};
+								if (parentIndex != -1) {
+									var parent = directories[parentIndex];
+									parent.SubDirectories.Add(createdDirectory);
+								}
 							} else {
-								directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
+								createdDirectory = new BIG_BigFile.DirectoryInfoForCreate() {
 									DirectoryName = dirPath,
 									FullDirectoryString = dirPath,
 									ParentIndex = -1,
-								});
+									DirectoryIndex = curDirectoriesCount
+								};
 							}
-							indexInList = curDirectoriesCount;
+							directories.Add(createdDirectory);
+							indexInList = createdDirectory.DirectoryIndex;
 							curDirectoriesCount++;
 						}
 						return indexInList;
@@ -1329,8 +1343,31 @@ namespace Ray1Map {
 					} else {
 						fileToPack.Filename = filePath;
 					}
+					if (fileToPack.DirectoryIndex != -1) {
+						var dir = directories[fileToPack.DirectoryIndex];
+						dir.Files.Add(fileToPack);
+					}
+					fileToPack.FileIndex = curFileToPackIndex;
+					curFileToPackIndex++;
 				}
 				DirectoriesToPack = directories.ToArray();
+
+				// Create next/previous lists for files & directories
+				foreach (var dir in DirectoriesToPack) {
+					for (int i = 0; i < dir.SubDirectories.Count; i++) {
+						if(i > 0) dir.SubDirectories[i].PreviousDirectoryID = dir.SubDirectories[i-1].DirectoryIndex;
+						if(i < dir.SubDirectories.Count-1) dir.SubDirectories[i].NextDirectoryID = dir.SubDirectories[i+1].DirectoryIndex;
+					}
+					if(dir.SubDirectories.Any())
+						dir.FirstDirectoryID = dir.SubDirectories[0].DirectoryIndex;
+
+					for (int i = 0; i < dir.Files.Count; i++) {
+						if(i > 0) dir.Files[i].PreviousFileInDirectoryIndex = dir.Files[i-1].FileIndex;
+						if(i < dir.Files.Count-1) dir.Files[i].NextFileInDirectoryIndex = dir.Files[i+1].FileIndex;
+					}
+					if(dir.Files.Any())
+						dir.FirstFileID = dir.Files[0].FileIndex;
+				}
 
 				foreach (var file in FilesToPack) {
 					switch (file.Source) {
@@ -1396,7 +1433,9 @@ namespace Ray1Map {
 				var bfFile = new LinearFile(writeContext, targetFilePath, Endian.Little);
 				writeContext.AddFile(bfFile);
 
-				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack);
+				bool optimized = false;
+
+				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack, paddingBetweenFiles: (optimized ? (uint)0 : 0x100), writeFilenameInPadding: !optimized, increaseSizeOfFat: !optimized);
 				var s = writeContext.Serializer;
 				s.Goto(bfFile.StartPointer);
 				newBF = s.SerializeObject<BIG_BigFile>(newBF, name: nameof(newBF));
@@ -1406,8 +1445,10 @@ namespace Ray1Map {
 					s.Goto(file.Offset);
 					s.Serialize<uint>(file.FileSize, name: nameof(file.FileSize));
 					s.SerializeArray<byte>(file.Bytes, file.Bytes.Length, name: nameof(file.Bytes));
-					s.Goto(file.NameOffset);
-					s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
+					if (!optimized) {
+						s.Goto(file.NameOffset);
+						s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
+					}
 				}
 			}
 		}

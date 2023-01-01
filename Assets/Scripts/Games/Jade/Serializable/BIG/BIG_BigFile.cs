@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using BinarySerializer;
+using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
 	public class BIG_BigFile : BinarySerializable {
@@ -157,11 +158,10 @@ namespace Ray1Map.Jade {
 						ParentDirectory = dir.ParentIndex,
 						Name = dir.DirectoryName,
 
-						// Not filling these in - not important for Jademap or Jade
-						FirstDirectoryID = -1,
-						FirstFileID = -1,
-						NextDirectory = -1,
-						PreviousDirectory = -1,
+						FirstDirectoryID = dir.FirstDirectoryID,
+						FirstFileID = dir.FirstFileID,
+						NextDirectory = dir.NextDirectoryID,
+						PreviousDirectory = dir.PreviousDirectoryID,
 					};
 				}
 				for (int file_i = 0; file_i < curFilesInFat; file_i++) {
@@ -182,8 +182,8 @@ namespace Ray1Map.Jade {
 						Name = f.Filename,
 						FileSize = f.FileSize,
 						ParentDirectory = f.DirectoryIndex,
-						NextFile = -1,
-						PreviousFile = -1,
+						NextFile = f.NextFileInDirectoryIndex,
+						PreviousFile = f.PreviousFileInDirectoryIndex,
 						Big = bf
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
@@ -204,6 +204,9 @@ namespace Ray1Map.Jade {
 			public byte[] Bytes { get; set; }
 			public Pointer Offset { get; set; }
 			public Pointer NameOffset { get; set; }
+			public int FileIndex { get; set; }
+			public int NextFileInDirectoryIndex { get; set; }
+			public int PreviousFileInDirectoryIndex { get; set; }
 
 			// Temporary
 			public FileSource Source { get; set; }
@@ -217,8 +220,15 @@ namespace Ray1Map.Jade {
 		}
 		public class DirectoryInfoForCreate {
 			public string DirectoryName { get; set; }
-			public int ParentIndex { get; set; }
+			public int ParentIndex { get; set; } = -1;
 			public string FullDirectoryString { get; set; }
+			public int NextDirectoryID { get; set; } = -1;
+			public int PreviousDirectoryID { get; set; } = -1;
+			public int FirstDirectoryID { get; set; } = -1;
+			public int FirstFileID { get; set; } = -1;
+			public int DirectoryIndex { get; set; }
+			public List<BIG_BigFile.DirectoryInfoForCreate> SubDirectories { get; set; } = new List<BIG_BigFile.DirectoryInfoForCreate>();
+			public List<FileInfoForCreate> Files { get; set; } = new List<FileInfoForCreate>();
 		}
 	}
 }

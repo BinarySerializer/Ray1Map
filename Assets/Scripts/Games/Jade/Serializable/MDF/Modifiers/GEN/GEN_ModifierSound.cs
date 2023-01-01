@@ -4,12 +4,12 @@ namespace Ray1Map.Jade
 {
     public class GEN_ModifierSound : MDF_Modifier 
     {
-        public uint UInt_00 { get; set; }
-        public uint Uint_04_Editor { get; set; }
+        public uint Version { get; set; }
+        public uint EditorFlags { get; set; }
         public uint ID { get; set; }
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
-        public uint Uint_0C_Editor { get; set; }
-        public uint Uint_10_Editor { get; set; }
+        public uint SoundIndex { get; set; }
+        public uint SoundInstance { get; set; }
         public float PrefetchDistance { get; set; }
         public uint ConfigFlags { get; set; }
         public uint CurrentFlags { get; set; }
@@ -62,9 +62,9 @@ namespace Ray1Map.Jade
         {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-            UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+            Version = s.Serialize<uint>(Version, name: nameof(Version));
             if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
-                if (UInt_00 >= 266 && UInt_00 <= 273) {
+                if (Version >= 266 && Version <= 273) {
                     BGE_Flags = s.Serialize<uint>(BGE_Flags, name: nameof(BGE_Flags));
                     BGE_UInt_1 = s.Serialize<uint>(BGE_UInt_1, name: nameof(BGE_UInt_1));
                     BGE_SoundKey = s.SerializeObject<Jade_Key>(BGE_SoundKey, name: nameof(BGE_SoundKey));
@@ -81,7 +81,7 @@ namespace Ray1Map.Jade
                     BGE_SoundFlags = s.Serialize<SND_SModifier.SoundRef.SoundFlags>(BGE_SoundFlags, name: nameof(BGE_SoundFlags));
                     BGE_UInt_14 = s.Serialize<uint>(BGE_UInt_14, name: nameof(BGE_UInt_14));
                     if (!Loader.IsBinaryData) BGE_UInt_15_Editor = s.Serialize<uint>(BGE_UInt_15_Editor, name: nameof(BGE_UInt_15_Editor));
-                    if (UInt_00 <= 268 || ((BGE_Flags & 0x800) == 0)) {
+                    if (Version <= 268 || ((BGE_Flags & 0x800) == 0)) {
                         if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.Dialog)) {
                         } else if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.Music)) {
                         } else if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.Ambience)) {
@@ -120,8 +120,8 @@ namespace Ray1Map.Jade
                         BGE_Bytes_37_Editor = s.SerializeArray<byte>(BGE_Bytes_37_Editor, 0x28, name: nameof(BGE_Bytes_37_Editor));
                     }
                 }
-            } else if (UInt_00 == 274) {
-                if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
+            } else if (Version == 274) {
+                if (!Loader.IsBinaryData) EditorFlags = s.Serialize<uint>(EditorFlags, name: nameof(EditorFlags));
 
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
                 SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier))?
@@ -129,8 +129,8 @@ namespace Ray1Map.Jade
 
                 if (!Loader.IsBinaryData)
                 {
-                    Uint_0C_Editor = s.Serialize<uint>(Uint_0C_Editor, name: nameof(Uint_0C_Editor));
-                    Uint_10_Editor = s.Serialize<uint>(Uint_10_Editor, name: nameof(Uint_10_Editor));
+                    SoundIndex = s.Serialize<uint>(SoundIndex, name: nameof(SoundIndex));
+                    SoundInstance = s.Serialize<uint>(SoundInstance, name: nameof(SoundInstance));
                 }
 
                 PrefetchDistance = s.Serialize<float>(PrefetchDistance, name: nameof(PrefetchDistance));
