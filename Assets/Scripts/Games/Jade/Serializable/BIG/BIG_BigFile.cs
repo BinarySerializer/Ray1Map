@@ -155,13 +155,13 @@ namespace Ray1Map.Jade {
 				for (int dir_i = 0; dir_i < curDirectoriesInFat; dir_i++) {
 					var dir = directories[dir_i + curDirectoryIndex];
 					fat.DirectoryInfos[dir_i] = new BIG_FatFile.DirectoryInfo() {
-						ParentDirectory = dir.ParentIndex,
+						Parent = dir.ParentIndex,
 						Name = dir.DirectoryName,
 
-						FirstDirectoryID = dir.FirstDirectoryID,
-						FirstFileID = dir.FirstFileID,
-						NextDirectory = dir.NextDirectoryID,
-						PreviousDirectory = dir.PreviousDirectoryID,
+						FirstSubDirectory = dir.FirstDirectoryID,
+						FirstFile = dir.FirstFileID,
+						Previous = dir.PreviousDirectoryID,
+						Next = dir.NextDirectoryID,
 					};
 				}
 				for (int file_i = 0; file_i < curFilesInFat; file_i++) {
@@ -180,10 +180,10 @@ namespace Ray1Map.Jade {
 					};
 					fat.FileInfos[file_i] = new BIG_FatFile.FileInfo() {
 						Name = f.Filename,
-						FileSize = f.FileSize,
+						LengthOnDisk = f.FileSize,
 						ParentDirectory = f.DirectoryIndex,
-						NextFile = f.NextFileInDirectoryIndex,
-						PreviousFile = f.PreviousFileInDirectoryIndex,
+						Previous = f.PreviousFileInDirectoryIndex,
+						Next = f.NextFileInDirectoryIndex,
 						Big = bf
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
@@ -199,14 +199,14 @@ namespace Ray1Map.Jade {
 		public class FileInfoForCreate {
 			public Jade_Key Key { get; set; }
 			public string Filename { get; set; }
-			public int DirectoryIndex { get; set; }
+			public int DirectoryIndex { get; set; } = -1;
 			public uint FileSize { get; set; }
 			public byte[] Bytes { get; set; }
 			public Pointer Offset { get; set; }
 			public Pointer NameOffset { get; set; }
 			public int FileIndex { get; set; }
-			public int NextFileInDirectoryIndex { get; set; }
-			public int PreviousFileInDirectoryIndex { get; set; }
+			public int NextFileInDirectoryIndex { get; set; } = -1;
+			public int PreviousFileInDirectoryIndex { get; set; } = -1;
 
 			// Temporary
 			public FileSource Source { get; set; }

@@ -146,8 +146,8 @@ namespace Ray1Map.Jade {
 							var dir = fatForDirectories.DirectoryInfos[i];
 							var dirName = dir.Name;
 							var curDir = dir;
-							while (curDir.ParentDirectory != -1) {
-								curDir = fatForDirectories.DirectoryInfos[curDir.ParentDirectory];
+							while (curDir.Parent != -1) {
+								curDir = fatForDirectories.DirectoryInfos[curDir.Parent];
 								dirName = $"{curDir.Name}/{dirName}";
 							}
 							directories[i] = dirName;

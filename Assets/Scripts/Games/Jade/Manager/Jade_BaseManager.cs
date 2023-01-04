@@ -92,8 +92,8 @@ namespace Ray1Map {
 									var dir = fat.DirectoryInfos[i];
 									var dirName = dir.Name;
 									var curDir = dir;
-									while (curDir.ParentDirectory != -1) {
-										curDir = fat.DirectoryInfos[curDir.ParentDirectory];
+									while (curDir.Parent != -1) {
+										curDir = fat.DirectoryInfos[curDir.Parent];
 										dirName = Path.Combine(curDir.Name, dirName);
 									}
 									directories[i] = dirName;
