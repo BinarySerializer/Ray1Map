@@ -403,6 +403,9 @@ namespace Ray1Map.Jade {
 										if (extension != null) filename += $".{extension}";
 									}
 									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
+									if (FileInfos.ContainsKey(currentRef.Key)) {
+										File.SetLastWriteTime(Context.BasePath + "files/" + filename, FileInfos[currentRef.Key].FatFileInfo.DateLastModified);
+									}
 									WrittenFileKeys[currentRef.Key.Key] = filename;
 									Context.RemoveFile(streamFile);
 								}
@@ -729,6 +732,7 @@ namespace Ray1Map.Jade {
 			public string FileName { get; set; }
 			public string DirectoryName { get; set; }
 			public string FilePath => FileName != null ? $"{DirectoryName}/{FileName}" : null;
+			public string FilePathValidCharacters => FileName != null ? $"{DirectoryName}/{string.Join("_", FileName.Split(Path.GetInvalidFileNameChars()))}" : null;
 			public override string ToString() {
 				var fp = FilePath;
 				if (fp != null) {

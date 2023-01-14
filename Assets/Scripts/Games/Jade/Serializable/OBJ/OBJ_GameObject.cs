@@ -9,14 +9,14 @@ namespace Ray1Map.Jade {
 
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }
-		public uint UInt_04 { get; set; }
+		public uint EditorFlags { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
 		public OBJ_GameObject_StatusFlags StatusFlags { get; set; }
 		public OBJ_GameObject_ControlFlags ControlFlags { get; set; }
 		public byte Secto { get; set; }
 		public byte MiscFlags { get; set; }
 		public byte VisiCoeff { get; set; }
-		public ushort UShort_12_Editor { get; set; }
+		public ushort UShort_12_Alignment { get; set; }
 		public byte LOD_Vis { get; set; }
 		public byte LOD_Dist { get; set; }
 		public OBJ_GameObject_TypeFlags DesignFlags { get; set; }
@@ -33,13 +33,18 @@ namespace Ray1Map.Jade {
 		public uint PhoenixMontreal_V14 { get; set; }
 		public uint NameLength { get; set; }
 		public string Name { get; set; }
-		public uint UInt_AfterName_00 { get; set; }
-		public uint UInt_AfterName_04 { get; set; }
-		public uint UInt_AfterName_Editor_00 { get; set; }
-		public uint UInt_AfterName_Editor_04 { get; set; }
-		public uint UInt_AfterName_Editor_08 { get; set; }
-		public uint UInt_AfterName_Editor_0C { get; set; }
+		public uint DummyVersion { get; set; }
+		public uint CullingVisibility { get; set; }
+		public uint ObjectModel { get; set; }
+		public uint InvisibleObjectIndex { get; set; }
+		public uint ForceLODIndex { get; set; }
+		public uint User3 { get; set; }
 		public long PhoenixMontreal_V12_Long { get; set; }
+
+		// Editor only
+		public Jade_Code PrefabFileMark { get; set; }
+		public Jade_Key Prefab { get; set; }
+		public Jade_Reference<OBJ_GameObject> PrefabObject { get; set; }
 
 		public bool IsObjInitialized { get; set; }
 
@@ -56,7 +61,7 @@ namespace Ray1Map.Jade {
 			} else {
 				Version = 0;
 			}
-			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+			EditorFlags = s.Serialize<uint>(EditorFlags, name: nameof(EditorFlags));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
 				if (Version >= 12) PhoenixMontreal_V12 = s.Serialize<uint>(PhoenixMontreal_V12, name: nameof(PhoenixMontreal_V12));
@@ -76,7 +81,7 @@ namespace Ray1Map.Jade {
 				Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
 			}
 			VisiCoeff = s.Serialize<byte>(VisiCoeff, name: nameof(VisiCoeff));
-			if(!Loader.IsBinaryData) UShort_12_Editor = s.Serialize<ushort>(UShort_12_Editor, name: nameof(UShort_12_Editor));
+			if(!Loader.IsBinaryData) UShort_12_Alignment = s.Serialize<ushort>(UShort_12_Alignment, name: nameof(UShort_12_Alignment));
 			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
 			LOD_Dist = s.Serialize<byte>(LOD_Dist, name: nameof(LOD_Dist));
 			DesignFlags = s.Serialize<OBJ_GameObject_TypeFlags>(DesignFlags, name: nameof(DesignFlags));
@@ -104,20 +109,32 @@ namespace Ray1Map.Jade {
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
-				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
-				if (UInt_AfterName_00 != 0)
-					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
+				DummyVersion = s.Serialize<uint>(DummyVersion, name: nameof(DummyVersion));
+				if (DummyVersion != 0)
+					CullingVisibility = s.Serialize<uint>(CullingVisibility, name: nameof(CullingVisibility));
 			} else {
-				if (!Loader.IsBinaryData) UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
+				if (!Loader.IsBinaryData) DummyVersion = s.Serialize<uint>(DummyVersion, name: nameof(DummyVersion));
 			}
 			if (!Loader.IsBinaryData) {
-				UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
-				UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
-				UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
-				UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
+				ObjectModel = s.Serialize<uint>(ObjectModel, name: nameof(ObjectModel));
+				InvisibleObjectIndex = s.Serialize<uint>(InvisibleObjectIndex, name: nameof(InvisibleObjectIndex));
+				ForceLODIndex = s.Serialize<uint>(ForceLODIndex, name: nameof(ForceLODIndex));
+				User3 = s.Serialize<uint>(User3, name: nameof(User3));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
 				if (Version > 12) PhoenixMontreal_V12_Long = s.Serialize<long>(PhoenixMontreal_V12_Long, name: nameof(PhoenixMontreal_V12_Long));
+			}
+			if (s.CurrentAbsoluteOffset < Offset.AbsoluteOffset + FileSize && !Loader.IsBinaryData) {
+				PrefabFileMark = s.Serialize<Jade_Code>(PrefabFileMark, name: nameof(PrefabFileMark));
+				switch (PrefabFileMark) {
+					case Jade_Code.PrefabFileMark:
+						Prefab = s.SerializeObject<Jade_Key>(Prefab, name: nameof(Prefab));
+						break;
+					case Jade_Code.PrefabFileMark1:
+						Prefab = s.SerializeObject<Jade_Key>(Prefab, name: nameof(Prefab));
+						PrefabObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(PrefabObject, name: nameof(PrefabObject));
+						break;
+				}
 			}
 		}
 	}

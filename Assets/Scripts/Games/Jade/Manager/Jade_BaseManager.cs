@@ -36,8 +36,8 @@ namespace Ray1Map {
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
 			GameAction[] actions = new GameAction[] {
-				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false, true, true)),
-				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true, true, true)),
+				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, decompressBIN: false)),
+				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, decompressBIN: true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
@@ -45,7 +45,7 @@ namespace Ray1Map {
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, false)),
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
-				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
+				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output)),
 			};
 			if (CanBeModded) {
 				actions = actions.Concat(new GameAction[] {
@@ -73,7 +73,15 @@ namespace Ray1Map {
 		}
 
 		#region Extract assets
-		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false, bool exportTimeline = false) {
+		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir,
+			bool decompressBIN = false,
+			bool exportKeyList = true,
+			bool exportTimeline = true,
+			bool extractHidden = false,
+
+			// Modify below for faster extraction of recent files
+			bool createAllDirectories = true,
+			bool onlyRecent = false) {
             using (var context = new Ray1MapContext(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
@@ -97,12 +105,13 @@ namespace Ray1Map {
 										dirName = Path.Combine(curDir.Name, dirName);
 									}
 									directories[i] = dirName;
-									Directory.CreateDirectory(Path.Combine(outputDir, dirName));
+									if (createAllDirectories) Directory.CreateDirectory(Path.Combine(outputDir, dirName));
 								}
 							}
 							for (int i = 0; i < fat.Files.Length; i++) {
 								var f = fat.Files[i];
 								var fi = fat.FileInfos[i];
+								if (onlyRecent && fi.DateLastModified < DateTime.Today) continue;
 								bool fileIsCompressed = decompressBIN && f.IsCompressed;
 								if (fileIsCompressed && fi.Name != null && !fi.Name.EndsWith(".bin")) {
 									// Hack. Really whether it's compressed or not also depends on whether speed mode is enabled when loading this specific key
@@ -127,20 +136,23 @@ namespace Ray1Map {
 										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 									}
 								});
+
 								string fileName = null;
-								if (fi.Name != null) {
+								if (!string.IsNullOrEmpty(fi.Name)) {
 									fileName = fi.Name;
 									fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
 									if (fi.ParentDirectory >= 0) {
-										Util.ByteArrayToFile(Path.Combine(outputDir, directories[fi.ParentDirectory], fileName), fileBytes);
+										var outPath = Path.Combine(outputDir, directories[fi.ParentDirectory], fileName);
+										Util.ByteArrayToFile(outPath, fileBytes);
+										File.SetLastWriteTime(outPath, fi.DateLastModified);
 										if(exportKeyList) fileKeys[f.Key.Key] = Path.Combine(directories[fi.ParentDirectory], fileName);
 										if(exportTimeline) timelineList.Add(new KeyValuePair<DateTime, string>(fi.DateLastModified, Path.Combine(directories[fi.ParentDirectory], fileName)));
 									}
 								} else {
-									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
+									fileName = $"no_name_{i}_{fat.Files[i].Key:X8}.dat";
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
@@ -150,6 +162,7 @@ namespace Ray1Map {
 							}
 						}
 						// Extract hidden files
+						if(extractHidden)
 						{
 							s.Goto(bf.Offset);
 							var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
@@ -1119,7 +1132,9 @@ namespace Ray1Map {
 		}
 		#endregion
 
-		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir, bool keepAllUnbinarizedFiles) {
+		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir,
+			bool keepAllUnbinarizedFiles = true,
+			bool optimized = false) {
 			BIG_BigFile originalBF = null;
 			LOA_Loader originalLoader = null;
 			BIG_BigFile.FileInfoForCreate[] FilesToPack = null;
@@ -1134,7 +1149,7 @@ namespace Ray1Map {
 					if (fileInfos == null) {
 						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
 						foreach (var fi in originalLoader.FileInfos) {
-							var fp = fi.Value.FilePath;
+							var fp = fi.Value.FilePathValidCharacters;
 							if (!fileInfos.ContainsKey(fp)) fileInfos[fp] = new List<LOA_Loader.FileInfo>();
 							fileInfos[fp].Add(fi.Value);
 						}
@@ -1373,12 +1388,15 @@ namespace Ray1Map {
 					switch (file.Source) {
 						case BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized:
 							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
+							file.DateLastModified = File.GetLastWriteTime(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
 							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPath}"));
+							file.DateLastModified = DateTime.Now;
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Existing:
 							var s = readContext.Deserializer;
+							file.DateLastModified = originalLoader.FileInfos[file.Key].FatFileInfo.DateLastModified;
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
 							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await originalLoader.LoadLoop(s);
@@ -1432,8 +1450,6 @@ namespace Ray1Map {
 				var targetFilePath = "out.bf";
 				var bfFile = new LinearFile(writeContext, targetFilePath, Endian.Little);
 				writeContext.AddFile(bfFile);
-
-				bool optimized = false;
 
 				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack, paddingBetweenFiles: (optimized ? (uint)0 : 0x100), writeFilenameInPadding: !optimized, increaseSizeOfFat: !optimized);
 				var s = writeContext.Serializer;

@@ -184,7 +184,8 @@ namespace Ray1Map.Jade {
 						ParentDirectory = f.DirectoryIndex,
 						Previous = f.PreviousFileInDirectoryIndex,
 						Next = f.NextFileInDirectoryIndex,
-						Big = bf
+						DateLastModified = f.DateLastModified,
+						Big = bf,
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
 
@@ -209,6 +210,7 @@ namespace Ray1Map.Jade {
 			public int PreviousFileInDirectoryIndex { get; set; } = -1;
 
 			// Temporary
+			public DateTime DateLastModified { get; set; }
 			public FileSource Source { get; set; }
 			public string ModDirectory { get; set; }
 			public string FullPath { get; set; }

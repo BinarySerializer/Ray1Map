@@ -13,6 +13,8 @@
 		RLI = 0x494C5280, // Spells out "RLI\x80"
 		DEADBABE = 0xDEADBABE,
 		F0CEFACE = 0xF0CEFACE, // "faut (que X) se fasse" = "X must be done"?
-		DEADBEEF = 0xDEADBEEF
+		DEADBEEF = 0xDEADBEEF,
+		PrefabFileMark = 0x5046422E,
+		PrefabFileMark1 = 0x5046422F,
 	}
 }

@@ -76,7 +76,10 @@ namespace Ray1Map.Jade {
 			public string Hash { get; set; }
 			public uint V43_UInt { get; set; }
 
-			public DateTime DateLastModified => new System.DateTime(1970,1,1).AddSeconds(DateLastModifiedUInt);
+			public DateTime DateLastModified {
+				get => new System.DateTime(1970, 1, 1).AddSeconds(DateLastModifiedUInt);
+				set => DateLastModifiedUInt = (uint)((value - new System.DateTime(1970, 1, 1)).TotalSeconds);
+			}
 
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;

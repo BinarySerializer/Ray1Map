@@ -202,7 +202,12 @@ namespace Ray1Map.Jade
                                 };
                             }, name: nameof(Content_TGA));
                             hasReadContent = true;
-                        }
+
+                            if (!Loader.IsBinaryData && s.CurrentAbsoluteOffset + 26 + 0x20 == Offset.AbsoluteOffset + FileSize) {
+                                // TGAs can have an optional 26 byte footer
+                                Content_TGA.SerializeFooter(s);
+                            }
+						}
                         break;
 
                     case TexFileType.DDS:
