@@ -32,11 +32,11 @@ namespace Ray1Map.Jade {
 			MorphChannels = s.SerializeObjectArray<Channel>(MorphChannels, ChannelsCount, name: nameof(MorphChannels));
 
 			// Check for dummy channels
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && !Loader.IsBinaryData) {
+			/*if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && !Loader.IsBinaryData) {
 				if (ChannelsCount % 4 != 0) {
 					Context.SystemLogger?.LogWarning($"{GetType().Name} @ {Offset}: MorphChannels does not contain Dummy channels - this might cause errors");
 				}
-			}
+			}*/
 		}
 
 		public class Data : BinarySerializable {
@@ -79,7 +79,7 @@ namespace Ray1Map.Jade {
 		public class Channel : BinarySerializable {
 			public uint DataCount { get; set; }
 			public float Blend { get; set; }
-			public float ChannelBlend { get; set; }
+			public float ChannelBlend { get; set; } = 1f;
 			public string Name { get; set; }
 			public uint[] DataIndices { get; set; }
 

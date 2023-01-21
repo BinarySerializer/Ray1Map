@@ -4,7 +4,9 @@
 		Box = 1,
 		Sphere = 2,
 		Cylinder = 3,
+		Cone = 4,
 		Triangles = 5,
+		Plan = 6,
 		Unknown7 = 7
 	}
 }

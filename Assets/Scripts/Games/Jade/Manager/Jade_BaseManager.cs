@@ -1193,9 +1193,11 @@ namespace Ray1Map {
 				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
 				var modDirectory = Path.Combine(inputDir, "mod");
 				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
+					readContext?.SystemLogger?.LogInfo($"Loading mod: {new DirectoryInfo(modDir).Name}");
 					string configPath = Path.Combine(modDir, "config.txt");
 					bool overwrite = true;
 					bool useKeysFromBFFilenameOnly = false;
+					bool ignoreNonexistentFiles = false;
 					if (File.Exists(configPath)) {
 						string[] lines = File.ReadAllLines(configPath);
 						foreach (var l in lines) {
@@ -1205,6 +1207,9 @@ namespace Ray1Map {
 									break;
 								case "use_keys_from_bf_filename_only=true":
 									useKeysFromBFFilenameOnly = true;
+									break;
+								case "ignore_nonexistent_files=true":
+									ignoreNonexistentFiles = true;
 									break;
 								default:
 									break;
@@ -1235,8 +1240,10 @@ namespace Ray1Map {
 									}
 									foreach (var otherMod in mods) {
 										if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
-											if(overwrite) otherMod.Value.Remove(k);
-											else addModFile = false;
+											if (overwrite) {
+												readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {path}");
+												otherMod.Value.Remove(k);
+											} else addModFile = false;
 										}
 									}
 									if(addModFile) mod.Value[k] = path;
@@ -1264,17 +1271,22 @@ namespace Ray1Map {
 									} else {
 										foreach (var otherMod in mods) {
 											if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
-												if (overwrite) otherMod.Value.Remove(k);
-												else addModFile = false;
+												if (overwrite) {
+													readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {relPath}");
+													otherMod.Value.Remove(k);
+												} else addModFile = false;
 											}
 										}
 									}
-									if(addModFile) mod.Value[k] = relPath;
+									if (addModFile) mod.Value[k] = relPath;
 								}
+							} else if(!ignoreNonexistentFiles) {
+								readContext?.SystemLogger?.LogInfo($"Could not find matching file in BF: {relPath}");
 							}
 						}
 					}
 				}
+				readContext?.SystemLogger?.LogInfo($"Finished loading mods");
 
 				// Read all files
 				FilesToPack =
@@ -1447,6 +1459,7 @@ namespace Ray1Map {
 			}
 
 			using (Context writeContext = new Ray1MapContext(outputDir, settings)) {
+				writeContext?.SystemLogger?.LogInfo($"Creating bigfile...");
 				var targetFilePath = "out.bf";
 				var bfFile = new LinearFile(writeContext, targetFilePath, Endian.Little);
 				writeContext.AddFile(bfFile);
@@ -1466,6 +1479,7 @@ namespace Ray1Map {
 						s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
 					}
 				}
+				writeContext?.SystemLogger?.LogInfo($"Finished creating bigfile");
 			}
 		}
 

@@ -26,6 +26,7 @@ namespace Ray1Map.Jade {
 		public BinData Bin { get; set; }
 		public QueueType CurrentQueueType { get; set; } = QueueType.BigFat;
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
+		public bool LoadSingle { get; set; } = false;
 
 		// Writing
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
@@ -33,6 +34,7 @@ namespace Ray1Map.Jade {
 		public bool ShouldExportVars { get; set; } = false;
 		public bool Raw_WriteFilesAlreadyInBF { get; set; } = false;
 		public bool Raw_RelocateKeys { get; set; } = false;
+		public bool Raw_UseOriginalFileNames { get; set; } = false;
 		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
 		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
 		public uint Raw_CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
@@ -290,6 +292,8 @@ namespace Ray1Map.Jade {
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
 					s.SystemLogger?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
+				if(LoadSingle)
+					LoadQueue.Clear();
 			}
 		}
 
@@ -342,6 +346,8 @@ namespace Ray1Map.Jade {
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
 					s.SystemLogger?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
+				if (LoadSingle)
+					LoadQueue.Clear();
 			}
 		}
 
@@ -396,11 +402,15 @@ namespace Ray1Map.Jade {
 							} finally {
 								if (Raw_WriteFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
 									var bytes = memStream.ToArray();
-									if (originalFilename != null) {
-										filename = originalFilename;
+									if (!Raw_UseOriginalFileNames || !FileInfos.ContainsKey(currentRef.Key)) {
+										if (originalFilename != null) {
+											filename = originalFilename;
+										} else {
+											if (newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
+											if (extension != null) filename += $".{extension}";
+										}
 									} else {
-										if (newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
-										if (extension != null) filename += $".{extension}";
+										filename = FileInfos[currentRef.Key].FilePathValidCharacters;
 									}
 									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
 									if (FileInfos.ContainsKey(currentRef.Key)) {
@@ -418,6 +428,8 @@ namespace Ray1Map.Jade {
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
 					//s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
+				if (LoadSingle)
+					LoadQueue.Clear();
 			}
 		}
 		private static string MakeValidFileName(string name) {
