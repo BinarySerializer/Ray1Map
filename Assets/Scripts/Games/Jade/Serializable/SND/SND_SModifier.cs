@@ -6,9 +6,10 @@ namespace Ray1Map.Jade {
 		public override string Export_Extension => "smd";
 
 		public uint FormatVersion { get; set; }
-        public uint UInt_01 { get; set; }
-        public uint UInt_02 { get; set; }
-        public uint UInt_03 { get; set; }
+        public uint HeaderDataSize { get; set; }
+
+        public uint SModifierId { get; set; }
+        public uint DataSize { get; set; }
         public SoundRef Sound { get; set; }
         public int SndIndex { get; set; }
         public uint Version { get; set; }
@@ -27,7 +28,7 @@ namespace Ray1Map.Jade {
         public int Pan { get; set; }
         public int Span { get; set; }
         public float MinPan { get; set; }
-        public float Type3_Float_20 { get; set; }
+        public float FreqCoef { get; set; }
         public uint Freq { get; set; }
         public float Freq_FactMin { get; set; }
         public float Freq_FactMax { get; set; }
@@ -48,8 +49,8 @@ namespace Ray1Map.Jade {
         public SoundRef[] PlayList { get; set; }
         public Jade_Reference<SND_Insert>[] InsertList { get; set; }
         
-        public uint UInt_26 { get; set; }
-        public uint UInt_27 { get; set; }
+        public uint FooterId { get; set; } = uint.MaxValue;
+        public uint FooterDataSize { get; set; } = 0;
 
         public byte[] Bytes { get; set; }
 
@@ -58,10 +59,13 @@ namespace Ray1Map.Jade {
                 Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
                 return;
             }
+            // Header chunk
             FormatVersion = s.Serialize<uint>(FormatVersion, name: nameof(FormatVersion));
-            UInt_01 = s.Serialize<uint>(UInt_01, name: nameof(UInt_01));
-            UInt_02 = s.Serialize<uint>(UInt_02, name: nameof(UInt_02));
-            UInt_03 = s.Serialize<uint>(UInt_03, name: nameof(UInt_03));
+            HeaderDataSize = s.Serialize<uint>(HeaderDataSize, name: nameof(HeaderDataSize));
+
+            // ExtPlayer chunk
+            SModifierId = s.Serialize<uint>(SModifierId, name: nameof(SModifierId));
+            DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
             Sound = s.SerializeObject<SoundRef>(Sound, name: nameof(Sound));
             SndIndex = s.Serialize<int>(SndIndex, name: nameof(SndIndex));
             Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -81,10 +85,10 @@ namespace Ray1Map.Jade {
             Span = s.Serialize<int>(Span, name: nameof(Span));
             MinPan = s.Serialize<float>(MinPan, name: nameof(MinPan));
             if (FormatVersion >= 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
-                Type3_Float_20 = s.Serialize<float>(Type3_Float_20, name: nameof(Type3_Float_20));
+                FreqCoef = s.Serialize<float>(FreqCoef, name: nameof(FreqCoef));
             } else {
                 Freq = s.Serialize<uint>(Freq, name: nameof(Freq));
-                Type3_Float_20 = 1f;
+                FreqCoef = 1f;
             }
             Freq_FactMin = s.Serialize<float>(Freq_FactMin, name: nameof(Freq_FactMin));
             Freq_FactMax = s.Serialize<float>(Freq_FactMax, name: nameof(Freq_FactMax));
@@ -105,8 +109,10 @@ namespace Ray1Map.Jade {
 
             PlayList = s.SerializeObjectArray<SoundRef>(PlayList, PlayListSize, name: nameof(PlayList));
             InsertList = s.SerializeObjectArray<Jade_Reference<SND_Insert>>(InsertList, InsertListSize, name: nameof(InsertList));
-            UInt_26 = s.Serialize<uint>(UInt_26, name: nameof(UInt_26));
-            UInt_27 = s.Serialize<uint>(UInt_27, name: nameof(UInt_27));
+            
+            // Closing chunk
+            FooterId = s.Serialize<uint>(FooterId, name: nameof(FooterId));
+            FooterDataSize = s.Serialize<uint>(FooterDataSize, name: nameof(FooterDataSize));
 
             if (PlayListSize > 0) {
                 foreach(var sound in PlayList)

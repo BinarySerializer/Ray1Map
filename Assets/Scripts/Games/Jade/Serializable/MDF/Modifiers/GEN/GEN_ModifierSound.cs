@@ -6,16 +6,16 @@ namespace Ray1Map.Jade
     {
         public uint Version { get; set; }
         public uint EditorFlags { get; set; }
-        public uint ID { get; set; }
+        public uint ID { get; set; } = uint.MaxValue;
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
-        public uint SoundIndex { get; set; }
-        public uint SoundInstance { get; set; }
-        public float PrefetchDistance { get; set; }
+        public uint SoundIndex { get; set; } = uint.MaxValue;
+        public uint SoundInstance { get; set; } = uint.MaxValue;
+        public float PrefetchDistance { get; set; } = 20f;
         public uint ConfigFlags { get; set; }
         public uint CurrentFlags { get; set; }
         public float Delay { get; set; }
         public float DeltaFar { get; set; }
-        public int SndTrack { get; set; }
+        public int SndTrack { get; set; } = -1;
         public byte[] Reserved { get; set; }
 
         public uint BGE_Flags { get; set; }
