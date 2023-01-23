@@ -185,6 +185,7 @@ namespace Ray1Map.Jade {
 						Previous = f.PreviousFileInDirectoryIndex,
 						Next = f.NextFileInDirectoryIndex,
 						DateLastModified = f.DateLastModified,
+						P4RevisionClient = f.P4Revision,
 						Big = bf,
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
@@ -211,6 +212,7 @@ namespace Ray1Map.Jade {
 
 			// Temporary
 			public DateTime DateLastModified { get; set; }
+			public uint P4Revision { get; set; }
 			public FileSource Source { get; set; }
 			public string ModDirectory { get; set; }
 			public string FullPath { get; set; }

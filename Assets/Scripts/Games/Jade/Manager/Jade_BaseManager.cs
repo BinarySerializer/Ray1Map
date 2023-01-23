@@ -1401,14 +1401,20 @@ namespace Ray1Map {
 						case BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized:
 							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
 							file.DateLastModified = File.GetLastWriteTime(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
+							file.P4Revision = 1;
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
 							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPath}"));
 							file.DateLastModified = DateTime.Now;
+							file.P4Revision = 1;
+							if (originalLoader.FileInfos.ContainsKey(file.Key)) {
+								file.P4Revision = originalLoader.FileInfos[file.Key].FatFileInfo.P4RevisionClient + 1;
+							}
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Existing:
 							var s = readContext.Deserializer;
 							file.DateLastModified = originalLoader.FileInfos[file.Key].FatFileInfo.DateLastModified;
+							file.P4Revision = originalLoader.FileInfos[file.Key].FatFileInfo.P4RevisionClient;
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
 							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await originalLoader.LoadLoop(s);
