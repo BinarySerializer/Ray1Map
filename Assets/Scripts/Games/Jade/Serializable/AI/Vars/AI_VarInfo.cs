@@ -9,7 +9,7 @@ namespace Ray1Map.Jade {
 		public short Flags { get; set; }
 		public override void SerializeImpl(SerializerObject s) {
 			BufferOffset = s.Serialize<int>(BufferOffset, name: nameof(BufferOffset));
-			s.DoBits<int>(b => {
+			s.DoBits<uint>(b => {
 				ArrayLength = b.SerializeBits<int>(ArrayLength, 30, name: nameof(ArrayLength));
 				ArrayDimensionsCount = b.SerializeBits<int>(ArrayDimensionsCount, 2, name: nameof(ArrayDimensionsCount));
 			});

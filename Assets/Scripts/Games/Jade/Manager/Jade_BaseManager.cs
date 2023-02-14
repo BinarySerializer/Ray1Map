@@ -36,8 +36,8 @@ namespace Ray1Map {
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
 			GameAction[] actions = new GameAction[] {
-				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false, true, true)),
-				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true, true, true)),
+				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, decompressBIN: false)),
+				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, decompressBIN: true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
@@ -45,7 +45,7 @@ namespace Ray1Map {
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, false)),
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
-				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output, true)),
+				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output)),
 			};
 			if (CanBeModded) {
 				actions = actions.Concat(new GameAction[] {
@@ -54,7 +54,9 @@ namespace Ray1Map {
 			}
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
-					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output))
+					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output)),
+					new GameAction("Export models (unbinarized)", false, true, (input, output) => ExportModelsUnbinarizedAsync(settings, output)),
+					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output)),
 				}).ToArray();
 			}
 			if (TexturesGearBFPath != null) {
@@ -71,7 +73,15 @@ namespace Ray1Map {
 		}
 
 		#region Extract assets
-		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false, bool exportTimeline = false) {
+		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir,
+			bool decompressBIN = false,
+			bool exportKeyList = true,
+			bool exportTimeline = true,
+			bool extractHidden = false,
+
+			// Modify below for faster extraction of recent files
+			bool createAllDirectories = true,
+			bool onlyRecent = false) {
             using (var context = new Ray1MapContext(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
@@ -90,17 +100,18 @@ namespace Ray1Map {
 									var dir = fat.DirectoryInfos[i];
 									var dirName = dir.Name;
 									var curDir = dir;
-									while (curDir.ParentDirectory != -1) {
-										curDir = fat.DirectoryInfos[curDir.ParentDirectory];
+									while (curDir.Parent != -1) {
+										curDir = fat.DirectoryInfos[curDir.Parent];
 										dirName = Path.Combine(curDir.Name, dirName);
 									}
 									directories[i] = dirName;
-									Directory.CreateDirectory(Path.Combine(outputDir, dirName));
+									if (createAllDirectories) Directory.CreateDirectory(Path.Combine(outputDir, dirName));
 								}
 							}
 							for (int i = 0; i < fat.Files.Length; i++) {
 								var f = fat.Files[i];
 								var fi = fat.FileInfos[i];
+								if (onlyRecent && fi.DateLastModified < DateTime.Today) continue;
 								bool fileIsCompressed = decompressBIN && f.IsCompressed;
 								if (fileIsCompressed && fi.Name != null && !fi.Name.EndsWith(".bin")) {
 									// Hack. Really whether it's compressed or not also depends on whether speed mode is enabled when loading this specific key
@@ -125,19 +136,23 @@ namespace Ray1Map {
 										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 									}
 								});
+
 								string fileName = null;
-								if (fi.Name != null) {
+								if (!string.IsNullOrEmpty(fi.Name)) {
 									fileName = fi.Name;
+									fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
 									if (fi.ParentDirectory >= 0) {
-										Util.ByteArrayToFile(Path.Combine(outputDir, directories[fi.ParentDirectory], fileName), fileBytes);
+										var outPath = Path.Combine(outputDir, directories[fi.ParentDirectory], fileName);
+										Util.ByteArrayToFile(outPath, fileBytes);
+										File.SetLastWriteTime(outPath, fi.DateLastModified);
 										if(exportKeyList) fileKeys[f.Key.Key] = Path.Combine(directories[fi.ParentDirectory], fileName);
 										if(exportTimeline) timelineList.Add(new KeyValuePair<DateTime, string>(fi.DateLastModified, Path.Combine(directories[fi.ParentDirectory], fileName)));
 									}
 								} else {
-									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
+									fileName = $"no_name_{i}_{fat.Files[i].Key:X8}.dat";
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
@@ -147,6 +162,7 @@ namespace Ray1Map {
 							}
 						}
 						// Extract hidden files
+						if(extractHidden)
 						{
 							s.Goto(bf.Offset);
 							var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
@@ -301,6 +317,99 @@ namespace Ray1Map {
 				}*/
 			}
 			if(!perWorld) ExportLangTable("localization");
+
+			Debug.Log($"Finished export");
+		}
+		public async UniTask ExportLocalizationUnbinarizedAsync(GameSettings settings, string outputDir) {
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
+				Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]> textGroups
+					= new Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]>();
+
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && fileInfo.FileName.EndsWith(".txg")) {
+						try {
+							Jade_Reference<TEXT_TextGroup> textRef = new Jade_Reference<TEXT_TextGroup>(context, fileInfo.Key);
+							textRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							if (textRef.Value?.Text == null || textRef.Value.Text.Length == 0) continue;
+
+							KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[] curTextGroup = null;
+
+							for (int curLang = 0; curLang < textRef.Value.Text.Length; curLang++) {
+								var text = textRef.Value.Text[curLang];
+								if (text.IsNull || text.TextList.Text == null) continue;
+								var txl = text.TextList;
+								if (curTextGroup == null) {
+									curTextGroup = new KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[txl.Text.Length];
+									textGroups[fileInfo.FilePath] = curTextGroup;
+								}
+								for (int j = 0; j < txl.Text.Length; j++) {
+									if (curTextGroup[j] == null) {
+										curTextGroup[j] = new KeyValuePair<string, Dictionary<int, TEXT_OneText>>(
+											txl.Text[j].IDString,
+											new Dictionary<int, TEXT_OneText>());
+									}
+									curTextGroup[j].Value.Value.Add(curLang, txl.Text[j]);
+								}
+							}
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+
+
+				var output = textGroups.Select(langTable => new {
+					Group = langTable.Key, //((TEXT_Language)langTable.Key).ToString(),
+					Text = langTable.Value.Where(v => v.HasValue).Select(v => new {
+						ID = v.Value.Key,
+						Comments = v.Value.Value.FirstOrDefault().Value.Comments,
+						/*Text = v.Value.Value.Where(t => t.Value.Text != "[need translation]").Select(t => new {
+							Language = ((TEXT_Language)t.Key).ToString(),
+							Text = t.Value.Text
+						}),*/
+						Text = new Dictionary<string, string>(v.Value.Value
+						.Where(t => t.Value.Text != "[need translation]")
+						.Select(t => new KeyValuePair<string, string>(
+							((TEXT_Language)t.Key).ToString(),
+							t.Value.Text)
+						))
+					})
+				});
+				string json = JsonConvert.SerializeObject(output, Formatting.Indented);
+				Util.ByteArrayToFile(Path.Combine(outputDir, $"localization_{settings.GameModeSelection}.json"), Encoding.UTF8.GetBytes(json));
+			}
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
 
 			Debug.Log($"Finished export");
 		}
@@ -490,6 +599,85 @@ namespace Ray1Map {
 				}
 			}
 
+			Debug.Log($"Finished export");
+		}
+		public async UniTask ExportModelsUnbinarizedAsync(GameSettings settings, string outputDir) {
+
+			var parsedTexs = new HashSet<uint>();
+			HashSet<uint> exportedObjects = new HashSet<uint>();
+			HashSet<string> exportedObjectIDs = new HashSet<string>();
+
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
+				// Set up AI types
+				AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
+				context.StoreObject<AI_Links>(AIKey, aiLinks);
+
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".gao"))) {
+						try {
+							Jade_Reference<OBJ_GameObject> gaoRef = new Jade_Reference<OBJ_GameObject>(context, fileInfo.Key);
+							gaoRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							var o = gaoRef;
+
+							if (o.IsNull || exportedObjects.Contains(o.Key.Key)) continue;
+							exportedObjects.Add(o.Key.Key);
+							string objectID = "";
+							if (o?.Value?.Base?.Visual != null) {
+								var visu = o?.Value?.Base?.Visual;
+								objectID += $"G{visu.GeometricObject.Key.Key:X8}-M{visu.Material.Key.Key:X8}";
+							}
+							if (o?.Value?.Base?.ActionData?.SkeletonGroup != null) {
+								objectID += $"-S{o.Value.Base.ActionData.SkeletonGroup.Key.Key:X8}";
+							}
+							if (o?.Value?.Extended?.Group != null) {
+								objectID += $"-Gr{o?.Value.Extended?.Group.Key.Key:X8}";
+							}
+							if (exportedObjectIDs.Contains(objectID)) continue;
+							exportedObjectIDs.Add(objectID);
+							if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
+
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+			}
+
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
+			if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				await UniTask.Delay(2000);
+			}
 			Debug.Log($"Finished export");
 		}
 		public async UniTask ExportSoundsAsync(GameSettings settings, string outputDir, bool useComplexNames) {
@@ -944,7 +1132,9 @@ namespace Ray1Map {
 		}
 		#endregion
 
-		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir, bool keepAllUnbinarizedFiles) {
+		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir,
+			bool keepAllUnbinarizedFiles = true,
+			bool optimized = false) {
 			BIG_BigFile originalBF = null;
 			LOA_Loader originalLoader = null;
 			BIG_BigFile.FileInfoForCreate[] FilesToPack = null;
@@ -954,10 +1144,26 @@ namespace Ray1Map {
 				originalLoader = await InitJadeAsync(readContext, initAI: false);
 				originalBF = originalLoader.BigFiles[0];
 
+				Dictionary<string, List<LOA_Loader.FileInfo>> fileInfos = null;
+				List<LOA_Loader.FileInfo> GetJadeFileByPath(string path) {
+					if (fileInfos == null) {
+						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
+						foreach (var fi in originalLoader.FileInfos) {
+							var fp = fi.Value.FilePathValidCharacters;
+							if (!fileInfos.ContainsKey(fp)) fileInfos[fp] = new List<LOA_Loader.FileInfo>();
+							fileInfos[fp].Add(fi.Value);
+						}
+					}
+					if (fileInfos.TryGetValue(path, out List<LOA_Loader.FileInfo> val)) {
+						return val;
+					} else
+						return null;
+				}
 				// Read file keys (unbinarized)
 				string keyListPath = Path.Combine(inputDir, "original/filekeys.txt");
 				Dictionary<uint, string> fileKeysUnbinarized = new Dictionary<uint, string>();
-				{
+
+				if (File.Exists(keyListPath)) {
 					string[] lines = File.ReadAllLines(keyListPath);
 					foreach (var l in lines) {
 						var lineSplit = l.Split(',');
@@ -983,18 +1189,30 @@ namespace Ray1Map {
 						}
 					}
 				}
-
 				// Read file keys (modded)
 				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
 				var modDirectory = Path.Combine(inputDir, "mod");
 				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
+					readContext?.SystemLogger?.LogInfo($"Loading mod: {new DirectoryInfo(modDir).Name}");
 					string configPath = Path.Combine(modDir, "config.txt");
 					bool overwrite = true;
+					bool useKeysFromBFFilenameOnly = false;
+					bool ignoreNonexistentFiles = false;
 					if (File.Exists(configPath)) {
 						string[] lines = File.ReadAllLines(configPath);
 						foreach (var l in lines) {
-							if (l.Trim() == "overwrite=false") {
-								overwrite = false;
+							switch (l.Trim()) {
+								case "overwrite=false":
+									overwrite = false;
+									break;
+								case "use_keys_from_bf_filename_only=true":
+									useKeysFromBFFilenameOnly = true;
+									break;
+								case "ignore_nonexistent_files=true":
+									ignoreNonexistentFiles = true;
+									break;
+								default:
+									break;
 							}
 						}
 					}
@@ -1022,16 +1240,53 @@ namespace Ray1Map {
 									}
 									foreach (var otherMod in mods) {
 										if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
-											if(overwrite) otherMod.Value.Remove(k);
-											else addModFile = false;
+											if (overwrite) {
+												readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {path}");
+												otherMod.Value.Remove(k);
+											} else addModFile = false;
 										}
 									}
 									if(addModFile) mod.Value[k] = path;
 								}
 							}
 						}
+					} else if (useKeysFromBFFilenameOnly) {
+						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
+						mods.Add(mod);
+						var modFilesDir = Path.Combine(modDir, $"files");
+						foreach (string file in Directory.EnumerateFiles(modFilesDir, "*", SearchOption.AllDirectories)) {
+							string relPath = file.Substring(modFilesDir.Length + 1).Replace('\\', '/');
+							var fil = GetJadeFileByPath(relPath);
+							if (fil != null) {
+								foreach (var fi in fil) {
+									uint k = fi.Key;
+									bool addModFile = true;
+									if (fileKeysUnbinarized.ContainsKey(k)) {
+										if (overwrite) fileKeysUnbinarized.Remove(k);
+										else addModFile = false;
+									}
+									if (fileKeysExisting.ContainsKey(k)) {
+										if (overwrite) fileKeysExisting.Remove(k);
+										else addModFile = false;
+									} else {
+										foreach (var otherMod in mods) {
+											if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+												if (overwrite) {
+													readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {relPath}");
+													otherMod.Value.Remove(k);
+												} else addModFile = false;
+											}
+										}
+									}
+									if (addModFile) mod.Value[k] = relPath;
+								}
+							} else if(!ignoreNonexistentFiles) {
+								readContext?.SystemLogger?.LogInfo($"Could not find matching file in BF: {relPath}");
+							}
+						}
 					}
 				}
+				readContext?.SystemLogger?.LogInfo($"Finished loading mods");
 
 				// Read all files
 				FilesToPack =
@@ -1058,50 +1313,112 @@ namespace Ray1Map {
 					})
 					).ToArray();
 				}
+				FilesToPack = FilesToPack.OrderBy(f => f.Key.Key).ToArray();
 
 				// Create directories
 				List<BIG_BigFile.DirectoryInfoForCreate> directories = new List<BIG_BigFile.DirectoryInfoForCreate>();
 				int curDirectoriesCount = 0;
+				int curFileToPackIndex = 0;
 				foreach (var fileToPack in FilesToPack) {
-					var originalFullPath = fileToPack.FullPath;
-					var currentFullPath = fileToPack.FullPath;
-					Stack<string> pathStrings = new Stack<string>();
-					int currentPathIndexInOriginalFullPath = 0;
-					while (!string.IsNullOrEmpty(currentFullPath) && currentFullPath.Contains('/')) {
-						var firstIndex = currentFullPath.IndexOf('/');
-						var firstFolder = currentFullPath.Substring(0, firstIndex);
-						var dirIndex = directories.FindItemIndex(dir => dir.ParentIndex == fileToPack.DirectoryIndex);
-						if (dirIndex == -1) {
-							directories.Add(new BIG_BigFile.DirectoryInfoForCreate() {
-								DirectoryName = firstFolder,
-								FullDirectoryString = originalFullPath.Substring(0, currentPathIndexInOriginalFullPath + firstIndex),
-								ParentIndex = fileToPack.DirectoryIndex,
-							});
-							fileToPack.DirectoryIndex = curDirectoriesCount;
+					var filePath = fileToPack.FullPath;
+
+					int AddOrFindDirectoryRecursive(string dirPath) {
+						if (string.IsNullOrEmpty(dirPath)) return -1;
+						var indexInList = directories.FindItemIndex(d => d.FullDirectoryString == dirPath);
+
+						if (indexInList == -1) {
+							BIG_BigFile.DirectoryInfoForCreate createdDirectory = null;
+							if (dirPath.Contains('/')) {
+								var lastDirIndex = dirPath.LastIndexOf('/');
+								var parentPath = dirPath.Substring(0, lastDirIndex);
+								var curDirName = dirPath.Substring(lastDirIndex + 1);
+								int parentIndex = AddOrFindDirectoryRecursive(parentPath);
+
+								createdDirectory = new BIG_BigFile.DirectoryInfoForCreate() {
+									DirectoryName = curDirName,
+									FullDirectoryString = dirPath,
+									ParentIndex = parentIndex,
+									DirectoryIndex = curDirectoriesCount
+								};
+								if (parentIndex != -1) {
+									var parent = directories[parentIndex];
+									parent.SubDirectories.Add(createdDirectory);
+								}
+							} else {
+								createdDirectory = new BIG_BigFile.DirectoryInfoForCreate() {
+									DirectoryName = dirPath,
+									FullDirectoryString = dirPath,
+									ParentIndex = -1,
+									DirectoryIndex = curDirectoriesCount
+								};
+							}
+							directories.Add(createdDirectory);
+							indexInList = createdDirectory.DirectoryIndex;
 							curDirectoriesCount++;
-						} else {
-							fileToPack.DirectoryIndex = dirIndex;
 						}
-						currentFullPath = currentFullPath.Substring(firstIndex + 1, currentFullPath.Length - firstIndex - 1);
+						return indexInList;
 					}
-					fileToPack.Filename = currentFullPath;
+					fileToPack.DirectoryIndex = AddOrFindDirectoryRecursive(filePath.Substring(0, filePath.LastIndexOf('/')));
+
+					if (!string.IsNullOrEmpty(filePath) && filePath.Contains('/')) {
+						var lastDirIndex = filePath.LastIndexOf('/');
+						var directoryString = filePath.Substring(0, lastDirIndex);
+						var filenameString = filePath.Substring(lastDirIndex + 1);
+						var dirIndex = AddOrFindDirectoryRecursive(directoryString);
+						fileToPack.DirectoryIndex = dirIndex;
+						fileToPack.Filename = filenameString;
+					} else {
+						fileToPack.Filename = filePath;
+					}
+					if (fileToPack.DirectoryIndex != -1) {
+						var dir = directories[fileToPack.DirectoryIndex];
+						dir.Files.Add(fileToPack);
+					}
+					fileToPack.FileIndex = curFileToPackIndex;
+					curFileToPackIndex++;
 				}
 				DirectoriesToPack = directories.ToArray();
+
+				// Create next/previous lists for files & directories
+				foreach (var dir in DirectoriesToPack) {
+					for (int i = 0; i < dir.SubDirectories.Count; i++) {
+						if(i > 0) dir.SubDirectories[i].PreviousDirectoryID = dir.SubDirectories[i-1].DirectoryIndex;
+						if(i < dir.SubDirectories.Count-1) dir.SubDirectories[i].NextDirectoryID = dir.SubDirectories[i+1].DirectoryIndex;
+					}
+					if(dir.SubDirectories.Any())
+						dir.FirstDirectoryID = dir.SubDirectories[0].DirectoryIndex;
+
+					for (int i = 0; i < dir.Files.Count; i++) {
+						if(i > 0) dir.Files[i].PreviousFileInDirectoryIndex = dir.Files[i-1].FileIndex;
+						if(i < dir.Files.Count-1) dir.Files[i].NextFileInDirectoryIndex = dir.Files[i+1].FileIndex;
+					}
+					if(dir.Files.Any())
+						dir.FirstFileID = dir.Files[0].FileIndex;
+				}
 
 				foreach (var file in FilesToPack) {
 					switch (file.Source) {
 						case BIG_BigFile.FileInfoForCreate.FileSource.Unbinarized:
 							file.Bytes = File.ReadAllBytes(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
+							file.DateLastModified = File.GetLastWriteTime(Path.Combine(inputDir, $"original/files/{file.FullPath}"));
+							file.P4Revision = 1;
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
 							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPath}"));
+							file.DateLastModified = DateTime.Now;
+							file.P4Revision = 1;
+							if (originalLoader.FileInfos.ContainsKey(file.Key)) {
+								file.P4Revision = originalLoader.FileInfos[file.Key].FatFileInfo.P4RevisionClient + 1;
+							}
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Existing:
 							var s = readContext.Deserializer;
+							file.DateLastModified = originalLoader.FileInfos[file.Key].FatFileInfo.DateLastModified;
+							file.P4Revision = originalLoader.FileInfos[file.Key].FatFileInfo.P4RevisionClient;
 							var reference = new Jade_Reference<Jade_ByteArrayFile>(readContext, file.Key);
 							reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await originalLoader.LoadLoop(s);
-							file.Bytes = reference.Value.Bytes;
+							file.Bytes = reference.Value?.Bytes ?? new byte[0];
 
 							/*if (file.Bytes.Length >= 0x3966C0 - 2
 								&& file.Bytes[0] == 0x52 && file.Bytes[1] == 0x49 && file.Bytes[2] == 0x46 && file.Bytes[3] == 0x46 // RIFF
@@ -1148,11 +1465,12 @@ namespace Ray1Map {
 			}
 
 			using (Context writeContext = new Ray1MapContext(outputDir, settings)) {
+				writeContext?.SystemLogger?.LogInfo($"Creating bigfile...");
 				var targetFilePath = "out.bf";
 				var bfFile = new LinearFile(writeContext, targetFilePath, Endian.Little);
 				writeContext.AddFile(bfFile);
 
-				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack);
+				BIG_BigFile newBF = BIG_BigFile.Create(originalBF, bfFile.StartPointer, FilesToPack, DirectoriesToPack, paddingBetweenFiles: (optimized ? (uint)0 : 0x100), writeFilenameInPadding: !optimized, increaseSizeOfFat: !optimized);
 				var s = writeContext.Serializer;
 				s.Goto(bfFile.StartPointer);
 				newBF = s.SerializeObject<BIG_BigFile>(newBF, name: nameof(newBF));
@@ -1162,9 +1480,12 @@ namespace Ray1Map {
 					s.Goto(file.Offset);
 					s.Serialize<uint>(file.FileSize, name: nameof(file.FileSize));
 					s.SerializeArray<byte>(file.Bytes, file.Bytes.Length, name: nameof(file.Bytes));
-					s.Goto(file.NameOffset);
-					s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
+					if (!optimized) {
+						s.Goto(file.NameOffset);
+						s.SerializeString($"#{file.Filename}#", encoding: Jade_BaseManager.Encoding, name: nameof(file.Filename));
+					}
 				}
+				writeContext?.SystemLogger?.LogInfo($"Finished creating bigfile");
 			}
 		}
 

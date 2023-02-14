@@ -431,7 +431,7 @@ namespace Ray1Map.Rayman1
             var output = new Texture2D[desItem.SpriteCollection.Sprites.Length];
 
             // Process the image data
-            var processedImageData = desItem.RequiresBackgroundClearing ? PC_DES.ProcessImageData(desItem.ImageData) : desItem.ImageData;
+            var processedImageData = desItem.IsAnimatedSprite ? PC_DES.ProcessImageData(desItem.ImageData) : desItem.ImageData;
 
             // Find the level with the correct palette
             var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.ObjData.Objects.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
@@ -769,7 +769,7 @@ namespace Ray1Map.Rayman1
             };
 
             // Process the image data
-            var processedImageData = des.RequiresBackgroundClearing ? PC_DES.ProcessImageData(des.ImageData) : des.ImageData;
+            var processedImageData = des.IsAnimatedSprite ? PC_DES.ProcessImageData(des.ImageData) : des.ImageData;
 
             if (!isMultiColored)
             {

@@ -34,7 +34,7 @@ namespace Ray1Map.Jade {
         protected override void SerializeFile(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                 if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
-                    s.DoBits<int>(b => {
+                    s.DoBits<uint>(b => {
                         RewindVarEndOffset = (uint)b.SerializeBits<int>((int)RewindVarEndOffset, 31, name: nameof(RewindVarEndOffset));
                         HasRewindZones = b.SerializeBits<int>(HasRewindZones ? 1 : 0, 1, name: nameof(HasRewindZones)) == 1;
                     });

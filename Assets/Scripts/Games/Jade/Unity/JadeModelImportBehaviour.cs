@@ -180,7 +180,7 @@ public class JadeModelImportBehaviour : MonoBehaviour {
             if(matTex.filterMode != FilterMode.Point)
                 mttl.Flags |= MAT_MTT_MultiTextureMaterial.MAT_MTT_Level.MaterialFlags.BilinearFiltering;
 
-            mttl.Type = MAT_MTT_MultiTextureMaterial.MAT_MTT_Level.UVType.OBJ1;
+            mttl.Source = MAT_MTT_MultiTextureMaterial.MAT_MTT_Level.UVSource.Object1;
 
             mttl.ScaleSpeedPosV = 1f; // ???
             mttl.TextureID = 0; // Last texture

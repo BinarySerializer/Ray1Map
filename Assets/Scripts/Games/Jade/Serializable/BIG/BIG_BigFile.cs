@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using BinarySerializer;
+using System.Collections.Generic;
 
 namespace Ray1Map.Jade {
 	public class BIG_BigFile : BinarySerializable {
@@ -154,14 +155,13 @@ namespace Ray1Map.Jade {
 				for (int dir_i = 0; dir_i < curDirectoriesInFat; dir_i++) {
 					var dir = directories[dir_i + curDirectoryIndex];
 					fat.DirectoryInfos[dir_i] = new BIG_FatFile.DirectoryInfo() {
-						ParentDirectory = dir.ParentIndex,
+						Parent = dir.ParentIndex,
 						Name = dir.DirectoryName,
 
-						// Not filling these in - not important for Jademap or Jade
-						FirstDirectoryID = -1,
-						FirstFileID = -1,
-						NextDirectory = -1,
-						PreviousDirectory = -1,
+						FirstSubDirectory = dir.FirstDirectoryID,
+						FirstFile = dir.FirstFileID,
+						Previous = dir.PreviousDirectoryID,
+						Next = dir.NextDirectoryID,
 					};
 				}
 				for (int file_i = 0; file_i < curFilesInFat; file_i++) {
@@ -180,10 +180,13 @@ namespace Ray1Map.Jade {
 					};
 					fat.FileInfos[file_i] = new BIG_FatFile.FileInfo() {
 						Name = f.Filename,
-						FileSize = f.FileSize,
+						LengthOnDisk = f.FileSize,
 						ParentDirectory = f.DirectoryIndex,
-						NextFile = -1,
-						PreviousFile = -1,
+						Previous = f.PreviousFileInDirectoryIndex,
+						Next = f.NextFileInDirectoryIndex,
+						DateLastModified = f.DateLastModified,
+						P4RevisionClient = f.P4Revision,
+						Big = bf,
 					};
 					f.Offset = fat.Files[file_i].FileOffset;
 
@@ -198,13 +201,18 @@ namespace Ray1Map.Jade {
 		public class FileInfoForCreate {
 			public Jade_Key Key { get; set; }
 			public string Filename { get; set; }
-			public int DirectoryIndex { get; set; }
+			public int DirectoryIndex { get; set; } = -1;
 			public uint FileSize { get; set; }
 			public byte[] Bytes { get; set; }
 			public Pointer Offset { get; set; }
 			public Pointer NameOffset { get; set; }
+			public int FileIndex { get; set; }
+			public int NextFileInDirectoryIndex { get; set; } = -1;
+			public int PreviousFileInDirectoryIndex { get; set; } = -1;
 
 			// Temporary
+			public DateTime DateLastModified { get; set; }
+			public uint P4Revision { get; set; }
 			public FileSource Source { get; set; }
 			public string ModDirectory { get; set; }
 			public string FullPath { get; set; }
@@ -216,8 +224,15 @@ namespace Ray1Map.Jade {
 		}
 		public class DirectoryInfoForCreate {
 			public string DirectoryName { get; set; }
-			public int ParentIndex { get; set; }
+			public int ParentIndex { get; set; } = -1;
 			public string FullDirectoryString { get; set; }
+			public int NextDirectoryID { get; set; } = -1;
+			public int PreviousDirectoryID { get; set; } = -1;
+			public int FirstDirectoryID { get; set; } = -1;
+			public int FirstFileID { get; set; } = -1;
+			public int DirectoryIndex { get; set; }
+			public List<BIG_BigFile.DirectoryInfoForCreate> SubDirectories { get; set; } = new List<BIG_BigFile.DirectoryInfoForCreate>();
+			public List<FileInfoForCreate> Files { get; set; } = new List<FileInfoForCreate>();
 		}
 	}
 }

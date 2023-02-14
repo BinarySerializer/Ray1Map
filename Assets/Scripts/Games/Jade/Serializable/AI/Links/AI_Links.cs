@@ -49,9 +49,11 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.RaymanRavingRabbidsWii:
 				case GameModeSelection.RaymanRavingRabbidsWiiJP:
 				case GameModeSelection.RaymanRavingRabbidsPCUnbinarized:
+				case GameModeSelection.RaymanRavingRabbidsPCPrototype:
 					links = new AI_Links_RRR_Wii();
 					break;
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
+				case GameModeSelection.RaymanRavingRabbidsXbox360_20070213:
 					links = new AI_Links_RRR_Xbox360();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilGC:
@@ -101,6 +103,7 @@ namespace Ray1Map.Jade {
 					links = new AI_Links_KingKong_PSP();
 					break;
 				case GameModeSelection.RaymanRavingRabbids2Wii:
+				case GameModeSelection.RaymanRavingRabbids2Wii_20070901:
 				case GameModeSelection.RaymanRavingRabbids2PC:
 					links = new AI_Links_RRR2_Wii();
 					break;

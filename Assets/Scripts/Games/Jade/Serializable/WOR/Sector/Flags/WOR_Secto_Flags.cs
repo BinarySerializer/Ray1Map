@@ -1,0 +1,40 @@
+﻿using System;
+
+namespace Ray1Map.Jade {
+	[Flags]
+	public enum WOR_Secto_Flags : uint {
+		None          = 0,
+		Valid         = 1 << 0,
+		Merged        = 1 << 1,
+		Flag2         = 1 << 2,
+		Flag3         = 1 << 3,
+		Flag4         = 1 << 4,
+		Flag5         = 1 << 5,
+		Flag6         = 1 << 6,
+		Flag7         = 1 << 7,
+		Color1        = 1 << 8,
+		Color2        = 1 << 9,
+		Color3        = 1 << 10,
+		Flag11        = 1 << 11,
+		Flag12        = 1 << 12,
+		Flag13        = 1 << 13,
+		Flag14        = 1 << 14,
+		Flag15        = 1 << 15,
+		Active        = 1 << 16,
+		Visible       = 1 << 17,
+		Flag18        = 1 << 18,
+		Flag19        = 1 << 19,
+		Flag20        = 1 << 20,
+		Flag21        = 1 << 21,
+		Flag22        = 1 << 22,
+		Flag23        = 1 << 23,
+		AlwaysVisible = 1 << 24,
+		AlwaysActive  = 1 << 25,
+		NeverVisible  = 1 << 26,
+		NeverActive   = 1 << 27,
+		Flag28        = 1 << 28,
+		Flag29        = 1 << 29,
+		Flag30        = 1 << 30,
+		Flag31        = (uint)1 << 31,
+	}
+}

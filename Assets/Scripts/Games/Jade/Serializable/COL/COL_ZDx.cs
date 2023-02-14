@@ -8,10 +8,10 @@ namespace Ray1Map.Jade {
         public COL_ZoneShape Type { get; set; } // Determines shape
         public byte BoneIndex { get; set; }
         public byte Design { get; set; }
-        public byte Byte_04_Editor { get; set; }
+        public byte InstancesCount_Unused { get; set; }
         public uint NameLength { get; set; }
         public string Name { get; set; }
-        public byte Name_Terminator { get; set; }
+        public byte AI_Index { get; set; }
 
         // Copied from COL_Cob
         public COL_Box Shape_Box { get; set; } // Type 1
@@ -25,11 +25,11 @@ namespace Ray1Map.Jade {
             Type = s.Serialize<COL_ZoneShape>(Type, name: nameof(Type));
             BoneIndex = s.Serialize<byte>(BoneIndex, name: nameof(BoneIndex));
             Design = s.Serialize<byte>(Design, name: nameof(Design));
-            if (IsInstance && !Loader.IsBinaryData) Byte_04_Editor = s.Serialize<byte>(Byte_04_Editor, name: nameof(Byte_04_Editor));
+            if (IsInstance && !Loader.IsBinaryData) InstancesCount_Unused = s.Serialize<byte>(InstancesCount_Unused, name: nameof(InstancesCount_Unused));
             NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
             if (!Loader.IsBinaryData) {
                 Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-                Name_Terminator = s.Serialize<byte>(Name_Terminator, name: nameof(Name_Terminator));
+                AI_Index = s.Serialize<byte>(AI_Index, name: nameof(AI_Index));
             }
 
             switch (Type) {

@@ -67,17 +67,19 @@ namespace Ray1Map.Jade {
 			public BIG_BigFile Big { get; set; }
 
 			public string Name { get; set; }
-			public uint FileSize { get; set; }
-			public int NextFile { get; set; }
-			public int PreviousFile { get; set; }
+			public uint LengthOnDisk { get; set; }
+			public int Previous { get; set; }
+			public int Next { get; set; }
 			public int ParentDirectory { get; set; }
 			public uint DateLastModifiedUInt { get; set; }
-			public uint UInt_14 { get; set; }
-			public uint UInt_54 { get; set; }
+			public uint P4RevisionClient { get; set; }
 			public string Hash { get; set; }
 			public uint V43_UInt { get; set; }
 
-			public DateTime DateLastModified => new System.DateTime(1970,1,1).AddSeconds(DateLastModifiedUInt);
+			public DateTime DateLastModified {
+				get => new System.DateTime(1970, 1, 1).AddSeconds(DateLastModifiedUInt);
+				set => DateLastModifiedUInt = (uint)((value - new System.DateTime(1970, 1, 1)).TotalSeconds);
+			}
 
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;
@@ -90,15 +92,15 @@ namespace Ray1Map.Jade {
 					hasName = true;
 				}
 				if (hasName) {
-					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-					NextFile = s.Serialize<int>(NextFile, name: nameof(NextFile));
-					PreviousFile = s.Serialize<int>(PreviousFile, name: nameof(PreviousFile));
+					LengthOnDisk = s.Serialize<uint>(LengthOnDisk, name: nameof(LengthOnDisk));
+					Previous = s.Serialize<int>(Previous, name: nameof(Previous));
+					Next = s.Serialize<int>(Next, name: nameof(Next));
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					DateLastModifiedUInt = s.Serialize<uint>(DateLastModifiedUInt, name: nameof(DateLastModifiedUInt));
 					if(s.IsSerializerLoggerEnabled) s.Log("Date: {0:ddd, dd/MM/yyyy - HH:mm:ss}", DateLastModified);
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
-						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
+						P4RevisionClient = s.Serialize<uint>(P4RevisionClient, name: nameof(P4RevisionClient));
 					}
 					if (Big.Version >= 42) {
 						Hash = s.SerializeString(Hash, 0x20, encoding: Jade_BaseManager.Encoding, name: nameof(Hash));
@@ -117,18 +119,18 @@ namespace Ray1Map.Jade {
 		public class DirectoryInfo : BinarySerializable {
 			public static uint StructSize => 0x54;
 
-			public int FirstFileID { get; set; }
-			public int FirstDirectoryID { get; set; }
-			public int NextDirectory { get; set; }
-			public int PreviousDirectory { get; set; }
-			public int ParentDirectory { get; set; }
+			public int FirstFile { get; set; }
+			public int FirstSubDirectory { get; set; }
+			public int Previous { get; set; }
+			public int Next { get; set; }
+			public int Parent { get; set; }
 			public string Name { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				FirstFileID = s.Serialize<int>(FirstFileID, name: nameof(FirstFileID));
-				FirstDirectoryID = s.Serialize<int>(FirstDirectoryID, name: nameof(FirstDirectoryID));
-				NextDirectory = s.Serialize<int>(NextDirectory, name: nameof(NextDirectory));
-				PreviousDirectory = s.Serialize<int>(PreviousDirectory, name: nameof(PreviousDirectory));
-				ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
+				FirstFile = s.Serialize<int>(FirstFile, name: nameof(FirstFile));
+				FirstSubDirectory = s.Serialize<int>(FirstSubDirectory, name: nameof(FirstSubDirectory));
+				Previous = s.Serialize<int>(Previous, name: nameof(Previous));
+				Next = s.Serialize<int>(Next, name: nameof(Next));
+				Parent = s.Serialize<int>(Parent, name: nameof(Parent));
 				Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 		}
