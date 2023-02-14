@@ -928,16 +928,17 @@ namespace Ray1Map.Rayman1
         {
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
-                new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
-                new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
-                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
-                new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
-                new GameAction("Export Sound", false, true, (input, output) => ExtractSoundAsync(settings, output)),
-                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
-                new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
-                new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
-                new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
-                new GameAction("Export Movies", false, true, (input, output) => ExportMoviesAsync(settings, output)),
+                new("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
+                new("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
+                new("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
+                new("Export Archives", false, true, (input, output) => ExtractArchives(output)),
+                new("Export Sound", false, true, (input, output) => ExtractSoundAsync(settings, output)),
+                new("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+                new("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
+                new("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
+                new("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
+                new("Export Movies", false, true, (input, output) => ExportMoviesAsync(settings, output)),
+                new("Export Movie Frames", false, true, (input, output) => ExportMovieFramesAsync(settings, output)),
             }).ToArray();
         }
 
@@ -1080,6 +1081,29 @@ namespace Ray1Map.Rayman1
                     // Export
                     using var collection = flc.ToMagickImageCollection();
                     collection.Write(Path.Combine(outputDir, $"{Path.GetFileNameWithoutExtension(moviePath)}.gif"));
+                }
+            }
+        }
+
+        public async UniTask ExportMovieFramesAsync(GameSettings settings, string outputDir)
+        {
+            using var context = new Ray1MapContext(settings);
+            
+            foreach (var moviePath in GetMoviePaths)
+            {
+                await context.AddLinearFileAsync(moviePath);
+
+                var flc = FileFactory.Read<FLIC>(context, moviePath);
+
+                flc.Speed = 83;
+
+                int i = 0;
+                foreach (Texture2D frame in flc.EnumerateFrames())
+                {
+                    string filePath = Path.Combine(outputDir, Path.GetFileNameWithoutExtension(moviePath), $"{i}.png");
+                    Util.ByteArrayToFile(filePath, frame.EncodeToPNG());
+
+                    i++;
                 }
             }
         }
