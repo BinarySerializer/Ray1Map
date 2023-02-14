@@ -43,7 +43,7 @@ namespace Ray1Map.GBAVV
                     }, name: $"{nameof(TileFrames)}[{index++}]");
 
                     datas.Add(frame);
-                    length += frame.Size;
+                    length += frame.SerializedSize;
                 } while (length < TileSetFramesBlockLength);
 
                 TileFrames = datas.ToArray();

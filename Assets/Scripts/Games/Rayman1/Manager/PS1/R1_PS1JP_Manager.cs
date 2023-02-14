@@ -17,7 +17,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         public override int TileSetWidth => 1;
 
-        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         public string GetSpecialTileSetPath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}{settings.Level:00}.BLC";
 

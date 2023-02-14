@@ -26,7 +26,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         public abstract int TileSetWidth { get; }
 
-        protected virtual PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
+        protected virtual MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.DevPointerXOR;
 
         public virtual Endian Endianness { get; } = Endian.Little;
 
@@ -104,22 +104,22 @@ namespace Ray1Map.Rayman1
         public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
         {
             // Get the loaded v-ram
-            PS1_VRAM vram = context.GetRequiredStoredObject<PS1_VRAM>("vram");
+            VRAM vram = context.GetRequiredStoredObject<VRAM>("vram");
 
             // Get the image properties
             var width = s.Width;
             var height = s.Height;
 
-            int pageX = s.TexturePageInfo.TX;
-            int pageY = s.TexturePageInfo.TY;
-            var tp = s.TexturePageInfo.TP;
+            int pageX = s.TexturePage.TX;
+            int pageY = s.TexturePage.TY;
+            var tp = s.TexturePage.TP;
 
             if (pageX < 5)
                 return null;
 
             // Get palette coordinates
-            int paletteX = s.PaletteX;
-            int paletteY = s.PaletteY;
+            int paletteX = s.Clut.ClutX;
+            int paletteY = s.Clut.ClutY;
 
             // Get the palette size
             var palette = tp == 0 ? new RGBA5551Color[16] : new RGBA5551Color[256];
@@ -128,7 +128,7 @@ namespace Ray1Map.Rayman1
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
             // Set every pixel
-            if (tp == PS1_TSB.TexturePageTP.CLUT_8Bit)
+            if (tp == TSB.TexturePageTP.CLUT_8Bit)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -145,7 +145,7 @@ namespace Ray1Map.Rayman1
                     }
                 }
             }
-            else if (tp == PS1_TSB.TexturePageTP.CLUT_4Bit)
+            else if (tp == TSB.TexturePageTP.CLUT_4Bit)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -189,7 +189,7 @@ namespace Ray1Map.Rayman1
             if (entry == null)
                 throw new Exception($"No file entry found for path: {path}");
 
-            PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize == 0 ? (long?)null : entry.FileSize)
+            MemoryMappedPS1File file = new MemoryMappedPS1File(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.File.Size == 0 ? (long?)null : entry.File.Size)
             {
                 RecreateOnWrite = recreateOnWrite
             };

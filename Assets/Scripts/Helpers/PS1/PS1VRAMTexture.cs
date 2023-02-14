@@ -8,7 +8,7 @@ namespace Ray1Map
 {
     public class PS1VRAMTexture
     {
-        public PS1VRAMTexture(PS1_TSB tsb, PS1_CBA cba, PS1_TMD_UV[] uvs)
+        public PS1VRAMTexture(TSB tsb, CBA cba, TMD_UV[] uvs)
         {
             TSB = tsb;
             CBA = cba;
@@ -22,15 +22,15 @@ namespace Ray1Map
 
             Bounds = new RectInt(xMin, yMin, w, h);
 
-            bool is8bit = TSB.TP == PS1_TSB.TexturePageTP.CLUT_8Bit;
-            TextureRegion = new RectInt(TSB.TX * PS1_VRAM.PageWidth + Bounds.x / (is8bit ? 1 : 2), TSB.TY * PS1_VRAM.PageHeight + Bounds.y, Bounds.width / (is8bit ? 1 : 2), Bounds.height);
+            bool is8bit = TSB.TP == TSB.TexturePageTP.CLUT_8Bit;
+            TextureRegion = new RectInt(TSB.TX * VRAM.PageWidth + Bounds.x / (is8bit ? 1 : 2), TSB.TY * VRAM.PageHeight + Bounds.y, Bounds.width / (is8bit ? 1 : 2), Bounds.height);
 
             int palLength = (is8bit ? 256 : 16) * 2;
             PaletteRegion = new RectInt(CBA.ClutX * 2 * 16, CBA.ClutY, palLength, 1);
         }
 
-        public PS1_TSB TSB { get; }
-        public PS1_CBA CBA { get; }
+        public TSB TSB { get; }
+        public CBA CBA { get; }
         public RectInt Bounds { get; set; }
         public RectInt TextureRegion { get; }
         public RectInt PaletteRegion { get; }
@@ -49,13 +49,13 @@ namespace Ray1Map
             return Bounds.Overlaps(b.Bounds);
         }
 
-        public Texture2D GetTexture(PS1_VRAM vram, Texture2D tex = null)
+        public Texture2D GetTexture(VRAM vram, Texture2D tex = null)
         {
-            PS1_TIM.TIM_ColorFormat colFormat = TSB.TP switch
+            TIM.TIM_ColorFormat colFormat = TSB.TP switch
             {
-                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                TSB.TexturePageTP.CLUT_4Bit => TIM.TIM_ColorFormat.BPP_4,
+                TSB.TexturePageTP.CLUT_8Bit => TIM.TIM_ColorFormat.BPP_8,
+                TSB.TexturePageTP.Direct_15Bit => TIM.TIM_ColorFormat.BPP_16,
                 _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {TSB.TP}")
             };
 

@@ -329,8 +329,8 @@ namespace Ray1Map.Rayman1
                             }
 
                             // Update the LBA and size
-                            fileEntry.LBA = entry.LBA;
-                            fileEntry.FileSize = (uint)entry.Bytes;
+                            fileEntry.File.Pos.LBA = entry.LBA;
+                            fileEntry.File.Size = (uint)entry.Bytes;
                         }
 
                         // Write the game exe

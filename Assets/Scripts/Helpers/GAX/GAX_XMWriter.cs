@@ -254,7 +254,7 @@ namespace Ray1Map
                 }
             }
             // pat.PackedPatternDataSize = (ushort)(song.NumChannels * song.NumRowsPerPattern);
-            pat.PackedPatternDataSize = (ushort)pat.PatternRows.Sum(p => p.Size);
+            pat.PackedPatternDataSize = (ushort)pat.PatternRows.Sum(p => p.SerializedSize);
 
             return pat;
         }

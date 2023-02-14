@@ -8,10 +8,10 @@ namespace Ray1Map
 {
     public class TMDObjExporter
     {
-        protected Vector3 ToVertex(PS1_TMD_Vertex v, float scale) => new Vector3(-v.X / scale, -v.Y / scale, v.Z / scale);
-        protected Vector3 ToNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
+        protected Vector3 ToVertex(TMD_Vertex v, float scale) => new Vector3(-v.X / scale, -v.Y / scale, v.Z / scale);
+        protected Vector3 ToNormal(TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
 
-        public void Export(string dir, string name, PS1_TMD tmd, PS1_VRAM vram, float scale)
+        public void Export(string dir, string name, TMD tmd, VRAM vram, float scale)
         {
             string exportDir = Path.Combine(dir, name);
             Directory.CreateDirectory(exportDir);
@@ -20,10 +20,10 @@ namespace Ray1Map
             objWriter.WriteLine("mtllib mtl0.mtl");
 
             var vramTextures = new List<PS1VRAMTexture>();
-            var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
+            var vramTexturesLookup = new Dictionary<TMD_Packet, PS1VRAMTexture>();
 
             // Get texture bounds
-            foreach (PS1_TMD_Packet packet in tmd.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
+            foreach (TMD_Packet packet in tmd.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
             {
                 var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
 
@@ -49,9 +49,9 @@ namespace Ray1Map
             }
 
             // Vertices
-            foreach (PS1_TMD_Object obj in tmd.Objects)
+            foreach (TMD_Object obj in tmd.Objects)
             {
-                foreach (PS1_TMD_Packet p in obj.Primitives)
+                foreach (TMD_Packet p in obj.Primitives)
                 {
                     foreach (Vector3 vertex in p.Vertices.Select(x => ToVertex(obj.Vertices[x], scale)))
                     {
@@ -73,15 +73,15 @@ namespace Ray1Map
             //}
 
             // UVs
-            foreach (PS1_TMD_Object obj in tmd.Objects)
+            foreach (TMD_Object obj in tmd.Objects)
             {
-                foreach (PS1_TMD_Packet p in obj.Primitives)
+                foreach (TMD_Packet p in obj.Primitives)
                 {
                     PS1VRAMTexture tex = vramTexturesLookup[p];
 
                     for (var i = 0; i < p.UV.Length; i++)
                     {
-                        PS1_TMD_UV uv = p.UV[i];
+                        TMD_UV uv = p.UV[i];
                         var u = uv.U - tex.Bounds.x;
                         var v = uv.V - tex.Bounds.y;
 
@@ -98,9 +98,9 @@ namespace Ray1Map
 
             int groupIndex = 0;
             int triIndex = 1;
-            foreach (PS1_TMD_Object obj in tmd.Objects)
+            foreach (TMD_Object obj in tmd.Objects)
             {
-                foreach (PS1_TMD_Packet p in obj.Primitives)
+                foreach (TMD_Packet p in obj.Primitives)
                 {
                     PS1VRAMTexture tex = vramTexturesLookup[p];
 

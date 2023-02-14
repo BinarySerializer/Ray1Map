@@ -7,31 +7,31 @@ namespace Ray1Map
 {
     public class TMDGameObject
     {
-        public TMDGameObject(PS1_TMD tmd, PS1_VRAM vram, float scale)
+        public TMDGameObject(TMD tmd, VRAM vram, float scale)
         {
             TMD = tmd;
             VRAM = vram;
             Scale = scale;
         }
 
-        public PS1_TMD TMD { get; }
-        public PS1_VRAM VRAM { get; }
+        public TMD TMD { get; }
+        public VRAM VRAM { get; }
         public float Scale { get; }
 
         public bool HasAnimations { get; protected set; }
 
-        protected Vector3 ToVertex(PS1_TMD_Vertex v) => new Vector3(v.X / Scale, -v.Y / Scale, v.Z / Scale);
-        protected Vector3 ToNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
+        protected Vector3 ToVertex(TMD_Vertex v) => new Vector3(v.X / Scale, -v.Y / Scale, v.Z / Scale);
+        protected Vector3 ToNormal(TMD_Normal n) => new Vector3(n.X, -n.Y, n.Z);
 
-        protected virtual void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex) { }
+        protected virtual void OnGetTextureBounds(TMD_Packet packet, PS1VRAMTexture tex) { }
         protected virtual void OnCreateTexture(PS1VRAMTexture tex) { }
-        protected virtual void OnCreatedBones(GameObject gameObject, PS1_TMD_Object obj, Transform[] bones) { }
-        protected virtual void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, PS1_TMD_Object obj, int objIndex) { }
-        protected virtual void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes) { }
-        protected virtual void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
+        protected virtual void OnCreatedBones(GameObject gameObject, TMD_Object obj, Transform[] bones) { }
+        protected virtual void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, TMD_Object obj, int objIndex) { }
+        protected virtual void OnCreatedPrimitives(GameObject gameObject, TMD_Object obj, int objIndex, Mesh[] primitiveMeshes) { }
+        protected virtual void OnAppliedTexture(GameObject packetGameObject, TMD_Object obj, TMD_Packet packet, Material mat, PS1VRAMTexture tex) { }
         protected virtual void OnCreatedObjects(GameObject parentGameObject, GameObject[] objects, Transform[][] allBones) { }
 
-        protected virtual Mesh AddPrimitive(GameObject parent, PS1_TMD_Object obj, int objIndex, int packetIndex, Dictionary<PS1_TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo, bool loadTextures)
+        protected virtual Mesh AddPrimitive(GameObject parent, TMD_Object obj, int objIndex, int packetIndex, Dictionary<TMD_Packet, PS1VRAMTexture> vramTexturesLookup, Transform[] bones, Matrix4x4[] bindPoses, bool includeDebugInfo, bool loadTextures)
         {
             // Helper method
             int getBoneForVertex(int vertexIndex)
@@ -42,12 +42,12 @@ namespace Ray1Map
                 return obj.Bones.FindItemIndex(b => b.VerticesIndex <= vertexIndex && b.VerticesIndex + b.VerticesCount > vertexIndex) + 1;
             }
 
-            PS1_TMD_Packet packet = obj.Primitives[packetIndex];
+            TMD_Packet packet = obj.Primitives[packetIndex];
 
             //if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
             //    Debug.LogWarning($"Packet has light source");
 
-            if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
+            if (packet.Mode.Code != TMD_PacketMode.PacketModeCODE.Polygon)
             {
                 if (packet.Mode.Code != 0)
                     Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
@@ -139,11 +139,11 @@ namespace Ray1Map
             return unityMesh;
         }
 
-        protected virtual int[] GetTriangles(PS1_TMD_Packet packet)
+        protected virtual int[] GetTriangles(TMD_Packet packet)
         {
             if (packet.Mode.IsQuad)
             {
-                if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
+                if (packet.Flags.HasFlag(TMD_Packet.PacketFlags.FCE))
                 {
                     return new int[]
                     {
@@ -166,7 +166,7 @@ namespace Ray1Map
             }
             else
             {
-                if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
+                if (packet.Flags.HasFlag(TMD_Packet.PacketFlags.FCE))
                 {
                     return new int[]
                     {
@@ -183,7 +183,7 @@ namespace Ray1Map
             }
         }
 
-        protected virtual void ApplyTexture(PS1VRAMTexture tex, Material mat, Mesh unityMesh, PS1_TMD_Object obj, PS1_TMD_Packet packet, GameObject packetGameObject, int objIndex, int packetIndex, bool includeDebugInfo)
+        protected virtual void ApplyTexture(PS1VRAMTexture tex, Material mat, Mesh unityMesh, TMD_Object obj, TMD_Packet packet, GameObject packetGameObject, int objIndex, int packetIndex, bool includeDebugInfo)
         {
             mat.SetTexture("_MainTex", tex.Texture);
 
@@ -220,12 +220,12 @@ namespace Ray1Map
             gaoParent.transform.position = Vector3.zero;
 
             var vramTextures = new HashSet<PS1VRAMTexture>();
-            var vramTexturesLookup = new Dictionary<PS1_TMD_Packet, PS1VRAMTexture>();
+            var vramTexturesLookup = new Dictionary<TMD_Packet, PS1VRAMTexture>();
 
             if (loadTextures)
             {
                 // Get texture bounds
-                foreach (PS1_TMD_Packet packet in TMD.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
+                foreach (TMD_Packet packet in TMD.Objects.SelectMany(x => x.Primitives).Where(x => x.Mode.TME))
                 {
                     var tex = new PS1VRAMTexture(packet.TSB, packet.CBA, packet.UV);
 

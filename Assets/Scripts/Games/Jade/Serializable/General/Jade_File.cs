@@ -11,7 +11,7 @@ namespace Ray1Map.Jade {
 		public LOA_BinFileHeader BinFileHeader { get; set; }
 		public LOA_HeaderBFFile HeaderBFFile { get; set; } // Only for unbinarized files post-TMNT Montreal
 		public virtual bool HasHeaderBFFile => false;
-		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
+		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.SerializedSize ?? 0);
 		public virtual string Export_Extension => null;
 		public virtual string Export_FileBasename => null;
 		public string Export_OriginalFilename { get; set; }

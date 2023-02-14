@@ -1,10 +1,11 @@
-﻿using BinarySerializer.PS1;
-using BinarySerializer.Ray1;
-using Ray1Map.Rayman1;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.PS1;
+using BinarySerializer.Ray1;
+using Ray1Map.Rayman1;
 using UnityEngine;
+using Rect = UnityEngine.Rect;
 
 namespace Ray1Map
 {
@@ -58,7 +59,7 @@ namespace Ray1Map
         public IList<KeyValuePair<string, string[]>> Localization { get; set; }
         public Unity_CameraClear CameraClear { get; set; }
         public Unity_Sector[] Sectors { get; set; }
-        public PS1_VRAM PS1_VRAM { get; set; }
+        public VRAM PS1_VRAM { get; set; }
 
         // Track
         public Unity_TrackManager[] TrackManagers { get; set; }

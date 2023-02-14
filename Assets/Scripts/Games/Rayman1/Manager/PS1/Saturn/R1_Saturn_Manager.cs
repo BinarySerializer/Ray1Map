@@ -23,7 +23,7 @@ namespace Ray1Map.Rayman1
 
         public virtual string GetLanguageFilePath(string langCode) => $"RAY{langCode}.TXT";
 
-        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         public uint BaseAddress => 0x00200000;
         protected override PS1_ExecutableConfig GetExecutableConfig => null;
@@ -118,7 +118,7 @@ namespace Ray1Map.Rayman1
             }
             if (baseAddress != 0)
             {
-                PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, (uint)baseAddress, InvalidPointerMode, Endian.Big);
+                MemoryMappedPS1File file = new MemoryMappedPS1File(context, path, (uint)baseAddress, InvalidPointerMode, Endian.Big);
                 context.AddFile(file);
 
                 return file.Length;

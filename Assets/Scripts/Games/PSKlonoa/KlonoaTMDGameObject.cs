@@ -8,8 +8,8 @@ namespace Ray1Map.PSKlonoa
     public class KlonoaTMDGameObject : TMDGameObject
     {
         public KlonoaTMDGameObject(
-            PS1_TMD tmd, 
-            PS1_VRAM vram,
+            TMD tmd, 
+            VRAM vram,
             float scale,
             KlonoaObjectsLoader objectsLoader,
             bool isPrimaryObj, 
@@ -51,7 +51,7 @@ namespace Ray1Map.PSKlonoa
         public CollisionTriangles_File Collision { get; }
         public GameObject[] MovementPathObjects { get; }
 
-        protected override void OnGetTextureBounds(PS1_TMD_Packet packet, PS1VRAMTexture tex)
+        protected override void OnGetTextureBounds(TMD_Packet packet, PS1VRAMTexture tex)
         {
             // Expand with UV scroll
             if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))
@@ -81,7 +81,7 @@ namespace Ray1Map.PSKlonoa
             tex.SetAnimatedTexture(animatedTexture);
         }
 
-        protected override void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, PS1_TMD_Object obj, int objIndex)
+        protected override void OnCreateObject(GameObject gameObject, GameObject primitivesGameObject, TMD_Object obj, int objIndex)
         {
             CollisionComponent?.normalObjects.Add(primitivesGameObject);
 
@@ -122,7 +122,7 @@ namespace Ray1Map.PSKlonoa
                 HasAnimations = true;
         }
 
-        protected override void OnCreatedPrimitives(GameObject gameObject, PS1_TMD_Object obj, int objIndex, Mesh[] primitiveMeshes)
+        protected override void OnCreatedPrimitives(GameObject gameObject, TMD_Object obj, int objIndex, Mesh[] primitiveMeshes)
         {
             if (VertexAnimation == null) 
                 return;
@@ -148,7 +148,7 @@ namespace Ray1Map.PSKlonoa
             HasAnimations = true;
         }
 
-        protected override void OnAppliedTexture(GameObject packetGameObject, PS1_TMD_Object obj, PS1_TMD_Packet packet, Material mat, PS1VRAMTexture tex)
+        protected override void OnAppliedTexture(GameObject packetGameObject, TMD_Object obj, TMD_Packet packet, Material mat, PS1VRAMTexture tex)
         {
             // Check for UV scroll animations
             if (IsPrimaryObj && packet.UV.Any(x => ObjectsLoader.ScrollAnimations.SelectMany(a => a.UVOffsets).Contains((int)(x.Offset.FileOffset - TMD.Objects[0].Offset.FileOffset))))

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer.PS1;
 using UnityEngine;
+using Rect = BinarySerializer.PS1.Rect;
 
 namespace Ray1Map
 {
@@ -16,7 +17,7 @@ namespace Ray1Map
             Speed = speed;
             PingPong = pingPong;
         }
-        public PS1VRAMAnimation(PS1_VRAMRegion region, byte[][] frames, int speed, bool pingPong)
+        public PS1VRAMAnimation(Rect region, byte[][] frames, int speed, bool pingPong)
         {
             UsesSingleRegion = true;
             Region = RectIntFromVRAMRegion(region);
@@ -24,7 +25,7 @@ namespace Ray1Map
             Speed = speed;
             PingPong = pingPong;
         }
-        public PS1VRAMAnimation(PS1_VRAMRegion region, Func<byte[]>[] frames, int speed, bool pingPong)
+        public PS1VRAMAnimation(Rect region, Func<byte[]>[] frames, int speed, bool pingPong)
         {
             UsesSingleRegion = true;
             Region = RectIntFromVRAMRegion(region);
@@ -40,7 +41,7 @@ namespace Ray1Map
             Speed = speed;
             PingPong = pingPong;
         }
-        public PS1VRAMAnimation(IEnumerable<PS1_VRAMRegion> regions, byte[][] frames, int speed, bool pingPong)
+        public PS1VRAMAnimation(IEnumerable<Rect> regions, byte[][] frames, int speed, bool pingPong)
         {
             UsesSingleRegion = false;
             Regions = regions.Select(RectIntFromVRAMRegion).ToArray();
@@ -48,7 +49,7 @@ namespace Ray1Map
             Speed = speed;
             PingPong = pingPong;
         }
-        public PS1VRAMAnimation(PS1_TIM[] timFiles, int speed, bool pingPong)
+        public PS1VRAMAnimation(TIM[] timFiles, int speed, bool pingPong)
         {
             UsesSingleRegion = false;
             Regions = timFiles.Select(x => RectIntFromVRAMRegion(x.Region)).ToArray();
@@ -71,7 +72,7 @@ namespace Ray1Map
         public int FramesLength => RawFrames?.Length ?? GeneratedFrames.Length;
         public int ActualLength => PingPong ? FramesLength + (FramesLength - 2) : FramesLength;
 
-        private static RectInt RectIntFromVRAMRegion(PS1_VRAMRegion region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
+        private static RectInt RectIntFromVRAMRegion(Rect region) => new RectInt(region.XPos * 2, region.YPos, region.Width * 2, region.Height);
 
         public bool Overlaps(RectInt region)
         {

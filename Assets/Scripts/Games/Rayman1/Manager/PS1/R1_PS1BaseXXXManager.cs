@@ -286,7 +286,7 @@ namespace Ray1Map.Rayman1
                         {
                             foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
                             {
-                                imgDescr.PaletteY = 509;
+                                imgDescr.Clut.ClutY = 509;
                             }
                         }
                     }
@@ -296,7 +296,7 @@ namespace Ray1Map.Rayman1
                         {
                             foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
                             {
-                                imgDescr.PaletteY = 492;
+                                imgDescr.Clut.ClutY = 492;
                             }
                         }
                     }

@@ -29,7 +29,7 @@ namespace Ray1Map.GBC
                     return s.SerializeObject<Pattern>(Patterns[i], name: $"{nameof(Patterns)}[{i}]");
                 });
             }
-            if(Patterns.Length > 0) s.Goto(Patterns[Patterns.Length - 1].Offset + Patterns[Patterns.Length - 1].Size);
+            if(Patterns.Length > 0) s.Goto(Patterns[Patterns.Length - 1].Offset + Patterns[Patterns.Length - 1].SerializedSize);
         }
 
 		public class Pattern : BinarySerializable {

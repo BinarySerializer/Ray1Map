@@ -20,7 +20,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         public override int TileSetWidth => 40;
 
-        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         /// <summary>
         /// Gets the file path for the allfix file
