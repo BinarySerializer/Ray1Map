@@ -1145,6 +1145,7 @@ namespace Ray1Map {
 				originalBF = originalLoader.BigFiles[0];
 
 				Dictionary<string, List<LOA_Loader.FileInfo>> fileInfos = null;
+				Dictionary<string, uint> moddedFileInfos = new Dictionary<string, uint>();
 				List<LOA_Loader.FileInfo> GetJadeFileByPath(string path) {
 					if (fileInfos == null) {
 						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
@@ -1229,17 +1230,21 @@ namespace Ray1Map {
 								var path = lineSplit[1].Replace('\\', '/');
 								var absolutePath = Path.Combine(modDir, $"files/{path}");
 								if (File.Exists(absolutePath)) {
+									bool isNewModOnlyFile = true;
 									bool addModFile = true;
 									if (fileKeysUnbinarized.ContainsKey(k)) {
+										isNewModOnlyFile = false;
 										if(overwrite) fileKeysUnbinarized.Remove(k);
 										else addModFile = false;
 									}
 									if (fileKeysExisting.ContainsKey(k)) {
+										isNewModOnlyFile = false;
 										if (overwrite) fileKeysExisting.Remove(k);
 										else addModFile = false;
 									}
 									foreach (var otherMod in mods) {
 										if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+											isNewModOnlyFile = false;
 											if (overwrite) {
 												readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {path}");
 												otherMod.Value.Remove(k);
@@ -1247,6 +1252,10 @@ namespace Ray1Map {
 										}
 									}
 									if(addModFile) mod.Value[k] = path;
+									if(isNewModOnlyFile)
+										moddedFileInfos[path] = k;
+								} else if (!ignoreNonexistentFiles) {
+									readContext?.SystemLogger?.LogInfo($"File does not exist in mod directory: {path}");
 								}
 							}
 						}
@@ -1280,6 +1289,18 @@ namespace Ray1Map {
 									}
 									if (addModFile) mod.Value[k] = relPath;
 								}
+							} else if (moddedFileInfos.ContainsKey(relPath)) {
+								var k = moddedFileInfos[relPath];
+								bool addModFile = true;
+								foreach (var otherMod in mods) {
+									if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+										if (overwrite) {
+											readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {relPath}");
+											otherMod.Value.Remove(k);
+										} else addModFile = false;
+									}
+								}
+								if (addModFile) mod.Value[k] = relPath;
 							} else if(!ignoreNonexistentFiles) {
 								readContext?.SystemLogger?.LogInfo($"Could not find matching file in BF: {relPath}");
 							}

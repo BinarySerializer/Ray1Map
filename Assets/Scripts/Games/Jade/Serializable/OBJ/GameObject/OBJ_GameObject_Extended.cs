@@ -14,7 +14,7 @@ namespace Ray1Map.Jade {
 		public uint UInt_Editor_10 { get; set; }
 		public uint UInt_Editor_14 { get; set; }
 		public uint UInt_Editor_18 { get; set; }
-		public int Int_08 { get; set; }
+		public int VersionNumber { get; set; }
 		public byte[] Sectos { get; set; }
 		public uint Capacities { get; set; }
 		public ushort UShort_Editor_12 { get; set; }
@@ -55,12 +55,15 @@ namespace Ray1Map.Jade {
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
-					Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+					VersionNumber = s.Serialize<int>(VersionNumber, name: nameof(VersionNumber));
 				}
-				int Sectos_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
+				int Sectos_count = 4;
+				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
+					if (VersionNumber != -1 && VersionNumber != 0) Sectos_count = 8;
+				}
 				Sectos = s.SerializeArray<byte>(Sectos, Sectos_count, name: nameof(Sectos));
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && Int_08 != -1) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && VersionNumber != -1) {
 				Capacities = s.Serialize<uint>(Capacities, name: nameof(Capacities));
 			} else {
 				Capacities = s.Serialize<ushort>((ushort)Capacities, name: nameof(Capacities));
@@ -95,7 +98,7 @@ namespace Ray1Map.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.DesignStruct)) {
 				Design = s.SerializeObject<OBJ_GameObject_DesignStruct>(Design, name: nameof(Design));
 			}
-			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Int_08 >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && VersionNumber >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {
 				XenonData = s.SerializeObject<OBJ_GameObject_ExtendedXenonData>(XenonData, name: nameof(XenonData));
 			}
 			if (HasModifiers != 0) {

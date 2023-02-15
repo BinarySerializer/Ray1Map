@@ -80,8 +80,8 @@ namespace Ray1Map.Jade {
 
 			public short TextureID { get; set; }
 			public uint AdditionalFlags { get; set; }
-			public float ScaleSpeedPosU { get; set; }
-			public float ScaleSpeedPosV { get; set; }
+			public CompressedUV ScaleSpeedPosU { get; set; } = new CompressedUV();
+			public CompressedUV ScaleSpeedPosV { get; set; } = new CompressedUV();
 			public Jade_TextureReference Texture { get; set; }
 
 			// Xenon
@@ -125,8 +125,11 @@ namespace Ray1Map.Jade {
 					UVTransformation = b.SerializeBits<UVDynamicTransformation>(UVTransformation, 2, name: nameof(UVTransformation));
 				});
 				//Flags = s.Serialize<MaterialFlags>(Flags, name: nameof(Flags));
-				ScaleSpeedPosU = s.Serialize<float>(ScaleSpeedPosU, name: nameof(ScaleSpeedPosU));
-				ScaleSpeedPosV = s.Serialize<float>(ScaleSpeedPosV, name: nameof(ScaleSpeedPosV));
+				ScaleSpeedPosU = s.SerializeObject<CompressedUV>(ScaleSpeedPosU, name: nameof(ScaleSpeedPosU));
+				ScaleSpeedPosV = s.SerializeObject<CompressedUV>(ScaleSpeedPosV, name: nameof(ScaleSpeedPosV));
+				if (s.IsSerializerLoggerEnabled) {
+					s.Log($"Rotation: {0}", UVRotation);
+				}
 
 				if (Material.ObjectVersion >= 9) {
 					DispLayersCount = s.Serialize<byte>(DispLayersCount, name: nameof(DispLayersCount));
@@ -151,6 +154,24 @@ namespace Ray1Map.Jade {
 					if (HasXenonData != 0) {
 						Data = s.SerializeObject<XenonData>(Data, name: nameof(Data));
 					}
+				}
+			}
+
+			public float UVRotation {
+				get {
+					int rotation = 0;
+					BitHelpers.SetBits(rotation, ScaleSpeedPosU.RotationBitUpper ? 1 : 0, 1, 3);
+					BitHelpers.SetBits(rotation, ScaleSpeedPosU.RotationBitLower ? 1 : 0, 1, 2);
+					BitHelpers.SetBits(rotation, ScaleSpeedPosV.RotationBitUpper ? 1 : 0, 1, 1);
+					BitHelpers.SetBits(rotation, ScaleSpeedPosV.RotationBitLower ? 1 : 0, 1, 0);
+					return rotation / 63f;
+				}
+				set {
+					int rotation = (int)MathF.Round(value * 63);
+					ScaleSpeedPosU.RotationBitUpper = BitHelpers.ExtractBits(rotation, 1, 3) == 1;
+					ScaleSpeedPosU.RotationBitLower = BitHelpers.ExtractBits(rotation, 1, 2) == 1;
+					ScaleSpeedPosV.RotationBitUpper = BitHelpers.ExtractBits(rotation, 1, 1) == 1;
+					ScaleSpeedPosV.RotationBitLower = BitHelpers.ExtractBits(rotation, 1, 0) == 1;
 				}
 			}
 			
@@ -214,6 +235,45 @@ namespace Ray1Map.Jade {
 				Default13,
 				Default14,
 				Default15,
+			}
+
+			public class CompressedUV : BinarySerializable, ISerializerShortLog {
+				public float Scale {
+					get {
+						if (!RotationBitLower && !RotationBitUpper) {
+							if (ScaleBits == 0 && SpeedBits == 0 && !RotationBitUpper) // 0 value is treated as identity
+								return 1f;
+							if(SpeedBits == 0x800 && ScaleBits == 0x400) // Old identity value
+								return 1f;
+						}
+						return BitConverter.Int32BitsToSingle(ScaleBits << 17);
+					}
+					set {
+						ScaleBits = (short)(BitConverter.SingleToInt32Bits(value) >> 17);
+					}
+				}
+				public float Speed {
+					get => BitConverter.Int32BitsToSingle(SpeedBits << 17);
+					set {
+						SpeedBits = (short)(BitConverter.SingleToInt32Bits(value) >> 17);
+					}
+				}
+				public bool RotationBitUpper { get; set; }
+				public bool RotationBitLower { get; set; }
+				public short SpeedBits { get; set; }
+				public short ScaleBits { get; set; }
+
+				public override string ToString() => $"CompressedUV(Position/Speed: {Speed}, Scale: {Scale})";
+				public string ShortLog => ToString();
+
+				public override void SerializeImpl(SerializerObject s) {
+					s.DoBits<uint>(b => {
+						RotationBitLower = b.SerializeBits<bool>(RotationBitLower, 1, name: nameof(RotationBitLower));
+						SpeedBits = b.SerializeBits<short>(SpeedBits, 15, name: nameof(SpeedBits));
+						RotationBitUpper = b.SerializeBits<bool>(RotationBitUpper, 1, name: nameof(RotationBitUpper));
+						ScaleBits = b.SerializeBits<short>(ScaleBits, 15, name: nameof(ScaleBits));
+					});
+				}
 			}
 
 			[Flags]

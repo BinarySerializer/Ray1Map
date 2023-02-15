@@ -182,7 +182,7 @@ public class JadeModelImportBehaviour : MonoBehaviour {
 
             mttl.Source = MAT_MTT_MultiTextureMaterial.MAT_MTT_Level.UVSource.Object1;
 
-            mttl.ScaleSpeedPosV = 1f; // ???
+            //mttl.ScaleSpeedPosV = 1f; // ???
             mttl.TextureID = 0; // Last texture
 
 

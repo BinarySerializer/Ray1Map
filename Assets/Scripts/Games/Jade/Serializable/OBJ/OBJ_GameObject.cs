@@ -20,7 +20,7 @@ namespace Ray1Map.Jade {
 		public byte LOD_Vis { get; set; }
 		public byte LOD_Dist { get; set; }
 		public OBJ_GameObject_TypeFlags DesignFlags { get; set; }
-		public byte FixFlags { get; set; }
+		public OBJ_GameObject_FixFlags FixFlags { get; set; }
 		public Jade_Matrix Matrix { get; set; }
 		
 		public OBJ_BV_BoundingVolume BoundingVolume { get; set; }
@@ -85,7 +85,7 @@ namespace Ray1Map.Jade {
 			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
 			LOD_Dist = s.Serialize<byte>(LOD_Dist, name: nameof(LOD_Dist));
 			DesignFlags = s.Serialize<OBJ_GameObject_TypeFlags>(DesignFlags, name: nameof(DesignFlags));
-			FixFlags = s.Serialize<byte>(FixFlags, name: nameof(FixFlags));
+			FixFlags = s.Serialize<OBJ_GameObject_FixFlags>(FixFlags, name: nameof(FixFlags));
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
