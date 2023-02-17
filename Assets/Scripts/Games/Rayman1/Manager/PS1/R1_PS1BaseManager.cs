@@ -206,7 +206,7 @@ namespace Ray1Map.Rayman1
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The level</returns>
-        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, PS1_BackgroundBlock bg = null)
+        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, PS1_BackgroundData bg = null)
         {
             Unity_TileSet tileSet = GetTileSet(context);
 
@@ -227,7 +227,7 @@ namespace Ray1Map.Rayman1
                 };
 
                 // Get every sprite
-                foreach (Sprite i in bg.SpriteCollection.Sprites)
+                foreach (Sprite i in bg.Sprites.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, null, i);
@@ -237,7 +237,7 @@ namespace Ray1Map.Rayman1
                 }
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.SpriteCollection.Sprites, bg.SpriteCollection.Sprites.First().Offset, null, null), bg.Offset));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.Sprites.Sprites, bg.Sprites.Sprites.First().Offset, null, null), bg.Offset));
             }
 
             // Load event templates
@@ -705,7 +705,7 @@ namespace Ray1Map.Rayman1
                     // Get the textures
                     var textures = new List<Texture2D>();
 
-                    if (fileInfo.FileType == VignetteFileType.Raw16)
+                    if (fileInfo.FileType == VignetteFileType.Vignette)
                     {
                         // Read the raw data
                         var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, fileInfo.FilePath, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
@@ -724,10 +724,10 @@ namespace Ray1Map.Rayman1
                             }
                         }
                     }
-                    else if (fileInfo.FileType == VignetteFileType.MultiXXX)
+                    else if (fileInfo.FileType == VignetteFileType.VignettePack)
                     {
                         // Read the data
-                        var multiData = FileFactory.Read<PS1_MultiVignetteFile>(context, fileInfo.FilePath);
+                        var multiData = FileFactory.Read<PS1_VignettePack>(context, fileInfo.FilePath);
 
                         // Get the textures
                         for (int i = 0; i < multiData.ImageBlocks.Length; i++)
@@ -752,13 +752,13 @@ namespace Ray1Map.Rayman1
                     }
                     else
                     {
-                        PS1_VignetteBlockGroup imageBlock;
+                        PS1_Fond imageBlock;
 
                         // Get the block
-                        if (fileInfo.FileType == VignetteFileType.BlockedXXX)
-                            imageBlock = FileFactory.Read<PS1_BackgroundVignetteFile>(context, fileInfo.FilePath).ImageBlock;
+                        if (fileInfo.FileType == VignetteFileType.FondPack)
+                            imageBlock = FileFactory.Read<PS1_FondPack>(context, fileInfo.FilePath).Fond;
                         else
-                            imageBlock = FileFactory.Read<PS1_VignetteBlockGroup>(context, fileInfo.FilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+                            imageBlock = FileFactory.Read<PS1_Fond>(context, fileInfo.FilePath);
 
                         // Create the texture
                         textures.Add(imageBlock.ToTexture(context));
@@ -805,7 +805,7 @@ namespace Ray1Map.Rayman1
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 
-        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, ObjData[] fixEvents, PS1_BigRayBlock bigRay)
+        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_Alpha[] fontData, ObjData[] fixEvents, PS1_BigRayData bigRay)
         {
             // Fill the v-ram for each context
             FillVRAM(menuContext, PS1VramHelpers.VRAMMode.Menu);
@@ -822,7 +822,7 @@ namespace Ray1Map.Rayman1
                     for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
                     {
                         // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].SpriteCollection.Sprites[spriteIndex]);
+                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites.Sprites[spriteIndex]);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -1024,18 +1024,18 @@ namespace Ray1Map.Rayman1
                 Width = width;
 
                 if (width != 0)
-                    FileType = VignetteFileType.Raw16;
+                    FileType = VignetteFileType.Vignette;
                 else if (filePath.EndsWith(".XXX", StringComparison.InvariantCultureIgnoreCase))
-                    FileType = VignetteFileType.BlockedXXX;
+                    FileType = VignetteFileType.FondPack;
                 else
-                    FileType = VignetteFileType.Blocked;
+                    FileType = VignetteFileType.Fond;
             }
 
             public PS1VignetteFileInfo(string filePath, params int[] widths)
             {
                 FilePath = filePath;
                 Widths = widths;
-                FileType = VignetteFileType.MultiXXX;
+                FileType = VignetteFileType.VignettePack;
             }
 
             public VignetteFileType FileType { get; }
@@ -1052,10 +1052,10 @@ namespace Ray1Map.Rayman1
         /// </summary>
         protected enum VignetteFileType
         {
-            Raw16,
-            Blocked,
-            BlockedXXX,
-            MultiXXX
+            Vignette,
+            Fond,
+            FondPack,
+            VignettePack
         }
 
         protected class DES
