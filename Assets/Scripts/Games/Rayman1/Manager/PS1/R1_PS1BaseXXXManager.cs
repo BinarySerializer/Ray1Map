@@ -1,12 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -90,6 +89,7 @@ namespace Ray1Map.Rayman1
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImageAsync(settings, output)),
+                new GameAction("Export background sprites", false, true, (input, output) => ExportBackgroundSpritesAsync(settings, output)),
                 new GameAction("Test BIN Reader", false, false, (input,output) => TestBinRead(settings))
             }).ToArray();
         }
@@ -264,6 +264,86 @@ namespace Ray1Map.Rayman1
 
             // Export
             PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: 256);
+        }
+
+        public async UniTask ExportBackgroundSpritesAsync(GameSettings settings, string outputPath)
+        {
+            HashSet<string> exportedFiles = new();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(settings).First().Worlds)
+            {
+                // Don't export menu
+                if (world.Index == 7)
+                    break;
+
+                settings.World = world.Index;
+
+                // Enumerate every level
+                foreach (var lvl in world.Maps)
+                {
+                    settings.Level = lvl;
+
+                    try
+                    {
+                        // Create the context
+                        using var context = new Ray1MapContext(settings);
+
+                        // Load the level
+                        await LoadFilesAsync(context);
+                        await LoadAsync(context);
+
+                        PS1_Executable exe = LoadEXE(context);
+                        byte bgIndex = exe.PS1_LevelBackgroundIndexTable[settings.World - 1][settings.Level - 1];
+                        int fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
+
+                        if (fndStartIndex == -1)
+                            continue;
+
+                        string bgFilePath = exe.PS1_FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+
+                        if (exportedFiles.Contains(bgFilePath))
+                            continue;
+
+                        exportedFiles.Add(bgFilePath);
+
+                        PS1_FondPack bg = FileFactory.Read<PS1_FondPack>(context, bgFilePath);
+
+                        if (bg.SpriteData == null)
+                            continue;
+                        
+                        VRAM vram = context.GetRequiredStoredObject<VRAM>("vram");
+                        bool isJp = context.GetRequiredSettings<Ray1Settings>().EngineVersion == Ray1EngineVersion.PS1_JP;
+
+                        short clutX = (short)(isJp ? 0x40 : 0x300);
+                        short clutY = (short)(isJp ? 0x1fc : 0x1f7);
+
+                        for (int i = 0; i < bg.SpriteData.PalettesCount; i++)
+                        {
+                            var rect = new BinarySerializer.PS1.Rect(clutX, (short)(clutY - i), 0x100, 1);
+                            vram.AddPalette(bg.SpriteData.Palettes[i].Palette, rect);
+                        }
+
+                        var levelPack = FileFactory.Read<PS1_LevelPack>(context, GetLevelFilePath(settings));
+
+                        for (int i = 0; i < bg.SpriteData.SpritesCount; i++)
+                        {
+                            Sprite sprite = levelPack.BackgroundData.Sprites.Sprites[i];
+                            Texture2D tex = GetSpriteTexture(context, null, sprite);
+
+                            // Export it
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{Path.GetFileNameWithoutExtension(bgFilePath)}_{i}.png"), tex.EncodeToPNG());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Failed to export {settings.World}-{settings.Level}: {ex}");
+                    }
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
+                }
+            }
         }
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
