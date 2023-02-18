@@ -43,8 +43,9 @@ namespace Ray1Map {
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export models", false, true, (input, output) => ExportModelsAsync(settings, output)),
 				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
-				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, false)),
-				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, true)),
+				new GameAction("Export unbinarized assets", false, true, (input, output) => ExportUnbinarizedAsync(settings, null, output, true, null)),
+				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPC)),
+				new GameAction("Export unbinarized into RRR Prototype format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPCPrototype)),
 				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output)),
 			};
 			if (CanBeModded) {
@@ -765,7 +766,7 @@ namespace Ray1Map {
 
 			Debug.Log($"Finished export");
 		}
-		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string inputDir, string outputDir, bool useComplexNames, bool exportForRRRPC) {
+		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string inputDir, string outputDir, bool useComplexNames, GameModeSelection? targetMode = null) {
 			var parsedSounds = new HashSet<uint>();
 
 			var levIndex = 0;
@@ -775,6 +776,8 @@ namespace Ray1Map {
 			// Key relocation (for writing as RRR mod)
 			Dictionary<uint, uint> keysToRelocate = new Dictionary<uint, uint>();
 			HashSet<uint> keysToAvoid = new HashSet<uint>();
+
+			bool exportForDifferentGameMode = targetMode.HasValue;
 
 			int[] rrrPC_supportedModifiers = new int[] { 
 				-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19,
@@ -818,7 +821,7 @@ namespace Ray1Map {
 					using (var context = new Ray1MapContext(settings)) {
 						currentKey = 0;
 						await LoadFilesAsync(context);
-						if (exportForRRRPC) {
+						if (exportForDifferentGameMode) {
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures);
 						} else {
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
@@ -827,7 +830,7 @@ namespace Ray1Map {
 						LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						var worlds = actualLoader.LoadedWorlds;
 
-						if (exportForRRRPC) {
+						if (exportForDifferentGameMode) {
 							foreach (var w in worlds) {
 								w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
 								foreach (var gao in w.SerializedGameObjects) {
@@ -863,13 +866,13 @@ namespace Ray1Map {
 						}
 
 						//string worldName = null;
-						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && !exportForRRRPC) {
+						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && !exportForDifferentGameMode) {
 							throw new NotImplementedException("Not yet implemented for Montreal");
 						} else {
 							foreach (var w in worlds) {
 								await ExportUnbinarized(w);
 							}
-							if(!exportForRRRPC) await ExportRest();
+							if(!exportForDifferentGameMode) await ExportRest();
 						}
 
 						async UniTask ExportUnbinarized(WOR_World world) {
@@ -879,14 +882,14 @@ namespace Ray1Map {
 
 								LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 
-								var newSettings = new GameSettings(GameModeSelection.RaymanRavingRabbidsPC, settings.GameDirectory, settings.World, settings.Level);
+								var newSettings = new GameSettings(targetMode ?? settings.GameModeSelection, settings.GameDirectory, settings.World, settings.Level);
 
 								using (var writeContext = new Ray1MapContext(outputDir, newSettings)) {
 									// Set up loader
 									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
 
-									loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForRRRPC;
-									if (exportForRRRPC) {
+									loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForDifferentGameMode;
+									if (exportForDifferentGameMode) {
 										loader.Raw_RelocateKeys = true;
 										loader.Raw_KeysToAvoid = keysToAvoid;
 										loader.Raw_KeysToRelocate = keysToRelocate;
@@ -901,7 +904,9 @@ namespace Ray1Map {
 									var aiLinks = context.GetStoredObject<AI_Links>(AIKey);
 									writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
 
-									Jade_Reference<WOR_World> worldRef = new Jade_Reference<WOR_World>(writeContext, new Jade_Key(writeContext, world.Key.Key)) {
+									var wkey = loader.Raw_RelocateKeys ? world.Key.Key : loader.Raw_RelocateKey(world.Key.Key);
+
+									Jade_Reference<WOR_World> worldRef = new Jade_Reference<WOR_World>(writeContext, new Jade_Key(writeContext, wkey)) {
 										Value = world
 									};
 									worldRef?.Resolve();
@@ -924,8 +929,8 @@ namespace Ray1Map {
 								// Set up loader
 								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
 
-								loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForRRRPC;
-								if (exportForRRRPC) {
+								loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForDifferentGameMode;
+								if (exportForDifferentGameMode) {
 									loader.Raw_RelocateKeys = true;
 									loader.Raw_KeysToAvoid = keysToAvoid;
 									loader.Raw_KeysToRelocate = keysToRelocate;

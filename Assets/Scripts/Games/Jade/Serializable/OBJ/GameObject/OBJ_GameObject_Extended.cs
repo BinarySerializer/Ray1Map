@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace Ray1Map.Jade {
 	public class OBJ_GameObject_Extended : BinarySerializable {
@@ -60,6 +61,11 @@ namespace Ray1Map.Jade {
 				int Sectos_count = 4;
 				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
 					if (VersionNumber != -1 && VersionNumber != 0) Sectos_count = 8;
+				}
+				if (Sectos != null && Sectos_count != Sectos.Length) {
+					var sectos = Sectos;
+					Array.Resize(ref sectos, Sectos_count);
+					Sectos = sectos;
 				}
 				Sectos = s.SerializeArray<byte>(Sectos, Sectos_count, name: nameof(Sectos));
 			}

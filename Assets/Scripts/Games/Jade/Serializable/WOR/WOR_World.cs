@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 namespace Ray1Map.Jade {
 	public class WOR_World : Jade_File {
 		public override bool HasHeaderBFFile => true;
-		public override string Export_Extension => "wow";
+		public override string Export_Extension => "wow"; // "WOnderful World"
 		public override string Export_FileBasename => Name;
 
 		public Jade_FileType FileType { get; set; }
@@ -65,7 +65,8 @@ namespace Ray1Map.Jade {
 			BackgroundColor = s.SerializeObject<Jade_Color>(BackgroundColor, name: nameof(BackgroundColor));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
-				if (Version >= 5 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+				if (Version >= 5 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)
+					&& s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
 					UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 				}
 			} else {
