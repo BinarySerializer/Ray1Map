@@ -183,7 +183,7 @@ namespace Ray1Map.GBAVV
             Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_1 = new();
             Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_2 = new();
 
-            var groupedTris = pvs.Triangles.GroupBy(x => x.TextureIndex).ToList();
+            var groupedTris = pvs.Triangles.Where(x => x.BlendMode != 4).GroupBy(x => x.TextureIndex).ToList();
 
             // Vertices
             int vIndex = 0;
@@ -191,15 +191,16 @@ namespace Ray1Map.GBAVV
             {
                 GBAVV_NitroKart_NGage_Vertex vertex = pvs.Vertices[i];
 
-                processVertex(x => x.Vertex0, vertexTable_0);
-                processVertex(x => x.Vertex1, vertexTable_1);
-                processVertex(x => x.Vertex2, vertexTable_2);
+                processVertex(x => x.Vertex0, x => x.VertexColorIndex0, vertexTable_0);
+                processVertex(x => x.Vertex1, x => x.VertexColorIndex1, vertexTable_1);
+                processVertex(x => x.Vertex2, x => x.VertexColorIndex2, vertexTable_2);
 
                 void processVertex(
                     Func<GBAVV_NitroKart_NGage_Triangle, ushort> getVertex,
+                    Func<GBAVV_NitroKart_NGage_Triangle, byte> getColor,
                     Dictionary<GBAVV_NitroKart_NGage_Triangle, int> table)
                 {
-                    foreach (var triGroup in groupedTris.SelectMany(x => x).Where(x => getVertex(x) == i).GroupBy(x => 16 * x.VertexColorPaletteIndex + x.VertexColorIndex0))
+                    foreach (var triGroup in groupedTris.SelectMany(x => x).Where(x => getVertex(x) == i).GroupBy(x => 16 * x.VertexColorPaletteIndex + getColor(x)))
                     {
                         int palIndex = triGroup.Key;
 
@@ -256,7 +257,7 @@ namespace Ray1Map.GBAVV
                 mtlWriter.WriteLine("illum 0");
                 mtlWriter.WriteLine($"map_Kd {texPath}.png");
 
-                Texture2D[] tex = LoadTextures(pvs.Textures[group.Key], pvs.Palettes[group.Key], group.First().BlendMode, true);
+                Texture2D[] tex = LoadTextures(pvs.Textures[group.Key], pvs.Palettes[group.Key], group.First().BlendMode, false);
                 Util.ByteArrayToFile(Path.Combine(exportDir, $"{texPath}.png"), tex[0].EncodeToPNG());
             }
         }
