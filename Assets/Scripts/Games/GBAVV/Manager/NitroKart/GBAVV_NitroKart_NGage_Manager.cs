@@ -38,6 +38,7 @@ namespace Ray1Map.GBAVV
             new GameAction("Export Fonts", false, true, (input, output) => ExportFontsAsync(settings, output)),
             new GameAction("Export Backgrounds", false, true, (input, output) => ExportBackgroundsAsync(settings, output)),
             new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
+            new GameAction("Export PVS as OBJ", false, true, (input, output) => ExportPVSAsOBJ(settings, output)),
         };
 
         public override async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
@@ -152,6 +153,111 @@ namespace Ray1Map.GBAVV
                         pal = null;
                     }
                 });
+            }
+        }
+
+        public async UniTask ExportPVSAsOBJ(GameSettings settings, string outputDir)
+        {
+            using var context = new Ray1MapContext(settings);
+            await LoadFilesAsync(context);
+
+            // Load the exe
+            var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(context, ExeFilePath, onPreSerialize: (s, o) => o.SerializeAllData = true);
+
+            foreach (GBAVV_NitroKart_NGage_LevelInfo lev in exe.LevelInfos)
+            {
+                string fullFilePath = Path.Combine(outputDir, lev.PVSFilePath.GetFullPath);
+                ExportPVSAsOBJ(Path.GetDirectoryName(fullFilePath), Path.GetFileName(fullFilePath), lev.PVS);
+            }
+        }
+
+        public void ExportPVSAsOBJ(string exportDir, string name, GBAVV_NitroKart_NGage_PVS pvs)
+        {
+            var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
+
+            Directory.CreateDirectory(exportDir);
+            using StreamWriter objWriter = new(Path.Combine(exportDir, $"{name}.obj"));
+            objWriter.WriteLine($"mtllib {name}.mtl");
+
+            Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_0 = new();
+            Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_1 = new();
+            Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_2 = new();
+
+            var groupedTris = pvs.Triangles.GroupBy(x => x.TextureIndex).ToList();
+
+            // Vertices
+            int vIndex = 0;
+            for (int i = 0; i < pvs.Vertices.Length; i++)
+            {
+                GBAVV_NitroKart_NGage_Vertex vertex = pvs.Vertices[i];
+
+                processVertex(x => x.Vertex0, vertexTable_0);
+                processVertex(x => x.Vertex1, vertexTable_1);
+                processVertex(x => x.Vertex2, vertexTable_2);
+
+                void processVertex(
+                    Func<GBAVV_NitroKart_NGage_Triangle, ushort> getVertex,
+                    Dictionary<GBAVV_NitroKart_NGage_Triangle, int> table)
+                {
+                    foreach (var triGroup in groupedTris.SelectMany(x => x).Where(x => getVertex(x) == i).GroupBy(x => 16 * x.VertexColorPaletteIndex + x.VertexColorIndex0))
+                    {
+                        int palIndex = triGroup.Key;
+
+                        objWriter.WriteLine($"v {vertex.X} {vertex.Y} {vertex.Z} {palette[palIndex].r} {palette[palIndex].g} {palette[palIndex].b}");
+
+                        foreach (GBAVV_NitroKart_NGage_Triangle tri in triGroup)
+                        {
+                            table[tri] = vIndex;
+                        }
+
+                        vIndex++;
+                    }
+                }
+            }
+
+            // UVs
+            foreach (GBAVV_NitroKart_NGage_Triangle tri in groupedTris.SelectMany(x => x))
+            {
+                objWriter.WriteLine($"vt {tri.UV0.U / (float)0x80} {tri.UV0.V / (float)0x80}");
+                objWriter.WriteLine($"vt {tri.UV1.U / (float)0x80} {tri.UV1.V / (float)0x80}");
+                objWriter.WriteLine($"vt {tri.UV2.U / (float)0x80} {tri.UV2.V / (float)0x80}");
+            }
+
+            int uvIndex = 0;
+            foreach (var group in groupedTris)
+            {
+                objWriter.WriteLine($"g group{group.Key}");
+                objWriter.WriteLine($"usemtl mtl{group.Key}");
+
+                // Triangles
+                foreach (GBAVV_NitroKart_NGage_Triangle tri in group)
+                {
+                    objWriter.WriteLine("f {2}/{5}/ {1}/{4}/ {0}/{3}/",
+                        vertexTable_0[tri] + 1,
+                        vertexTable_1[tri] + 1,
+                        vertexTable_2[tri] + 1,
+                        uvIndex++ + 1,
+                        uvIndex++ + 1,
+                        uvIndex++ + 1);
+                }
+            }
+
+            using StreamWriter mtlWriter = new(Path.Combine(exportDir, $"{name}.mtl"));
+
+            foreach (var group in groupedTris)
+            {
+                string texPath = pvs.TextureFilePaths[group.Key].FilePath;
+
+                mtlWriter.WriteLine($"newmtl mtl{group.Key}");
+                mtlWriter.WriteLine("Ka 0.00000 0.00000 0.00000");
+                mtlWriter.WriteLine("Kd 0.50000 0.50000 0.50000");
+                mtlWriter.WriteLine("Ks 0.00000 0.00000 0.00000");
+                mtlWriter.WriteLine("d 1.00000");
+                mtlWriter.WriteLine("illum 0");
+                mtlWriter.WriteLine($"map_Kd {texPath}.png");
+
+                Texture2D[] tex = LoadTextures(pvs.Textures[group.Key], pvs.Palettes[group.Key], group.First().BlendMode, true);
+                Util.ByteArrayToFile(Path.Combine(exportDir, $"{texPath}.png"), tex[0].EncodeToPNG());
             }
         }
 
