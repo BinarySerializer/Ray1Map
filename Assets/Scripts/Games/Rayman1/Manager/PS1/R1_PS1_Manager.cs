@@ -33,7 +33,7 @@ namespace Ray1Map.Rayman1
             var filename = GetWorldFilePath(context.GetR1Settings());
 
             // Read the file
-            var worldFile = FileFactory.Read<PS1_WorldFile>(context, filename);
+            var worldFile = FileFactory.Read<PS1_WorldPack>(context, filename);
 
             int tileCount = worldFile.TilePaletteIndexTable.Length;
             int width = TileSetWidth * Settings.CellSize;
@@ -59,7 +59,7 @@ namespace Ray1Map.Rayman1
                 {
                     byte tileIndex1 = worldFile.TilePaletteIndexTable[tile];
                     byte tileIndex2 = worldFile.PalettedTiles[pixel];
-                    pixels[pixel] = worldFile.TilePalettes[tileIndex1][tileIndex2];
+                    pixels[pixel] = worldFile.TilePalettes[tileIndex1].Palette[tileIndex2];
                 }
             }
 
@@ -75,10 +75,10 @@ namespace Ray1Map.Rayman1
         protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // Read the files
-            var allFix = mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings())) : null;
-            var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())) : null;
-            var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(context, GetLevelFilePath(context.GetR1Settings())) : null;
-            var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings())) : null;
+            var allFix = mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings())) : null;
+            var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldPack>(context, GetWorldFilePath(context.GetR1Settings())) : null;
+            var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevelPack>(context, GetLevelFilePath(context.GetR1Settings())) : null;
+            var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayPack>(context, GetBigRayFilePath(context.GetR1Settings())) : null;
             var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(context, GetFontFilePath(context.GetR1Settings()), (s, o) => o.Pre_Length = s.CurrentLength) : null;
 
             var vram = PS1VramHelpers.PS1_FillVRAM(mode, allFix, world, bigRay, lev, font?.Value, context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US);
@@ -95,9 +95,9 @@ namespace Ray1Map.Rayman1
         {
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-            FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
+            FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings()));
 
-            PS1_ObjBlock objBlock = null;
+            PS1_LevelData objBlock = null;
             MapData mapData;
 
             if (context.GetR1Settings().R1_World != World.Menu)
@@ -108,15 +108,15 @@ namespace Ray1Map.Rayman1
 
                 // Read the world file
                 await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
+                FileFactory.Read<PS1_WorldPack>(context, GetWorldFilePath(context.GetR1Settings()));
 
                 Controller.DetailedState = $"Loading map data";
 
                 // Read the level data
                 await LoadExtraFile(context, GetLevelFilePath(context.GetR1Settings()), true);
-                var level = FileFactory.Read<PS1_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
+                var level = FileFactory.Read<PS1_LevelPack>(context, GetLevelFilePath(context.GetR1Settings()));
 
-                objBlock = level.ObjData;
+                objBlock = level.LevelData;
                 mapData = level.MapData;
             }
             else
@@ -147,7 +147,7 @@ namespace Ray1Map.Rayman1
             var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
             // Get the level data
-            var lvlData = context.GetMainFileObject<PS1_LevFile>(lvlPath);
+            var lvlData = context.GetMainFileObject<PS1_LevelPack>(lvlPath);
 
             // Get the object manager
             var objManager = (Unity_ObjectManager_R1)lvl.ObjManager;
@@ -196,11 +196,11 @@ namespace Ray1Map.Rayman1
             var newEventLinkTable = objManager.LinkTable.Select(x => (byte)x).ToArray();
 
             // Relocate pointers to a new block of data we append to the level file
-            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.ObjData, newEvents, newEventLinkTable, context.GetR1Settings());
+            UpdateAndFillDataBlock(lvlData.Offset + lvlData.PackSize, lvlData.LevelData, newEvents, newEventLinkTable, context.GetR1Settings());
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
-            FileFactory.Write<PS1_LevFile>(context, lvlPath);
+            FileFactory.Write<PS1_LevelPack>(context, lvlPath);
 
             // Create ISO for the modified data
             CreateISO(context);
@@ -208,7 +208,7 @@ namespace Ray1Map.Rayman1
             return UniTask.CompletedTask;
         }
 
-        public void UpdateAndFillDataBlock(Pointer offset, PS1_ObjBlock originalBlock, ObjData[] events, byte[] eventLinkingTable, GameSettings settings)
+        public void UpdateAndFillDataBlock(Pointer offset, PS1_LevelData originalBlock, ObjData[] events, byte[] eventLinkingTable, GameSettings settings)
         {
             long currentOffset = 0;
             Pointer getCurrentBlockPointer()
@@ -329,8 +329,8 @@ namespace Ray1Map.Rayman1
                             }
 
                             // Update the LBA and size
-                            fileEntry.LBA = entry.LBA;
-                            fileEntry.FileSize = (uint)entry.Bytes;
+                            fileEntry.File.Pos.LBA = entry.LBA;
+                            fileEntry.File.Size = (uint)entry.Bytes;
                         }
 
                         // Write the game exe

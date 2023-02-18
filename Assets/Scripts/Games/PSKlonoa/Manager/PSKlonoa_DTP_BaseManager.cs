@@ -12,6 +12,7 @@ using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Rect = UnityEngine.Rect;
 
 namespace Ray1Map.PSKlonoa
 {
@@ -305,7 +306,7 @@ namespace Ray1Map.PSKlonoa
                 // WORLD MAP TEXTURES
                 for (var i = 0; i < wldMap?.SpriteSheets.Files.Length; i++)
                 {
-                    PS1_TIM tim = wldMap.SpriteSheets.Files[i];
+                    TIM tim = wldMap.SpriteSheets.Files[i];
 
                     exportTex(
                         getTex: () => tim.GetTexture(),
@@ -376,7 +377,7 @@ namespace Ray1Map.PSKlonoa
 
                     for (var j = 0; j < tims.Files.Length; j++)
                     {
-                        PS1_TIM tim = tims.Files[j];
+                        TIM tim = tims.Files[j];
                         exportTex(
                             getTex: () => tim.GetTexture(onlyFirstTransparent: true),
                             blockName: $"{blockIndex} - Textures (Menu Background)",
@@ -392,7 +393,7 @@ namespace Ray1Map.PSKlonoa
                     
                     for (var i = 0; i < timArchive.Files.Length; i++)
                     {
-                        PS1_TIM tim = timArchive.Files[i];
+                        TIM tim = timArchive.Files[i];
                         exportTex(
                             getTex: () => tim.GetTexture(),
                             blockName: $"{blockIndex} - Textures ({loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)})",
@@ -487,9 +488,9 @@ namespace Ray1Map.PSKlonoa
                         if (exportedLayers.Any(x => x.BGDIndex == bgdIndex))
                             continue;
 
-                        PS1_TIM tim = bgPack.TIMFiles.Files[0];
-                        PS1_CEL cel = bgPack.CELFiles.Files[0];
-                        PS1_BGD map = bgPack.BGDFiles.Files[bgdIndex];
+                        TIM tim = bgPack.TIMFiles.Files[0];
+                        CEL cel = bgPack.CELFiles.Files[0];
+                        BGD map = bgPack.BGDFiles.Files[bgdIndex];
 
                         Texture2D tex = loader.VRAM.FillMapTexture(tim, cel, map);
 
@@ -546,7 +547,7 @@ namespace Ray1Map.PSKlonoa
                                     return file.TIM.GetTexture(palette: pal);
                                 else
                                     return PS1Helpers.GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height,
-                                        PS1_TIM.TIM_ColorFormat.BPP_8);
+                                        TIM.TIM_ColorFormat.BPP_8);
                             }, $"{blockIndex} - Textures (Player)", $"{i}");
                         }
                     }
@@ -650,7 +651,7 @@ namespace Ray1Map.PSKlonoa
                 // CUTSCENE CHARACTER NAMES
                 if (cutscenePack?.CharacterNamesImgData != null)
                     exportTex(
-                        getTex: () => PS1Helpers.GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4), 
+                        getTex: () => PS1Helpers.GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: TIM.TIM_ColorFormat.BPP_4), 
                         blockName: $"{blockIndex} - Textures (Cutscene Character Names)",
                         name: $"0");
 
@@ -668,7 +669,7 @@ namespace Ray1Map.PSKlonoa
                         {
                             exportTex(
                                 getTex: () => PS1Helpers.GetTexture(font.CharactersImgData[fontCharIndex], null, 8 / (2 * 2), 16,
-                                    PS1_TIM.TIM_ColorFormat.BPP_4),
+                                    TIM.TIM_ColorFormat.BPP_4),
                                 blockName: $"{blockIndex} - Textures (Cutscene Fonts)",
                                 name: $"{cutsceneIndex}_{fontCharIndex}");
                         }
@@ -685,7 +686,7 @@ namespace Ray1Map.PSKlonoa
                         var file = cutscenePack.PlayerFramesImgData.Files[i];
                         exportTex(
                             getTex: () => PS1Helpers.GetTexture(file.ImgData, playerPal, file.Width, file.Height,
-                                PS1_TIM.TIM_ColorFormat.BPP_8), 
+                                TIM.TIM_ColorFormat.BPP_8), 
                             blockName: $"{blockIndex} - Textures (Cutscene Players)",
                             name: $"{i}");
                     }
@@ -1255,7 +1256,7 @@ namespace Ray1Map.PSKlonoa
                             tex = file.TIM.GetTexture(palette: playerPal);
                         else
                             tex = PS1Helpers.GetTexture(file.Raw_ImgData, playerPal, file.Raw_Width, file.Raw_Height,
-                                PS1_TIM.TIM_ColorFormat.BPP_8);
+                                TIM.TIM_ColorFormat.BPP_8);
 
                         return (tex.CreateSprite().YieldToArray(), new Vector2Int[1]);
                     });
@@ -1777,7 +1778,7 @@ namespace Ray1Map.PSKlonoa
 
         #region Helpers
 
-        public (Texture2D Texture, RectInt Rect) GetTexture(SpriteTexture[] spriteTextures, PS1_VRAM vram, int palX, int palY)
+        public (Texture2D Texture, RectInt Rect) GetTexture(SpriteTexture[] spriteTextures, VRAM vram, int palX, int palY)
         {
             if (spriteTextures?.Any() != true)
                 return default;
@@ -1812,7 +1813,7 @@ namespace Ray1Map.PSKlonoa
                         tex: tex,
                         width: sprite.Width,
                         height: sprite.Height,
-                        colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
+                        colorFormat: TIM.TIM_ColorFormat.BPP_4,
                         texX: rects[index].x - minX,
                         texY: rects[index].y - minY,
                         clutX: palX + sprite.PalOffsetX,
@@ -1836,7 +1837,7 @@ namespace Ray1Map.PSKlonoa
             return (tex, new RectInt(minX, minY, width, height));
         }
 
-        public Color[] GetCutscenePlayerPalette(PS1_VRAM vram)
+        public Color[] GetCutscenePlayerPalette(VRAM vram)
         {
             return vram.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
         }
@@ -1880,7 +1881,7 @@ namespace Ray1Map.PSKlonoa
                                 var playerSprite = playerSprites[frame.SpriteIndex - 1];
 
                                 textures[i] = PS1Helpers.GetTexture(playerSprite.ImgData, playerPalette, playerSprite.Width,
-                                    playerSprite.Height, PS1_TIM.TIM_ColorFormat.BPP_8);
+                                    playerSprite.Height, TIM.TIM_ColorFormat.BPP_8);
                                 rects[i] = new RectInt(frame.XPosition, -playerSprite.Height, textures[i].width, textures[i].height);
                             }
                             else

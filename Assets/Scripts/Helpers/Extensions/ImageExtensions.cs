@@ -37,11 +37,8 @@ namespace Ray1Map
             return bitmap;
         }
 
-        public static MagickImageCollection ToMagickImageCollection(this FLIC flic)
+        public static IEnumerable<Texture2D> EnumerateFrames(this FLIC flic)
         {
-            // Convert frames to Magick images
-            var magickFrames = new List<MagickImage>();
-
             // Create a texture
             Texture2D tex = TextureHelpers.CreateTexture2D(flic.Width, flic.Height);
 
@@ -136,15 +133,19 @@ namespace Ray1Map
 
                 tex.Apply();
 
-                magickFrames.Add(tex.ToMagickImage());
+                yield return tex;
             }
+        }
 
+        public static MagickImageCollection ToMagickImageCollection(this FLIC flic)
+        {
             // Save the frames as .gif files
             var collection = new MagickImageCollection();
 
             int index = 0;
 
-            foreach (var img in magickFrames)
+            // Convert frames to Magick images
+            foreach (var img in flic.EnumerateFrames().Select(tex => tex.ToMagickImage()))
             {
                 collection.Add(img);
                 collection[index].AnimationDelay = (int)flic.Speed;

@@ -18,7 +18,7 @@ namespace Ray1Map.GBC
                 if (Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataPointer.GetPointer();
                 } else {
-                    return Offset + DependencyTable.Size + 4;
+                    return Offset + DependencyTable.SerializedSize + 4;
                 }
             }
         }
@@ -32,7 +32,7 @@ namespace Ray1Map.GBC
                         var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                         long? size = offTable?.GetBlockLength(LUDI_Header);
                         if (size.HasValue) {
-                            _cachedBlockLength = size.Value - (uint)DependencyTable.Size - 4;
+                            _cachedBlockLength = size.Value - (uint)DependencyTable.SerializedSize - 4;
                         } else {
                             _cachedBlockLength = 0;
                         }

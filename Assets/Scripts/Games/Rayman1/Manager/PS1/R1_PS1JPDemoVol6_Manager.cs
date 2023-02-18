@@ -20,7 +20,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         public override int TileSetWidth => 40;
 
-        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         /// <summary>
         /// Gets the file path for the allfix file
@@ -128,10 +128,10 @@ namespace Ray1Map.Rayman1
 
             // Read the files
             var map = FileFactory.Read<MapData>(context, mapPath);
-            var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, levelPath);
+            var level = FileFactory.Read<PS1_LevelData>(context, levelPath);
 
             // Load the level
-            return await LoadAsync(context, map, level.Objects, level.ObjectLinkTable.Select(x => (ushort)x).ToArray());
+            return await LoadAsync(context, map, level.Objects, level.ObjectLinkingTable.Select(x => (ushort)x).ToArray());
         }
 
         public override async UniTask LoadFilesAsync(Context context)
@@ -205,26 +205,26 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
+                var level = FileFactory.Read<PS1_LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 // Export
-                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_Alpha[]
                 {
-                    level.FontData
+                    level.Alpha
                 }, new ObjData[]
                 {
-                    level.RaymanObj
+                    level.Ray
                 }, null);
             }
         }
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<PS1_JPDemo_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
+            var level = FileFactory.Read<PS1_LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
-                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanObj,
+                [Unity_ObjectManager_R1.WldObjType.Ray] = level.Ray,
             };
         }
 
@@ -234,7 +234,7 @@ namespace Ray1Map.Rayman1
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(context, bgFilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+            var bg = FileFactory.Read<PS1_Fond>(context, bgFilePath);
 
             return bg.ToTexture(context);
         }

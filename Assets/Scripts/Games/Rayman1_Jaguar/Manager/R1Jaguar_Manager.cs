@@ -1422,16 +1422,27 @@ namespace Ray1Map.Rayman1_Jaguar
             // Use this to load every single event
             /*eventDataList.Clear();
             var ind = 0;
+            short yPos = -20;
+            short xPos = -20;
             foreach (JAG_MultiSprite def in eventDefs)
             {
                 try
                 {
                     var eventData = CreateEventData(context, def, eventDefinitions, objManager);
                     eventData.LinkIndex = ind;
-                    eventData.XPosition = (short)(ind * 20);
+                    eventData.XPosition = xPos;
+                    eventData.YPosition = yPos;
                     //eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
                     eventDataList.Add(eventData);
                     ind++;
+
+                    xPos += 20;
+
+                    if (xPos > map.Width * 16)
+                    {
+                        xPos = -20;
+                        yPos += 20;
+                    }
                 }
                 catch (Exception ex)
                 {

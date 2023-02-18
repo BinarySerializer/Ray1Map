@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Rect = BinarySerializer.PS1.Rect;
 
 namespace Ray1Map.PSKlonoa
 {
@@ -58,7 +59,7 @@ namespace Ray1Map.PSKlonoa
                         var scroll_0 = scroll[scrollIndex + 0];
                         var scroll_1 = scroll[scrollIndex + 1];
 
-                        var region = new PS1_VRAMRegion()
+                        var region = new Rect()
                         {
                             XPos = (short)Math.Min(scroll_0.DestinationX, scroll_1.DestinationX),
                             YPos = (short)Math.Min(scroll_0.DestinationY, scroll_1.DestinationY),
@@ -178,7 +179,7 @@ namespace Ray1Map.PSKlonoa
         {
             if (Obj.GlobalGameObjectType == GlobalGameObjectType.MultiWheel)
             {
-                PS1_TMD tmd = Obj.Models[0].TMD;
+                TMD tmd = Obj.Models[0].TMD;
                 ModelAnimation_ArchiveFile transform = Obj.AbsoluteTransform;
 
                 Obj.Models = new GameObjectData_Model[transform.Positions.ObjectsCount];
@@ -229,7 +230,7 @@ namespace Ray1Map.PSKlonoa
             // since the animation data defines data for all models
             if (Obj.Models.Length > 1 && Obj.Models[0].ModelBoneAnimations != null && Obj.Models.Skip(1).All(x => x.ModelBoneAnimations == null))
             {
-                var combinedTmd = new PS1_TMD
+                var combinedTmd = new TMD
                 {
                     ObjectsCount = (uint)Obj.Models.Length,
                     Objects = Obj.Models.Select(x => x.TMD.Objects[0]).ToArray(),

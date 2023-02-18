@@ -12,7 +12,7 @@ namespace Ray1Map.PSKlonoa
 
         // Global
         public KlonoaObjectsLoader ObjLoader { get; }
-        public PS1_VRAM VRAM => ObjLoader.Loader.VRAM;
+        public VRAM VRAM => ObjLoader.Loader.VRAM;
         public float Scale => ObjLoader.Scale;
 
         // Object

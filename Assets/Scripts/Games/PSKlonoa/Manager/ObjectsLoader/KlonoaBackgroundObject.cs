@@ -77,11 +77,11 @@ namespace Ray1Map.PSKlonoa
                     int celIndex = Obj.CELIndex;
                     int bgIndex = Obj.BGDIndex;
 
-                    PS1_TIM tim = bg.TIMFiles.Files[celIndex];
-                    PS1_CEL cel = bg.CELFiles.Files[celIndex];
-                    PS1_BGD map = bg.BGDFiles.Files[bgIndex];
+                    TIM tim = bg.TIMFiles.Files[celIndex];
+                    CEL cel = bg.CELFiles.Files[celIndex];
+                    BGD map = bg.BGDFiles.Files[bgIndex];
 
-                    bool is8bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_8;
+                    bool is8bit = tim.ColorFormat == TIM.TIM_ColorFormat.BPP_8;
                     int palLength = (is8bit ? 256 : 16) * 2;
 
                     var anims = new HashSet<PS1VRAMAnimation>();
@@ -137,9 +137,9 @@ namespace Ray1Map.PSKlonoa
             int celIndex = Obj.CELIndex;
             int bgIndex = Obj.BGDIndex;
 
-            PS1_TIM tim = bg.TIMFiles.Files[celIndex];
-            PS1_CEL cel = bg.CELFiles.Files[celIndex];
-            PS1_BGD map = bg.BGDFiles.Files[bgIndex];
+            TIM tim = bg.TIMFiles.Files[celIndex];
+            CEL cel = bg.CELFiles.Files[celIndex];
+            BGD map = bg.BGDFiles.Files[bgIndex];
 
             return VRAM.FillMapTexture(tim, cel, map, tex);
         }

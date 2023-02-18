@@ -43,7 +43,7 @@ namespace Ray1Map
             }
         }
 
-        public async UniTask LoadTexturesAsync(PS1_VRAM vram)
+        public async UniTask LoadTexturesAsync(VRAM vram)
         {
             var index = 0;
             var count = AnimatedTextures.Count + MultiKeyAnimatedTextures.Count;

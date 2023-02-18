@@ -9,10 +9,10 @@ namespace Ray1Map
     public static class PS1Helpers
     {
         public static void FillTexture(
-            this PS1_VRAM vram,
+            this VRAM vram,
             Texture2D tex,
             int width, int height,
-            PS1_TIM.TIM_ColorFormat colorFormat,
+            TIM.TIM_ColorFormat colorFormat,
             int texX, int texY,
             int clutX, int clutY,
             int texturePageOriginX = 0, int texturePageOriginY = 0,
@@ -21,7 +21,7 @@ namespace Ray1Map
             bool flipX = false, bool flipY = false,
             bool useDummyPal = false)
         {
-            var dummyPal = useDummyPal ? PaletteHelpers.CreateDummyPalette(colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8 ? 256 : 16) : null;
+            var dummyPal = useDummyPal ? PaletteHelpers.CreateDummyPalette(colorFormat == TIM.TIM_ColorFormat.BPP_8 ? 256 : 16) : null;
 
             texturePageOriginX *= 2;
 
@@ -31,13 +31,13 @@ namespace Ray1Map
                 {
                     byte paletteIndex;
 
-                    if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8)
+                    if (colorFormat == TIM.TIM_ColorFormat.BPP_8)
                     {
                         paletteIndex = vram.GetPixel8(texturePageX, texturePageY,
                             texturePageOriginX + texturePageOffsetX + x,
                             texturePageOriginY + texturePageOffsetY + y);
                     }
-                    else if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_4)
+                    else if (colorFormat == TIM.TIM_ColorFormat.BPP_4)
                     {
                         paletteIndex = vram.GetPixel8(texturePageX, texturePageY,
                             texturePageOriginX + (texturePageOffsetX + x) / 2,
@@ -71,7 +71,7 @@ namespace Ray1Map
             }
         }
 
-        public static Texture2D FillMapTexture(this PS1_VRAM vram, PS1_TIM tim, PS1_CEL cel, PS1_BGD map, Texture2D tex = null)
+        public static Texture2D FillMapTexture(this VRAM vram, TIM tim, CEL cel, BGD map, Texture2D tex = null)
         {
             tex ??= TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
 
@@ -110,7 +110,7 @@ namespace Ray1Map
             return tex;
         }
 
-        public static Texture2D GetTexture(this PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
+        public static Texture2D GetTexture(this TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
         {
             if (tim.Region.XPos == 0 && tim.Region.YPos == 0)
                 return null;
@@ -124,7 +124,7 @@ namespace Ray1Map
             return GetTexture(tim.ImgData, pal, tim.Region.Width, tim.Region.Height, tim.ColorFormat, flipTextureY);
         }
 
-        public static Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
+        public static Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
         {
             Util.TileEncoding encoding;
 
@@ -132,13 +132,13 @@ namespace Ray1Map
 
             switch (colorFormat)
             {
-                case PS1_TIM.TIM_ColorFormat.BPP_4:
+                case TIM.TIM_ColorFormat.BPP_4:
                     width *= 2 * 2;
                     encoding = Util.TileEncoding.Linear_4bpp;
                     palLength = 16;
                     break;
 
-                case PS1_TIM.TIM_ColorFormat.BPP_8:
+                case TIM.TIM_ColorFormat.BPP_8:
                     width *= 2;
                     encoding = Util.TileEncoding.Linear_8bpp;
                     palLength = 256;
@@ -173,7 +173,7 @@ namespace Ray1Map
         /// </summary>
         /// <param name="vram">The VRAM</param>
         /// <param name="outputPath">The path to export to</param>
-        public static void ExportToFile(this PS1_VRAM vram, string outputPath)
+        public static void ExportToFile(this VRAM vram, string outputPath)
         {
             Texture2D vramTex = TextureHelpers.CreateTexture2D(16 * 128, 2 * 256);
 

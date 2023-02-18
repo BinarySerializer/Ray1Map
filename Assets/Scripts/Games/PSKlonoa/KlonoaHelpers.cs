@@ -79,7 +79,7 @@ namespace Ray1Map.PSKlonoa
             return GetPosition(pos.X, pos.Y, pos.Z, scale, isSprite);
         }
 
-        public static Bounds GetDimensions(this PS1_TMD tmd, float scale)
+        public static Bounds GetDimensions(this TMD tmd, float scale)
         {
             var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
             var min = new Vector3(verts.Min(v => v.X), verts.Min(v => v.Y), verts.Min(v => v.Z)) / scale;

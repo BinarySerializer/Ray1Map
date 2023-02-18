@@ -63,7 +63,7 @@ namespace Ray1Map.Rayman1
             ["JUNGLE/JUN.BBX"] = 0
         };
 
-        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         /// <summary>
         /// Gets the levels for each world
@@ -157,7 +157,7 @@ namespace Ray1Map.Rayman1
             await FileSystem.PrepareFile(context.GetAbsoluteFilePath(path));
 
             if (baseAddress != 0) {
-                PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, baseAddress, InvalidPointerMode, fileLength: FileSizes[path]);
+                MemoryMappedPS1File file = new MemoryMappedPS1File(context, path, baseAddress, InvalidPointerMode, fileLength: FileSizes[path]);
                 context.AddFile(file);
 
                 return FileSizes[path];

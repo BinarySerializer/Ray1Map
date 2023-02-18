@@ -1,11 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -89,6 +89,7 @@ namespace Ray1Map.Rayman1
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImageAsync(settings, output)),
+                new GameAction("Export background sprites", false, true, (input, output) => ExportBackgroundSpritesAsync(settings, output)),
                 new GameAction("Test BIN Reader", false, false, (input,output) => TestBinRead(settings))
             }).ToArray();
         }
@@ -218,10 +219,10 @@ namespace Ray1Map.Rayman1
             var spritePals = new List<RGBA5551Color[]>();
             var tilePals = new List<RGBA5551Color[]>();
 
-            void Add(ICollection<RGBA5551Color[]> pals, RGBA5551Color[] pal)
+            void Add(ICollection<RGBA5551Color[]> pals, Clut pal)
             {
-                if (pal != null && !pals.Any(x => x.SequenceEqual(pal)))
-                    pals.Add(pal);
+                if (pal != null && !pals.Any(x => x.SequenceEqual(pal.Palette)))
+                    pals.Add(pal.Palette);
             }
 
             // Enumerate every world
@@ -234,11 +235,11 @@ namespace Ray1Map.Rayman1
                 {
                     // Read the allfix file
                     await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-                    var allfix = FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings()));
+                    var allfix = FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings()));
 
                     // Read the BigRay file
                     await LoadExtraFile(context, GetBigRayFilePath(context.GetR1Settings()), false);
-                    var br = FileFactory.Read<PS1_BigRayFile>(context, GetBigRayFilePath(context.GetR1Settings()));
+                    var br = FileFactory.Read<PS1_BigRayPack>(context, GetBigRayFilePath(context.GetR1Settings()));
 
                     Add(spritePals, allfix.Palette1);
                     Add(spritePals, allfix.Palette2);
@@ -251,18 +252,98 @@ namespace Ray1Map.Rayman1
 
                     // Read the world file
                     await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                    var wld = FileFactory.Read<PS1_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
+                    var wld = FileFactory.Read<PS1_WorldPack>(context, GetWorldFilePath(context.GetR1Settings()));
 
-                    Add(spritePals, wld.ObjPalette1);
-                    Add(spritePals, wld.ObjPalette2);
+                    Add(spritePals, wld.Palette1);
+                    Add(spritePals, wld.Palette2);
 
-                    foreach (var tilePal in wld.TilePalettes ?? new RGBA5551Color[0][])
+                    foreach (var tilePal in wld.TilePalettes ?? Array.Empty<Clut>())
                         Add(tilePals, tilePal);
                 }
             }
 
             // Export
             PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: 256);
+        }
+
+        public async UniTask ExportBackgroundSpritesAsync(GameSettings settings, string outputPath)
+        {
+            HashSet<string> exportedFiles = new();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(settings).First().Worlds)
+            {
+                // Don't export menu
+                if (world.Index == 7)
+                    break;
+
+                settings.World = world.Index;
+
+                // Enumerate every level
+                foreach (var lvl in world.Maps)
+                {
+                    settings.Level = lvl;
+
+                    try
+                    {
+                        // Create the context
+                        using var context = new Ray1MapContext(settings);
+
+                        // Load the level
+                        await LoadFilesAsync(context);
+                        await LoadAsync(context);
+
+                        PS1_Executable exe = LoadEXE(context);
+                        byte bgIndex = exe.PS1_LevelBackgroundIndexTable[settings.World - 1][settings.Level - 1];
+                        int fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
+
+                        if (fndStartIndex == -1)
+                            continue;
+
+                        string bgFilePath = exe.PS1_FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+
+                        if (exportedFiles.Contains(bgFilePath))
+                            continue;
+
+                        exportedFiles.Add(bgFilePath);
+
+                        PS1_FondPack bg = FileFactory.Read<PS1_FondPack>(context, bgFilePath);
+
+                        if (bg.SpriteData == null)
+                            continue;
+                        
+                        VRAM vram = context.GetRequiredStoredObject<VRAM>("vram");
+                        bool isJp = context.GetRequiredSettings<Ray1Settings>().EngineVersion == Ray1EngineVersion.PS1_JP;
+
+                        short clutX = (short)(isJp ? 0x40 : 0x300);
+                        short clutY = (short)(isJp ? 0x1fc : 0x1f7);
+
+                        for (int i = 0; i < bg.SpriteData.PalettesCount; i++)
+                        {
+                            var rect = new BinarySerializer.PS1.Rect(clutX, (short)(clutY - i), 0x100, 1);
+                            vram.AddPalette(bg.SpriteData.Palettes[i].Palette, rect);
+                        }
+
+                        var levelPack = FileFactory.Read<PS1_LevelPack>(context, GetLevelFilePath(settings));
+
+                        for (int i = 0; i < bg.SpriteData.SpritesCount; i++)
+                        {
+                            Sprite sprite = levelPack.BackgroundData.Sprites.Sprites[i];
+                            Texture2D tex = GetSpriteTexture(context, null, sprite);
+
+                            // Export it
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{Path.GetFileNameWithoutExtension(bgFilePath)}_{i}.png"), tex.EncodeToPNG());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Failed to export {settings.World}-{settings.Level}: {ex}");
+                    }
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
+                }
+            }
         }
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
@@ -276,37 +357,47 @@ namespace Ray1Map.Rayman1
 
                     // Read the allfix & font files for the menu
                     await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()), false);
-                    var fix = FileFactory.Read<PS1_AllfixFile>(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()));
+                    var fix = FileFactory.Read<PS1_AllfixPack>(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()));
                     await LoadExtraFile(menuContext, GetFontFilePath(menuContext.GetR1Settings()), false);
 
                     // Correct font palette
                     if (settings.EngineVersion == EngineVersion.R1_PS1_JP)
                     {
-                        foreach (PS1_FontData font in fix.AllfixData.FontData)
+                        foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
-                            foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
+                            foreach (Sprite imgDescr in font.Sprites.Sprites)
                             {
-                                imgDescr.PaletteY = 509;
+                                imgDescr.Clut.ClutY = 509;
                             }
                         }
                     }
                     else
                     {
-                        foreach (PS1_FontData font in fix.AllfixData.FontData)
+                        foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
-                            foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
+                            foreach (Sprite imgDescr in font.Sprites.Sprites)
                             {
-                                imgDescr.PaletteY = 492;
+                                imgDescr.Clut.ClutY = 492;
                             }
                         }
                     }
 
                     // Read the BigRay file
                     await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings()), false);
-                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayFile>(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings())) : null;
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayPack>(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings())) : null;
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.WldObj, br?.BigRayData);
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, new PS1_Alpha[]
+                    {
+                        fix.AllfixData.Alpha,
+                        fix.AllfixData.Alpha2,
+                    }, new ObjData[]
+                    {
+                        fix.AllfixData.Ray,
+                        fix.AllfixData.RayLittle,
+                        fix.AllfixData.ClockObj,
+                        fix.AllfixData.DivObj,
+                    }.Concat(fix.AllfixData.MapObj).ToArray(), br?.BigRayData);
                 }
             }
         }
@@ -330,31 +421,30 @@ namespace Ray1Map.Rayman1
 
                 await LoadExtraFile(context, bgFilePath, true);
 
-                var bg = FileFactory.Read<PS1_BackgroundVignetteFile>(context, bgFilePath);
+                var bg = FileFactory.Read<PS1_FondPack>(context, bgFilePath);
 
-                return bg.ImageBlock.ToTexture(context);
+                return bg.Fond.ToTexture(context);
             }
             else
             {
                 string bgFilePath = exe.PS1_FileTable[exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
-                return FileFactory.Read<PS1_VignetteBlockGroup>(context, bgFilePath, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
+                return FileFactory.Read<PS1_Fond>(context, bgFilePath).ToTexture(context);
             }
         }
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<PS1_AllfixFile>(context, GetAllfixFilePath(context.GetR1Settings())).AllfixData;
-            var wldObj = allfix.WldObj;
+            var allfix = FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings())).AllfixData;
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
-                [Unity_ObjectManager_R1.WldObjType.Ray] = wldObj[0],
-                [Unity_ObjectManager_R1.WldObjType.RayLittle] = wldObj[1],
-                [Unity_ObjectManager_R1.WldObjType.ClockObj] = wldObj[2],
-                [Unity_ObjectManager_R1.WldObjType.DivObj] = wldObj[3],
-                [Unity_ObjectManager_R1.WldObjType.MapObj] = wldObj[4],
+                [Unity_ObjectManager_R1.WldObjType.Ray] = allfix.Ray,
+                [Unity_ObjectManager_R1.WldObjType.RayLittle] = allfix.RayLittle,
+                [Unity_ObjectManager_R1.WldObjType.ClockObj] = allfix.ClockObj,
+                [Unity_ObjectManager_R1.WldObjType.DivObj] = allfix.DivObj,
+                [Unity_ObjectManager_R1.WldObjType.MapObj] = allfix.MapObj[0],
             };
         }
     }

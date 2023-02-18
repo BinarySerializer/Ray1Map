@@ -67,8 +67,8 @@ namespace Ray1Map
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 var manager = (R1_PS1BaseXXXManager)s.GetR1Settings().GetGameManager;
-                var lvl = FileFactory.Read<PS1_LevFile>(LevelEditorData.MainContext, manager.GetLevelFilePath(s.GetR1Settings()));
-                EventArrayOffset = gameMemoryOffset + lvl.ObjData.ObjectsPointer.AbsoluteOffset;
+                var lvl = FileFactory.Read<PS1_LevelPack>(LevelEditorData.MainContext, manager.GetLevelFilePath(s.GetR1Settings()));
+                EventArrayOffset = gameMemoryOffset + lvl.LevelData.ObjectsPointer.AbsoluteOffset;
 
                 // US
                 if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US || s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1USDemo)
@@ -90,7 +90,7 @@ namespace Ray1Map
                     ? ((R1_PS1JPDemoVol3_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()) 
                     : ((R1_PS1JPDemoVol6_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()));
 
-                var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(LevelEditorData.MainContext, lvlPath);
+                var lvl = FileFactory.Read<PS1_LevelData>(LevelEditorData.MainContext, lvlPath);
                 var map = FileFactory.Read<MapData>(LevelEditorData.MainContext, mapPath);
 
                 EventArrayOffset = gameMemoryOffset + lvl.ObjectsPointer.AbsoluteOffset;
