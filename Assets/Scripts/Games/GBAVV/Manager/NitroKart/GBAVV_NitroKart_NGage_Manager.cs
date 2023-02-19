@@ -183,7 +183,8 @@ namespace Ray1Map.GBAVV
             Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_1 = new();
             Dictionary<GBAVV_NitroKart_NGage_Triangle, int> vertexTable_2 = new();
 
-            var groupedTris = pvs.Triangles.Where(x => x.BlendMode != 4).GroupBy(x => x.TextureIndex).ToList();
+            var groupedTris = pvs.Triangles.
+                GroupBy(x => x.TextureIndex | (x.BlendMode << 8) | ((ushort)x.Flags << 16)).ToList();
 
             // Vertices
             int vIndex = 0;
@@ -227,8 +228,10 @@ namespace Ray1Map.GBAVV
             int uvIndex = 0;
             foreach (var group in groupedTris)
             {
-                objWriter.WriteLine($"g group{group.Key}");
-                objWriter.WriteLine($"usemtl mtl{group.Key}");
+                string readableKey = $"Tex{BitHelpers.ExtractBits(group.Key, 8, 0)}__{(BlendMode)BitHelpers.ExtractBits(group.Key, 8, 8)}__{((GBAVV_NitroKart_NGage_TriangleFlags)BitHelpers.ExtractBits(group.Key, 16, 16)).ToString().Replace(", ", "_")}";
+
+                objWriter.WriteLine($"g group_{readableKey}");
+                objWriter.WriteLine($"usemtl mtl_{readableKey}");
 
                 // Triangles
                 foreach (GBAVV_NitroKart_NGage_Triangle tri in group)
@@ -247,9 +250,15 @@ namespace Ray1Map.GBAVV
 
             foreach (var group in groupedTris)
             {
-                string texPath = pvs.TextureFilePaths[group.Key].FilePath;
+                int texIndex = BitHelpers.ExtractBits(group.Key, 8, 0);
+                int blendMode = BitHelpers.ExtractBits(group.Key, 8, 8);
+                int flags = BitHelpers.ExtractBits(group.Key, 16, 16);
 
-                mtlWriter.WriteLine($"newmtl mtl{group.Key}");
+                string readableKey = $"Tex{texIndex}__{(BlendMode)blendMode}__{((GBAVV_NitroKart_NGage_TriangleFlags)flags).ToString().Replace(", ", "_")}";
+
+                string texPath = pvs.TextureFilePaths[texIndex].FilePath;
+
+                mtlWriter.WriteLine($"newmtl mtl_{readableKey}");
                 mtlWriter.WriteLine("Ka 0.00000 0.00000 0.00000");
                 mtlWriter.WriteLine("Kd 0.50000 0.50000 0.50000");
                 mtlWriter.WriteLine("Ks 0.00000 0.00000 0.00000");
@@ -257,9 +266,29 @@ namespace Ray1Map.GBAVV
                 mtlWriter.WriteLine("illum 0");
                 mtlWriter.WriteLine($"map_Kd {texPath}.png");
 
-                Texture2D[] tex = LoadTextures(pvs.Textures[group.Key], pvs.Palettes[group.Key], group.First().BlendMode, false);
+                Texture2D[] tex = LoadTextures(pvs.Textures[texIndex], pvs.Palettes[texIndex], (byte)blendMode, false);
                 Util.ByteArrayToFile(Path.Combine(exportDir, $"{texPath}.png"), tex[0].EncodeToPNG());
             }
+        }
+
+        private enum BlendMode
+        {
+            Unlit = 0,
+            VertexColor = 1,
+            Mode_2 = 2,
+            Transparent = 3,
+            Hidden = 4,
+            Mode_5 = 5,
+            TransparentCutout6 = 6,
+            TransparentCutout7 = 7,
+            Additive = 8,
+            AdditiveTransparent = 9,
+            Mode_10 = 10,
+            Mode_11 = 11,
+            Mode_12 = 12,
+            Mode_13 = 13,
+            Mode_14 = 14,
+            Mode_15 = 15,
         }
 
         public async UniTask ExportFLCAsync(GameSettings settings, string outputDir)
