@@ -55,6 +55,7 @@ namespace Ray1Map {
 			}
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
+					new GameAction("Extract BF file(s) - Comparison", true, true, (input, output) => ExtractFilesAsync(settings, output, decompressBIN: false, createAllDirectories: false, onlyRecent: true, compareEquality: input)),
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output)),
 					new GameAction("Export models (unbinarized)", false, true, (input, output) => ExportModelsUnbinarizedAsync(settings, output)),
 					new GameAction("Export localization (unbinarized)", false, true, (input, output) => ExportLocalizationUnbinarizedAsync(settings, output)),
@@ -82,7 +83,8 @@ namespace Ray1Map {
 
 			// Modify below for faster extraction of recent files
 			bool createAllDirectories = true,
-			bool onlyRecent = false) {
+			bool onlyRecent = false,
+			string compareEquality = null) {
             using (var context = new Ray1MapContext(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
@@ -112,7 +114,7 @@ namespace Ray1Map {
 							for (int i = 0; i < fat.Files.Length; i++) {
 								var f = fat.Files[i];
 								var fi = fat.FileInfos[i];
-								if (onlyRecent && fi.DateLastModified < DateTime.Today) continue;
+								if (onlyRecent && (fi.DateLastModified < DateTime.Now.AddDays(-28)/*DateTime.Now.AddHours(-1)*/)) continue;
 								bool fileIsCompressed = decompressBIN && f.IsCompressed;
 								if (fileIsCompressed && fi.Name != null && !fi.Name.EndsWith(".bin")) {
 									// Hack. Really whether it's compressed or not also depends on whether speed mode is enabled when loading this specific key
@@ -147,6 +149,27 @@ namespace Ray1Map {
 									}
 									if (fi.ParentDirectory >= 0) {
 										var outPath = Path.Combine(outputDir, directories[fi.ParentDirectory], fileName);
+
+										if (compareEquality != null) {
+											// Compare code
+											//if (fileName.EndsWith(".grm") || fileName.EndsWith(".act")) continue;
+											var comparePath = Path.Combine(compareEquality, directories[fi.ParentDirectory], fileName);
+											if (File.Exists(comparePath)) {
+												//continue;
+												var compareBytes = File.ReadAllBytes(comparePath);
+												if (compareBytes.Length == fileBytes.Length) {
+													bool equal = true;
+													for (int j = 0; j < compareBytes.Length; j++) {
+														if (fileBytes[j] != compareBytes[j]) {
+															equal = false;
+															break;
+														}
+													}
+													if (equal) continue;
+												}
+											} //else continue;
+										}
+
 										Util.ByteArrayToFile(outPath, fileBytes);
 										File.SetLastWriteTime(outPath, fi.DateLastModified);
 										if(exportKeyList) fileKeys[f.Key.Key] = Path.Combine(directories[fi.ParentDirectory], fileName);
@@ -856,7 +879,7 @@ namespace Ray1Map {
 											|| (gao.Extended.Modifiers.Length == 1 && gao.Extended.Modifiers[0].Type == MDF_ModifierType.None)) gao.Extended.HasModifiers = 0;
 									}
 
-									if (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+									if (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
 										if (gao?.Base?.Visual?.VertexColors != null) {
 											gao.Base.Visual.VertexColors = gao.Base.Visual.VertexColors.Select(c => new Jade_Color(c.Blue, c.Green, c.Red, c.Alpha)).ToArray();
 										}

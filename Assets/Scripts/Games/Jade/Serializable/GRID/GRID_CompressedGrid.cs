@@ -2,6 +2,7 @@
 
 namespace Ray1Map.Jade {
 	public class GRID_CompressedGrid : Jade_File {
+		public override string Export_Extension => "grc";
 		public Group[] Groups { get; set; }
 
 		protected override void SerializeFile(SerializerObject s) {

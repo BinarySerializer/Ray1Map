@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Jade {
 	public class SND_Insert : Jade_File {
-		public override string Export_Extension => "ins";
+		public override string Export_Extension => "ins"; // Or ".fad"
 		public byte[] WaveData { get; set; }
 
 		protected override void SerializeFile(SerializerObject s) {
