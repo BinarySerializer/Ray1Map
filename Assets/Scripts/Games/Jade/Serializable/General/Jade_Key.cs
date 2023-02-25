@@ -10,11 +10,7 @@ namespace Ray1Map.Jade {
         public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!IsNull && Loader != null && Loader.Raw_RelocateKeys) {
-				if (Loader.Raw_KeysToRelocate.ContainsKey(Key)) {
-					Key = Loader.Raw_KeysToRelocate[Key];
-				} else if (Loader.Raw_KeysToAvoid.Contains(Key)) {
-					Key = Loader.Raw_RelocateKey(Key);
-				}
+				Key = Loader.Raw_RelocateKeyIfNecessary(Key);
 			}
 			Key = s.Serialize<uint>(Key, name: nameof(Key));
 		}
@@ -24,7 +20,7 @@ namespace Ray1Map.Jade {
 			Context = context;
 			Key = k;
 		}
-		public static implicit operator uint(Jade_Key k) => k.Key;
+		public static implicit operator uint(Jade_Key k) => k?.Key ?? 0xFFFFFFFF;
 		public override string ToString() {
 			if (!IsNull && Context != null) {
 				var loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

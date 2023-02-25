@@ -35,10 +35,16 @@ namespace Ray1Map.Jade {
 		public bool Raw_WriteFilesAlreadyInBF { get; set; } = false;
 		public bool Raw_RelocateKeys { get; set; } = false;
 		public bool Raw_UseOriginalFileNames { get; set; } = false;
+		public ExportFilenameGuessData Raw_FilenameGuesses { get; set; }
 		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
+		public Dictionary<uint, uint> Raw_KeysToRelocateReverse { get; set; } = new Dictionary<uint, uint>();
 		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
 		public uint Raw_CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
 		public uint Raw_RelocateKey(uint keyToRelocate) {
+			if(keyToRelocate == 0 || keyToRelocate == 0xFFFFFFFF) return keyToRelocate;
+			if (Raw_KeysToRelocate.ContainsKey(keyToRelocate)) {
+				return Raw_KeysToRelocate[keyToRelocate];
+			}
 			while (true) {
 				if (Raw_CurrentUnusedKey >= 0xF3FFFFFF) {
 					Raw_CurrentUnusedKey = 0x01000000;
@@ -49,9 +55,22 @@ namespace Ray1Map.Jade {
 				if (!Raw_KeysToAvoid.Contains(curKey)) {
 					Raw_KeysToAvoid.Add(curKey);
 					Raw_KeysToRelocate[keyToRelocate] = curKey;
+					Raw_KeysToRelocateReverse[curKey] = keyToRelocate;
 					return curKey;
 				}
 			}
+		}
+		public uint Raw_RelocateKeyIfNecessary(uint key) {
+			if (key == 0 || key == 0xFFFFFFFF) return key;
+			if (Raw_RelocateKeys) {
+				if (Raw_KeysToRelocate.ContainsKey(key)) {
+					return Raw_KeysToRelocate[key];
+				} else if (Raw_KeysToAvoid.Contains(key)) {
+					return Raw_RelocateKey(key);
+				}
+				return Raw_RelocateKey(key);
+			}
+			return key;
 		}
 
 		// Loaded objects
@@ -61,7 +80,55 @@ namespace Ray1Map.Jade {
 		public List<OBJ_GameObject> AttachedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public bool IsGameObjectAttached(OBJ_GameObject gao) => AttachedGameObjects.Any(obj => obj.Key == gao.Key);
 
+		public class ExportFilenameGuessData {
+			public Dictionary<uint, List<ExportFilenameGuess>> Guesses { get; set; } = new Dictionary<uint, List<ExportFilenameGuess>>();
+			public Dictionary<uint, ExportFilenameGuess> Facts { get; set; } = new Dictionary<uint, ExportFilenameGuess>();
 
+			public void AddGuess(uint key, string filename, string directory, int priority) {
+				if (key == 0 || key == 0xFFFFFFFF) return;
+				if (!Guesses.ContainsKey(key))
+					Guesses[key] = new List<ExportFilenameGuess>();
+
+				Guesses[key].Add(new ExportFilenameGuess() {
+					Filename = filename,
+					Directory = directory,
+					Priority = priority,
+				});
+			}
+
+			public void AddFact(uint key, string filename, string directory) {
+				if(key == 0 || key == 0xFFFFFFFF) return; 
+				Facts[key] = new ExportFilenameGuess() {
+					Filename = filename,
+					Directory = directory,
+					Priority = int.MaxValue,
+				};
+			}
+
+			public ExportFilenameGuess GetMostLikelyFilename(uint key) {
+				if (key == 0 || key == 0xFFFFFFFF) return null;
+				if (Facts.ContainsKey(key)) return Facts[key];
+				if (Guesses.ContainsKey(key)) {
+					var orderedGuesses = Guesses[key].OrderByDescending(g => g.Priority);
+					var bestGuessFilename = orderedGuesses.FirstOrDefault(g => g.Filename != null);
+					var bestGuessDirectory = orderedGuesses.FirstOrDefault(g => g.Directory != null);
+					if (bestGuessFilename != bestGuessDirectory) {
+						return new ExportFilenameGuess() {
+							Directory = bestGuessDirectory?.Directory,
+							Filename = bestGuessFilename?.Filename,
+							Priority = bestGuessFilename?.Priority ?? bestGuessDirectory?.Priority ?? 0,
+						};
+					}
+					return bestGuessFilename;
+				}
+				return null;
+			}
+		}
+		public class ExportFilenameGuess {
+			public string Filename { get; set; }
+			public string Directory { get; set; }
+			public int Priority { get; set; }
+		}
 		public class BinData {
 			public Jade_Key Key { get; set; }
 			public Pointer StartPosition { get; set; }
@@ -407,6 +474,23 @@ namespace Ray1Map.Jade {
 											filename = originalFilename;
 										} else {
 											if (newFilename != null) filename += $"_{MakeValidFileName(newFilename)}";
+
+											if (Raw_FilenameGuesses != null) {
+												var usedKey = currentRef.Key.Key;
+
+												// Names are assigned pre-relocation
+												if (Raw_KeysToRelocateReverse.ContainsKey(usedKey))
+													usedKey = Raw_KeysToRelocateReverse[usedKey];
+												var bestGuess = Raw_FilenameGuesses.GetMostLikelyFilename(usedKey);
+												if (bestGuess != null) {
+													string dir = bestGuess?.Directory ?? $"ROOT/Bin";
+													string fname = bestGuess ?.Filename ?? Path.GetFileName(filename);
+													fname = string.Join("_", fname.Split(Path.GetInvalidFileNameChars()));
+
+													filename = $"{dir}/{fname}";
+												}
+											}
+
 											if (extension != null) filename += $".{extension}";
 										}
 									} else {
@@ -744,7 +828,9 @@ namespace Ray1Map.Jade {
 			public string FileName { get; set; }
 			public string DirectoryName { get; set; }
 			public string FilePath => FileName != null ? $"{DirectoryName}/{FileName}" : null;
-			public string FilePathValidCharacters => FileName != null ? $"{DirectoryName}/{string.Join("_", FileName.Split(Path.GetInvalidFileNameChars()))}" : null;
+			public string FilePathValidCharacters => FileName != null ? $"{DirectoryName}/{FileNameValidCharacters}" : null;
+			public string FileNameValidCharacters => FileName != null ? $"{string.Join("_", FileName.Split(Path.GetInvalidFileNameChars()))}" : null;
+
 			public override string ToString() {
 				var fp = FilePath;
 				if (fp != null) {

@@ -84,7 +84,7 @@ namespace Ray1Map.Jade {
             Pan = s.Serialize<int>(Pan, name: nameof(Pan));
             Span = s.Serialize<int>(Span, name: nameof(Span));
             MinPan = s.Serialize<float>(MinPan, name: nameof(MinPan));
-            if (FormatVersion >= 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+            if (FormatVersion >= 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) {
                 FreqCoef = s.Serialize<float>(FreqCoef, name: nameof(FreqCoef));
             } else {
                 Freq = s.Serialize<uint>(Freq, name: nameof(Freq));

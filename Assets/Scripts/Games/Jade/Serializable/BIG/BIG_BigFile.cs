@@ -216,6 +216,7 @@ namespace Ray1Map.Jade {
 			public FileSource Source { get; set; }
 			public string ModDirectory { get; set; }
 			public string FullPath { get; set; }
+			public string FullPathBeforeReplace { get; set; }
 			public enum FileSource {
 				Unbinarized,
 				Existing,

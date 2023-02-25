@@ -789,7 +789,12 @@ namespace Ray1Map {
 
 			Debug.Log($"Finished export");
 		}
-		public async UniTask ExportUnbinarizedAsync(GameSettings settings, string inputDir, string outputDir, bool useComplexNames, GameModeSelection? targetMode = null) {
+		public async UniTask ExportUnbinarizedAsync(
+			GameSettings settings,
+			string inputDir, string outputDir,
+			bool useComplexNames,
+			GameModeSelection? targetMode = null,
+			bool exportWOLfiles = true) {
 			var parsedSounds = new HashSet<uint>();
 
 			var levIndex = 0;
@@ -798,7 +803,9 @@ namespace Ray1Map {
 
 			// Key relocation (for writing as RRR mod)
 			Dictionary<uint, uint> keysToRelocate = new Dictionary<uint, uint>();
+			Dictionary<uint, uint> keysToRelocateReverse = new Dictionary<uint, uint>();
 			HashSet<uint> keysToAvoid = new HashSet<uint>();
+			LOA_Loader.ExportFilenameGuessData namingData = new LOA_Loader.ExportFilenameGuessData();
 
 			bool exportForDifferentGameMode = targetMode.HasValue;
 
@@ -822,6 +829,94 @@ namespace Ray1Map {
 						}
 					}
 				}
+			}
+
+			// First, loop over all wol files to export if necessary, and try to get directory for the wow
+			try {
+				List<WOR_WorldList> wols = new List<WOR_WorldList>();
+				using (var context = new Ray1MapContext(settings)) {
+					await LoadFilesAsync(context);
+					List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+					foreach (var bfPath in BFFiles) {
+						var bf = await LoadBF(context, bfPath);
+						bfs.Add(bf);
+					}
+					// Set up loader
+					LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context) {
+						LoadSingle = true
+					};
+					context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+					foreach (var kvp in loader.FileInfos) {
+						var fileInfo = kvp.Value;
+						if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".wol"))) {
+							try {
+								Jade_Reference<WOR_WorldList> wolRef = new Jade_Reference<WOR_WorldList>(context, fileInfo.Key);
+								wolRef.Resolve();
+								await loader.LoadLoop(context.Deserializer);
+
+								if (wolRef?.Value == null) continue;
+								var wol = wolRef.Value;
+
+								wols.Add(wol);
+								var wolFileInfo = loader.FileInfos[wolRef.Key];
+								if (wolFileInfo.FileName != null) {
+									namingData.AddFact(wolRef.Key, Path.GetFileNameWithoutExtension(wolFileInfo.FileNameValidCharacters), wolFileInfo.DirectoryName);
+								}
+
+							} catch (Exception ex) {
+								UnityEngine.Debug.LogError(ex);
+							}
+							await Controller.WaitIfNecessary();
+						}
+					}
+					foreach (var wol in wols) {
+						var validworlds = wol?.Worlds?.Where(w => !w.IsNull);
+						var wolInfo = loader.FileInfos[wol.Key];
+						if (wolInfo.FileName != null) {
+							var directory = wolInfo.DirectoryName;
+							int count = validworlds.Count();
+							int i = 0;
+							foreach (var w in validworlds) {
+								namingData.AddGuess(w.Key, null, directory, 100 * (i + 1) / count);
+								i++;
+							}
+						}
+					}
+
+					if (exportWOLfiles) {
+						using (var writeContext = new Ray1MapContext(outputDir, settings)) {
+							// Set up loader
+							LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
+								Raw_WriteFilesAlreadyInBF = true,
+								Raw_UseOriginalFileNames = true,
+								LoadSingle = true
+							};
+							writeloader.Raw_FilenameGuesses = namingData;
+							if (exportForDifferentGameMode) {
+								writeloader.Raw_RelocateKeys = true;
+								writeloader.Raw_KeysToAvoid = keysToAvoid;
+								writeloader.Raw_KeysToRelocate = keysToRelocate;
+								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
+							}
+							writeloader.WrittenFileKeys = writtenFileKeys;
+							writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
+
+							foreach (var wol in wols) {
+								var wkey = writeloader.Raw_RelocateKeyIfNecessary(wol.Key);
+								Jade_Reference<WOR_WorldList> writeWol = new Jade_Reference<WOR_WorldList>(writeContext, new Jade_Key(context, wkey)) {
+									Value = wol
+								};
+								writeWol.Resolve();
+
+								var s = writeContext.Serializer;
+								await writeloader.LoadLoop(s);
+							}
+						}
+					}
+				}
+			} catch (Exception ex) {
+				UnityEngine.Debug.LogError(ex);
 			}
 
 
@@ -903,6 +998,38 @@ namespace Ray1Map {
 								Debug.Log($"Loaded level. Exporting unbinarized assets...");
 								await Controller.WaitIfNecessary();
 
+								// First, try to determine names
+								var bestName = namingData.GetMostLikelyFilename(world.Key);
+								if (bestName != null) {
+									var wowDir = bestName.Directory;
+									namingData.AddGuess(world.Key, world.Name, wowDir, 100);
+									namingData.AddGuess(world.GameObjects?.Key, world.Name, wowDir, 100);
+									namingData.AddGuess(world.Text?.Key, world.Name, wowDir, 100);
+									namingData.AddGuess(world.AllNetworks?.Key, world.Name, wowDir, 100);
+									if (world.SerializedGameObjects.Any()) {
+										var gaoDir = $"{wowDir}/Game Objects";
+										var cobDir = $"{wowDir}/Collision Objects";
+										var cinDir = $"{wowDir}/COL Instances";
+										var lnkDir = $"{wowDir}/Links";
+										var rliDir = $"{wowDir}/Game Objects RLI";
+										var gaoPrio = 10000 / world.SerializedGameObjects.Count;
+										foreach (var obj in world?.SerializedGameObjects) {
+											var objname = obj.Export_FileBasename;
+											namingData.AddGuess(obj.Key, objname, gaoDir, gaoPrio);
+											namingData.AddGuess(obj.Base?.Visual?.RLI?.Key, objname, rliDir, gaoPrio);
+											namingData.AddGuess(obj.COL_ColMap?.Key, objname, cinDir, gaoPrio);
+											if (obj.COL_ColMap?.Value?.Cobs != null) {
+												foreach (var cob in obj.COL_ColMap?.Value?.Cobs) {
+													namingData.AddGuess(cob.Key, $"{cob.Key.Key:X8}_{objname}", cobDir, gaoPrio);
+												}
+											}
+											namingData.AddGuess(obj.Extended?.Links?.Key, objname, lnkDir, gaoPrio);
+											namingData.AddGuess(obj.COL_Instance?.Key, objname, cinDir, gaoPrio);
+										}
+									}
+								}
+								
+
 								LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 
 								var newSettings = new GameSettings(targetMode ?? settings.GameModeSelection, settings.GameDirectory, settings.World, settings.Level);
@@ -916,7 +1043,9 @@ namespace Ray1Map {
 										loader.Raw_RelocateKeys = true;
 										loader.Raw_KeysToAvoid = keysToAvoid;
 										loader.Raw_KeysToRelocate = keysToRelocate;
+										loader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
 									}
+									loader.Raw_FilenameGuesses = namingData;
 
 									loader.WrittenFileKeys = writtenFileKeys;
 									writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -927,9 +1056,9 @@ namespace Ray1Map {
 									var aiLinks = context.GetStoredObject<AI_Links>(AIKey);
 									writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
 
-									var wkey = loader.Raw_RelocateKeys ? world.Key.Key : loader.Raw_RelocateKey(world.Key.Key);
+									var wkey = loader.Raw_RelocateKeyIfNecessary(world.Key.Key);
 
-									Jade_Reference<WOR_World> worldRef = new Jade_Reference<WOR_World>(writeContext, new Jade_Key(writeContext, wkey)) {
+						Jade_Reference<WOR_World> worldRef = new Jade_Reference<WOR_World>(writeContext, new Jade_Key(writeContext, wkey)) {
 										Value = world
 									};
 									worldRef?.Resolve();
@@ -957,7 +1086,9 @@ namespace Ray1Map {
 									loader.Raw_RelocateKeys = true;
 									loader.Raw_KeysToAvoid = keysToAvoid;
 									loader.Raw_KeysToRelocate = keysToRelocate;
+									loader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
 								}
+								loader.Raw_FilenameGuesses = namingData;
 
 								loader.WrittenFileKeys = writtenFileKeys;
 								writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -1174,6 +1305,7 @@ namespace Ray1Map {
 
 				Dictionary<string, List<LOA_Loader.FileInfo>> fileInfos = null;
 				Dictionary<string, uint> moddedFileInfos = new Dictionary<string, uint>();
+				Dictionary<string, Tuple<string, string>> modPathReplace = new Dictionary<string, Tuple<string, string>>();
 				List<LOA_Loader.FileInfo> GetJadeFileByPath(string path) {
 					if (fileInfos == null) {
 						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
@@ -1230,18 +1362,25 @@ namespace Ray1Map {
 					if (File.Exists(configPath)) {
 						string[] lines = File.ReadAllLines(configPath);
 						foreach (var l in lines) {
-							switch (l.Trim()) {
-								case "overwrite=false":
-									overwrite = false;
-									break;
-								case "use_keys_from_bf_filename_only=true":
-									useKeysFromBFFilenameOnly = true;
-									break;
-								case "ignore_nonexistent_files=true":
-									ignoreNonexistentFiles = true;
-									break;
-								default:
-									break;
+							var trimmed = l.Trim();
+							if (trimmed.Contains("=")) {
+								var configElement = trimmed.Split("=");
+								var variable = configElement[0];
+								var value = configElement[1];
+								switch (variable) {
+									case "overwrite":
+										if(value == "false") overwrite = false;
+										break;
+									case "use_keys_from_bf_filename_only":
+										if(value == "true") useKeysFromBFFilenameOnly = true;
+										break;
+									case "ignore_nonexistent_files":
+										if (value == "true") ignoreNonexistentFiles = true;
+										break;
+									case "replacepath":
+										modPathReplace[modDir] = new Tuple<string, string>(configElement[1], configElement[2]);
+										break;
+								}
 							}
 						}
 					}
@@ -1354,7 +1493,11 @@ namespace Ray1Map {
 
 				foreach (var mod in mods) {
 					FilesToPack = FilesToPack.Concat(mod.Value.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = fk.Value ?? $"{fk.Key:X8}",
+						FullPath = modPathReplace.ContainsKey(mod.Key)
+							? (fk.Value ?? $"{fk.Key:X8}")
+								.Replace(modPathReplace[mod.Key].Item1, modPathReplace[mod.Key].Item2) // Replace path here
+							: (fk.Value ?? $"{fk.Key:X8}"),
+						FullPathBeforeReplace = fk.Value ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Mod,
 						ModDirectory = mod.Key,
@@ -1453,7 +1596,7 @@ namespace Ray1Map {
 							file.P4Revision = 1;
 							break;
 						case BIG_BigFile.FileInfoForCreate.FileSource.Mod:
-							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPath}"));
+							file.Bytes = File.ReadAllBytes(Path.Combine(file.ModDirectory, $"files/{file.FullPathBeforeReplace}"));
 							file.DateLastModified = DateTime.Now;
 							file.P4Revision = 1;
 							if (originalLoader.FileInfos.ContainsKey(file.Key)) {
@@ -1666,7 +1809,7 @@ namespace Ray1Map {
 						var aiLinks = readLoader.Context.GetStoredObject<AI_Links>(AIKey);
 						writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
 						// Process modded objects
-						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKey(loader.Raw_CurrentUnusedKey));
+						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKeyIfNecessary(loader.Raw_CurrentUnusedKey));
 						foreach (var moddedObject in ModdedGameObjects) {
 							if (moddedObject.CreatePrefab) {
 								loader.Raw_CurrentUnusedKey = currentUnusedKeyPrefab;

@@ -23,12 +23,14 @@ namespace Ray1Map
                             new Node(EngineVersion.Jade_BGE_HD),
                             new Node(EngineVersion.Jade_KingKong).SetChildren(
                                 new Node(EngineVersion.Jade_KingKong_Xenon),
-                                new Node(EngineVersion.Jade_RRR).SetChildren(
-                                    new Node(EngineVersion.Jade_RRR2),
-                                    new Node(EngineVersion.Jade_Phoenix).SetChildren(
-                                        new Node(EngineVersion.Jade_Horsez2).SetChildren(
-                                            new Node(EngineVersion.Jade_PetzHorseClub).SetChildren(
-                                                new Node(EngineVersion.Jade_MovieGames)
+                                new Node(EngineVersion.Jade_RRRPrototype).SetChildren(
+                                    new Node(EngineVersion.Jade_RRR).SetChildren(
+                                        new Node(EngineVersion.Jade_RRR2),
+                                        new Node(EngineVersion.Jade_Phoenix).SetChildren(
+                                            new Node(EngineVersion.Jade_Horsez2).SetChildren(
+                                                new Node(EngineVersion.Jade_PetzHorseClub).SetChildren(
+                                                    new Node(EngineVersion.Jade_MovieGames)
+                                                )
                                             )
                                         )
                                     )

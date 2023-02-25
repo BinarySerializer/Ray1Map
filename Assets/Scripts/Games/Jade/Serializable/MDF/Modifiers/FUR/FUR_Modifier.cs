@@ -18,7 +18,7 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) || !Loader.IsBinaryData)
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype) || !Loader.IsBinaryData)
 				DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 
 			NormalOffset = s.Serialize<float>(NormalOffset, name: nameof(NormalOffset));

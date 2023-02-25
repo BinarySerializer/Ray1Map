@@ -53,18 +53,18 @@ namespace Ray1Map.Jade {
 
 		public uint Flags1 { get; set; }
 
-		public uint Type12_UInt_0 { get; set; }
-		public uint Type12_UInt_1 { get; set; }
+		public uint UniqueID { get; set; }
+		public uint BaseNoise { get; set; }
 
-		public float Type13_Float_0 { get; set; }
-		public float Type13_Float_1 { get; set; }
+		public float Near2 { get; set; }
+		public float Far2 { get; set; }
 
-		public float Type14_Float_0 { get; set; }
-		public float Type14_Float_1 { get; set; }
-		public float Type14_Float_2 { get; set; }
-		public float Type14_Float_3 { get; set; }
+		public float HeatShimmerNoisePixelSize { get; set; }
+		public float HeatShimmerScrollSpeed { get; set; }
+		public float HeatShimmerRange { get; set; }
+		public float HeatShimmerHeight { get; set; }
 
-		public float Type15_Float { get; set; }
+		public float HeatShimmerOpacity { get; set; }
 		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -124,26 +124,26 @@ namespace Ray1Map.Jade {
 			}
 			if (Version >= 10) GridNoise = s.Serialize<float>(GridNoise, name: nameof(GridNoise));
 			if (Version >= 11) Flags1 = s.Serialize<uint>(Flags1, name: nameof(Flags1));
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) {
 				if (Version >= 12) {
-					Type12_UInt_0 = s.Serialize<uint>(Type12_UInt_0, name: nameof(Type12_UInt_0));
-					Type12_UInt_1 = s.Serialize<uint>(Type12_UInt_1, name: nameof(Type12_UInt_1));
+					UniqueID = s.Serialize<uint>(UniqueID, name: nameof(UniqueID));
+					BaseNoise = s.Serialize<uint>(BaseNoise, name: nameof(BaseNoise));
 				}
 				if (Version >= 13) {
-					Type13_Float_0 = s.Serialize<float>(Type13_Float_0, name: nameof(Type13_Float_0));
-					Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
+					Near2 = s.Serialize<float>(Near2, name: nameof(Near2));
+					Far2 = s.Serialize<float>(Far2, name: nameof(Far2));
 				}
 			}
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version != 0x111) {
-				var maxVersion = (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) ? 14 : 12;
+				var maxVersion = (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) ? 14 : 12;
 				if (Version >= maxVersion) {
-					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
-					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));
-					Type14_Float_2 = s.Serialize<float>(Type14_Float_2, name: nameof(Type14_Float_2));
-					Type14_Float_3 = s.Serialize<float>(Type14_Float_3, name: nameof(Type14_Float_3));
+					HeatShimmerNoisePixelSize = s.Serialize<float>(HeatShimmerNoisePixelSize, name: nameof(HeatShimmerNoisePixelSize));
+					HeatShimmerScrollSpeed = s.Serialize<float>(HeatShimmerScrollSpeed, name: nameof(HeatShimmerScrollSpeed));
+					HeatShimmerRange = s.Serialize<float>(HeatShimmerRange, name: nameof(HeatShimmerRange));
+					HeatShimmerHeight = s.Serialize<float>(HeatShimmerHeight, name: nameof(HeatShimmerHeight));
 				}
 				if (Version >= maxVersion + 1) {
-					Type15_Float = s.Serialize<float>(Type15_Float, name: nameof(Type15_Float));
+					HeatShimmerOpacity = s.Serialize<float>(HeatShimmerOpacity, name: nameof(HeatShimmerOpacity));
 				}
 				if (Version >= 0x111) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();

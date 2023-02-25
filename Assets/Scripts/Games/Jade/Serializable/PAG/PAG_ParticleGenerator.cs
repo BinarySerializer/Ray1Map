@@ -140,6 +140,9 @@ namespace Ray1Map.Jade {
             if (!newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) {
                 if (Version >= 13) Version = 12;
             }
+            if (!newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+                if(Version >= 12) Version = 11;
+            }
 		}
 
 		public override void SerializeImpl(SerializerObject s) {

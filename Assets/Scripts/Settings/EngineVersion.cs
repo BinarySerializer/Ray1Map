@@ -142,6 +142,7 @@ namespace Ray1Map
         Jade_KingKong,
         Jade_KingKong_Xenon,
 
+        Jade_RRRPrototype,
         Jade_RRR,
 
         Jade_Phoenix,

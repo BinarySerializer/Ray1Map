@@ -55,11 +55,11 @@ namespace Ray1Map.Jade {
 				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_18, name: nameof(UInt_Editor_18));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) {
 					VersionNumber = s.Serialize<int>(VersionNumber, name: nameof(VersionNumber));
 				}
 				int Sectos_count = 4;
-				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 					if (VersionNumber != -1 && VersionNumber != 0) Sectos_count = 8;
 				}
 				if (Sectos != null && Sectos_count != Sectos.Length) {
@@ -69,7 +69,7 @@ namespace Ray1Map.Jade {
 				}
 				Sectos = s.SerializeArray<byte>(Sectos, Sectos_count, name: nameof(Sectos));
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && VersionNumber != -1) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype) && VersionNumber != -1) {
 				Capacities = s.Serialize<uint>(Capacities, name: nameof(Capacities));
 			} else {
 				Capacities = s.Serialize<ushort>((ushort)Capacities, name: nameof(Capacities));

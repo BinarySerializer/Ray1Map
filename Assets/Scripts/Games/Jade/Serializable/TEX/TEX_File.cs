@@ -271,7 +271,8 @@ namespace Ray1Map.Jade
 
 		protected override void OnChangeContext(Context oldContext, Context newContext) {
 			base.OnChangeContext(oldContext, newContext);
-            if (newContext.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR && newContext.GetR1Settings().Platform == Platform.PC) {
+            if ((newContext.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR || newContext.GetR1Settings().EngineVersion == EngineVersion.Jade_RRRPrototype)
+                && newContext.GetR1Settings().Platform == Platform.PC) {
                 ConvertToTGA(oldContext, newContext);
             }
         }

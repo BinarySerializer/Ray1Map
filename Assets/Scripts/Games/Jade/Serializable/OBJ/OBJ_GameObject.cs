@@ -108,7 +108,7 @@ namespace Ray1Map.Jade {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) {
 				DummyVersion = s.Serialize<uint>(DummyVersion, name: nameof(DummyVersion));
 				if (DummyVersion != 0)
 					CullingVisibility = s.Serialize<uint>(CullingVisibility, name: nameof(CullingVisibility));

@@ -63,5 +63,36 @@ namespace Ray1Map.Jade
             Optimized = 1 << 14,
             Anims = 1 << 15,
         }
-    }
+
+
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+			if (oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)
+				&& !newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+                // Remove all new stuff added for RRR, then recalculate data size
+                foreach (var ev in ListEvents.Events) {
+                    if (ev.Type == EVE_Event.Flags_Type.MorphKeyNew) {
+                        ev.Type = EVE_Event.Flags_Type.MorphKey;
+                        ev.MorphKey_Old = ev.MorphKey.Param;
+                        DataLength = DataLength + 28 - ev.MorphKey.DataSize;
+                    } else if (ev.Type == EVE_Event.Flags_Type.MagicKey) {
+                        DataLength -= 20;
+                        ev.Type = EVE_Event.Flags_Type.Empty;
+                    } else if (ev.Type == EVE_Event.Flags_Type.PlaySynchro) {
+                        DataLength -= 16;
+                        ev.Type = EVE_Event.Flags_Type.Empty;
+                    }
+                }
+			}
+            // To be safe, also remove all AI functions from this animation...
+            if (newContext.GetR1Settings().EngineVersion != oldContext.GetR1Settings().EngineVersion) {
+                foreach (var ev in ListEvents.Events) {
+                    if (ev.Type == EVE_Event.Flags_Type.AIFunction) {
+                        ev.Type = EVE_Event.Flags_Type.Empty;
+                        DataLength -= (uint)ev.AIFunction.SerializedSize;
+                    }
+                }
+            }
+		}
+	}
 }

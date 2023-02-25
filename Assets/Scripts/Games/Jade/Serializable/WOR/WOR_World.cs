@@ -65,8 +65,7 @@ namespace Ray1Map.Jade {
 			BackgroundColor = s.SerializeObject<Jade_Color>(BackgroundColor, name: nameof(BackgroundColor));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
-				if (Version >= 5 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)
-					&& s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
+				if (Version >= 5 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 					UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 				}
 			} else {
@@ -299,7 +298,7 @@ namespace Ray1Map.Jade {
 				Controller.DetailedState = $"{prevState}\nLoading GameObject references: {gao.Name}";
 
 				actionData.Shape?.Resolve();
-				if (Loader.IsBinaryData && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+				if (Loader.IsBinaryData && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)) {
 					await Loader.LoadBinOrNot(s);
 				}
 
