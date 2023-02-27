@@ -5,7 +5,7 @@ namespace Ray1Map.Jade
     public class TEX_Content_Animated : BinarySerializable {
         public TEX_File Texture { get; set; }
 
-        public uint UInt_00 { get; set; }
+        public uint DataSize { get; set; }
         public short Flags { get; set; }
         public byte FramesCount { get; set; }
         public byte Byte_07_Editor { get; set; }
@@ -19,7 +19,7 @@ namespace Ray1Map.Jade
             if (FileSize == 0) return;
             
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-            UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+            DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
             Flags = s.Serialize<short>(Flags, name: nameof(Flags));
             FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
             if (!Loader.IsBinaryData) Byte_07_Editor = s.Serialize<byte>(Byte_07_Editor, name: nameof(Byte_07_Editor));

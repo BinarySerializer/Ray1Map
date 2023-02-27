@@ -39,26 +39,31 @@ namespace Ray1Map.Jade {
 		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
 		public Dictionary<uint, uint> Raw_KeysToRelocateReverse { get; set; } = new Dictionary<uint, uint>();
 		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
-		public uint Raw_CurrentUnusedKey { get; set; } = 0xBB000000 - 1;
-		public uint Raw_RelocateKey(uint keyToRelocate) {
-			if(keyToRelocate == 0 || keyToRelocate == 0xFFFFFFFF) return keyToRelocate;
-			if (Raw_KeysToRelocate.ContainsKey(keyToRelocate)) {
-				return Raw_KeysToRelocate[keyToRelocate];
-			}
+		public uint Raw_CurrentUnusedKey { get; set; } = 0xBB000000;
+		public uint Raw_GetNextUnusedKey() {
 			while (true) {
+				uint curKey = Raw_CurrentUnusedKey;
+				if (!Raw_KeysToAvoid.Contains(curKey)) {
+					return curKey;
+				}
 				if (Raw_CurrentUnusedKey >= 0xF3FFFFFF) {
 					Raw_CurrentUnusedKey = 0x01000000;
 				} else {
 					Raw_CurrentUnusedKey++;
 				}
-				var curKey = Raw_CurrentUnusedKey;
-				if (!Raw_KeysToAvoid.Contains(curKey)) {
-					Raw_KeysToAvoid.Add(curKey);
-					Raw_KeysToRelocate[keyToRelocate] = curKey;
-					Raw_KeysToRelocateReverse[curKey] = keyToRelocate;
-					return curKey;
-				}
 			}
+		}
+		public uint Raw_RelocateKey(uint keyToRelocate) {
+			if(keyToRelocate == 0 || keyToRelocate == 0xFFFFFFFF) return keyToRelocate;
+			if (Raw_KeysToRelocate.ContainsKey(keyToRelocate)) {
+				return Raw_KeysToRelocate[keyToRelocate];
+			}
+			var curKey = Raw_GetNextUnusedKey();
+			
+			Raw_KeysToAvoid.Add(curKey);
+			Raw_KeysToRelocate[keyToRelocate] = curKey;
+			Raw_KeysToRelocateReverse[curKey] = keyToRelocate;
+			return curKey;
 		}
 		public uint Raw_RelocateKeyIfNecessary(uint key) {
 			if (key == 0 || key == 0xFFFFFFFF) return key;
@@ -72,6 +77,7 @@ namespace Ray1Map.Jade {
 			}
 			return key;
 		}
+		public uint Raw_GetNewKey() => Raw_RelocateKey(Raw_CurrentUnusedKey);
 
 		// Loaded objects
 		public WOR_World WorldToLoadIn { get; set; }

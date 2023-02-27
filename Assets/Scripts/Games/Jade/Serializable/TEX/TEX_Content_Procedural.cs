@@ -5,7 +5,7 @@ namespace Ray1Map.Jade
     public class TEX_Content_Procedural : BinarySerializable {
         public uint FileSize { get; set; } // Set in onPreSerialize
 
-        public uint UInt_00 { get; set; }
+        public uint DataSize { get; set; }
         public ushort Flags { get; set; }
         public ushort Width { get; set; }
         public ushort Height { get; set; }
@@ -18,7 +18,7 @@ namespace Ray1Map.Jade
         public int EditorSizeDifference => Photo != null && FileSize > 12 ? 4 : 0;
 
         public override void SerializeImpl(SerializerObject s) {
-            UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+            DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));

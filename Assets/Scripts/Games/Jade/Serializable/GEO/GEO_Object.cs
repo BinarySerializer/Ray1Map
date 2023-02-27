@@ -10,6 +10,7 @@ namespace Ray1Map.Jade {
 					case GRO_Type.GEO_SubGeometry:
 					case GRO_Type.PAG:
 					case GRO_Type.STR:
+					case GRO_Type.CAM:
 						return "gro";
 					case GRO_Type.MAT_MSM:
 					case GRO_Type.MAT_MTT:

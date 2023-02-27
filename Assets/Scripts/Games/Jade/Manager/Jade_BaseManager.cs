@@ -47,6 +47,7 @@ namespace Ray1Map {
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPC)),
 				new GameAction("Export unbinarized into RRR Prototype format", true, true, (input, output) => ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPCPrototype)),
 				new GameAction("Create new BF using unbinarized files", true, true, (input, output) => CreateBFAsync(settings, input, output)),
+				new GameAction("Temp Tools", false, true, (input, output) => TempTools(settings, input, output)),
 			};
 			if (CanBeModded) {
 				actions = actions.Concat(new GameAction[] {
@@ -72,6 +73,225 @@ namespace Ray1Map {
 				}).ToArray();
 			}
 			return actions;
+		}
+
+		public bool FixGameObjectMorphChannels(Context context, OBJ_GameObject gao) {
+			var modifiers = gao?.Extended?.Modifiers;
+			if (modifiers == null || modifiers.Length == 0) return false;
+
+			var morphModObj = modifiers.FirstOrDefault(m => m.Type == MDF_ModifierType.GEO_ModifierMorphing);
+			if (morphModObj == null) return false;
+
+			var morphMod = (GEO_ModifierMorphing)morphModObj.Modifier;
+			bool shouldFix = (morphMod.ChannelsCount % 4 != 0);
+
+			if (!shouldFix && morphMod.MorphChannels.Any(c => c.Name != null)) {
+				for (int i = 0; i < morphMod.MorphChannels.Length / 4; i++) {
+					if (morphMod.MorphChannels[i].Name.StartsWith("D_")) {
+						shouldFix = true;
+						context.SystemLogger?.LogWarning($"{morphMod.GetType().Name} @ {gao.Key}: Dummy channel among regular channels - this might cause errors");
+						break;
+					}
+				}
+				for (int i = morphMod.MorphChannels.Length / 4; i < morphMod.MorphChannels.Length; i++) {
+					var realChannelIndex = (i - (morphMod.MorphChannels.Length / 4)) / 3;
+					var dummyIndex = (i - (morphMod.MorphChannels.Length / 4)) % 3;
+					if (morphMod.MorphChannels[i].Name != $"D_{morphMod.MorphChannels[realChannelIndex].Name}_{dummyIndex}") {
+						shouldFix = true;
+						break;
+					}
+
+				}
+			}
+
+			if (shouldFix) {
+				// Step 1: Delete dummy channels
+				var realChannels = morphMod.MorphChannels.Where(c => c.Name == null || !c.Name.StartsWith("D_"));
+
+				// Step 2: Create new dummy channels
+				var morphChannels = realChannels.Concat(
+					realChannels.SelectMany((rc, i) => new GEO_ModifierMorphing.Channel[] {
+						new GEO_ModifierMorphing.Channel() {
+							Name = $"D_{rc.Name ?? $"C{i}"}_1",
+							DataCount = 2,
+							DataIndices = new uint[] { 0, 0 }
+						},
+						new GEO_ModifierMorphing.Channel() {
+							Name = $"D_{rc.Name ?? $"C{i}"}_2",
+							DataCount = 2,
+							DataIndices = new uint[] { 0, 0 }
+						},
+						new GEO_ModifierMorphing.Channel() {
+							Name = $"D_{rc.Name ?? $"C{i}"}_3",
+							DataCount = 2,
+							DataIndices = new uint[] { 0, 0 }
+						},
+					}));
+
+				// Step 3: Set new channels in object
+				var previousDataSize = morphMod.DataSize;
+				var previousChannelsSize = (uint)morphMod.MorphChannels.Sum(md => 12 + 64 + md.DataCount * 4);
+
+				morphMod.MorphChannels = morphChannels.ToArray();
+				morphMod.ChannelsCount = (uint)morphMod.MorphChannels.Length;
+
+				var newChannelsSize = (uint)morphMod.MorphChannels.Sum(md => 12 + 64 + md.DataCount * 4);
+
+				morphMod.DataSize = 4 * 4;
+				morphMod.DataSize += (uint)morphMod.MorphData.Sum(md => 4 + 64 + md.VectorsCount * (12 + 4));
+				morphMod.DataSize += (uint)morphMod.MorphChannels.Sum(md => 12 + 64 + md.DataCount * 4);
+
+				gao.FileSize -= previousChannelsSize;
+				gao.FileSize += newChannelsSize;
+				//gaoRef.Value.FileSize += (morphMod.DataSize - previousDataSize);
+			}
+
+			return shouldFix;
+		}
+
+		public async UniTask TempTools(GameSettings settings, string inputDir, string outputDir) {
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Set up texture list
+				TEX_GlobalList texList = new TEX_GlobalList();
+				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
+				Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]> textGroups
+					= new Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]>();
+
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && fileInfo.FileName.EndsWith(".gao")) {
+						try {
+							Jade_Reference<OBJ_GameObject> gaoRef = new Jade_Reference<OBJ_GameObject>(context, fileInfo.Key);
+							gaoRef.Resolve();
+							loader.LoadSingle = true;
+							await loader.LoadLoop(context.Deserializer);
+
+							bool shouldFix = FixGameObjectMorphChannels(context, gaoRef?.Value);
+
+							if (shouldFix) {
+								// Write
+
+								using (var writeContext = new Ray1MapContext(outputDir, settings)) {
+									// Set up loader
+									LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
+										Raw_WriteFilesAlreadyInBF = true,
+										Raw_UseOriginalFileNames = true,
+										LoadSingle = true
+									};
+									writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
+
+									// Set up texture list
+									TEX_GlobalList texList2 = new TEX_GlobalList();
+									writeContext.StoreObject<TEX_GlobalList>(TextureListKey, texList2);
+
+									// Set up sound list
+									SND_GlobalList sndList2 = new SND_GlobalList();
+									writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndList2);
+
+									Jade_Reference<OBJ_GameObject> writeGao = new Jade_Reference<OBJ_GameObject>(writeContext, gaoRef.Key) {
+										Value = gaoRef.Value
+									};
+									writeGao.Resolve();
+
+									var s = writeContext.Serializer;
+									await writeloader.LoadLoop(s);
+								}
+							}
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+
+				if (false) {
+					foreach (var kvp in loader.FileInfos) {
+						var fileInfo = kvp.Value;
+						if (fileInfo.FileName != null && fileInfo.FileName.EndsWith(".gro")) {
+							switch (fileInfo.FileName) {
+								case "Unnamed0@6532fac.gro":
+								case "BRK_44.gro":
+								case "Unnamed@6a47a6c.gro":
+									break;
+								default:
+									continue;
+							}
+							try {
+								Jade_Reference<GEO_Object> textRef = new Jade_Reference<GEO_Object>(context, fileInfo.Key);
+								textRef.Resolve();
+								await loader.LoadLoop(context.Deserializer);
+
+								if (textRef.Value?.RenderObject?.Value == null) continue;
+
+								GEO_GeometricObject gro = textRef.Value.RenderObject.Value as GEO_GeometricObject;
+								foreach (var vert in gro.Vertices) {
+									vert.X *= 2;
+									vert.Y *= 2;
+									vert.Z *= 2;
+								}
+								if (gro.OK3_Boxes?.Boxes != null) {
+									foreach (var vert in gro.OK3_Boxes.Boxes) {
+										vert.Min.X *= 2;
+										vert.Min.Y *= 2;
+										vert.Min.Z *= 2;
+										vert.Max.X *= 2;
+										vert.Max.Y *= 2;
+										vert.Max.Z *= 2;
+									}
+								}
+								using (var writeContext = new Ray1MapContext(outputDir, settings)) {
+									// Set up loader
+									LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
+										Raw_WriteFilesAlreadyInBF = true
+									};
+									writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
+
+									Jade_Reference<GEO_Object> wave = new Jade_Reference<GEO_Object>(writeContext, textRef.Key) {
+										Value = textRef.Value
+									};
+									wave.Resolve();
+
+									var s = writeContext.Serializer;
+									await writeloader.LoadLoop(s);
+								}
+							} catch (Exception ex) {
+								UnityEngine.Debug.LogError(ex);
+							} finally {
+								texList.Textures?.Clear();
+								texList.Palettes?.Clear();
+							}
+							await Controller.WaitIfNecessary();
+						}
+					}
+				}
+			}
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
+
+			Debug.Log($"Finished export");
 		}
 
 		#region Extract assets
@@ -940,7 +1160,7 @@ namespace Ray1Map {
 						currentKey = 0;
 						await LoadFilesAsync(context);
 						if (exportForDifferentGameMode) {
-							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures);
+							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound);
 						} else {
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
 						}
@@ -950,12 +1170,15 @@ namespace Ray1Map {
 
 						if (exportForDifferentGameMode) {
 							foreach (var w in worlds) {
-								w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
+								//w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
 								foreach (var gao in w.SerializedGameObjects) {
 									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
 									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.AI;
 
 									if (gao.Extended?.Modifiers != null) {
+										//if(targetMode.Value == GameModeSelection.RaymanRavingRabbidsPCPrototype && !context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR))
+										//	FixGameObjectMorphChannels(context, gao);
+
 										if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 											foreach (var m in gao.Extended.Modifiers) {
 												if ((int)m.Type_Montreal >= 15) {
@@ -967,7 +1190,7 @@ namespace Ray1Map {
 										}
 										gao.Extended.Modifiers = gao.Extended.Modifiers
 											.Where(m =>
-												m.Type != MDF_ModifierType.GEN_ModifierSound && m.Type != MDF_ModifierType.MDF_LoadingSound
+												m.Type != MDF_ModifierType.GEN_ModifierSound && m.Type != MDF_ModifierType.MDF_LoadingSound && m.Type != MDF_ModifierType.GEN_ModifierSoundFx
 												&& rrrPC_supportedModifiers.Contains((int)m.Type))
 											.ToArray();
 										if(gao.Extended.Modifiers.Length == 0
@@ -1796,8 +2019,8 @@ namespace Ray1Map {
 						loader.Raw_RelocateKeys = false; // Don't relocate keys by default. We'll determine which ones to relocate and which to keep
 						loader.Raw_KeysToAvoid = keysToAvoid;
 						loader.Raw_WriteFilesAlreadyInBF = false;
-						uint currentUnusedKeyInstance = 0x88000000 - 1;
-						uint currentUnusedKeyPrefab   = 0x11000000 - 1;
+						uint currentUnusedKeyInstance = 0x88000000;
+						uint currentUnusedKeyPrefab   = 0x11000000;
 						loader.Raw_CurrentUnusedKey = currentUnusedKeyInstance; // Start key will be this one
 						loader.WrittenFileKeys = writtenFileKeys;
 
@@ -1809,7 +2032,7 @@ namespace Ray1Map {
 						var aiLinks = readLoader.Context.GetStoredObject<AI_Links>(AIKey);
 						writeContext.StoreObject<AI_Links>(AIKey, aiLinks);
 						// Process modded objects
-						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_RelocateKeyIfNecessary(loader.Raw_CurrentUnusedKey));
+						Jade_Key newKey() => new Jade_Key(writeContext, loader.Raw_GetNewKey());
 						foreach (var moddedObject in ModdedGameObjects) {
 							if (moddedObject.CreatePrefab) {
 								loader.Raw_CurrentUnusedKey = currentUnusedKeyPrefab;

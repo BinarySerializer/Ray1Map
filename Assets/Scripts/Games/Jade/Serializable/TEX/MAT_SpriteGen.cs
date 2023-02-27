@@ -3,9 +3,9 @@
 namespace Ray1Map.Jade
 {
     public class MAT_SpriteGen : BinarySerializable {
-        public uint Identifier1 { get; set; }
-        public uint Identifier2 { get; set; }
-        public Jade_TextureReference BumpMap { get; set; }
+        public uint Identifier1 { get; set; } = 0xC0DE1999;
+		public uint Identifier2 { get; set; } = 0xC0DE2000;
+		public Jade_TextureReference BumpMap { get; set; }
         public ushort Flags { get; set; }
         public ushort TextureIndex { get; set; }
         public float SizeFloat { get; set; }
@@ -15,7 +15,7 @@ namespace Ray1Map.Jade
         public float SizeNoise { get; set; }
         public float MipMapCoef { get; set; }
         public float DistortionMax { get; set; }
-        public uint XYZSMap_BIGKEY { get; set; }
+        public Jade_Key XYZSMap_BIGKEY { get; set; }
         public uint BumpMapPointer { get; set; }
         public float BumpFactor { get; set; }
         public uint[] Undefined { get; set; }
@@ -33,7 +33,7 @@ namespace Ray1Map.Jade
             SizeNoise = s.Serialize<float>(SizeNoise, name: nameof(SizeNoise));
             MipMapCoef = s.Serialize<float>(MipMapCoef, name: nameof(MipMapCoef));
             DistortionMax = s.Serialize<float>(DistortionMax, name: nameof(DistortionMax));
-            XYZSMap_BIGKEY = s.Serialize<uint>(XYZSMap_BIGKEY, name: nameof(XYZSMap_BIGKEY));
+            XYZSMap_BIGKEY = s.SerializeObject<Jade_Key>(XYZSMap_BIGKEY, name: nameof(XYZSMap_BIGKEY));
             BumpMapPointer = s.Serialize<uint>(BumpMapPointer, name: nameof(BumpMapPointer)); // Leftover
             BumpFactor = s.Serialize<float>(BumpFactor, name: nameof(BumpFactor));
             Undefined = s.SerializeArray<uint>(Undefined, 2, name: nameof(Undefined));

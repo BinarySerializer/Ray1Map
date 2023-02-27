@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Klonoa.DTP;
 
 namespace Ray1Map.Jade {
 	public class TEXT_TextGroup : Jade_File {
@@ -45,6 +46,46 @@ namespace Ray1Map.Jade {
 				} else {
 					Ids?.Resolve();
 					Strings?.Resolve();
+				}
+			}
+
+			protected override void OnChangeContext(Context oldContext, Context newContext) {
+				base.OnChangeContext(oldContext, newContext);
+				if (newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+					if (Text == null && Ids != null && !Ids.IsNull) {
+						var txl = new TEXT_TextList();
+						txl.UnknownFileSize = true;
+						var ids = (TEXT_Ids)(Ids.Value);
+						var strings = ((TEXT_Strings)Strings.Value);
+						txl.HasSound = false;
+						txl.Count = (uint)(ids?.Ids?.Length ?? 0);
+						txl.Text = new TEXT_OneText[txl.Count];
+						var newLoader = newContext.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+						txl.Key = new Jade_Key(newContext, newLoader.Raw_GetNewKey());
+
+						Text = new Jade_GenericReference(newContext,
+							txl.Key,
+							new Jade_FileType() {
+								Extension = ".txl"
+							}
+						) {
+							Value = txl
+						};
+
+						if (newLoader.Raw_RelocateKeys) {
+							for (int i = 0; i < txl.Count; i++) {
+								// TODO: Complete
+								txl.Text[i] = new TEXT_OneText() {
+									IdKey = new Jade_Key(newContext, newLoader.Raw_GetNewKey()),
+									OffsetInBuffer = (int)ids.Ids[i].StringOffset,
+									IDString = ids.Ids[i].Name,
+									Text = strings.Strings.FirstOrDefault(str => (str.Offset - strings.Offset) == ids.Ids[i].StringOffset)?.String ?? "",
+									CommentLength = 4,
+									Comments = new string[0]
+								};
+							}
+						}
+					}
 				}
 			}
 

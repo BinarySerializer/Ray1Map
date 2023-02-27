@@ -12,11 +12,15 @@ namespace Ray1Map.Jade
 		public override string Export_Extension {
             get {
                 switch (Type) {
-                    case TexFileType.RawPal: return "tex";
-                    case TexFileType.Raw: return "raw";
-                    case TexFileType.Tga: return "tga";
+					case TexFileType.Tga: return "tga";
                     case TexFileType.Bmp: return "bmp";
-                    case TexFileType.JTX: return "jtx";
+					case TexFileType.Jpeg: return "jpg";
+					case TexFileType.SpriteGen: return "spr";
+					case TexFileType.Procedural: return "pro";
+					case TexFileType.Raw: return "raw";
+					case TexFileType.RawPal: return "tex";
+                    case TexFileType.Animated: return "ant";
+					case TexFileType.JTX: return "jtx";
                     case TexFileType.DDS: return "dds";
                     default: return null;
                 }
@@ -78,6 +82,10 @@ namespace Ray1Map.Jade
         public DDS_Header Content_DDS_Header { get; set; }
         public DDS Content_DDS { get; set; }
         public byte[] Content { get; set; }
+
+        public Pointer HeaderOffset => Loader.IsBinaryData ? Offset : (Offset + FileSize - 32);
+        public Pointer ContentOffset => Loader.IsBinaryData ? (Offset + 32) : Offset;
+        public Pointer ContentEndOffset => Loader.IsBinaryData ? (Offset + FileSize) : HeaderOffset;
 
         protected override void SerializeFile(SerializerObject s) 
         {
@@ -394,6 +402,7 @@ namespace Ray1Map.Jade
             Procedural = 5,
             Raw = 6,
             RawPal = 7,
+            // Pal = 8,
             Animated = 9,
             JTX = 10,
             DDS = 11,
@@ -416,9 +425,9 @@ namespace Ray1Map.Jade
             if (Content_Procedural != null) sizeDiff += Content_Procedural.EditorSizeDifference;
 
             if (CurrentIsBinaryData == true) {
-                FileSize += (uint)sizeDiff;
-            } else if (CurrentIsBinaryData == false) {
                 FileSize -= (uint)sizeDiff;
+            } else if (CurrentIsBinaryData == false) {
+                FileSize += (uint)sizeDiff;
             }
 		}
 	}

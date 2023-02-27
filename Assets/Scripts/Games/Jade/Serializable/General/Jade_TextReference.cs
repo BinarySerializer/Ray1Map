@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
@@ -64,6 +65,26 @@ namespace Ray1Map.Jade {
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile,
 			name: typeof(TEXT_AllText).Name);
 			return this;
+		}
+
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+			var loader = newContext.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!loader.IsBinaryData) {
+				var firstLanguage = 0;
+				for (int i = 0; i < 32; i++) {
+					if (Text.ContainsKey(i)) {
+						firstLanguage = i;
+						break;
+					}
+				}
+				if(!Text.ContainsKey(firstLanguage)) return;
+				for (int i = firstLanguage + 1; i < 32; i++) {
+					if(!Text.ContainsKey(i)) continue;
+					Text[firstLanguage].MergeText(Text[i]);
+					Text[i] = Text[firstLanguage];
+				}
+			}
 		}
 
 		public string ShortLog => Key.ToString();
