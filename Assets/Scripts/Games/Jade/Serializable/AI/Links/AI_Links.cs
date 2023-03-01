@@ -147,14 +147,18 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.Horsez2PS2:
 				case GameModeSelection.Horsez2PSP:
 				case GameModeSelection.Horsez2PSPDemo:
-				case GameModeSelection.Horsez2PC:
-				case GameModeSelection.Horsez2PCHD:
 					links = new AI_Links_Horsez2_Wii();
 					break;
+				case GameModeSelection.Horsez2PC:
+				case GameModeSelection.Horsez2PCHD:
+					links = new AI_Links_Horsez2_PC();
+					break;
 				case GameModeSelection.PetzHorseClubWii:
+					links = new AI_Links_PetzHorseClub_Wii();
+					break;
 				case GameModeSelection.PetzHorseClubPC:
 				case GameModeSelection.PetzHorseClubPCHD:
-					links = new AI_Links_PetzHorseClub_Wii();
+					links = new AI_Links_PetzHorseClub_PC();
 					break;
 				case GameModeSelection.MovieGamesWii:
 					links = new AI_Links_MovieGames_Wii();

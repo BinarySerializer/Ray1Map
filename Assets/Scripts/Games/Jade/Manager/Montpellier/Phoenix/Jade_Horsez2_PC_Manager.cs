@@ -1,7 +1,18 @@
-﻿namespace Ray1Map
+﻿using System.Linq;
+
+namespace Ray1Map
 {
     public class Jade_Horsez2_PC_Manager : Jade_Montpellier_BaseManager {
 		public override bool HasUnbinarizedData => true;
+
+		// Game actions
+		public override GameAction[] GetGameActions(GameSettings settings) {
+			return base.GetGameActions(settings).Concat(new GameAction[]
+			{
+				new GameAction("Fix Horsez AI Files", false, true, (input, output) => new Jade_GameActions_ConvertHorsez(this).FixHorsezAI(settings, input, output)),
+				new GameAction("Convert Horsez game to RRR Proto", false, true, (input, output) => new Jade_GameActions_ConvertHorsez(this).ConvertPhoenixToRRRProto(settings, input, output)),
+			}).ToArray();
+		}
 
 		// Levels
 		public override LevelInfo[] LevelInfos => new LevelInfo[] {

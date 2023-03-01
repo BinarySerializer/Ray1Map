@@ -19,7 +19,7 @@
 		GAO_ModifierSNAKE = 14,
 		GEN_ModifierSoundFx = 15,
 		PROTEX_Modifier = 16,
-		_Unknown = 17,
+		GAO_ModifierSaveAddMatrix = 17,
 		MPAG_Modifier = 18,
 		MDF_LoadingSound = 19,
 		GAO_ModifierPhoto = 20,

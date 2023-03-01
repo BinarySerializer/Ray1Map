@@ -255,6 +255,8 @@ namespace Ray1Map.Jade {
 			}
 		}
 
+		public void ReinitFileDictionaries() => CreateFileDictionaries();
+
 		public async UniTask LoadLoop(SerializerObject s) {
 			if (s is BinaryDeserializer) {
 				SerializerMode = SerializeMode.Read;

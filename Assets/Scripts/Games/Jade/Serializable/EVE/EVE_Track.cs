@@ -85,14 +85,14 @@ namespace Ray1Map.Jade
                 }
 			}
             // To be safe, also remove all AI functions from this animation...
-            if (newContext.GetR1Settings().EngineVersion != oldContext.GetR1Settings().EngineVersion) {
+            /*if (newContext.GetR1Settings().EngineVersion != oldContext.GetR1Settings().EngineVersion) {
                 foreach (var ev in ListEvents.Events) {
                     if (ev.Type == EVE_Event.Flags_Type.AIFunction) {
                         ev.Type = EVE_Event.Flags_Type.Empty;
                         DataLength -= (uint)ev.AIFunction.SerializedSize;
                     }
                 }
-            }
+            }*/
 		}
 	}
 }
