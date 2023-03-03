@@ -59,6 +59,7 @@ namespace Ray1Map {
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => new Jade_GameActions_ExportTextures(this).ExportTexturesUnbinarized(settings, output)),
 					new GameAction("Export models (unbinarized)", false, true, (input, output) => new Jade_GameActions_ExportModels(this).ExportModelsUnbinarizedAsync(settings, output)),
 					new GameAction("Export localization (unbinarized)", false, true, (input, output) => new Jade_GameActions_ExportLocalization(this).ExportLocalizationUnbinarizedAsync(settings, output)),
+					new GameAction("Export AI Lists (unbinarized)", false, true, (input, output) => new Jade_GameActions_ExportAIModels(this).ExportAIUnbinarized(settings, output)),
 				}).ToArray();
 			}
 			if (TexturesGearBFPath != null) {

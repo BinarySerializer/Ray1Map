@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System.Text;
 
 namespace Ray1Map.Jade {
 	public class AI_ProcList : Jade_File {
@@ -97,6 +98,17 @@ namespace Ray1Map.Jade {
 					}
 				}
 			}
+		}
+
+
+		public string ExportForUnbinarizeImport() {
+			StringBuilder b = new StringBuilder();
+
+			foreach (Proc p in Procs) {
+				b.AppendLine(p.Name);
+			}
+
+			return b.ToString();
 		}
 	}
 }

@@ -315,7 +315,25 @@ namespace Ray1Map.Jade {
 
         }
 
-        public enum ExportStructMode
+		public string ExportForUnbinarizeImport() {
+			StringBuilder b = new StringBuilder();
+
+            foreach (AI_Var v in Vars) {
+                b.Append(v.Name);
+                b.Append(",");
+                b.Append(v.Type.ToString());
+                b.Append(",");
+                b.Append(v.Info.ArrayDimensionsCount);
+                b.Append(",");
+                b.Append(v.Info.ArrayLength);
+                b.AppendLine();
+            }
+
+            return b.ToString();
+		}
+
+
+		public enum ExportStructMode
         {
             IDA,
             BinarySerializable,

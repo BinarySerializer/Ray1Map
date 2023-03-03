@@ -36,6 +36,8 @@ namespace Ray1Map.Jade {
 		public bool Raw_RelocateKeys { get; set; } = false;
 		public bool Raw_UseOriginalFileNames { get; set; } = false;
 		public ExportFilenameGuessData Raw_FilenameGuesses { get; set; }
+		public HashSet<uint> Raw_DontRelocateKeys { get; set; } = new HashSet<uint>();
+		public HashSet<uint> Raw_DontWriteKeys { get; set; } = new HashSet<uint>();
 		public Dictionary<uint, uint> Raw_KeysToRelocate { get; set; } = new Dictionary<uint, uint>();
 		public Dictionary<uint, uint> Raw_KeysToRelocateReverse { get; set; } = new Dictionary<uint, uint>();
 		public HashSet<uint> Raw_KeysToAvoid { get; set; } = new HashSet<uint>();
@@ -68,7 +70,9 @@ namespace Ray1Map.Jade {
 		public uint Raw_RelocateKeyIfNecessary(uint key) {
 			if (key == 0 || key == 0xFFFFFFFF) return key;
 			if (Raw_RelocateKeys) {
-				if (Raw_KeysToRelocate.ContainsKey(key)) {
+				if (Raw_DontRelocateKeys.Contains(key)) {
+					return key;
+				} else if (Raw_KeysToRelocate.ContainsKey(key)) {
 					return Raw_KeysToRelocate[key];
 				} else if (Raw_KeysToAvoid.Contains(key)) {
 					return Raw_RelocateKey(key);
@@ -434,7 +438,7 @@ namespace Ray1Map.Jade {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
 				if (currentRef.IsSizeRequest) continue;
-				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key) && currentRef.CurrentValue != null) {
+				if (currentRef.Key != null && !Raw_DontWriteKeys.Contains(currentRef.Key.Key) && !WrittenFileKeys.ContainsKey(currentRef.Key.Key) && currentRef.CurrentValue != null) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
 						var f = Cache[currentRef.Key];

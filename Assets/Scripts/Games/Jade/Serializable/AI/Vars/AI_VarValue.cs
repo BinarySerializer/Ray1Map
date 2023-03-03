@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using BinarySerializer;
 
@@ -19,8 +20,11 @@ namespace Ray1Map.Jade {
 		public Jade_Key ValueKey { get; set; }
 		public AI_VarValue[] ValueArray { get; set; }
 
-		public int ValueText0 { get; set; }
-		public int ValueText1 { get; set; }
+		public Jade_Key TextFileKey { get; set; }
+		public int TextEntryIDKey { get; set; }
+
+		public int MsgID_MsgID { get; set; }
+		public int MsgID_ID { get; set; }
 
 		public AI_Trigger ValueTrigger { get; set; }
 		public AI_Message ValueMessage { get; set; }
@@ -49,6 +53,7 @@ namespace Ray1Map.Jade {
 						ValueFloat = s.Serialize<float>(ValueFloat, name: nameof(ValueFloat));
 						break;
 					case AI_VarType.Key:
+					case AI_VarType.GAO:
 						ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
 						break;
 					case AI_VarType.Vector:
@@ -57,9 +62,12 @@ namespace Ray1Map.Jade {
 						}
 						break;
 					case AI_VarType.Text:
+						TextFileKey = s.SerializeObject<Jade_Key>(TextFileKey, name: nameof(TextFileKey));
+						TextEntryIDKey = s.Serialize<int>(TextEntryIDKey, name: nameof(TextEntryIDKey));
+						break;
 					case AI_VarType.MessageId:
-						ValueText0 = s.Serialize<int>(ValueText0, name: nameof(ValueText0));
-						ValueText1 = s.Serialize<int>(ValueText1, name: nameof(ValueText1));
+						MsgID_MsgID = s.Serialize<int>(MsgID_MsgID, name: nameof(MsgID_MsgID));
+						MsgID_ID = s.Serialize<int>(MsgID_ID, name: nameof(MsgID_ID));
 						break;
 					case AI_VarType.Message:
 						ValueMessage = s.SerializeObject<AI_Message>(ValueMessage, name: nameof(ValueMessage));
@@ -107,8 +115,8 @@ namespace Ray1Map.Jade {
 		}
 
 		public uint ValueUInt {
-			get => (uint)ValueInt;
-			set => ValueInt = (int)value;
+			get => unchecked((uint)ValueInt);
+			set => ValueInt = unchecked((int)value);
 		}
 
 		// TODO: Add other getters/setters
