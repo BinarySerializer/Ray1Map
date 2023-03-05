@@ -1,16 +1,19 @@
-﻿using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
-using Ray1Map;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
+using Ray1Map;
 using Ray1Map.GBAVV;
 using Ray1Map.Rayman1;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 public class SettingsWindow : UnityWindow
 {
@@ -329,6 +332,27 @@ public class SettingsWindow : UnityWindow
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
                     if (EditorButton("Copy event flag info"))
                         r1.GetEventFlagsDebugInfo().CopyToClipboard();
+                }
+                
+                if (LevelEditorData.MainContext.HasSettings<Ray1Settings>()) 
+                {
+                    if (EditorButton("Export map"))
+                    {
+                        string outputFile = EditorUtility.SaveFilePanel("Save file", null, "data", "MAP");
+                        var map = LevelEditorData.Level.Maps[0];
+                        var r1Map = new MapData()
+                        {
+                            Width = map.Width,
+                            Height = map.Height,
+                            Tiles = map.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray()
+                        };
+                        const string fileName = "MapExport";
+                        var dataStream = new MemoryStream();
+                        LevelEditorData.MainContext.AddFile(new StreamFile(LevelEditorData.MainContext, fileName, dataStream));
+                        FileFactory.Write<MapData>(LevelEditorData.MainContext, fileName, r1Map);
+                        LevelEditorData.MainContext.RemoveFile(fileName);
+                        File.WriteAllBytes(outputFile, dataStream.ToArray());
+                    }
                 }
                 
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_GBAVV vv && vv.Scripts != null) {
