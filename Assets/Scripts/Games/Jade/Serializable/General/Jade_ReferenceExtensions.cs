@@ -10,7 +10,7 @@ namespace Ray1Map.Jade
             bool immediate = false,
             LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
             LOA_Loader.CacheType cache = LOA_Loader.CacheType.Current,
-            LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log)
+            LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.MustExist)
             where T : Jade_File, new()
         {
             foreach (var r in refs)

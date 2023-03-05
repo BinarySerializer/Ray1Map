@@ -769,24 +769,24 @@ namespace Ray1Map.Jade {
 			connections.Append(tempConnectionsSb.ToString());
 
 			// Export skeleton group
-			if (gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects != null) {
-				var group = gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects;
+			if (gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GameObjects != null) {
+				var group = gao.Base?.ActionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GameObjects;
 				var groupID = (objectGroup << 8) ^ gameObjectID;
 				foreach (var o in group) {
-					if (o.GameObject?.Value != null) {
-						WriteGeometryForGameObject(o.GameObject.Value, objects, connections, materials, writtenObjects, header,
+					if (o.Value != null) {
+						WriteGeometryForGameObject(o.Value, objects, connections, materials, writtenObjects, header,
 							gao, groupID, gameObjectID, false);
 					}
 				}
 			}
 
 			// Export group
-			if (gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects != null) {
-				var group = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
+			if (gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GameObjects != null) {
+				var group = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GameObjects;
 				//var groupID = (objectGroup << 8) ^ gameObjectID;
 				foreach (var o in group) {
-					if (o.GameObject?.Value != null) {
-						WriteGeometryForGameObject(o.GameObject.Value, objects, connections, materials, writtenObjects, header,
+					if (o.Value != null) {
+						WriteGeometryForGameObject(o.Value, objects, connections, materials, writtenObjects, header,
 							parentObject, objectGroup, parentGao, false);
 					}
 				}

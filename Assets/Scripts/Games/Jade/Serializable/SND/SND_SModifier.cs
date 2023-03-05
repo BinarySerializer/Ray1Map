@@ -120,10 +120,10 @@ namespace Ray1Map.Jade {
             } else {
                 Sound.Resolve(s);
             }
-            FadeIn.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
-            FadeOut.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+            FadeIn.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
+            FadeOut.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
             foreach(var insert in InsertList)
-                insert.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                insert.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
         }
 
 		public class SoundRef : BinarySerializable {
@@ -158,7 +158,7 @@ namespace Ray1Map.Jade {
                     }
                 }
                 if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon) return;
-                Wave.Resolve(onPreSerialize: (_, w) => w.SoundType = soundType, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                Wave.Resolve(onPreSerialize: (_, w) => w.SoundType = soundType, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
             }
 
             [Flags]

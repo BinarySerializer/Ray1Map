@@ -40,7 +40,7 @@ namespace Ray1Map.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			name: nameof(TEX_CubeMap),
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+			flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
 			return this;
 		}
 

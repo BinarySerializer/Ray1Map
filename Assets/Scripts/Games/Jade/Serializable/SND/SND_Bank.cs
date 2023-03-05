@@ -30,12 +30,12 @@ namespace Ray1Map.Jade {
 
                 if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
                     if (Reference.Type == Jade_FileType.FileType.SND_SModifier) {
-                        Reference.ResolveEmbedded(s, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                        Reference.ResolveEmbedded(s, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                     } /*else {
                         References[i].Resolve(queue: LOA_Loader.QueueType.Sound, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                     }*/
                 } else {
-                    Reference.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    Reference.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
 
                     if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
                         LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

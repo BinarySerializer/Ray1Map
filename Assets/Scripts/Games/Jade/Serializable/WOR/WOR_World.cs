@@ -89,10 +89,10 @@ namespace Ray1Map.Jade {
 				AllGrids1 = s.SerializeObject<Jade_Reference<GRID_GridGroup>>(AllGrids1, name: nameof(AllGrids1));
 
 				var grids = !AllGrids1.IsNull ? AllGrids1 : AllGrids0;
-				grids?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+				grids?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
 			}
 			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))
-				?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+				?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
 			AllNetworks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(AllNetworks, name: nameof(AllNetworks))?.Resolve();
 			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
 
@@ -224,7 +224,7 @@ namespace Ray1Map.Jade {
 					if (doPrefabsCheck) {
 						if (gao?.Value?.Name == "PNJ_RadoJack.gao") {
 							Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(Context, Loader.BigFiles[0].UniverseKey);
-							univers.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+							univers.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await Loader.LoadBinOrNot(s);
 						}
 					}
@@ -247,12 +247,12 @@ namespace Ray1Map.Jade {
 					foreach (var gao in Loader.AttachedGameObjects) {
 						if (gao != null && gaos.Any(g => g.Key == gao.Key)) {
 							// WOR_World_CheckGroup
-							var grp = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
+							var grp = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GameObjects;
 							if (grp != null) {
 								foreach (var grp_obj in grp) {
-									var grp_gao = grp_obj.GameObject;
-									if (grp_gao?.Value != null) {
-										if (!Loader.IsGameObjectAttached(grp_gao.Value)) {
+									var grp_gao = grp_obj.Value;
+									if (grp_gao != null) {
+										if (!Loader.IsGameObjectAttached(grp_gao)) {
 											Loader.RemoveCacheReference(grp_gao.Key);
 										}
 									}
@@ -306,17 +306,17 @@ namespace Ray1Map.Jade {
 				await Loader.LoadBinOrNot(s);
 
 				// Attach skeleton
-				var skelGroup = actionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects;
+				var skelGroup = actionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GameObjects;
 				if (skelGroup != null) {
 					foreach (var grp_obj in skelGroup) {
-						var grp_gao = grp_obj.GameObject?.Value;
+						var grp_gao = grp_obj.Value;
 						if (grp_gao != null && !Loader.IsGameObjectAttached(grp_gao)) {
 							await JustAfterLoadObject(s, grp_gao);
 							// Attach each skeleton member's group members
-							var extendedGroup = grp_gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
+							var extendedGroup = grp_gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GameObjects;
 							if (extendedGroup != null) {
 								foreach (var ext_grp_obj in extendedGroup) {
-									var ext_grp_gao = ext_grp_obj.GameObject?.Value;
+									var ext_grp_gao = ext_grp_obj.Value;
 									if (ext_grp_gao != null && !Loader.IsGameObjectAttached(ext_grp_gao)) {
 										await JustAfterLoadObject(s, ext_grp_gao);
 									}

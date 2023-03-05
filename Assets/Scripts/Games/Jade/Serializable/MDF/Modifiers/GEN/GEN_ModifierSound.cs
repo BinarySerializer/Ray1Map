@@ -87,13 +87,13 @@ namespace Ray1Map.Jade
                         } else if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.Ambience)) {
                         } else if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.SModifier)) {
                             SModifier = new Jade_Reference<SND_SModifier>(Context, BGE_SoundKey);
-                            SModifier?.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                            SModifier?.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                         } else if (BGE_SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.LoadingSound)) {
                         } else { // Sound
                         }
                     } else {
                         BGE_UnknownBank = new Jade_Reference<SND_UnknownBank>(Context, BGE_SoundKey);
-                        BGE_UnknownBank?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
+                        BGE_UnknownBank?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
                     }
                     if (!Loader.IsBinaryData) BGE_UInt_16_Editor = s.Serialize<uint>(BGE_UInt_16_Editor, name: nameof(BGE_UInt_16_Editor));
                     BGE_Float_17 = s.Serialize<float>(BGE_Float_17, name: nameof(BGE_Float_17));
@@ -125,7 +125,7 @@ namespace Ray1Map.Jade
 
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
                 SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier))?
-                    .Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    .Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
 
                 if (!Loader.IsBinaryData)
                 {

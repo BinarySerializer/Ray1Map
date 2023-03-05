@@ -39,10 +39,10 @@ namespace Ray1Map.Jade {
 
             public void Resolve() {
                 if (ReferenceBGE != null) {
-                    ReferenceBGE.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount
+                    ReferenceBGE.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter
                         | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
                 } else {
-                    ReferenceEditor.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    ReferenceEditor.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                 }
             }
         }

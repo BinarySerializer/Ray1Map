@@ -18,7 +18,7 @@ namespace Ray1Map.Jade {
 
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (Loader.IsBinaryData) {
-					XenonPack?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+					XenonPack?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
 				}
 			}
 		}

@@ -20,7 +20,7 @@ namespace Ray1Map.Jade {
 					Group = s.SerializeObject<Jade_Reference<OBJ_World_GroupObjectList>>(Group, name: nameof(Group))
 						?.Resolve(onPreSerialize: (_, gol) => gol.ResolveObjects =
 						(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CloudyWithAChanceOfMeatballs) ? false : true),
-						flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Log);
+						flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.MustExist);
 				}
 			}
 		}

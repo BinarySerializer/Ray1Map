@@ -33,7 +33,7 @@ namespace Ray1Map.Jade {
             }
 
             public void Resolve() {
-                Reference?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
+                Reference?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
             }
         }
 

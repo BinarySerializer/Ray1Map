@@ -62,7 +62,7 @@ namespace Ray1Map.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.Current,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile,
+			flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile,
 			name: typeof(TEXT_AllText).Name);
 			return this;
 		}

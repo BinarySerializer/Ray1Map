@@ -30,7 +30,7 @@ namespace Ray1Map.Jade {
 			bool immediate = false,
 			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
 			LOA_Loader.CacheType cache = LOA_Loader.CacheType.Current,
-			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
+			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.MustExist) {
 
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -49,7 +49,7 @@ namespace Ray1Map.Jade {
 		public Jade_GenericReference ResolveEmbedded(SerializerObject s,
 			Action<SerializerObject, Jade_File> onPreSerialize = null,
 			Action<SerializerObject, Jade_File> onPostSerialize = null,
-			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log,
+			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.MustExist,
 			bool unknownFileSize = false) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

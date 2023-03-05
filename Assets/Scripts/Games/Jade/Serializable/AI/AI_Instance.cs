@@ -12,7 +12,7 @@ namespace Ray1Map.Jade {
 		protected override void SerializeFile(SerializerObject s) {
 			Model = s.SerializeObject<Jade_Reference<AI_Model>>(Model, name: nameof(Model))?.Resolve();
 			Vars = s.SerializeObject<Jade_Reference<AI_Vars>>(Vars, name: nameof(Vars))?
-				.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag3);
+				.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc);
 		}
 
 		public void CheckVariables() {

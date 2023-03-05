@@ -25,7 +25,7 @@ namespace Ray1Map.Jade {
 
 			public override void SerializeImpl(SerializerObject s) {
 				Network = s.SerializeObject<Jade_Reference<WAY_Network>>(Network, name: nameof(Network))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				Links = s.SerializeObjectArray<Link>(Links, Count, onPreSerialize: l => l.UseLongFormat = UseLongFormat, name: nameof(Links));
 			}

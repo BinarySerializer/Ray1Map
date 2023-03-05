@@ -83,7 +83,7 @@ namespace Ray1Map.Jade {
 					Sound?.Resolve(
 						cache: LOA_Loader.CacheType.TextSound,
 						onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog,
-						flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+						flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
 				} else {
 					Sound.Value = (SND_Wave)Loader.Caches[LOA_Loader.CacheType.Main][Sound.Key];
 				}

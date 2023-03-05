@@ -299,7 +299,11 @@ namespace Ray1Map {
 					continue;
 				}*/
 
-				if (!(lev?.MapName?.ToLower()?.Contains("fps") ?? false) && !(lev?.MapName?.ToLower()?.Contains("gladiator") ?? false)) {
+				/*if (!(lev?.MapName?.ToLower()?.Contains("fps") ?? false) && !(lev?.MapName?.ToLower()?.Contains("gladiator") ?? false)) {
+					levIndex++;
+					continue;
+				}*/
+				if (!(lev?.MapName?.ToLower()?.Contains("gladiator") ?? false)) {
 					levIndex++;
 					continue;
 				}
@@ -534,15 +538,19 @@ namespace Ray1Map {
 									namingData.AddGuess(world.GameObjects?.Key, world.Name, wowDir, 100);
 									namingData.AddGuess(world.Text?.Key, world.Name, wowDir, 100);
 									namingData.AddGuess(world.AllNetworks?.Key, world.Name, wowDir, 100);
-									if (world.SerializedGameObjects.Any()) {
+									var objects = world?.GameObjects?.Value?.GameObjects;
+									if (objects != null && objects.Any()) {
 										var gaoDir = $"{wowDir}/Game Objects";
 										var cobDir = $"{wowDir}/Collision Objects";
 										var cinDir = $"{wowDir}/COL Instances";
 										var lnkDir = $"{wowDir}/Links";
 										var aiDir = $"{wowDir}/AI Instances";
 										var rliDir = $"{wowDir}/Game Objects RLI";
-										var gaoPrio = 10000 / world.SerializedGameObjects.Count;
-										foreach (var obj in world?.SerializedGameObjects) {
+										var grpDir = $"{wowDir}/Groups";
+										var gaoPrio = 10000 / objects.Length;
+										foreach (var objRef in objects) {
+											var obj = objRef?.Value;
+											if(obj == null) continue;
 											var objname = obj.Export_FileBasename;
 											namingData.AddGuess(obj.Key, objname, gaoDir, gaoPrio);
 											namingData.AddGuess(obj.Base?.Visual?.RLI?.Key, objname, rliDir, gaoPrio);
@@ -564,6 +572,8 @@ namespace Ray1Map {
 													namingData.AddGuess(obj.Extended?.AI?.Value?.Vars?.Key, objname, aiDir, gaoPrio);
 												}
 											}
+											namingData.AddGuess(obj.Extended?.Group?.Key, objname, grpDir, gaoPrio);
+											namingData.AddGuess(obj.Extended?.Group?.Value?.GroupObjectList?.Key, objname, grpDir, gaoPrio);
 										}
 									}
 								}

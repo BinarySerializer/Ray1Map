@@ -220,7 +220,7 @@ namespace Ray1Map {
 				loader.BeginSpeedMode(worldKey, serializeAction: async s => {
 					if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 						worldList.Resolve(queue: LOA_Loader.QueueType.Maps, flags:
-							LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks |
+							LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks |
 							LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 					} else {
 						worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
@@ -316,7 +316,7 @@ namespace Ray1Map {
 													((TEXT_TextGroup)f).LanguageID = languageID;
 												},
 												cache: LOA_Loader.CacheType.Text,
-												flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+												flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 												await loader.LoadLoopBINAsync();
 												var group = (TEXT_TextGroup)txg.Value;
 												if (group == null) continue;
@@ -355,7 +355,7 @@ namespace Ray1Map {
 													var txgNoSound = textNoSound.Text[j];
 													txg.Resolve(onPreSerialize: (_, f) => {
 														((TEXT_TextGroup)f).LanguageID = languageID;
-													}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+													}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 													await loader.LoadLoopBINAsync();
 													var group = (TEXT_TextGroup)txg.Value;
 													if (group == null) continue;
@@ -376,7 +376,7 @@ namespace Ray1Map {
 														((TEXT_TextList)txl).TXLNoSound = txlNoSound;
 													},
 													cache: LOA_Loader.CacheType.TextSound,
-													flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+													flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 													await loader.LoadLoopBINAsync();
 
 													if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
@@ -447,7 +447,7 @@ namespace Ray1Map {
 										((TEXT_TextGroup)f).LanguageID = languageID;
 									},
 									cache: LOA_Loader.CacheType.Text,
-									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 								}
 								await loader.LoadLoopBINAsync();
 							}
@@ -461,7 +461,7 @@ namespace Ray1Map {
 										((TEXT_TextGroup)f).LanguageID = languageID;
 									},
 									cache: LOA_Loader.CacheType.Text,
-									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+									flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 								}
 								await loader.LoadLoopBINAsync();
 							}

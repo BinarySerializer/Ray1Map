@@ -12,6 +12,7 @@ namespace Ray1Map.Jade {
 		public uint EditorFlags { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
 		public OBJ_GameObject_StatusFlags StatusFlags { get; set; }
+		public byte AICustomBits { get; set; }
 		public OBJ_GameObject_ControlFlags ControlFlags { get; set; }
 		public byte Secto { get; set; }
 		public byte MiscFlags { get; set; }
@@ -72,7 +73,8 @@ namespace Ray1Map.Jade {
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 			s.DoBits<uint>(b => {
-				StatusFlags = b.SerializeBits<OBJ_GameObject_StatusFlags>(StatusFlags, 16, name: nameof(StatusFlags));
+				StatusFlags = b.SerializeBits<OBJ_GameObject_StatusFlags>(StatusFlags, 8, name: nameof(StatusFlags));
+				AICustomBits = b.SerializeBits<byte>(AICustomBits, 8, name: nameof(AICustomBits));
 				ControlFlags = b.SerializeBits<OBJ_GameObject_ControlFlags>(ControlFlags, 16, name: nameof(ControlFlags));
 			});
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
@@ -102,7 +104,7 @@ namespace Ray1Map.Jade {
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ColMap)) {
 				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseAlreadyLoadedCallback);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.OnlyOneRef);
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Version < 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));

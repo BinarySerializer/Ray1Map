@@ -101,10 +101,10 @@ namespace Ray1Map.Jade
                 if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.LoadingSound)) {
                     Wave = new Jade_Reference<SND_Wave>(Context, SoundKey);
                     if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon) return;
-                    Wave?.Resolve(onPreSerialize: (_,w) => w.SoundType = SND_Wave.Type.LoadingSound, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    Wave?.Resolve(onPreSerialize: (_,w) => w.SoundType = SND_Wave.Type.LoadingSound, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                 } else if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.SModifier)) {
                     SModifier = new Jade_Reference<SND_SModifier>(Context, SoundKey);
-                    SModifier?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    SModifier?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                 }
             }
         }

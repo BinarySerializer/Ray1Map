@@ -20,7 +20,7 @@ namespace Ray1Map.Jade {
 				}
 				Controller.DetailedState = $"Loading world {worldIndex + 1}/{Worlds.Length}";
 				bool hasLoadedWorld = Loader.LoadedWorlds.Any(w => w.Key == world.Key);
-				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+				world.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 				await Loader.LoadBinOrNot(s);
 
 				if (world?.Value != null && world.Value is WOR_World w) {

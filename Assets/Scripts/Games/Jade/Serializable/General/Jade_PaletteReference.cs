@@ -35,9 +35,9 @@ namespace Ray1Map.Jade {
 			Action<SerializerObject, TEX_Palette> onPostSerialize = null) {
 			LoadRRR2Unknown();
 			if (IsNull) return this;
-			var flags = LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache;
+			var flags = LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if(!loader.IsBinaryData) flags = LOA_Loader.ReferenceFlags.Log;
+			if(!loader.IsBinaryData) flags = LOA_Loader.ReferenceFlags.MustExist;
 			loader.RequestFile(Key, Value, (s, configureAction) => {
 				Value = s.SerializeObject<TEX_Palette>(Value, onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
@@ -65,7 +65,7 @@ namespace Ray1Map.Jade {
 					}, immediate: false,
 					queue: LOA_Loader.QueueType.Current,
 					name: typeof(TEX_Palette).Name,
-					flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+					flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
 				}
 			}
 		}

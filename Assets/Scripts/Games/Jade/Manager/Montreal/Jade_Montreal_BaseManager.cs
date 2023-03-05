@@ -60,7 +60,7 @@ namespace Ray1Map
 					try {
 						Jade_Reference<Jade_DummyFile> dummy = new Jade_Reference<Jade_DummyFile>(l.Context, new Jade_Key(l.Context, g.Key));
 						l.BeginSpeedMode(dummy.Key, serializeAction: async s => {
-							dummy.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+							dummy.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await l.LoadLoopBINAsync();
 						});
 						await l.LoadLoop(l.Context.Deserializer);
@@ -118,7 +118,7 @@ namespace Ray1Map
 			HashSet<Jade_Key> dontAdd = new HashSet<Jade_Key>();
 			while (currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) {
 				Jade_Reference<TEX_File_Montreal_Dummy> dummyFile = new Jade_Reference<TEX_File_Montreal_Dummy>(s.Context, new Jade_Key(s.Context, 0)) { ForceResolve = true };
-				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
+				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
 				await Loader.LoadLoopBINAsync();
 				currentBinHeaderKey = dummyFile?.Value?.Key ?? null;
 				if (dummyFile?.Value != null && dummyFile.Value.IsTexture && dummyFile.Value.Type != TEX_File.TexFileType.Raw) { // Raw textures are never referenced outside of RawPal textures
@@ -208,7 +208,7 @@ namespace Ray1Map
 			} else {
 				Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, (uint)Jade_Code.OffsetCode));
 				Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
-					world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+					world.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 					await Loader.LoadLoopBINAsync();
 
 					if (world?.Value != null && world.Value is WOR_World w) {

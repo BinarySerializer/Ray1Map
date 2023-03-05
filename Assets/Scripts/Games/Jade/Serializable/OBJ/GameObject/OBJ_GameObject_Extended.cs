@@ -81,7 +81,7 @@ namespace Ray1Map.Jade {
 			ExtraFlags = s.Serialize<OBJ_GameObject_ExtraFlags>(ExtraFlags, name: nameof(ExtraFlags));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
 				AI = s.SerializeObject<Jade_Reference<AI_Instance>>(AI, name: nameof(AI))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Events)) {
 				Events = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(Events, name: nameof(Events))?.Resolve();
@@ -89,14 +89,14 @@ namespace Ray1Map.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound)) {
 				Sound = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(Sound, name: nameof(Sound));
 				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))
-					Sound?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
+					Sound?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound_DARE) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				SoundDARE = s.SerializeObject<DARE_SoundParam>(SoundDARE, name: nameof(SoundDARE));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Links)) {
 				Links = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(Links, name: nameof(Links))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Lights)) {
 				Light = s.SerializeObject<Jade_Reference<GEO_Object>>(Light, name: nameof(Light))?.Resolve();

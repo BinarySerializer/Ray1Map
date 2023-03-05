@@ -184,7 +184,7 @@ namespace Ray1Map {
 							Debug.Log($"Processing Modded Object: {moddedObject.Name} [Assigned Key: {obj.Key}]");
 
 							// Resolve this new reference with NoCache
-							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+							newRef.Resolve(flags: LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist);
 							moddedObject.WriteReference = newRef;
 							await loader.LoadLoop(writeContext.Serializer);
 							writeContext.Serializer.ClearWrittenObjects();

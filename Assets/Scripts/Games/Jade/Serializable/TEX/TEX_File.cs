@@ -269,7 +269,7 @@ namespace Ray1Map.Jade
                     //s.Log($"FONTDESC Key: {keyForTexture}");
                     if (!lists.FontDescriptors.ContainsKey(keyForTexture)
                         || (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE && s.GetR1Settings().Platform == Platform.PC)) {
-                        FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+                        FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
                         lists.FontDescriptors[keyForTexture] = FontDesc;
                     }
                 }

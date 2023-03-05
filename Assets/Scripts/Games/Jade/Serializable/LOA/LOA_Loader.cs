@@ -180,12 +180,12 @@ namespace Ray1Map.Jade {
 		[Flags]
 		public enum ReferenceFlags : uint {
 			None = 0,
-			Log = 1 << 0,
+			MustExist = 1 << 0,
 			Flag1 = 1 << 1,
 			DontCache = 1 << 2,
-			Flag3 = 1 << 3,
-			KeepReferencesCount = 1 << 4,
-			DontUseAlreadyLoadedCallback = 1 << 5,
+			TmpAlloc = 1 << 3,
+			HasUserCounter = 1 << 4,
+			OnlyOneRef = 1 << 5,
 			Flag6 = 1 << 6,
 			Flag7 = 1 << 7,
 			
@@ -305,8 +305,8 @@ namespace Ray1Map.Jade {
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 						var f = Cache[currentRef.Key];
 						if (f != null) f.CachedCount++;
-						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
-						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
+						if (currentRef.Flags.HasFlag(ReferenceFlags.HasUserCounter) && f != null) f.ReferencesCount++;
+						if (!currentRef.Flags.HasFlag(ReferenceFlags.OnlyOneRef)) currentRef.AlreadyLoadedCallback(f);
 					} else {
 						Pointer off_current = s.CurrentPointer;
 						FileInfo f = FileInfos[currentRef.Key];
@@ -368,7 +368,7 @@ namespace Ray1Map.Jade {
 						Controller.DetailedState = previousState;
 						s.Goto(off_current);
 					}
-				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.MustExist)) {
 					s.SystemLogger?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 				if(LoadSingle)
@@ -389,8 +389,8 @@ namespace Ray1Map.Jade {
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 						var f = Cache[currentRef.Key];
 						if (f != null) f.CachedCount++;
-						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
-						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
+						if (currentRef.Flags.HasFlag(ReferenceFlags.HasUserCounter) && f != null) f.ReferencesCount++;
+						if (!currentRef.Flags.HasFlag(ReferenceFlags.OnlyOneRef)) currentRef.AlreadyLoadedCallback(f);
 					} else {
 						Pointer off_current = s.CurrentPointer;
 						string filename = keyList[currentRef.Key.Key];
@@ -422,7 +422,7 @@ namespace Ray1Map.Jade {
 						Controller.DetailedState = previousState;
 						s.Goto(off_current);
 					}
-				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.MustExist)) {
 					s.SystemLogger?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 				if (LoadSingle)
@@ -508,6 +508,10 @@ namespace Ray1Map.Jade {
 									} else {
 										filename = FileInfos[currentRef.Key].FilePathValidCharacters;
 									}
+									var outFilename = Context.BasePath + "files/" + filename;
+									if (File.Exists(outFilename)) {
+										Context.SystemLogger?.LogInfo($"File already exists: {outFilename}");
+									}
 									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
 									if (FileInfos.ContainsKey(currentRef.Key)) {
 										File.SetLastWriteTime(Context.BasePath + "files/" + filename, FileInfos[currentRef.Key].FatFileInfo.DateLastModified);
@@ -521,7 +525,7 @@ namespace Ray1Map.Jade {
 						Controller.DetailedState = previousState;
 						//s.Goto(off_current);
 					}
-				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.MustExist)) {
 					//s.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 				if (LoadSingle)
@@ -636,8 +640,8 @@ namespace Ray1Map.Jade {
 			if (hasLoadedFile && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 				var f = loadedFile;
 				if (f != null) f.CachedCount++;
-				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
-				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
+				if (currentRef.Flags.HasFlag(ReferenceFlags.HasUserCounter) && f != null) f.ReferencesCount++;
+				if (!currentRef.Flags.HasFlag(ReferenceFlags.OnlyOneRef)) currentRef.AlreadyLoadedCallback(f);
 			} else {
 				/*if (previouslyCached.Contains(currentRef.Key)) {
 					Context.Logger?.Log($"Reserializing: {currentRef.Key}");
@@ -729,7 +733,7 @@ namespace Ray1Map.Jade {
 		public void RequestFile(Jade_Key key, Jade_File currentValue, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false,
 			QueueType queue = QueueType.Current,
 			CacheType cache = CacheType.Current,
-			string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
+			string name = "", ReferenceFlags flags = ReferenceFlags.MustExist) {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
 				//if(Bin != null && FileInfos.ContainsKey(key)) queue = QueueType.BigFat;
@@ -755,7 +759,7 @@ namespace Ray1Map.Jade {
 		public void RequestFileSize(Jade_Key key, uint currentValue, FileSizeResolveAction loadCallback, bool immediate = true,
 			QueueType queue = QueueType.Current,
 			CacheType cache = CacheType.Current,
-			string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
+			string name = "", ReferenceFlags flags = ReferenceFlags.MustExist) {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
 				//if(Bin != null && FileInfos.ContainsKey(key)) queue = QueueType.BigFat;
@@ -809,7 +813,7 @@ namespace Ray1Map.Jade {
 							Name = "BIN",
 							Key = key,
 							IsBin = true,
-							Flags = ReferenceFlags.Log,
+							Flags = ReferenceFlags.MustExist,
 							Cache = IsLoadingFix ? CacheType.Fix : CacheType.Main,
 						});
 						IsCompressed = Bin.Key.IsCompressed;

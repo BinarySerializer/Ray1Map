@@ -53,7 +53,7 @@ namespace Ray1Map.Jade {
 				}, immediate: false,
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureInfo,
-				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 				name: nameof(TEX_File));
 
 				loader.RequestFile(Info.ContentKey, Content, (s, configureAction) => {
@@ -66,7 +66,7 @@ namespace Ray1Map.Jade {
 				}, immediate: false,
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureContent,
-				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 				name: nameof(TEX_File));
 			} else {
 				loader.RequestFile(Key, Content ?? Info, (s, configureAction) => {
@@ -82,7 +82,7 @@ namespace Ray1Map.Jade {
 				}, immediate: false,
 				queue: LOA_Loader.QueueType.Current,
 				cache: LOA_Loader.CacheType.TextureInfo,
-				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+				flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 				name: nameof(TEX_File));
 			}
 			return this;
@@ -104,7 +104,7 @@ namespace Ray1Map.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureInfo,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+			flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 			name: nameof(TEX_File));
 			return this;
 		}
@@ -129,7 +129,7 @@ namespace Ray1Map.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureContent,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+			flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 			name: nameof(TEX_File));
 			return this;
 		}

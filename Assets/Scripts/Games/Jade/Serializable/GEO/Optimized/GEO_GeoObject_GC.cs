@@ -28,7 +28,7 @@ namespace Ray1Map.Jade {
 
 			if (Loader.IsBinaryData) {
 				Content.ForceResolve = true;
-				Content.ResolveEmbedded(s, onPreSerialize: (_,c) => c.Header = this, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log, unknownFileSize: true);
+				Content.ResolveEmbedded(s, onPreSerialize: (_,c) => c.Header = this, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist, unknownFileSize: true);
 			} else {
 				Content.Resolve((_,c)=> c.Header = this);
 			}
