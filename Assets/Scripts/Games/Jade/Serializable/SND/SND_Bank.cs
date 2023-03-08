@@ -4,8 +4,9 @@ namespace Ray1Map.Jade {
     public class SND_Bank : Jade_File {
         public uint Count { get; set; }
         public SoundRef[] References { get; set; }
+		public override string Export_Extension => "snk";
 
-        protected override void SerializeFile(SerializerObject s) {
+		protected override void SerializeFile(SerializerObject s) {
             Count = FileSize / 8;
             if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && Loader.IsBinaryData) {
                 Count = s.Serialize<uint>(Count, name: nameof(Count));

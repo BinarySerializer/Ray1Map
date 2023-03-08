@@ -18,12 +18,12 @@ namespace Ray1Map.Jade {
 
 			Chunk = Type switch
 			{
-				ChunkType.Data => s.SerializeObject<SND_WaveChunk_Data>((SND_WaveChunk_Data)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
-				ChunkType.Format => s.SerializeObject<SND_WaveChunk_Format>((SND_WaveChunk_Format)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
-				ChunkType.Cue => s.SerializeObject<SND_WaveChunk_Cue>((SND_WaveChunk_Cue)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
-				ChunkType.List => s.SerializeObject<SND_WaveChunk_List>((SND_WaveChunk_List)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
-				ChunkType.Label => s.SerializeObject<SND_WaveChunk_Label>((SND_WaveChunk_Label)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
-				ChunkType.LabeledText => s.SerializeObject<SND_WaveChunk_LabeledText>((SND_WaveChunk_LabeledText)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk)),
+				ChunkType.Data => SerializeChunk<SND_WaveChunk_Data>(s),
+				ChunkType.Format => SerializeChunk<SND_WaveChunk_Format>(s),
+				ChunkType.Cue => SerializeChunk<SND_WaveChunk_Cue>(s),
+				ChunkType.List => SerializeChunk<SND_WaveChunk_List>(s),
+				ChunkType.Label => SerializeChunk<SND_WaveChunk_Label>(s),
+				ChunkType.LabeledText => SerializeChunk<SND_WaveChunk_LabeledText>(s),
 				_ => throw new NotImplementedException($"SND_WaveChunk type {Type} not implemented!"),
 			};
 			if (((s.CurrentAbsoluteOffset - Offset.AbsoluteOffset) % 2) != 0) {
@@ -32,6 +32,8 @@ namespace Ray1Map.Jade {
 				HasPadding = true;
 			}
 		}
+		private T SerializeChunk<T>(SerializerObject s) where T : SND_WaveChunk, new()
+			=> s.SerializeObject<T>((T)Chunk, onPreSerialize: c => c.Container = this, name: nameof(Chunk));
 
 		public enum ChunkType {
 			Unknown,

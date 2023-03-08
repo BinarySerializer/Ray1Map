@@ -12,7 +12,7 @@ namespace Ray1Map.Jade {
 		public uint ColorsCount { get; set; }
 		public uint UVsCount { get; set; }
 		public uint ElementsCount { get; set; }
-		public uint UInt_Editor { get; set; }
+		public uint EditorFlags { get; set; }
 		public uint MRM_ObjectAdditionalInfoPointer { get; set; }
 
 		public uint Code_01 { get; set; }
@@ -135,7 +135,7 @@ namespace Ray1Map.Jade {
 				if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
 				UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
 				ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
-				if (!Loader.IsBinaryData) UInt_Editor = s.Serialize<uint>(UInt_Editor, name: nameof(UInt_Editor));
+				if (!Loader.IsBinaryData) EditorFlags = s.Serialize<uint>(EditorFlags, name: nameof(EditorFlags));
 				if (ObjectVersion < 2) MRM_ObjectAdditionalInfoPointer = s.Serialize<uint>(MRM_ObjectAdditionalInfoPointer, name: nameof(MRM_ObjectAdditionalInfoPointer));
 				Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
 				if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
@@ -151,6 +151,9 @@ namespace Ray1Map.Jade {
 				Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
 				if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
 					|| (Montreal_HasNormals != 0 && ObjectVersion >= 3)) {
+					if (Normals == null && s is BinarySerializer.BinarySerializer) {
+						ComputeNormals();
+					}
 					Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
 				}
 				if (MRM_ObjectAdditionalInfoPointer != 0) {
@@ -222,6 +225,135 @@ namespace Ray1Map.Jade {
 					default:
 						s.SystemLogger?.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 						break;
+				}
+			}
+		}
+
+		public void ComputeNormals() {
+			Normals = new Jade_Vector[VerticesCount];
+			for(int i = 0; i < Normals.Length; i++)
+				Normals[i] = new Jade_Vector(0,0,0);
+
+			foreach (var el in Elements) {
+				foreach (var tri in el.Triangles) {
+					var vec1 = Vertices[tri.Vertex0] - Vertices[tri.Vertex1];
+					var vec2 = Vertices[tri.Vertex0] - Vertices[tri.Vertex2];
+					var triNormal = Jade_Vector.CrossProduct(vec1, vec2).Normalize();
+
+					Normals[tri.Vertex0] += triNormal;
+					Normals[tri.Vertex1] += triNormal;
+					Normals[tri.Vertex2] += triNormal;
+				}
+			}
+
+			for (int i = 0; i < Normals.Length; i++) {
+				if((Vertices[i].X * Vertices[i].X) < 0.001f)
+					Normals[i].X = 0f;
+
+				Normals[i] = Normals[i].Normalize();
+			}
+
+			// Editor only
+			ComputeNormals_OBBox_Correction();
+		}
+
+		void ComputeNormals_OBBox_Correction() {
+			var max = new Jade_Vector(-1000000, -1000000, -1000000);
+			var min = new Jade_Vector(1000000, 1000000, 1000000);
+			foreach (var vert in Vertices) {
+				if (vert.X > max.X) max.X = vert.X;
+				if (vert.X < min.X) min.X = vert.X;
+				if (vert.Y > max.Y) max.Y = vert.Y;
+				if (vert.Y < min.Y) min.Y = vert.Y;
+				if (vert.Z > max.Z) max.Z = vert.Z;
+				if (vert.Z < min.Z) min.Z = vert.Z;
+			}
+
+			max *= 2f;
+			min *= 2f;
+
+			if (max.X - min.X < 9.95f) return;
+			if (max.Y - min.Y < 9.95f) return;
+
+			const int epsilon_int = 30;
+			var modulo = ((uint)((max.X - min.X) * 100)) % 1000;
+			if(modulo < 1000 - epsilon_int && modulo > epsilon_int) return;
+
+			    modulo = ((uint)((max.Y - min.Y) * 100)) % 1000;
+			if (modulo < 1000 - epsilon_int && modulo > epsilon_int) return;
+
+			max /= 2f;
+			min /= 2f;
+
+			var computedNormals = new Jade_Vector[VerticesCount];
+			for (int i = 0; i < computedNormals.Length; i++)
+				computedNormals[i] = new Jade_Vector(0, 0, 0);
+
+
+			foreach (var el in Elements) {
+				foreach (var tri in el.Triangles) {
+					bool IsTouchBorder(Jade_Vector tst, Func<Jade_Vector, float> vfunc, out uint index1, out uint index2) {
+						var xOrY = vfunc(tst);
+						const float epsilon = (0.30f * 0.30f);
+						index1 = 0;
+						index2 = 0;
+						Jade_Vector tmp = new Jade_Vector(
+							MathF.Pow(vfunc(Vertices[tri.Vertex0]) - xOrY, 2),
+							MathF.Pow(vfunc(Vertices[tri.Vertex1]) - xOrY, 2),
+							MathF.Pow(vfunc(Vertices[tri.Vertex2]) - xOrY, 2)
+							);
+
+						if (tmp.X < epsilon && tmp.Y < epsilon) {
+							index1 = tri.Vertex0;
+							index2 = tri.Vertex1;
+							return true;
+						}
+						if (tmp.Y < epsilon && tmp.Z < epsilon) {
+							index1 = tri.Vertex1;
+							index2 = tri.Vertex2;
+							return true;
+						}
+						if (tmp.Z < epsilon && tmp.X < epsilon) {
+							index1 = tri.Vertex2;
+							index2 = tri.Vertex0;
+							return true;
+						}
+						return false;
+					}
+
+					uint a, b;
+
+					if (IsTouchBorder(max, v => v.X, out a, out b)) {
+						computedNormals[a].Y -= Vertices[b].Z - Vertices[a].Z;
+						computedNormals[b].Y -= Vertices[b].Z - Vertices[a].Z;
+						computedNormals[a].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+						computedNormals[b].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+					}
+					if (IsTouchBorder(min, v => v.X, out a, out b)) {
+						computedNormals[a].Y += Vertices[b].Z - Vertices[a].Z;
+						computedNormals[b].Y += Vertices[b].Z - Vertices[a].Z;
+						computedNormals[a].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+						computedNormals[b].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+					}
+					if (IsTouchBorder(max, v => v.Y, out a, out b)) {
+						computedNormals[a].X += Vertices[b].Z - Vertices[a].Z;
+						computedNormals[b].X += Vertices[b].Z - Vertices[a].Z;
+						computedNormals[a].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+						computedNormals[b].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+					}
+					if (IsTouchBorder(min, v => v.Y, out a, out b)) {
+						computedNormals[a].X -= Vertices[b].Z - Vertices[a].Z;
+						computedNormals[b].X -= Vertices[b].Z - Vertices[a].Z;
+						computedNormals[a].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+						computedNormals[b].Z += Jade_Vector.Distance(Vertices[b], Vertices[a]);
+					}
+				}
+			}
+
+
+			for (int i = 0; i < computedNormals.Length; i++) {
+				if (computedNormals[i].Z != 0) {
+					Normals[i] = computedNormals[i].Normalize();
 				}
 			}
 		}

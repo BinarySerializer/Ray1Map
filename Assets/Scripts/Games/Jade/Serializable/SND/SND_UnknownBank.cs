@@ -2,10 +2,11 @@
 
 namespace Ray1Map.Jade {
 	public class SND_UnknownBank : Jade_File {
-		public Jade_FileType Type { get; set; }
+		public Jade_FileType ElementType { get; set; }
 		public uint HeaderFileSize { get; set; } = 4;
 		public uint ContainedFileSize { get; set; }
 		public Jade_File File { get; set; }
+		public override string Export_Extension => File?.Export_Extension;
 
 		// Irregular Jade_File format. The filesize is only read after the type
 		protected override void OnPreSerialize(SerializerObject s) {
@@ -15,14 +16,14 @@ namespace Ray1Map.Jade {
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
 						HeaderFileSize = s.Serialize<uint>(HeaderFileSize, name: nameof(HeaderFileSize));
 					}
-					Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+					ElementType = s.SerializeObject<Jade_FileType>(ElementType, name: nameof(ElementType));
 					ContainedFileSize = s.Serialize<uint>(ContainedFileSize, name: nameof(ContainedFileSize));
 					var ptr = s.CurrentPointer;
 					FileSize = ContainedFileSize + (uint)(ptr - Offset);
 					ptr.File.AddRegion(ptr.FileOffset, ContainedFileSize, $"{GetType().Name}_{Key:X8}");
 				} else {
 					s.DoAt(Offset + 4, () => {
-						Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+						ElementType = s.SerializeObject<Jade_FileType>(ElementType, name: nameof(ElementType));
 					});
 					ContainedFileSize = FileSize;
 				}
@@ -31,7 +32,7 @@ namespace Ray1Map.Jade {
 
 		protected override void SerializeFile(SerializerObject s) {
 			// Serialize file inline
-			if (Type.Type == Jade_FileType.FileType.SND_Metabank) {
+			if (ElementType.Type == Jade_FileType.FileType.SND_Bank) {
 				File = s.SerializeObject<SND_Metabank>((SND_Metabank)File, onPreSerialize: f => {
 					f.Key = Key;
 					f.FileSize = ContainedFileSize;

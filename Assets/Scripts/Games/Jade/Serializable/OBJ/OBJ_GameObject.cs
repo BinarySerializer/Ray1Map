@@ -52,7 +52,7 @@ namespace Ray1Map.Jade {
 		protected override void SerializeFile(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
 			if(FileType.Type != Jade_FileType.FileType.OBJ_GameObject)
-				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
+				throw new BinarySerializableException(this, $"Parsing failed: File was not of type {Jade_FileType.FileType.OBJ_GameObject}");
 			if(Loader?.WorldToLoadIn != null) Loader.WorldToLoadIn.SerializedGameObjects.Add(this);
 
 			if (!Loader.IsBinaryData

@@ -236,6 +236,69 @@ namespace Ray1Map {
 			Debug.Log($"Finished export");
 		}
 
+		public async UniTask FixNormals(GameSettings settings, string inputDir, string outputDir) {
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: true, initSound: true);
+				loader.LoadSingle = true;
+				var texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+
+				Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]> textGroups
+					= new Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]>();
+
+				var zero = Jade_Vector.Zero;
+				foreach (var kvp in loader.FileInfos) {
+					var fileInfo = kvp.Value;
+					if (fileInfo.FileName != null && fileInfo.FileName.EndsWith(".gro")) {
+
+						try {
+							Jade_Reference<GEO_Object> groRef = new Jade_Reference<GEO_Object>(context, fileInfo.Key);
+							groRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							if (groRef.Value?.RenderObject?.Value == null) continue;
+
+							GEO_GeometricObject geo = groRef.Value.RenderObject.Value as GEO_GeometricObject;
+							if (geo != null && geo.Normals != null && geo.Normals.All(n => n == zero)) {
+								geo.ComputeNormals();
+
+								using (var writeContext = new Ray1MapContext(outputDir, settings)) {
+									// Set up loader
+									LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
+										Raw_WriteFilesAlreadyInBF = true,
+										Raw_UseOriginalFileNames = true,
+									};
+									writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
+
+									Jade_Reference<GEO_Object> wave = new Jade_Reference<GEO_Object>(writeContext, groRef.Key) {
+										Value = groRef.Value
+									};
+									wave.Resolve();
+
+									var s = writeContext.Serializer;
+									await writeloader.LoadLoop(s);
+								}
+							}
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					}
+				}
+			}
+
+			// Unload textures
+			await Controller.WaitIfNecessary();
+			await Resources.UnloadUnusedAssets();
+
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+			GC.WaitForPendingFinalizers();
+
+			Debug.Log($"Finished export");
+		}
 
 		public async UniTask TempTools(GameSettings settings, string inputDir, string outputDir) {
 			using (var context = new Ray1MapContext(settings)) {

@@ -72,5 +72,10 @@ namespace Ray1Map.Jade
 
 			((SND_WaveChunk_Data)dataChunk.Chunk).SerializeData(s);
 		}
+		public void Merge(SND_Wave wave) {
+			Chunks = wave.Chunks;
+			FileSize = wave.FileSize;
+			WaveData = wave.WaveData;
+		}
 	}
 }

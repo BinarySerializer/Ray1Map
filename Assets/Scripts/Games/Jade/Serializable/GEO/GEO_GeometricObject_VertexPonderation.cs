@@ -16,7 +16,7 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			s.DoBits<uint>(b => {
 				Index = b.SerializeBits<ushort>(Index, 16, name: nameof(Index));
-				WeightUpperBits = b.SerializeBits<short>(WeightUpperBits, 16, name: nameof(WeightUpperBits));
+				WeightUpperBits = b.SerializeBits<short>(WeightUpperBits, 16, sign: SignedNumberRepresentation.TwosComplement, name: nameof(WeightUpperBits));
 			});
 		}
 

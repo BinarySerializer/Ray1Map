@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Jade {
     public class SND_Metabank : Jade_File {
-		public override string Export_Extension => "snk";
+		public override string Export_Extension => "msk";
 
 		public uint Count { get; set; }
         public SoundRef[] References { get; set; }

@@ -509,6 +509,27 @@ namespace Ray1Map {
 					await UniTask.CompletedTask;
 				});
 				await loader.LoadLoop(context.Deserializer);
+
+				loader.EndSpeedMode();
+				loader.IsLoadingFix = false;
+
+				// Also load waves outside of bin
+				List<Jade_Reference<SND_Wave>> wavesOutsideBin = new List<Jade_Reference<SND_Wave>>();
+				for (int i = 0; i < (sndList.Waves?.Count ?? 0); i++) {
+					if (loader.FileInfos.ContainsKey(sndList.Waves[i].Key)) {
+						Jade_Reference<SND_Wave> wave = new Jade_Reference<SND_Wave>(context, sndList.Waves[i].Key);
+						wave?.Resolve(flags: LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache);
+						wavesOutsideBin.Add(wave);
+					}
+				}
+				await loader.LoadLoop(context.Deserializer);
+
+				// Merge them, overwriting the data inside 
+				foreach (var wave in wavesOutsideBin) {
+					var toMerge = sndList?.Waves?.FindItem(w => w.Key == wave.Key);
+					toMerge.Merge(wave?.Value);
+				}
+
 			}
 			loader.EndSpeedMode();
 			loader.IsLoadingFix = false;

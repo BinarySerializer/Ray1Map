@@ -2,7 +2,7 @@
 
 namespace Ray1Map.Jade {
 	public class SPG2_Modifier : MDF_Modifier {
-		public uint UInt_00 { get; set; }
+		public uint DataSize { get; set; }
 		public uint Version { get; set; }
 		public uint Flags { get; set; }
 		public float GlobalSize { get; set; }
@@ -65,12 +65,12 @@ namespace Ray1Map.Jade {
 		public float HeatShimmerHeight { get; set; }
 
 		public float HeatShimmerOpacity { get; set; }
-		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
+		public Jade_Reference<OBJ_GameObject> SPG2Holder { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			GlobalSize = s.Serialize<float>(GlobalSize, name: nameof(GlobalSize));
@@ -146,9 +146,19 @@ namespace Ray1Map.Jade {
 					HeatShimmerOpacity = s.Serialize<float>(HeatShimmerOpacity, name: nameof(HeatShimmerOpacity));
 				}
 				if (Version >= 0x111) {
-					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
+					SPG2Holder = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(SPG2Holder, name: nameof(SPG2Holder))?.Resolve();
 				}
 			}
+		}
+
+		protected override void OnChangeContext(Context oldContext, Context newContext) {
+			base.OnChangeContext(oldContext, newContext);
+			/*if (oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR) && !newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+				if (BitHelpers.ExtractBits64(Flags1, 1, 8) != 0) {
+					Flags1 = (uint)BitHelpers.SetBits64(Flags1, 0, 1, 8); // Remove unknown flag
+					Flags = (uint)BitHelpers.SetBits64(Flags, 1, 1, 24); // DontCache
+				}
+			}*/
 		}
 	}
 }

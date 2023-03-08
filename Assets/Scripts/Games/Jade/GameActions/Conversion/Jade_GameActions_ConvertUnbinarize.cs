@@ -303,10 +303,10 @@ namespace Ray1Map {
 					levIndex++;
 					continue;
 				}*/
-				if (!(lev?.MapName?.ToLower()?.Contains("gladiator") ?? false)) {
+				/*if (!(lev?.MapName?.ToLower()?.Contains("gladiator") ?? false)) {
 					levIndex++;
 					continue;
-				}
+				}*/
 				/*if (!(lev?.MapName.Contains("Finger_Guess") ?? false)) {
 					levIndex++;
 					continue;
@@ -316,10 +316,19 @@ namespace Ray1Map {
 
 				try {
 					using (var context = new Ray1MapContext(settings)) {
+						bool removeSound = (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)
+										|| (targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype && targetMode != GameModeSelection.RaymanRavingRabbidsPC));
+
+
 						currentKey = 0;
 						await LoadFilesAsync(context);
 						if (exportForDifferentGameMode) {
-							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound);
+							var lf = LoadFlags.Maps | LoadFlags.Textures;
+							lf |= LoadFlags.TextNoSound;
+							if (!removeSound) {
+								lf |= LoadFlags.TextSound | LoadFlags.Sounds;
+							}
+							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), lf);
 						} else {
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.All);
 						}
@@ -331,7 +340,8 @@ namespace Ray1Map {
 							if (targetMode.Value == GameModeSelection.RaymanRavingRabbidsPCPrototype
 								&& context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR) {
 								foreach (var w in worlds) {
-									if (w.Name.StartsWith("_basic_")) {
+									if (w.Name == "_basic_global" || w.Name == "_basic_Rayman") {
+										w.Name += "_imported";
 										var gaos = w.GameObjects?.Value?.GameObjects;
 										if (gaos != null) {
 											foreach (var gaoRef in gaos) {
@@ -349,7 +359,9 @@ namespace Ray1Map {
 							foreach (var w in worlds) {
 								//w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
 								foreach (var gao in w.SerializedGameObjects) {
-									gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
+									if (removeSound) {
+										gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
+									}
 									if (allowedAI.Any()) {
 										if (gao.Extended?.AI?.Value != null) {
 											// Check if AI is supported by target mode
@@ -497,11 +509,19 @@ namespace Ray1Map {
 												}
 											}
 										}
-										gao.Extended.Modifiers = gao.Extended.Modifiers
-											.Where(m =>
-												m.Type != MDF_ModifierType.GEN_ModifierSound && m.Type != MDF_ModifierType.MDF_LoadingSound && m.Type != MDF_ModifierType.GEN_ModifierSoundFx
-												&& rrrPC_supportedModifiers.Contains((int)m.Type))
-											.ToArray();
+										if (removeSound) {
+											gao.Extended.Modifiers = gao.Extended.Modifiers
+												.Where(m =>
+													m.Type != MDF_ModifierType.GEN_ModifierSound
+													&& m.Type != MDF_ModifierType.MDF_LoadingSound
+													&& m.Type != MDF_ModifierType.GEN_ModifierSoundFx
+													&& rrrPC_supportedModifiers.Contains((int)m.Type))
+												.ToArray();
+										} else {
+											gao.Extended.Modifiers = gao.Extended.Modifiers
+												.Where(m => rrrPC_supportedModifiers.Contains((int)m.Type))
+												.ToArray();
+										}
 										if (gao.Extended.Modifiers.Length == 0
 											|| (gao.Extended.Modifiers.Length == 1 && gao.Extended.Modifiers[0].Type == MDF_ModifierType.None)) gao.Extended.HasModifiers = 0;
 									}
@@ -544,7 +564,7 @@ namespace Ray1Map {
 										var cobDir = $"{wowDir}/Collision Objects";
 										var cinDir = $"{wowDir}/COL Instances";
 										var lnkDir = $"{wowDir}/Links";
-										var aiDir = $"{wowDir}/AI Instances";
+										var aiDir  = $"{wowDir}/AI Instances";
 										var rliDir = $"{wowDir}/Game Objects RLI";
 										var grpDir = $"{wowDir}/Groups";
 										var gaoPrio = 10000 / objects.Length;

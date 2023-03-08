@@ -120,8 +120,8 @@ namespace Ray1Map.Jade {
             } else {
                 Sound.Resolve(s);
             }
-            FadeIn.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
-            FadeOut.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
+            FadeIn.Resolve(onPreSerialize: (_,f) => f.IsFade = true, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
+            FadeOut.Resolve(onPreSerialize: (_, f) => f.IsFade = true, flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
             foreach(var insert in InsertList)
                 insert.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
         }

@@ -38,7 +38,8 @@ namespace Ray1Map.Jade {
 			[".ttt"] = FileType.AI_TT,
 
 			// Sound
-			[".snk"] = FileType.SND_Metabank,
+			[".msk"] = FileType.SND_Metabank,
+			[".snk"] = FileType.SND_Bank,
 			[".smd"] = FileType.SND_SModifier,
 			[".wav"] = FileType.SND_Sound,
 			[".wac"] = FileType.SND_LoadingSound,
@@ -70,6 +71,7 @@ namespace Ray1Map.Jade {
 			AI_TT,
 			AI_Function,
 			SND_Metabank,
+			SND_Bank,
 			SND_Sound,
 			SND_LoadingSound,
 			SND_Dialog,
