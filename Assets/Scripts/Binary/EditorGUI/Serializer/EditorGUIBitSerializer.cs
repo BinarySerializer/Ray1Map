@@ -14,6 +14,13 @@ namespace BinarySerializer.Unity.Editor
 			return t;
 		}
 
+        public override T? SerializeNullableBits<T>(T? value, int length, string name = null)
+        {
+            T? t = SerializerObject.SerializeNullable<T>(value, name);
+            Position += length;
+            return t;
+        }
+
         public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
         {
             throw new NotImplementedException();
