@@ -18,7 +18,16 @@ public class UnityWindowBitSerializer : BitSerializerObject
         return t;
     }
 
-	public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
+    public override T? SerializeNullableBits<T>(T? value, int length, string name = null)
+    {
+        T? t = SerializerObject.SerializeNullable<T>(value, name);
+
+        Position += length;
+
+        return t;
+    }
+
+    public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
         SerializerObject.CurrentName.Add(name);
 
         var fullName = SerializerObject.GetFullName(name);

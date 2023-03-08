@@ -188,6 +188,12 @@ namespace BinarySerializer.Unity.Editor {
             throw new NotImplementedException();
         }
 
+        public override bool SerializeBoolean<T>(bool obj, string name = null)
+        {
+            name ??= DefaultName;
+            return EditorGUILayout.Toggle(name, obj);
+        }
+
         public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
 		{
 			if (obj == null)
