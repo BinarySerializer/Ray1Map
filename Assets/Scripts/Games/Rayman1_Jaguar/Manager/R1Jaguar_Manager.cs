@@ -490,7 +490,7 @@ namespace Ray1Map.Rayman1_Jaguar
             if (d.IsDummySprite())
                 return null;
 
-            bool is8Bit = BitHelpers.ExtractBits(d.JAG_Byte_0E, 1, 4) != 0;
+            bool is8Bit = d.Depth != SpriteDepth.BPP_4;
 
             // Make sure the index is not out of bounds
             if (d.ImageBufferOffset + ((d.Height * d.Width) / (is8Bit ? 1 : 2)) > imgBuffer.Length)
@@ -520,7 +520,7 @@ namespace Ray1Map.Rayman1_Jaguar
                     }
                     else
                     {
-                        int indexInPal = BitHelpers.ExtractBits(d.JAG_Byte_0A, 4, 1);
+                        int indexInPal = d.SubPaletteIndex;
                         palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
                         palIndex = BitHelpers.ExtractBits(palIndex, 4, index % 2 == 0 ? 4 : 0);
 
@@ -1189,7 +1189,7 @@ namespace Ray1Map.Rayman1_Jaguar
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[1],
-                    MapTiles = map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
+                    MapTiles = map.Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
                 }
             };
 

@@ -233,8 +233,9 @@ namespace Ray1Map.Rayman1
         /// <returns>The texture</returns>
         public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite img)
         {
-            if (img.ImageType != 2 && img.ImageType != 3) return null;
-            if (img.Unknown2 == 0) return null;
+            if (img.IsDummySprite())
+                return null;
+
             ImageBuffer buf = context.GetRequiredStoredObject<ImageBuffer>("vram");
 
             // Get the image properties
@@ -248,20 +249,20 @@ namespace Ray1Map.Rayman1
             ushort paletteOffset;
 
             var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
-            var isFont = context.GetStoredObject<PS1_Alpha[]>("Font")?.SelectMany(x => x.Sprites.Sprites).Contains(img) == true;
+            var isFont = context.GetStoredObject<PS1_Alpha[]>("Font")?.SelectMany(x => x.Sprites).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
-            if (img.ImageType == 3) {
+            if (img.Depth == SpriteDepth.BPP_8) {
                 //paletteOffset = 20 * 256;
                 paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256));
             } else {
-                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.Saturn_PaletteInfo >> 8)) * 16);
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256) + img.SubPaletteIndex * 16);
                 //paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.Unknown2 >> 4) - 1) * 16);
                 //paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
             }
 
             // Set every pixel
-            if (img.ImageType == 3) {
+            if (img.Depth == SpriteDepth.BPP_8) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
                         var paletteIndex = buf.GetPixel8((uint)(offset + width * y + x));
@@ -276,7 +277,7 @@ namespace Ray1Map.Rayman1
                         tex.SetPixel(x, height - 1 - y, color);
                     }
                 }
-            } else if (img.ImageType == 2) {
+            } else if (img.Depth == SpriteDepth.BPP_4) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
                         var paletteIndex = buf.GetPixel8((uint)(offset + (width * y + x) / 2));
@@ -356,7 +357,7 @@ namespace Ray1Map.Rayman1
             }
             else
             {
-                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+                mapData = new MapData(384 / Settings.CellSize, 288 / Settings.CellSize);
             }
 
             // Load the texture files

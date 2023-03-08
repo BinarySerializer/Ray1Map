@@ -193,7 +193,7 @@ namespace Ray1Map.Rayman1
                 var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
 
                 // Enumerate every image descriptor
-                foreach (var img in g.SpriteCollection.Sprites)
+                foreach (var img in g.Sprites)
                 {
                     // Get the texture
                     var tex = GetSpriteTexture(context, g.ImageBuffer, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(settings));
@@ -220,8 +220,8 @@ namespace Ray1Map.Rayman1
                 var extDES = 0;
 
                 // Hard-code to 64x64 for now
-                const ushort width = 64;
-                const ushort height = 64;
+                const short width = 64;
+                const short height = 64;
 
                 s.DoAt(context.GetRequiredPreDefinedPointer(GBA_DefinedPointer.MultiplayerImgBuffers, file), () =>
                 {
@@ -248,7 +248,7 @@ namespace Ray1Map.Rayman1
                         {
                             Width = width,
                             Height = height,
-                            Index = 1 // Make sure it's not treated as a dummy sprite
+                            Id = 1 // Make sure it's not treated as a dummy sprite
                         };
 
                         d.Init(s.CurrentPointer); // Init so it has a context, which is used for a check
@@ -350,7 +350,7 @@ namespace Ray1Map.Rayman1
                     var imgIndex = 0;
 
                     // Enumerate every image descriptor
-                    foreach (var img in g.SpriteCollection.Sprites)
+                    foreach (var img in g.Sprites)
                     {
                         // Get the texture
                         var tex = GetSpriteTexture(context, g.ImageBuffer, img, data.GetSpritePalettes(settings));
@@ -926,7 +926,7 @@ namespace Ray1Map.Rayman1
                 bg = GetVignetteTexture(data.WorldMapVignette);
                 bg2 = null;
 
-                mapData = MapData.GetEmptyMapData(bg.width / Settings.CellSize, bg.height / Settings.CellSize);
+                mapData = new MapData(bg.width / Settings.CellSize, bg.height / Settings.CellSize);
                 tileset = new Unity_TileSet(Settings.CellSize);
 
                 eventData = null;
@@ -948,7 +948,7 @@ namespace Ray1Map.Rayman1
                     {
                         tileset
                     },
-                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
+                    MapTiles = mapData.Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
                 }
             };
 
@@ -967,7 +967,7 @@ namespace Ray1Map.Rayman1
                 };
 
                 // Get every sprite
-                foreach (Sprite img in graphics.SpriteCollection.Sprites)
+                foreach (Sprite img in graphics.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, graphics.ImageBuffer, img, spritePalette);
@@ -976,12 +976,12 @@ namespace Ray1Map.Rayman1
                     finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                 }
 
-                if (graphics.AnimationCollection != null)
+                if (graphics.Animations != null)
                     // Add animations
-                    finalDesign.Animations.AddRange(graphics.AnimationCollection.Animations.Select(x => x.ToCommonAnimation()));
+                    finalDesign.Animations.AddRange(graphics.Animations.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers, x.LayersCount, x.FramesCount)));
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.SpriteCollection.Sprites, graphics.SpritesPointer, graphics.AnimationsPointer, graphics.ImageBufferPointer), graphics.SpritesPointer));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.Sprites, graphics.SpritesPointer, graphics.AnimationsPointer, graphics.ImageBufferPointer), graphics.SpritesPointer));
             }
 
             // Helper for loading ETA
@@ -1112,7 +1112,7 @@ namespace Ray1Map.Rayman1
                         var e = new ObjData()
                         {
                             Type = dat.Type,
-                            Etat = dat.Etat,
+                            MainEtat = dat.Etat,
                             SubEtat = dat.SubEtat,
                             XPosition = dat.XPosition,
                             YPosition = dat.YPosition,
@@ -1121,7 +1121,7 @@ namespace Ray1Map.Rayman1
                             OffsetHY = dat.OffsetHY,
                             FollowSprite = dat.FollowSprite,
                             ActualHitPoints = dat.HitPoints,
-                            UnusedDisplayPrio = (byte)dat.DisplayPrio,
+                            InitFlag = dat.InitFlag,
                             HitSprite = dat.HitSprite,
 
                             SpritesPointer = graphics.SpritesPointer,
@@ -1133,7 +1133,7 @@ namespace Ray1Map.Rayman1
                             LabelOffsets = new ushort[0]
                         };
 
-                        e.SetFollowEnabled(context.GetRequiredSettings<Ray1Settings>(), dat.FollowEnabled);
+                        e.FollowEnabled = dat.FollowEnabled;
 
                         // Add the event
                         events.Add(new Unity_Object_R1(e, objManager));
@@ -1142,10 +1142,10 @@ namespace Ray1Map.Rayman1
             }
             else
             {
-                events.AddRange(data.WorldInfos.Select((x, i) => new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)));
+                events.AddRange(data.WorldInfos.Select((x, i) => new Unity_Object_R1(ObjData.CreateMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)));
             }
 
-            var ray = ObjData.GetRayman(context, events.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS)?.EventData);
+            var ray = ObjData.CreateRayman(context, events.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS)?.EventData);
 
             ray.ImageBufferPointer = data.DES_Ray.ImageBufferPointer;
             ray.SpritesPointer = data.DES_Ray.SpritesPointer;

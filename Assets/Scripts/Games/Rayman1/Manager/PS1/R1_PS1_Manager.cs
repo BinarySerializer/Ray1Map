@@ -123,7 +123,7 @@ namespace Ray1Map.Rayman1
             {
                 await LoadExtraFile(context, GetFontFilePath(context.GetR1Settings()), false);
 
-                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+                mapData = new MapData(384 / Settings.CellSize, 288 / Settings.CellSize);
             }
 
             // Load the level
@@ -158,7 +158,7 @@ namespace Ray1Map.Rayman1
                 for (int x = 0; x < lvlData.MapData.Width; x++)
                 {
                     // Set the tile
-                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = lvl.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data.ToR1MapTile();
+                    lvlData.MapData.Blocks[y * lvlData.MapData.Width + x] = lvl.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data.ToR1MapTile();
                 }
             }
 
@@ -166,25 +166,16 @@ namespace Ray1Map.Rayman1
             {
                 var ed = e.EventData;
 
-                if (ed.PS1Demo_Unk1 == null)
-                    ed.PS1Demo_Unk1 = new byte[40];
-
-                if (ed.CollisionTypes == null)
-                    ed.CollisionTypes = new TileCollisionType[5];
-
-                if (ed.CommandContexts == null)
-                    ed.CommandContexts = new ObjData.CommandContext[]
-                    {
-                        new ObjData.CommandContext()
-                    };
+                ed.BlockTypes ??= new BlockType[5];
+                ed.CommandContexts ??= new[] { new CommandContext() };
 
                 // TODO: Do this in the Unity_Object instead
                 ed.SpritesCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 ed.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // TODO: Get from DESData in obj manager instead?
-                ed.SpriteCollection = FileFactory.Read<SpriteCollection>(context, ed.SpritesPointer, (s, o) => o.Pre_SpritesCount = ed.SpritesCount);
-                ed.AnimationCollection = FileFactory.Read<AnimationCollection>(context, ed.AnimationsPointer, (s, o) => o.Pre_AnimationsCount = ed.AnimationsCount);
+                ed.Sprites = FileFactory.Read<ObjectArray<Sprite>>(context, ed.SpritesPointer, (s, o) => o.Pre_Length = ed.SpritesCount);
+                ed.Animations = FileFactory.Read<ObjectArray<Animation>>(context, ed.AnimationsPointer, (s, o) => o.Pre_Length = ed.AnimationsCount);
                 ed.ETA = context.Cache.FromOffset<BinarySerializer.Ray1.ETA>(ed.ETAPointer);
                 
                 // TODO: Update this

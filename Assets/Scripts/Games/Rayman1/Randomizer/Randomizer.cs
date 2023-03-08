@@ -65,14 +65,14 @@ namespace Ray1Map
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetRequiredSettings<Ray1Settings>(), random.Next(0, 1) == 1);
+                    eventData.EventData.FollowEnabled = random.Next(0, 1) == 1;
                     eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.States))
                 {
-                    eventData.EventData.Etat = (byte)random.Next(0, ((Unity_ObjectManager_R1)level.ObjManager).ETA[eventData.ETAIndex].Data.Length - 1);
-                    eventData.EventData.SubEtat = (byte)random.Next(0, ((Unity_ObjectManager_R1)level.ObjManager).ETA[eventData.ETAIndex].Data[eventData.EventData.Etat].Length - 1);
+                    eventData.EventData.MainEtat = (byte)random.Next(0, ((Unity_ObjectManager_R1)level.ObjManager).ETA[eventData.ETAIndex].Data.Length - 1);
+                    eventData.EventData.SubEtat = (byte)random.Next(0, ((Unity_ObjectManager_R1)level.ObjManager).ETA[eventData.ETAIndex].Data[eventData.EventData.MainEtat].Length - 1);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Type))

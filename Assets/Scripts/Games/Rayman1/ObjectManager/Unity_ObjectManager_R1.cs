@@ -116,7 +116,7 @@ namespace Ray1Map.Rayman1
             GeneralEventInfoData findMatch(EventMatchFlags flags)
             {
                 return AvailableEvents.FindItem(x => (!flags.HasFlag(EventMatchFlags.Type) || x.Type == (ushort)e.Type) &&
-                                                     (!flags.HasFlag(EventMatchFlags.Etat) || x.Etat == e.Etat) &&
+                                                     (!flags.HasFlag(EventMatchFlags.Etat) || x.Etat == e.MainEtat) &&
                                                      (!flags.HasFlag(EventMatchFlags.SubEtat) || x.SubEtat == e.SubEtat) &&
                                                      (!flags.HasFlag(EventMatchFlags.OffsetBX) || x.OffsetBX == e.OffsetBX) &&
                                                      (!flags.HasFlag(EventMatchFlags.OffsetBY) || x.OffsetBY == e.OffsetBY) &&
@@ -124,13 +124,13 @@ namespace Ray1Map.Rayman1
                                                      (!flags.HasFlag(EventMatchFlags.FollowSprite) || x.FollowSprite == e.FollowSprite) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitPoints) || x.HitPoints == e.ActualHitPoints) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitSprite) || x.HitSprite == e.HitSprite) &&
-                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetRequiredSettings<Ray1Settings>())) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.FollowEnabled) &&
                                                      (!flags.HasFlag(EventMatchFlags.Commands) || compareCommands(x)));
             }
 
             // Log if not found
             if (match == null && AvailableEvents.Any())
-                Debug.LogWarning($"Matching event not found for event with type {e.Type}, etat {e.Etat} & subetat {e.SubEtat} in level {Settings.World}-{Settings.Level}");
+                Debug.LogWarning($"Matching event not found for event with type {e.Type}, etat {e.MainEtat} & subetat {e.SubEtat} in level {Settings.World}-{Settings.Level}");
 
             // Return the item
             return match;
@@ -212,7 +212,7 @@ namespace Ray1Map.Rayman1
             var eventData = new Unity_Object_R1(new ObjData()
             {
                 Type = (ObjType)e.Type,
-                Etat = e.Etat,
+                MainEtat = e.Etat,
                 SubEtat = e.SubEtat,
                 OffsetBX = e.OffsetBX,
                 OffsetBY = e.OffsetBY,
@@ -223,7 +223,7 @@ namespace Ray1Map.Rayman1
                 LabelOffsets = labelOffsets
             }, this, ETAIndex: ETA.FindItemIndex(x => x.Name == e.ETA));
 
-            eventData.EventData.SetFollowEnabled(Context.GetRequiredSettings<Ray1Settings>(), e.FollowEnabled);
+            eventData.EventData.FollowEnabled = e.FollowEnabled;
 
             // We need to set the hit points after the type
             eventData.EventData.ActualHitPoints = e.HitPoints;
@@ -333,7 +333,7 @@ namespace Ray1Map.Rayman1
                 // Set Rayman's properties
                 if (rayman != null)
                 {
-                    rayman.EventData.Etat = rayman.EventData.InitialEtat = 0;
+                    rayman.EventData.MainEtat = rayman.EventData.InitialMainEtat = 0;
                     rayman.EventData.SubEtat = rayman.EventData.InitialSubEtat = 0;
 
                     if (Context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
@@ -347,7 +347,7 @@ namespace Ray1Map.Rayman1
                         // ?
                         rayman.XPosition = (short)(level.EventData[0].XPosition + 42 + 44 - rayman.EventData.OffsetBX);
                         rayman.YPosition = (short)(level.EventData[0].YPosition + 48 + 24 - rayman.EventData.OffsetBY);
-                        rayman.EventData.PC_Flags |= ObjData.PC_ObjFlags.IsFlipped;
+                        rayman.EventData.FlipX = true;
                     }
                     else
                     {
@@ -377,7 +377,7 @@ namespace Ray1Map.Rayman1
         {
             foreach (var obj in objects.OfType<Unity_Object_R1>())
             {
-                obj.EventData.Etat = obj.EventData.InitialEtat;
+                obj.EventData.MainEtat = obj.EventData.InitialMainEtat;
                 obj.EventData.SubEtat = obj.EventData.InitialSubEtat;
 
                 // TODO: Set other runtime values like hp etc.?
@@ -446,7 +446,7 @@ namespace Ray1Map.Rayman1
 
                 if (s is BinarySerializer.BinarySerializer)
                 {
-                    Debug.Log($"Edited event {ed.EventData.Index}");
+                    Debug.Log($"Edited event {ed.EventData.Id}");
                     madeEdits = true;
                 }
 

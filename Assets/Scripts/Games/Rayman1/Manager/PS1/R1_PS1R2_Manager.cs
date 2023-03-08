@@ -230,7 +230,7 @@ namespace Ray1Map.Rayman1
 
             var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(context, levelSPRPath, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
 
-            var imgDescriptors = lvlData.FixSpriteCollection.Sprites.Concat(lvlImgDescriptors).ToArray();
+            var imgDescriptors = lvlData.FixSprites.Concat(lvlImgDescriptors).ToArray();
 
             // Get every sprite
             var globalDesigns = imgDescriptors.Select(img => GetSpriteTexture(context, null, img)).Select(tex => tex == null ? null : tex.CreateSprite()).ToArray();
@@ -256,7 +256,7 @@ namespace Ray1Map.Rayman1
                 // Add DES and ETA
                 return new Unity_ObjectManager_R2.AnimGroup(
                     pointer: animGroup?.Offset, eta: animGroup?.ETA.States ?? new ObjState[0][], 
-                    animations: animGroup?.Animations?.Select(x => x.ToCommonAnimation()).ToArray(), 
+                    animations: animGroup?.Animations?.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers.SelectMany(l => l).ToArray(), x.LayersPerFrame, x.FramesCount)).ToArray(), 
                     filePath: animGroup?.AnimationsPointer?.File.FilePath);
             }
 
@@ -319,7 +319,7 @@ namespace Ray1Map.Rayman1
                 level.Maps[i].TileSet[0] = tileSet;
 
                 // Set the tiles
-                level.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray();
+                level.Maps[i].MapTiles = maps[i].Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray();
             }
 
             // Return the level

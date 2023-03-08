@@ -75,8 +75,8 @@ namespace Ray1Map
         public Unity_Level Init()
         {
             EventData ??= new List<Unity_SpriteObject>();
-            GetCollisionTypeNameFunc ??= x => ((TileCollisionType)x).ToString();
-            GetCollisionTypeGraphicFunc ??= x => ((TileCollisionType)x).GetCollisionTypeGraphic();
+            GetCollisionTypeNameFunc ??= x => ((BlockType)x).ToString();
+            GetCollisionTypeGraphicFunc ??= x => ((BlockType)x).GetCollisionTypeGraphic();
 
             CameraClear?.Apply();
 

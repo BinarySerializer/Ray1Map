@@ -344,7 +344,7 @@ public class SettingsWindow : UnityWindow
                         {
                             Width = map.Width,
                             Height = map.Height,
-                            Tiles = map.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray()
+                            Blocks = map.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray()
                         };
                         const string fileName = "MapExport";
                         var dataStream = new MemoryStream();

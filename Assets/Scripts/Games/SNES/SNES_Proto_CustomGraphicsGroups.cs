@@ -31,8 +31,8 @@ namespace Ray1Map.SNES
         public static JAG_Animation[] Enemy_Animations => new JAG_Animation[] {
             // Enemy normal
             new JAG_Animation() {
-                LayersPerFrame = 3,
-                FrameCount = 8, // 4 frames, pingponged
+                LayersCount = 3,
+                FramesCount = 8, // 4 frames, pingponged
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 0
                         new AnimationLayer() { XPosition = 11, YPosition = 4, SpriteIndex = 2 }, // Back
@@ -78,8 +78,8 @@ namespace Ray1Map.SNES
             },
             // Enemy surprised / stinger
             new JAG_Animation() {
-                LayersPerFrame = 4,
-                FrameCount = 9,
+                LayersCount = 4,
+                FramesCount = 9,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 0
                         new AnimationLayer() { XPosition = 0, YPosition = 4, SpriteIndex = 1 }, // Body
@@ -139,8 +139,8 @@ namespace Ray1Map.SNES
             },
             // Enemy vertical
             new JAG_Animation() {
-                LayersPerFrame = 3,
-                FrameCount = 6,
+                LayersCount = 3,
+                FramesCount = 6,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 0
                         new AnimationLayer() { XPosition = 0, YPosition = 11, SpriteIndex = 10 }, // Back
@@ -176,8 +176,8 @@ namespace Ray1Map.SNES
             },
             // Enemy vertical slope
             new JAG_Animation() {
-                LayersPerFrame = 2,
-                FrameCount = 6,
+                LayersCount = 2,
+                FramesCount = 6,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 0
                         new AnimationLayer() { XPosition = 4, YPosition = 8, SpriteIndex = 12 }, // Back
@@ -244,8 +244,8 @@ namespace Ray1Map.SNES
         public static JAG_Animation[] Orb_Animations => new JAG_Animation[] {
             // Orb normal
             new JAG_Animation() {
-                LayersPerFrame = 5,
-                FrameCount = 24,
+                LayersCount = 5,
+                FramesCount = 24,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Spark hidden
                         new AnimationLayer() { XPosition = 8, YPosition = 8, SpriteIndex = 1 },
@@ -419,8 +419,8 @@ namespace Ray1Map.SNES
             },
             // Orb collected
             new JAG_Animation() {
-                LayersPerFrame = 5,
-                FrameCount = 10,
+                LayersCount = 5,
+                FramesCount = 10,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 1: Disappearing
                         new AnimationLayer() { XPosition = 8, YPosition = 8, SpriteIndex = 9 },
@@ -555,8 +555,8 @@ namespace Ray1Map.SNES
         public static JAG_Animation[] Effect_Animations => new JAG_Animation[] {
             // Effect PAF
             new JAG_Animation() {
-                LayersPerFrame = 5,
-                FrameCount = 10,
+                LayersCount = 5,
+                FramesCount = 10,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] {
                         new AnimationLayer() { XPosition = 14, YPosition = 8, SpriteIndex = 43 },
@@ -633,8 +633,8 @@ namespace Ray1Map.SNES
 
             // Effect large
             new JAG_Animation() {
-                LayersPerFrame = 4,
-                FrameCount = 1,
+                LayersCount = 4,
+                FramesCount = 1,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] { // Frame 0: Huge explosion
                         new AnimationLayer() { XPosition = 1, YPosition = 1, SpriteIndex = 5 },
@@ -646,8 +646,8 @@ namespace Ray1Map.SNES
             },
             // Effect growing
             new JAG_Animation() {
-                LayersPerFrame = 4,
-                FrameCount = 8,
+                LayersCount = 4,
+                FramesCount = 8,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] {
                         new AnimationLayer() { XPosition = 9, YPosition = 9, SpriteIndex = 9 },
@@ -722,8 +722,8 @@ namespace Ray1Map.SNES
         public static JAG_Animation[] Fist_Animations => new JAG_Animation[] {
             // Fist normal
             new JAG_Animation() {
-                LayersPerFrame = 4,
-                FrameCount = 1,
+                LayersCount = 4,
+                FramesCount = 1,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] {
                         new AnimationLayer() { XPosition = 0, YPosition = 0, SpriteIndex = 1 },
@@ -735,8 +735,8 @@ namespace Ray1Map.SNES
             },
             // Fist gold
             new JAG_Animation() {
-                LayersPerFrame = 4,
-                FrameCount = 1,
+                LayersCount = 4,
+                FramesCount = 1,
                 Layers = new AnimationLayer[][] {
                     new AnimationLayer[] {
                         new AnimationLayer() { XPosition = 0, YPosition = 0, SpriteIndex = 5 },

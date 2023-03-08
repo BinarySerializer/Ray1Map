@@ -127,7 +127,7 @@ namespace Ray1Map.Rayman1
             {
                 await LoadExtraFile(context, GetFontFilePath(context.GetR1Settings()), false);
 
-                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+                mapData = new MapData(384 / Settings.CellSize, 288 / Settings.CellSize);
             }
 
             // Load the level

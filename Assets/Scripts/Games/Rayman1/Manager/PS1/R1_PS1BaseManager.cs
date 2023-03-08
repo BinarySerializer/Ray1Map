@@ -227,7 +227,7 @@ namespace Ray1Map.Rayman1
                 };
 
                 // Get every sprite
-                foreach (Sprite i in bg.Sprites.Sprites)
+                foreach (Sprite i in bg.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, null, i);
@@ -237,7 +237,7 @@ namespace Ray1Map.Rayman1
                 }
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.Sprites.Sprites, bg.Sprites.Sprites.First().Offset, null, null), bg.Offset));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.Sprites, bg.Sprites.First().Offset, null, null), bg.Offset));
             }
 
             // Load event templates
@@ -262,8 +262,8 @@ namespace Ray1Map.Rayman1
                     };
 
                     var s = context.Deserializer;
-                    var imgDescriptors = des.EventData?.SpriteCollection.Sprites ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"Sprites"));
-                    var animDescriptors = des.EventData?.AnimationCollection.Animations ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"Animations"));
+                    var imgDescriptors = des.EventData?.Sprites ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"Sprites"));
+                    var animDescriptors = des.EventData?.Animations ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"Animations"));
                     var imageBuffer = des.EventData?.ImageBuffer ?? s.DoAt(des.ImageBufferPointer, () => s.SerializeArray<byte>(default, des.ImageBufferLength ?? 0, name: $"ImageBuffer"));
 
                     // Get every sprite
@@ -277,7 +277,7 @@ namespace Ray1Map.Rayman1
                     }
 
                     // Add animations
-                    finalDesign.Animations.AddRange(animDescriptors.Select(x => x.ToCommonAnimation()));
+                    finalDesign.Animations.AddRange(animDescriptors.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers, x.LayersCount, x.FramesCount)));
 
                     var desName = des.Name ?? LevelEditorData.NameTable_R1PS1DES?.TryGetItem(des.ImageDescriptorsPointer?.File.FilePath)?.FindItem(x =>
                         x.Value.ImageDescriptors == des.ImageDescriptorsPointer?.AbsoluteOffset &&
@@ -330,7 +330,7 @@ namespace Ray1Map.Rayman1
             {
                 // Load map object events for the world map
                 objects = LoadEXE(context).WorldInfo.
-                    Select((x, i) => (Unity_SpriteObject)new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
+                    Select((x, i) => (Unity_SpriteObject)new Unity_Object_R1(ObjData.CreateMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
                     ToList();
             }
             else
@@ -359,7 +359,7 @@ namespace Ray1Map.Rayman1
                         tileSet
                     },
                     TileSetWidth = TileSetWidth,
-                    MapTiles = map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
+                    MapTiles = map.Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
                 }
             };
 
@@ -822,7 +822,7 @@ namespace Ray1Map.Rayman1
                     for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
                     {
                         // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites.Sprites[spriteIndex]);
+                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites[spriteIndex]);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -856,7 +856,7 @@ namespace Ray1Map.Rayman1
 
             async UniTask ExportEventSpritesAsync(Context context, ObjData e, string eventOutputDir, int desIndex)
             {
-                var sprites = e.SpriteCollection.Sprites.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
+                var sprites = e.Sprites.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 
                 if (!exportAnimFrames)
                 {
@@ -871,10 +871,10 @@ namespace Ray1Map.Rayman1
                 else
                 {
                     // Enumerate the animations
-                    for (var j = 0; j < e.AnimationCollection.Animations.Length; j++)
+                    for (var j = 0; j < e.Animations.Length; j++)
                     {
                         // Get the animation descriptor
-                        var anim = e.AnimationCollection.Animations[j];
+                        var anim = e.Animations[j];
 
                         // Get the speed
                         var speed = String.Join("-", e.ETA.States.SelectMany(x => x).Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());
@@ -885,11 +885,11 @@ namespace Ray1Map.Rayman1
                         int? frameWidth = null;
                         int? frameHeight = null;
 
-                        for (int dummyFrame = 0; dummyFrame < anim.FrameCount; dummyFrame++)
+                        for (int dummyFrame = 0; dummyFrame < anim.FramesCount; dummyFrame++)
                         {
-                            for (int dummyLayer = 0; dummyLayer < anim.LayersPerFrame; dummyLayer++)
+                            for (int dummyLayer = 0; dummyLayer < anim.LayersCount; dummyLayer++)
                             {
-                                var l = anim.Layers[dummyFrame * anim.LayersPerFrame + dummyLayer];
+                                var l = anim.Layers[dummyFrame * anim.LayersCount + dummyLayer];
 
                                 if (l.SpriteIndex < sprites.Length)
                                 {
@@ -911,16 +911,16 @@ namespace Ray1Map.Rayman1
                         }
 
                         // Create each animation frame
-                        for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
+                        for (int frameIndex = 0; frameIndex < anim.FramesCount; frameIndex++)
                         {
                             Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, clear: true);
 
                             bool hasLayers = false;
 
                             // Write each layer
-                            for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                            for (var layerIndex = 0; layerIndex < anim.LayersCount; layerIndex++)
                             {
-                                var animationLayer = anim.Layers[frameIndex * anim.LayersPerFrame + layerIndex];
+                                var animationLayer = anim.Layers[frameIndex * anim.LayersCount + layerIndex];
 
                                 if (animationLayer.SpriteIndex >= sprites.Length)
                                     continue;
@@ -938,8 +938,8 @@ namespace Ray1Map.Rayman1
                                     {
                                         var c = sprite.GetPixel(x, sprite.height - y - 1);
 
-                                        var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
-                                        var yPosition = (animationLayer.IsFlippedVertically ? (sprite.height - 1 - y) : y) + animationLayer.YPosition;
+                                        var xPosition = (animationLayer.FlipX ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                        var yPosition = (animationLayer.FlipY ? (sprite.height - 1 - y) : y) + animationLayer.YPosition;
 
                                         if (xPosition >= tex.width)
                                             throw new Exception("Horizontal overflow!");

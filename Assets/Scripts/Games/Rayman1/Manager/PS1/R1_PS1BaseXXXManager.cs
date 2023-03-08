@@ -328,7 +328,7 @@ namespace Ray1Map.Rayman1
 
                         for (int i = 0; i < bg.SpriteData.SpritesCount; i++)
                         {
-                            Sprite sprite = levelPack.BackgroundData.Sprites.Sprites[i];
+                            Sprite sprite = levelPack.BackgroundData.Sprites[i];
                             Texture2D tex = GetSpriteTexture(context, null, sprite);
 
                             // Export it
@@ -365,7 +365,7 @@ namespace Ray1Map.Rayman1
                     {
                         foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
-                            foreach (Sprite imgDescr in font.Sprites.Sprites)
+                            foreach (Sprite imgDescr in font.Sprites)
                             {
                                 imgDescr.Clut.ClutY = 509;
                             }
@@ -375,7 +375,7 @@ namespace Ray1Map.Rayman1
                     {
                         foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
-                            foreach (Sprite imgDescr in font.Sprites.Sprites)
+                            foreach (Sprite imgDescr in font.Sprites)
                             {
                                 imgDescr.Clut.ClutY = 492;
                             }

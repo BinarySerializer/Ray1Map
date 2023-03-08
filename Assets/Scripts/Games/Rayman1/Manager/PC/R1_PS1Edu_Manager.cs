@@ -299,11 +299,11 @@ namespace Ray1Map.Rayman1
                 if (i < allfix.DESCount) {
                     d = allfix.DESData[i];
                     anims = allfix.Animations[i];
-                    imageDescriptors[i] = allfix.SpriteCollections[i].Sprites;
+                    imageDescriptors[i] = allfix.SpriteCollections[i];
                 } else {
                     d = world.DESData[i - allfix.DESCount];
                     anims = world.Animations[i - allfix.DESCount];
-                    imageDescriptors[i] = world.SpriteCollections[i - allfix.DESCount].Sprites;
+                    imageDescriptors[i] = world.SpriteCollections[i - allfix.DESCount];
                 }
 
                 // Check if it's multi-colored
@@ -312,7 +312,7 @@ namespace Ray1Map.Rayman1
                 des[i] = new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics
                 {
                     Sprites = new UnityEngine.Sprite[d.SpritesCount * (isMultiColored ? 6 : 1)].ToList(),
-                    Animations = anims.Select(x => x.ToCommonAnimation()).ToList()
+                    Animations = anims.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers, x.LayersPerFrame, x.FrameCount)).ToList()
                 }, imageDescriptors[i]);
             }
 
@@ -529,7 +529,7 @@ namespace Ray1Map.Rayman1
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(ObjData.GetRayman(context, levelData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
+            var rayman = new Unity_Object_R1(ObjData.CreateRayman(context, levelData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
             var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
