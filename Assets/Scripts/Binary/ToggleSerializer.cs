@@ -108,6 +108,12 @@ namespace Ray1Map
             return CurrentSerializer.SerializeNullable(obj, name);
         }
 
+        public override bool SerializeBoolean<T>(bool obj, string name = null)
+        {
+            UpdateCurrentSerializer(name);
+            return CurrentSerializer.SerializeBoolean<T>(obj, name);
+        }
+
         public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
 
             try

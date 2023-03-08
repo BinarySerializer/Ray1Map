@@ -138,6 +138,12 @@ public class UnityWindowSerializer : SerializerObject
         throw new NotImplementedException();
     }
 
+    public override bool SerializeBoolean<T>(bool obj, string name = null)
+    {
+        var rect = PrefixEditorField(name);
+        return Window.EditorField(String.Empty, obj, rect: rect);
+    }
+
     public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) => default;
 
     public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
