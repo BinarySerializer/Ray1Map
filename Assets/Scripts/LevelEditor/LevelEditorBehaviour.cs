@@ -47,7 +47,7 @@ namespace Ray1Map
         public EditMode currentMode;
         //Current type
         [HideInInspector]
-        public TileCollisionType currentType;
+        public BlockType currentType;
 
         //Selected tiles
         public Unity_Tile[,] selection;
@@ -148,7 +148,7 @@ namespace Ray1Map
 
         public void SetCurrentType(int type)
         {
-            currentType = (TileCollisionType)type;
+            currentType = (BlockType)type;
         }
 
         public void ClearSelection() {

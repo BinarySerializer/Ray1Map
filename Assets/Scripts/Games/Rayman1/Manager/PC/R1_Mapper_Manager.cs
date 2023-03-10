@@ -206,7 +206,7 @@ namespace Ray1Map.Rayman1
                     var ed = new ObjData()
                     {
                         Type = def.Type,
-                        Etat = def.Etat,
+                        MainEtat = def.Etat,
                         SubEtat = def.SubEtat,
                         XPosition = (short)(mapX + instance.OffsetX),
                         YPosition = (short)(mapY + instance.OffsetY),
@@ -215,22 +215,21 @@ namespace Ray1Map.Rayman1
                         OffsetHY = def.OffsetHY,
                         FollowSprite = def.FollowSprite,
                         ActualHitPoints = (uint)instance.HitPoints,
-                        UnusedDisplayPrio = instance.DisplayPrio,
+                        InitFlag = instance.InitFlag,
                         HitSprite = def.HitSprite,
 
-                        PS1Demo_Unk1 = new byte[40],
-                        CollisionTypes = new TileCollisionType[5],
+                        BlockTypes = new BlockType[5],
 
-                        CommandContexts = new ObjData.CommandContext[]
+                        CommandContexts = new CommandContext[]
                         {
-                            new ObjData.CommandContext()
+                            new CommandContext()
                         },
 
                         LabelOffsets = new ushort[0],
                         Commands = CommandCollection.FromBytes(def.EventCommands, () => new Ray1MapContext(context.GetR1Settings())),
                     };
 
-                    ed.SetFollowEnabled(context.GetRequiredSettings<Ray1Settings>(), def.FollowEnabled > 0);
+                    ed.FollowEnabled = def.FollowEnabled > 0;
 
                     // Add the event
                     levelEvents.Add(new Unity_Object_R1(
@@ -249,7 +248,7 @@ namespace Ray1Map.Rayman1
                 Maps = maps,
                 ObjManager = objManager,
                 EventData = levelEvents,
-                Rayman = new Unity_Object_R1(ObjData.GetRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS)?.EventData), objManager)
+                Rayman = new Unity_Object_R1(ObjData.CreateRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS)?.EventData), objManager)
             };
 
             Controller.DetailedState = $"Creating tileset";

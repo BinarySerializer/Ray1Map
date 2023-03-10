@@ -19,12 +19,12 @@ namespace Ray1Map.Rayman1
             WorldInfo = worldInfo;
 
             // Set editor states
-            EventData.InitialEtat = EventData.Etat;
+            EventData.InitialMainEtat = EventData.MainEtat;
             EventData.InitialSubEtat = EventData.SubEtat;
             EventData.DisplayPrio = objManager.GetDisplayPrio(EventData.Type, EventData.HitPoints, EventData.DisplayPrio);
             EventData.InitialXPosition = (short)EventData.XPosition;
             EventData.InitialYPosition = (short)EventData.YPosition;
-            EventData.CurrentAnimationIndex = 0;
+            EventData.AnimationIndex = 0;
             EventData.InitialHitPoints = EventData.HitPoints;
             UpdateZDC();
 
@@ -49,9 +49,9 @@ namespace Ray1Map.Rayman1
 
         public Unity_ObjectManager_R1 ObjManager { get; }
 
-        public ObjState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
-        public ObjState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
-        public ObjState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+        public ObjState CurrentState => GetState(EventData.MainEtat, EventData.SubEtat);
+        public ObjState InitialState => GetState(EventData.InitialMainEtat, EventData.InitialSubEtat);
+        public ObjState LinkedState => GetState(CurrentState?.NextMainEtat ?? -1, CurrentState?.NextSubEtat ?? -1);
 
         protected ObjState GetState(int etat, int subEtat) => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
@@ -81,7 +81,7 @@ namespace Ray1Map.Rayman1
             get => (ObjManager.UsesPointers ? ObjManager.ETALookup.TryGetItem(EventData.ETAPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_ETAIndex);
             set {
                 if (value != ETAIndex) {
-                    EventData.Etat = EventData.InitialEtat = 0;
+                    EventData.MainEtat = EventData.InitialMainEtat = 0;
                     EventData.SubEtat = EventData.InitialSubEtat = 0;
                     OverrideAnimIndex = null;
 
@@ -119,37 +119,13 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetRequiredSettings<Ray1Settings>());
-
         public override BinarySerializable SerializableData => EventData;
 
         public override BaseLegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == ObjType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
 
-        public override bool IsActive
-        {
-            get
-            {
-                if (IsPCFormat)
-                {
-                    // Unk_28 is also some active flag, but it's 0 for Rayman
-                    return EventData.PC_Flags.HasFlag(ObjData.PC_ObjFlags.SwitchedOn) && EventData.IsActive == 1;
-                }
-                else
-                {
-                    if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
-                    {
-                        // TODO: Find actual flag
-                        return EventData.PS1_Unk5 == 0;
-                    }
-                    else
-                    {
-                        return EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_ObjFlags.SwitchedOn);
-                    }
-                }
-            }
-        }
+        public override bool IsActive => EventData.IsActive && EventData.IsAlive;
 
         public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(ObjTypeFlags.NoLink) ?? false) && WorldInfo == null && EventData.Type != ObjType.TYPE_RAYMAN;
         public override bool CanBeLinked => WorldInfo != null;
@@ -163,28 +139,8 @@ namespace Ray1Map.Rayman1
         {
             get
             {
-                if (IsPCFormat)
-                {
-                    if (EventData.PC_Flags.HasFlag(ObjData.PC_ObjFlags.IsFlipped))
-                        return true;
-                }
-                else
-                {
-                    if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
-                    {
-                        if (EventData.PS1Demo_IsFlipped && Settings.LoadFromMemory)
-                            return true;
-                    }
-                    else
-                    {
-                        if (EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_ObjFlags.IsFlipped))
-                            return true;
-                    }
-                }
-
-                // If loading from memory, check only runtime flags
                 if (Settings.LoadFromMemory)
-                    return false;
+                    return EventData.FlipX;
 
                 // Check if it's the pin event and if the hp flag is set
                 if (EventData.Type == ObjType.TYPE_PUNAISE3 && EventData.HitPoints == 1)
@@ -210,15 +166,15 @@ namespace Ray1Map.Rayman1
                 yield break;
 
             // Make sure the current state and type supports collision
-            if (CurrentState == null || CurrentState.Flags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.NoCollision)))
+            if (CurrentState == null || (!CurrentState.RayCollision && !CurrentState.FistCollision) || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.NoCollision)))
                 yield break;
 
-            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.HurtsRayman) && CurrentState?.Flags.HasFlag(ObjState.StateFlags.DetectRay) == true;
+            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.HurtsRayman) && CurrentState.RayCollision == true;
 
             // Attempt to set the collision type
             var colType = hurtsRay 
                 ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
-                : CurrentState.Flags.HasFlag(ObjState.StateFlags.DetectFist) 
+                : CurrentState.FistCollision 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox 
                     : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
@@ -226,9 +182,9 @@ namespace Ray1Map.Rayman1
             {
                 var typeZdc = EventData.TypeZDC;
 
-                for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
+                for (int i = 0; i < (typeZdc?.Count ?? 0); i++)
                 {
-                    var zdc = ObjManager.ZDCData?.ElementAtOrDefault(typeZdc.ZDCIndex + i);
+                    var zdc = ObjManager.ZDCData?.ElementAtOrDefault(typeZdc.Index + i);
 
                     if (zdc == null) 
                         continue;
@@ -267,8 +223,8 @@ namespace Ray1Map.Rayman1
                         if (imgDescr == null)
                             continue;
 
-                        addX += imgDescr.HitBoxOffsetX;
-                        addY += imgDescr.HitBoxOffsetY;
+                        addX += imgDescr.SpriteXPosition;
+                        addY += imgDescr.SpriteYPosition;
 
                         if (imgDescr.IsDummySprite())
                             continue;
@@ -293,10 +249,10 @@ namespace Ray1Map.Rayman1
                 {
                     yield return new Unity_ObjAnimationCollisionPart()
                     {
-                        XPosition = (animLayer?.XPosition ?? 0) + (imgDescr.HitBoxOffsetX),
-                        YPosition = (animLayer?.YPosition ?? 0) + (imgDescr.HitBoxOffsetY),
-                        Width = imgDescr.HitBoxWidth,
-                        Height = imgDescr.HitBoxHeight,
+                        XPosition = (animLayer?.XPosition ?? 0) + (imgDescr.SpriteXPosition),
+                        YPosition = (animLayer?.YPosition ?? 0) + (imgDescr.SpriteYPosition),
+                        Width = imgDescr.SpriteWidth,
+                        Height = imgDescr.SpriteHeight,
                         Type = colType
                     };
                 }
@@ -312,14 +268,14 @@ namespace Ray1Map.Rayman1
         public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
-            get => EventData.CurrentAnimationFrame;
-            set => EventData.CurrentAnimationFrame = (byte)value;
+            get => EventData.AnimationFrame;
+            set => EventData.AnimationFrame = (byte)value;
         }
 
         public override int? AnimationIndex
         {
-            get => EventData.CurrentAnimationIndex;
-            set => EventData.CurrentAnimationIndex = (byte)(value ?? 0);
+            get => EventData.AnimationIndex;
+            set => EventData.AnimationIndex = (byte)(value ?? 0);
         }
 
         public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : CurrentState?.AnimationSpeed ?? 0);
@@ -334,18 +290,18 @@ namespace Ray1Map.Rayman1
             // Set frame based on hit points for special events
             if (EventData.Type.IsHPFrame())
             {
-                EventData.CurrentAnimationFrame = EventData.HitPoints;
+                EventData.AnimationFrame = EventData.HitPoints;
                 AnimationFrameFloat = EventData.HitPoints;
                 return false;
             }
             else if (EventData.Type.UsesEditorFrame())
             {
-                AnimationFrameFloat = EventData.CurrentAnimationFrame;
+                AnimationFrameFloat = EventData.AnimationFrame;
                 return false;
             }
             else if (EventData.Type.UsesRandomFrame() || EventData.Type.UsesFrameFromLinkChain())
             {
-                EventData.CurrentAnimationFrame = ForceFrame;
+                EventData.AnimationFrame = ForceFrame;
                 AnimationFrameFloat = ForceFrame;
                 return false;
             }
@@ -384,7 +340,7 @@ namespace Ray1Map.Rayman1
                 if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EncounteredStates.Contains(LinkedState))
                 {
                     // Reset the state
-                    EventData.Etat = EventData.InitialEtat;
+                    EventData.MainEtat = EventData.InitialMainEtat;
                     EventData.SubEtat = EventData.InitialSubEtat;
 
                     // Clear encountered states
@@ -393,13 +349,13 @@ namespace Ray1Map.Rayman1
                 else
                 {
                     // Update state values to the linked one
-                    EventData.Etat = state.LinkedEtat;
-                    EventData.SubEtat = state.LinkedSubEtat;
+                    EventData.MainEtat = state.NextMainEtat;
+                    EventData.SubEtat = state.NextSubEtat;
                 }
             }
             else
             {
-                EventData.Etat = EventData.InitialEtat;
+                EventData.MainEtat = EventData.InitialMainEtat;
                 EventData.SubEtat = EventData.InitialSubEtat;
             }
         }
@@ -420,8 +376,8 @@ namespace Ray1Map.Rayman1
             if (zdc != null)
                 EventData.TypeZDC = new ZDCEntry()
                 {
-                    ZDCCount = zdc.ZDCCount,
-                    ZDCIndex = zdc.ZDCIndex
+                    Count = zdc.Count,
+                    Index = zdc.Index
                 };
         }
         
@@ -458,8 +414,8 @@ namespace Ray1Map.Rayman1
 
             public override byte Etat
             {
-                get => Obj.EventData.Etat;
-                set => Obj.EventData.Etat = Obj.EventData.InitialEtat = value;
+                get => Obj.EventData.MainEtat;
+                set => Obj.EventData.MainEtat = Obj.EventData.InitialMainEtat = value;
             }
 
             public override byte SubEtat
@@ -469,7 +425,7 @@ namespace Ray1Map.Rayman1
             }
 
             public override int EtatLength => Obj.ObjManager.ETA.ElementAtOrDefault(Obj.ETAIndex)?.Data.Length ?? 0;
-            public override int SubEtatLength => Obj.ObjManager.ETA.ElementAtOrDefault(Obj.ETAIndex)?.Data.ElementAtOrDefault(Obj.EventData.Etat)?.Length ?? 0;
+            public override int SubEtatLength => Obj.ObjManager.ETA.ElementAtOrDefault(Obj.ETAIndex)?.Data.ElementAtOrDefault(Obj.EventData.MainEtat)?.Length ?? 0;
 
             public override byte OffsetBX
             {
@@ -513,8 +469,8 @@ namespace Ray1Map.Rayman1
 
             public override bool FollowEnabled
             {
-                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetRequiredSettings<Ray1Settings>());
-                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetRequiredSettings<Ray1Settings>(), value);
+                get => Obj.EventData.FollowEnabled;
+                set => Obj.EventData.FollowEnabled = value;
             }
         }
 
@@ -563,7 +519,7 @@ namespace Ray1Map.Rayman1
 			public override void Apply(Unity_Object obj) {
                 if (IsState) {
                     var r1obj = obj as Unity_Object_R1;
-                    r1obj.EventData.Etat = r1obj.EventData.InitialEtat = Etat;
+                    r1obj.EventData.MainEtat = r1obj.EventData.InitialMainEtat = Etat;
                     r1obj.EventData.SubEtat = r1obj.EventData.InitialSubEtat = SubEtat;
                     obj.OverrideAnimIndex = null;
                 } else {
@@ -577,7 +533,7 @@ namespace Ray1Map.Rayman1
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == ((Unity_Object_R1)obj).EventData.InitialEtat
+                        && Etat == ((Unity_Object_R1)obj).EventData.InitialMainEtat
                         && SubEtat == ((Unity_Object_R1)obj).EventData.InitialSubEtat;
 
             }

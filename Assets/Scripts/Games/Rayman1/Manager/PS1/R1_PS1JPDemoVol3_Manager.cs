@@ -114,9 +114,6 @@ namespace Ray1Map.Rayman1
         /// <returns>The texture</returns>
         public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
         {
-            if (s.ImageType != 2 && s.ImageType != 3) 
-                return null;
-
             // Ignore dummy sprites
             if (s.IsDummySprite())
                 return null;
@@ -130,14 +127,14 @@ namespace Ray1Map.Rayman1
             var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, GetPalettePath(context.GetR1Settings(), 8), (y, x) => x.Pre_Length = 256);
 
             // Select correct palette
-            var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
-            var paletteOffset = 16 * s.Unknown1;
+            var palette = s.Depth == SpriteDepth.BPP_8 ? pal8.Value : pal4.Value;
+            var paletteOffset = 16 * s.SubPaletteIndex;
 
             // Create the texture
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
             // Set every pixel
-            if (s.ImageType == 3)
+            if (s.Depth == SpriteDepth.BPP_8)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -150,7 +147,7 @@ namespace Ray1Map.Rayman1
                     }
                 }
             }
-            else if (s.ImageType == 2)
+            else if (s.Depth == SpriteDepth.BPP_4)
             {
                 for (int y = 0; y < height; y++)
                 {

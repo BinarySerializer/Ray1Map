@@ -37,7 +37,7 @@ namespace Ray1Map.Rayman1
 
         public ObjState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
         public ObjState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
-        public ObjState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+        public ObjState LinkedState => GetState(CurrentState?.NextMainEtat ?? -1, CurrentState?.NextSubEtat ?? -1);
 
         protected ObjState GetState(int etat, int subEtat) => AnimGroup?.ETA?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
@@ -133,19 +133,19 @@ namespace Ray1Map.Rayman1
 
             // Function at 0x800d8264 (BOX_IN_COLL_ZONES)
 
-            for (int i = 0; i < zdcEntry.ZDCCount; i++)
+            for (int i = 0; i < zdcEntry.Count; i++)
             {
-                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
-                var zdcTriggerFlags = ObjManager.LevData.ZDCTriggerFlags?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.Index + i);
+                var zdcTriggerFlags = ObjManager.LevData.ZDCTriggerFlags?.ElementAtOrDefault(zdcEntry.Index + i);
 
                 if (zdc == null)
                     continue;
 
-                if (zdc.ZDC_Flags != 0 && (zdc.ZDC_Flags & EventData.ZDCFlags) == 0) 
+                if (zdc.R2_ZDC_Flags != 0 && (zdc.R2_ZDC_Flags & EventData.ZDCFlags) == 0) 
                     continue;
 
                 var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R2_ObjCollision.ObjFlags.HurtsRayman) == true && 
-                               CurrentState?.Flags.HasFlag(ObjState.StateFlags.DetectRay) == true && 
+                               CurrentState?.RayCollision == true && 
                                zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Rayman) == true;
 
                 // Attempt to set the collision type
@@ -189,8 +189,8 @@ namespace Ray1Map.Rayman1
                     if (img == null)
                         continue;
 
-                    addX += img.HitBoxOffsetX;
-                    addY += img.HitBoxOffsetY;
+                    addX += img.SpriteXPosition;
+                    addY += img.SpriteYPosition;
 
                     yield return new Unity_ObjAnimationCollisionPart
                     {
@@ -259,8 +259,8 @@ namespace Ray1Map.Rayman1
                 else
                 {
                     // Update state values to the linked one
-                    EventData.Etat = state.LinkedEtat;
-                    EventData.SubEtat = state.LinkedSubEtat;
+                    EventData.Etat = state.NextMainEtat;
+                    EventData.SubEtat = state.NextSubEtat;
 
                     // For always objects the game sets the last state in the chain to link to -1 to indicate that the object should now be hidden again, but to avoid the object now displaying in the editor we reset it here
                     if (EventData.Etat == 0xFF || EventData.SubEtat == 0xFF)

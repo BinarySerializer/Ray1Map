@@ -104,8 +104,8 @@ namespace Ray1Map.SNES
                     {
                         // Get the animation
                         var anim = stateGroup.Key;
-                        var layersPerFrame = anim.LayersPerFrame;
-                        var frameCount = anim.FrameCount;
+                        var layersPerFrame = anim.LayersCount;
+                        var frameCount = anim.FramesCount;
                         string animPointer = stateGroup.Key.Offset != null ? $"{(stateGroup.Key.Offset.FileOffset + 4) % 0x8000 + 0x8000:X4}" : null;
                         int vramConfig = stateGroup.First().VRAMConfigIndex;
                         var spriteOffset = graphicsGroup.ImageDescriptors.Length * vramConfig;
@@ -145,8 +145,8 @@ namespace Ray1Map.SNES
                                     {
                                         var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
 
-                                        var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
-                                        var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
+                                        var xPosition = (animationLayer.FlipX ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
+                                        var yPosition = (!animationLayer.FlipY ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
 
                                         xPosition -= minX;
                                         yPosition -= minY;
@@ -306,7 +306,7 @@ namespace Ray1Map.SNES
                     Width = rom.BG1_Map.Width,
                     Height = rom.BG1_Map.Height,
                     TileSet = new Unity_TileSet[0],
-                    MapTiles = rom.BG1_Map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
+                    MapTiles = rom.BG1_Map.Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
                 },
             };
 
@@ -368,7 +368,12 @@ namespace Ray1Map.SNES
 
         public Unity_ObjectManager_SNES.GraphicsGroup GetGraphicsGroup(SNES_ROM rom, SNES_State[] states, SNES_Sprite[] imgDescriptors, bool isRecreated, string name)
         {
-            var objStates = states.Select(x => new Unity_ObjectManager_SNES.GraphicsGroup.State(x, x.Animation.ToCommonAnimation(x.VRAMConfigIndex * imgDescriptors.Length))).ToArray();
+            var objStates = states.Select(x => new Unity_ObjectManager_SNES.GraphicsGroup.State(x, 
+                AnimationHelpers.ToCommonAnimation(
+                    layers: x.Animation.Layers,
+                    layersCount: x.Animation.LayersCount,
+                    framesCount: x.Animation.FramesCount,
+                    baseSpriteIndex: x.VRAMConfigIndex * imgDescriptors.Length))).ToArray();
 
             return new Unity_ObjectManager_SNES.GraphicsGroup(objStates, imgDescriptors, GetSprites(rom, imgDescriptors), isRecreated, name);
         }
@@ -435,7 +440,7 @@ namespace Ray1Map.SNES
             return sprites;
         }
 
-        public MapTile[] LoadMap(MapData map, BinarySerializer.Ray1.MapTile[] tiles8)
+        public MapTile[] LoadMap(MapData map, BinarySerializer.Ray1.Block[] tiles8)
         {
             var output = new MapTile[map.Width * 2 * map.Height * 2];
 
@@ -446,31 +451,31 @@ namespace Ray1Map.SNES
                     var actualX = x * 2;
                     var actualY = y * 2;
 
-                    var mapTile = map.Tiles[y * map.Width + x];
+                    var mapTile = map.Blocks[y * map.Width + x];
 
                     setTileAt(actualX, actualY, 0, 0, tiles8[mapTile.TileMapY * 4 + 0]);
                     setTileAt(actualX, actualY, 1, 0, tiles8[mapTile.TileMapY * 4 + 1]);
                     setTileAt(actualX, actualY, 0, 1, tiles8[mapTile.TileMapY * 4 + 2]);
                     setTileAt(actualX, actualY, 1, 1, tiles8[mapTile.TileMapY * 4 + 3]);
 
-                    void setTileAt(int baseX, int baseY, int offX, int offY, BinarySerializer.Ray1.MapTile tile)
+                    void setTileAt(int baseX, int baseY, int offX, int offY, BinarySerializer.Ray1.Block tile)
                     {
                         var newTile = new MapTile()
                         {
                             TileMapY = tile.TileMapY,
                             Priority = tile.Priority,
                             PaletteIndex = tile.PaletteIndex,
-                            HorizontalFlip = tile.HorizontalFlip,
-                            VerticalFlip = tile.VerticalFlip
+                            HorizontalFlip = tile.FlipX,
+                            VerticalFlip = tile.FlipY
                         };
 
-                        if (mapTile.HorizontalFlip)
+                        if (mapTile.FlipX)
                         {
                             offX = offX == 1 ? 0 : 1;
                             newTile.HorizontalFlip = !newTile.HorizontalFlip;
                         }
 
-                        if (mapTile.VerticalFlip)
+                        if (mapTile.FlipY)
                         {
                             offY = offY == 1 ? 0 : 1;
                             newTile.VerticalFlip = !newTile.VerticalFlip;

@@ -10,23 +10,23 @@ namespace Ray1Map.Rayman1
             // Create the animation
             var animation = new Unity_ObjAnimation
             {
-                Frames = new Unity_ObjAnimationFrame[anim.FrameCount],
+                Frames = new Unity_ObjAnimationFrame[anim.FramesCount],
             };
 
             // The layer index
             var layer = 0;
 
             // Create each frame
-            for (int i = 0; i < anim.FrameCount; i++)
+            for (int i = 0; i < anim.FramesCount; i++)
             {
                 // Create the frame
-                var frame = new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[anim.LayersPerFrame]);
+                var frame = new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[anim.LayersCount]);
 
                 if (anim.Layers != null)
                 {
 
                     // Create each layer
-                    for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                    for (var layerIndex = 0; layerIndex < anim.LayersCount; layerIndex++)
                     {
                         var animationLayer = anim.Layers[layer];
                         layer++;

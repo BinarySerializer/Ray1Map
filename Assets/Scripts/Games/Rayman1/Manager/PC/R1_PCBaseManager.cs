@@ -428,7 +428,7 @@ namespace Ray1Map.Rayman1
         public Texture2D[] GetSpriteTextures(List<PC_LevFile> levels, PC_DES desItem, int desIndex, IList<BaseColor> palette = null)
         {
             // Create the output array
-            var output = new Texture2D[desItem.SpriteCollection.Sprites.Length];
+            var output = new Texture2D[desItem.Sprites.Length];
 
             // Process the image data
             var processedImageData = desItem.IsAnimatedSprite ? PC_DES.ProcessImageData(desItem.ImageData) : desItem.ImageData;
@@ -437,10 +437,10 @@ namespace Ray1Map.Rayman1
             var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.ObjData.Objects.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
 
             // Enumerate each image
-            for (int i = 0; i < desItem.SpriteCollection.Sprites.Length; i++)
+            for (int i = 0; i < desItem.Sprites.Length; i++)
             {
                 // Get the image descriptor
-                var imgDescriptor = desItem.SpriteCollection.Sprites[i];
+                var imgDescriptor = desItem.Sprites[i];
 
                 // Ignore dummy sprites
                 if (imgDescriptor.IsDummySprite())
@@ -602,7 +602,7 @@ namespace Ray1Map.Rayman1
                     int? frameWidth = null;
                     int? frameHeight = null;
 
-                    for (var dummy = 0; dummy < anim.LayersPerFrame * anim.FrameCount; dummy++)
+                    for (var dummy = 0; dummy < anim.LayersCount * anim.FramesCount; dummy++)
                     {
                         var l = anim.Layers[tempLayer];
 
@@ -627,14 +627,14 @@ namespace Ray1Map.Rayman1
                     }
 
                     // Create each animation frame
-                    for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
+                    for (int frameIndex = 0; frameIndex < anim.FramesCount; frameIndex++)
                     {
                         Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, clear: true);
 
                         bool hasLayers = false;
 
                         // Write each layer
-                        for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                        for (var layerIndex = 0; layerIndex < anim.LayersCount; layerIndex++)
                         {
                             var animationLayer = anim.Layers[layer];
 
@@ -656,7 +656,7 @@ namespace Ray1Map.Rayman1
                                 {
                                     var c = sprite.GetPixel(x, sprite.height - y - 1);
                                     
-                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + (desIndex == smallRayDES ? animationLayer.XPosition / 2 : animationLayer.XPosition);
+                                    var xPosition = (animationLayer.FlipX ? (sprite.width - 1 - x) : x) + (desIndex == smallRayDES ? animationLayer.XPosition / 2 : animationLayer.XPosition);
                                     var yPosition = (y + (desIndex == smallRayDES ? animationLayer.YPosition / 2 : animationLayer.YPosition));
 
                                     if (xPosition >= tex.width)
@@ -774,7 +774,7 @@ namespace Ray1Map.Rayman1
             if (!isMultiColored)
             {
                 // Sprites
-                foreach (var s in des.SpriteCollection.Sprites)
+                foreach (var s in des.Sprites)
                 {
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
@@ -797,7 +797,7 @@ namespace Ray1Map.Rayman1
                         p[8] = palette[i * 8];
 
                     // Sprites
-                    foreach (var s in des.SpriteCollection.Sprites)
+                    foreach (var s in des.Sprites)
                     {
                         // Get the texture
                         Texture2D tex = GetSpriteTexture(s, p, processedImageData);
@@ -811,7 +811,7 @@ namespace Ray1Map.Rayman1
             // Animations
             foreach (var a in des.Animations)
                 // Add the animation to list
-                graphics.Animations.Add(a.ToCommonAnimation());
+                graphics.Animations.Add(AnimationHelpers.ToCommonAnimation(a.Layers, a.LayersCount, a.FramesCount));
 
             return graphics;
         }
@@ -1121,7 +1121,7 @@ namespace Ray1Map.Rayman1
             foreach (var data in rawImageData)
             {
                 // Get the descriptor
-                var imgDesc = des.SpriteCollection.Sprites[data.Key];
+                var imgDesc = des.Sprites[data.Key];
 
                 // Add every byte and encrypt it
                 for (int i = 0; i < data.Value.Length; i++)
@@ -1225,7 +1225,7 @@ namespace Ray1Map.Rayman1
                 var p = desIndex == des.Length - 1 && bigRayPalette != null ? bigRayPalette : palette;
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.SpriteCollection.Sprites));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.Sprites));
 
                 desIndex++;
             }
@@ -1288,12 +1288,12 @@ namespace Ray1Map.Rayman1
                     MapBlockChecksum = 0,
                     Width = width,
                     Height = height,
-                    Tiles = Enumerable.Repeat(new BinarySerializer.Ray1.MapTile(), width * height).ToArray()
+                    Tiles = Enumerable.Repeat(new BinarySerializer.Ray1.Block(), width * height).ToArray()
                 };
 
                 // Set event data
                 worldInfos = GetWorldMapInfos(context);
-                var events = worldInfos.Select((x, i) => ObjData.GetMapObj(context, x.XPosition, x.YPosition, context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
+                var events = worldInfos.Select((x, i) => ObjData.CreateMapObj(context, x.XPosition, x.YPosition, context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
                 objData = new PC_ObjBlock()
                 {
                     Objects = events,
@@ -1370,15 +1370,15 @@ namespace Ray1Map.Rayman1
                     TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
                     {
                         if (x == null)
-                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.FullyTransparent;
+                            return BinarySerializer.Ray1.Block.PC_TransparencyMode.FullyTransparent;
 
                         if (x.TransparencyMode == 0xAAAAAAAA)
-                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.FullyTransparent;
+                            return BinarySerializer.Ray1.Block.PC_TransparencyMode.FullyTransparent;
 
                         if (x.TransparencyMode == 0x55555555)
-                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.NoTransparency;
+                            return BinarySerializer.Ray1.Block.PC_TransparencyMode.NoTransparency;
 
-                        return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.PartiallyTransparent;
+                        return BinarySerializer.Ray1.Block.PC_TransparencyMode.PartiallyTransparent;
                     }).ToArray(),
                     PCTileOffsetTable = tileTextureData?.TexturesOffsetTable
                 }
@@ -1394,7 +1394,7 @@ namespace Ray1Map.Rayman1
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(ObjData.GetRayman(context, objData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
+            var rayman = new Unity_Object_R1(ObjData.CreateRayman(context, objData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
             // Create a level object
             Unity_Level level = new Unity_Level()
@@ -1567,17 +1567,8 @@ namespace Ray1Map.Rayman1
             {
                 var r1Event = e.EventData;
 
-                if (r1Event.PS1Demo_Unk1 == null)
-                    r1Event.PS1Demo_Unk1 = new byte[40];
-
-                if (r1Event.CollisionTypes == null)
-                    r1Event.CollisionTypes = new TileCollisionType[5];
-
-                if (r1Event.CommandContexts == null)
-                    r1Event.CommandContexts = new ObjData.CommandContext[]
-                    {
-                        new ObjData.CommandContext()
-                    };
+                r1Event.BlockTypes ??= new BlockType[5];
+                r1Event.CommandContexts ??= new[] { new CommandContext() };
 
                 r1Event.SpritesCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 r1Event.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;

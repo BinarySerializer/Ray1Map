@@ -10,36 +10,36 @@ namespace Ray1Map
 {
     public static class TileCollisionTypeExtensions
     {
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this TileCollisionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this BlockType collisionType)
         {
             return collisionType switch
             {
-                TileCollisionType.None => Unity_MapCollisionTypeGraphic.None,
-                TileCollisionType.Reactionary => Unity_MapCollisionTypeGraphic.Reactionary,
-                TileCollisionType.Hill_Steep_Left => Unity_MapCollisionTypeGraphic.Hill_Steep_Left,
-                TileCollisionType.Hill_Steep_Right => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
-                TileCollisionType.Hill_Slight_Left_1 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1,
-                TileCollisionType.Hill_Slight_Left_2 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2,
-                TileCollisionType.Hill_Slight_Right_2 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2,
-                TileCollisionType.Hill_Slight_Right_1 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1,
-                TileCollisionType.Damage => Unity_MapCollisionTypeGraphic.Damage,
-                TileCollisionType.Bounce => Unity_MapCollisionTypeGraphic.Bounce,
-                TileCollisionType.Water => Unity_MapCollisionTypeGraphic.Water,
-                TileCollisionType.Exit => Unity_MapCollisionTypeGraphic.Exit,
-                TileCollisionType.Climb => Unity_MapCollisionTypeGraphic.Climb,
-                TileCollisionType.WaterNoSplash => Unity_MapCollisionTypeGraphic.Water_NoSplash,
-                TileCollisionType.Passthrough => Unity_MapCollisionTypeGraphic.Passthrough,
-                TileCollisionType.Solid => Unity_MapCollisionTypeGraphic.Solid,
-                TileCollisionType.Seed => Unity_MapCollisionTypeGraphic.Seed,
-                TileCollisionType.Slippery_Steep_Left => Unity_MapCollisionTypeGraphic.Slippery_Steep_Left,
-                TileCollisionType.Slippery_Steep_Right => Unity_MapCollisionTypeGraphic.Slippery_Steep_Right,
-                TileCollisionType.Slippery_Slight_Left_1 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1,
-                TileCollisionType.Slippery_Slight_Left_2 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2,
-                TileCollisionType.Slippery_Slight_Right_2 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2,
-                TileCollisionType.Slippery_Slight_Right_1 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1,
-                TileCollisionType.Spikes => Unity_MapCollisionTypeGraphic.Spikes,
-                TileCollisionType.Cliff => Unity_MapCollisionTypeGraphic.Cliff,
-                TileCollisionType.Slippery => Unity_MapCollisionTypeGraphic.Slippery,
+                BlockType.None => Unity_MapCollisionTypeGraphic.None,
+                BlockType.ChangeDirection => Unity_MapCollisionTypeGraphic.Reactionary,
+                BlockType.Solid_Right_45 => Unity_MapCollisionTypeGraphic.Hill_Steep_Left,
+                BlockType.Solid_Left_45 => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
+                BlockType.Solid_Right1_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1,
+                BlockType.Solid_Right2_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2,
+                BlockType.Solid_Left1_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2,
+                BlockType.Solid_Left2_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1,
+                BlockType.Damage => Unity_MapCollisionTypeGraphic.Damage,
+                BlockType.Bounce => Unity_MapCollisionTypeGraphic.Bounce,
+                BlockType.Water => Unity_MapCollisionTypeGraphic.Water,
+                BlockType.Exit => Unity_MapCollisionTypeGraphic.Exit,
+                BlockType.Climb => Unity_MapCollisionTypeGraphic.Climb,
+                BlockType.WaterNoSplash => Unity_MapCollisionTypeGraphic.Water_NoSplash,
+                BlockType.Passthrough => Unity_MapCollisionTypeGraphic.Passthrough,
+                BlockType.Solid => Unity_MapCollisionTypeGraphic.Solid,
+                BlockType.Seed => Unity_MapCollisionTypeGraphic.Seed,
+                BlockType.Slippery_Right_45 => Unity_MapCollisionTypeGraphic.Slippery_Steep_Left,
+                BlockType.Slippery_Left_45 => Unity_MapCollisionTypeGraphic.Slippery_Steep_Right,
+                BlockType.Slippery_Right1_30 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1,
+                BlockType.Slippery_Right2_30 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2,
+                BlockType.Slippery_Left1_30 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2,
+                BlockType.Slippery_Left2_30 => Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1,
+                BlockType.Spikes => Unity_MapCollisionTypeGraphic.Spikes,
+                BlockType.Cliff => Unity_MapCollisionTypeGraphic.Cliff,
+                BlockType.Slippery => Unity_MapCollisionTypeGraphic.Slippery,
                 _ => Unity_MapCollisionTypeGraphic.Unknown0
             };
         }

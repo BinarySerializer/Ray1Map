@@ -671,10 +671,10 @@ namespace Ray1Map
                     var imgDescr = r1.ObjManager.DES.ElementAtOrDefault(r1.DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
 
                     followSpriteLine.localPosition = new Vector2(
-                        ((animLayer?.XPosition ?? 0) + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
-                        -((animLayer?.YPosition ?? 0) + (imgDescr?.HitBoxOffsetY ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+                        ((animLayer?.XPosition ?? 0) + (imgDescr?.SpriteXPosition ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
+                        -((animLayer?.YPosition ?? 0) + (imgDescr?.SpriteYPosition ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
-                    var w = (animSpriteRenderers.ElementAtOrDefault(r1.EventData.FollowSprite)?.sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
+                    var w = (animSpriteRenderers.ElementAtOrDefault(r1.EventData.FollowSprite)?.sprite == null) ? 0 : imgDescr?.SpriteWidth ?? 0;
                     followSpriteLine.localScale = new Vector2(w, 1f);
                 }
             }
@@ -759,8 +759,8 @@ namespace Ray1Map
                 {
                     int hy = -(r1bj.EventData.OffsetHY);
 
-                    if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings))
-                        hy -= anim.Frames[r1bj.EventData.CurrentAnimationFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
+                    if (r1bj.EventData.FollowEnabled)
+                        hy -= anim.Frames[r1bj.EventData.AnimationFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
                 }
@@ -838,8 +838,7 @@ namespace Ray1Map
             followSpriteLine.gameObject.SetActive(
                 ShowCollision && 
                 ObjData is Unity_Object_R1 r1o && 
-                r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings) && 
-                !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
+                r1o.EventData.FollowEnabled);
 
             // Update one-way link lines
             if (oneWayLinkLines != null)

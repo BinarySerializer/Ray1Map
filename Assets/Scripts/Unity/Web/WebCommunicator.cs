@@ -262,7 +262,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_Type = (ushort)r1obj.EventData.Type;
 					webObj.R1_DESIndex = r1obj.DESIndex;
 					webObj.R1_ETAIndex = r1obj.ETAIndex;
-					webObj.R1_Etat = r1obj.EventData.Etat;
+					webObj.R1_Etat = r1obj.EventData.MainEtat;
 					webObj.R1_SubEtat = r1obj.EventData.SubEtat;
 					webObj.R1_OffsetBX = r1obj.EventData.OffsetBX;
 					webObj.R1_OffsetBY = r1obj.EventData.OffsetBY;
@@ -270,7 +270,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_FollowSprite = r1obj.EventData.FollowSprite;
 					webObj.R1_HitPoints = r1obj.EventData.ActualHitPoints;
 					webObj.R1_HitSprite = r1obj.EventData.HitSprite;
-					webObj.R1_FollowEnabled = r1obj.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings);
+					webObj.R1_FollowEnabled = r1obj.EventData.FollowEnabled;
 					webObj.R1_DisplayPrio = r1obj.EventData.DisplayPrio;
 
 					if (includeLists) {
