@@ -21,8 +21,8 @@ namespace Ray1Map {
 			public class Var {
 				public string Name { get; set; }
 				public AI_VarType Type { get; set; }
-				public uint ArrayLength { get; set; }
-				public uint ArrayDimensionsCount { get; set; }
+				public int ArrayLength { get; set; }
+				public int ArrayDimensionsCount { get; set; }
 			}
 		}
 
@@ -154,8 +154,8 @@ namespace Ray1Map {
 							AIModelInfo.Var variable = new AIModelInfo.Var() {
 								Name = lineSplit[0],
 								Type = (AI_VarType)Enum.Parse(typeof(AI_VarType), lineSplit[1]),
-								ArrayDimensionsCount = uint.Parse(lineSplit[2]),
-								ArrayLength = uint.Parse(lineSplit[3])
+								ArrayDimensionsCount = int.Parse(lineSplit[2]),
+								ArrayLength = int.Parse(lineSplit[3])
 							};
 							vars.Add(variable);
 						}
@@ -196,6 +196,31 @@ namespace Ray1Map {
 					foreach (var bfPath in BFFiles) {
 						var bf = await LoadBF(context, bfPath);
 						bfs.Add(bf);
+					}
+					// Also load filenames
+					string filenamesPath = context.GetAbsoluteFilePath("filenames.txt");
+					if (context.FileManager?.FileExists(filenamesPath) ?? false) {
+						string[] lines = File.ReadAllLines(filenamesPath);
+						foreach (var l in lines) {
+							var lineSplit = l.Split(',');
+							if (lineSplit.Length != 2) continue;
+
+							if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out uint k)) {
+								var key = k;
+								var path = lineSplit[1].Replace('\\', '/');
+								var dir = "";
+								var filename = path;
+								if (path.Contains('/')) {
+									var lastIndex = path.LastIndexOf('/');
+									dir = path.Substring(0, lastIndex);
+									filename = path.Substring(lastIndex + 1);
+								}
+								if (filename.Contains('.')) {
+									filename = filename.Substring(0, filename.LastIndexOf('.'));
+								}
+								namingData.AddGuess(key, filename, dir, 0);
+							}
+						}
 					}
 					// Set up loader
 					LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context) {
@@ -407,7 +432,76 @@ namespace Ray1Map {
 																	}
 																	// TODO: Change var types
 																}
-																// TODO: Resize if required
+																if (modelVar.ArrayLength != variable.Info.ArrayLength || variable.Info.ArrayDimensionsCount != modelVar.ArrayDimensionsCount) {
+																	// Resize if required
+																	var varInfo = variable.Info;
+																	var value = variable.Value;
+
+																	// Resize dimensions
+																	var dimensionsCountDiff = modelVar.ArrayDimensionsCount - variable.Info.ArrayDimensionsCount;
+																	vars.VarValueBufferSize += (uint)(dimensionsCountDiff * 4);
+																	if (modelVar.ArrayDimensionsCount != 0) {
+																		if (value.Dimensions == null)
+																			value.Dimensions = new uint[modelVar.ArrayDimensionsCount];
+																		else {
+																			var dims = value.Dimensions;
+																			Array.Resize(ref dims, modelVar.ArrayDimensionsCount);
+																			value.Dimensions = dims;
+																		}
+																		value.Dimensions[value.Dimensions.Length - 1] = (uint)modelVar.ArrayLength;
+																		for (int i = 0; i < value.Dimensions.Length - 1; i++) {
+																			value.Dimensions[i] = 1;
+																		}
+																		if (value.ValueArray == null) {
+																			// Create array container for value
+																			var dims = value.Dimensions;
+																			value.Dimensions = null;
+																			value.IsArrayElement = true;
+																			value = new AI_VarValue() {
+																				Var = variable,
+																				IsArrayElement = false,
+																				ValueArray = new AI_VarValue[1] {
+																					value
+																				},
+																				Dimensions = dims
+																			};
+																			variable.Value = value;
+																		}
+
+																		// Actually resize var array
+																		if (modelVar.ArrayLength != 1) {
+																			var arr = value.ValueArray;
+																			Array.Resize(ref arr, modelVar.ArrayLength);
+																			for (int i = 0; i < arr.Length; i++) {
+																				if (arr[i] != null) {
+																					arr[i].IsArrayElement = true;
+																				} else {
+																					arr[i] = new AI_VarValue() {
+																						Var = variable,
+																						IsArrayElement = true
+																					};
+																				}
+																			}
+																			value.ValueArray = arr;
+																		}
+																	} else {
+																		value.Dimensions = null;
+																		// Remove array container for value
+																		if (value.ValueArray != null) {
+																			value = value.ValueArray[0];
+																			value.Dimensions = null;
+																			variable.Value = value;
+																		}
+																	}
+																	var valueSizeDiff = modelVar.ArrayLength - variable.Info.ArrayLength;
+																	vars.VarValueBufferSize += (uint)(valueSizeDiff * variable.Link.Size);
+																	// Go over rest of infos
+																	foreach (var otherVarInfo in vars.VarInfos) {
+																		if (otherVarInfo.BufferOffset >= varInfo.BufferOffset) {
+																			otherVarInfo.BufferOffset += valueSizeDiff;
+																		}
+																	}
+																}
 															} else {
 																remove = true;
 															}
