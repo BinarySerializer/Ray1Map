@@ -968,7 +968,7 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        protected IEnumerable<DES> GetLevelDES(Context context, IEnumerable<ObjData> events)
+        protected virtual IEnumerable<DES> GetLevelDES(Context context, IEnumerable<ObjData> events)
         {
             return events.Select(x => new DES
             {
