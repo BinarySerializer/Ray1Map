@@ -128,6 +128,8 @@ namespace Ray1Map {
         public static Dictionary<GameModeSelection, string> GameDirectories { get; set; }
         public static Dictionary<GameModeSelection, string> GameDirectoriesWeb { get; set; }
 
+        public static bool ExportReadMaps { get; set; }
+
         /// <summary>
         /// Serialization log file
         /// </summary>
@@ -261,6 +263,8 @@ namespace Ray1Map {
                 bool v = HideDirectories.ContainsKey(engine) && HideDirectories[engine];
                 HideDirectories[engine] = s.SerializeBool("HideDirectory" + engine.ToString(), v);
             }
+
+            ExportReadMaps = s.SerializeBool("ExportReadMaps", ExportReadMaps);
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);
