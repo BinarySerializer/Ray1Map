@@ -44,6 +44,10 @@ namespace Ray1Map.Jade {
 						case AI_VarType.Key:
 						case AI_VarType.PointerRef:
 						case AI_VarType.GAO:
+
+						case AI_VarType.Function: // All of these are PointerRef
+						case AI_VarType.Model:
+						case AI_VarType.Network:
 							ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
 							break;
 					}
@@ -60,6 +64,9 @@ namespace Ray1Map.Jade {
 				case AI_VarType.GAO:
 					return ValueKey.ToString();
 				case AI_VarType.PointerRef:
+				case AI_VarType.Function: // All of these are PointerRef
+				case AI_VarType.Model:
+				case AI_VarType.Network:
 					var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 					if (links.CompiledFunctions.ContainsKey(ValueKey)) return links.CompiledFunctions[ValueKey].Name;
 					if (links.Links.ContainsKey(ValueKey)) return links.Links[ValueKey].Name;
@@ -77,7 +84,7 @@ namespace Ray1Map.Jade {
 			var val = ValueToString();
 
 			if (stringOffsetDictionary != null && stringList != null) {
-				if (Link_CategoryType?.Name == "AI_EvalCateg_Type" && Link_ParameterType?.Name == "AI_EvalType_GetString") {
+				if (Link_CategoryType?.Name == "AI_EvalCateg_Type" && Link_ParameterType?.VarType == AI_VarType.String) {
 					if(stringOffsetDictionary.ContainsKey(Parameter)) val = $"\"{stringList[stringOffsetDictionary[Parameter]]}\"";
 				}
 			}

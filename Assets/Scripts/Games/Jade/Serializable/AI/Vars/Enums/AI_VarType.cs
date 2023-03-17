@@ -13,7 +13,26 @@
 		Text,
 		Key,
 		Color,
+		Sound,
 		MessageId,
-		Trigger
+		Trigger,
+
+		Function,
+		Model,
+		Network,
+		Void,
+		Every,
+		Hexa,
+		Binary,
+		Private,
+		Separator,
+		Enum,
+		Save,
+		Reinit,
+		Saveal,
+		Optim,
+		Byref,
+		Byrefarr,
+
 	}
 }

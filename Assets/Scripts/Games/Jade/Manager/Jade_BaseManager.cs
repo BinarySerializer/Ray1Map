@@ -42,6 +42,7 @@ namespace Ray1Map {
 				new GameAction("Export textures", false, true, (input, output) => new Jade_GameActions_ExportTextures(this).ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export models", false, true, (input, output) => new Jade_GameActions_ExportModels(this).ExportModelsAsync(settings, output)),
 				new GameAction("Export sounds", false, true, (input, output) => new Jade_GameActions_ExportSounds(this).ExportSoundsAsync(settings, output, true)),
+				new GameAction("Export AI Lists", false, true, (input, output) => new Jade_GameActions_ExportAIModels(this).ExportAI(settings, output)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, null, output, true, null)),
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPC)),
 				new GameAction("Export unbinarized into RRR Prototype format", true, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPCPrototype)),
@@ -763,6 +764,7 @@ namespace Ray1Map {
 			await Controller.WaitIfNecessary();
 
 			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.BigFiles[0].UniverseKey);
+			loader.Universe = univers;
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(context, new Jade_Key(context, 0)) { ForceResolve = true };
 				loader.BeginSpeedMode(univers.Key, async s => { // Univers is bin compressed in Montreal version
@@ -778,17 +780,6 @@ namespace Ray1Map {
 			} else {
 				univers.Resolve();
 				await loader.LoadLoop(context.Deserializer); // First resolve universe
-			}
-			// Make export
-			if(loader.ShouldExportVars) {
-				string worldName = "Univers";
-				string name = "univers";
-				univers?.Value?.Vars?.Value?.ExportVarsOverview(worldName, $"{name}_instance");
-				univers?.Value?.Vars?.Value?.ExportStruct(worldName, $"{name}_instance");
-				univers?.Value?.Model?.Value?.Vars?.ExportVarsOverview(worldName, $"{name}_model");
-				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_model");
-				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_save", save: true);
-				univers?.Value?.Model?.Value?.Vars?.ExportStruct(worldName, $"{name}_save_serializable", save: true, mode: AI_Vars.ExportStructMode.BinarySerializable);
 			}
 
 			return univers;
@@ -857,18 +848,21 @@ namespace Ray1Map {
 			bool isWOW = false;
 			bool isEditor = false;
 			bool isPrefabs = false;
-			if (levelInfos == null) {
-				throw new Exception($"Before loading, add the level list using the Create Level List game action.");
-			} else {
-				var levInfos = levelInfos.Where(l => l.Key == worldKey.Key);
-				if (levInfos.Count() > 1) {
-					var levels = levelInfos.GroupBy(x => x.WorldName).ToArray();
-					levInfos = levels[context.GetR1Settings().World].Where(l => l.Key == worldKey.Key);
+
+			if (loadFlags != LoadFlags.Universe) { // If we're loading more than just the universe
+				if (levelInfos == null) {
+					throw new Exception($"Before loading, add the level list using the Create Level List game action.");
+				} else {
+					var levInfos = levelInfos.Where(l => l.Key == worldKey.Key);
+					if (levInfos.Count() > 1) {
+						var levels = levelInfos.GroupBy(x => x.WorldName).ToArray();
+						levInfos = levels[context.GetR1Settings().World].Where(l => l.Key == worldKey.Key);
+					}
+					var levInfo = levInfos.FirstOrDefault();
+					isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
+					isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
+					isPrefabs = levInfo != null && levInfo.IsPrefabs;
 				}
-				var levInfo = levInfos.FirstOrDefault();
-				isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
-				isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
-				isPrefabs = levInfo != null && levInfo.IsPrefabs;
 			}
 
 			if (loadFlags.HasFlag(LoadFlags.Universe) && !isPrefabs) {

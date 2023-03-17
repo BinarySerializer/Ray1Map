@@ -28,10 +28,11 @@ namespace Ray1Map.Jade {
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
 		public bool LoadSingle { get; set; } = false;
 
+		public Jade_Reference<AI_Instance> Universe { get; set; }
+
 		// Writing
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
 		public Dictionary<uint, string> WrittenFileKeys { get; set; } = new Dictionary<uint, string>();
-		public bool ShouldExportVars { get; set; } = false;
 		public bool Raw_WriteFilesAlreadyInBF { get; set; } = false;
 		public bool Raw_RelocateKeys { get; set; } = false;
 		public bool Raw_UseOriginalFileNames { get; set; } = false;
@@ -94,7 +95,7 @@ namespace Ray1Map.Jade {
 			public Dictionary<uint, List<ExportFilenameGuess>> Guesses { get; set; } = new Dictionary<uint, List<ExportFilenameGuess>>();
 			public Dictionary<uint, ExportFilenameGuess> Facts { get; set; } = new Dictionary<uint, ExportFilenameGuess>();
 
-			public void AddGuess(uint key, string filename, string directory, int priority) {
+			public void AddGuess(uint key, string filename, string directory, float priority) {
 				if (key == 0 || key == 0xFFFFFFFF) return;
 				if (!Guesses.ContainsKey(key))
 					Guesses[key] = new List<ExportFilenameGuess>();
@@ -111,7 +112,7 @@ namespace Ray1Map.Jade {
 				Facts[key] = new ExportFilenameGuess() {
 					Filename = filename,
 					Directory = directory,
-					Priority = int.MaxValue,
+					Priority = float.MaxValue,
 				};
 			}
 
@@ -137,7 +138,7 @@ namespace Ray1Map.Jade {
 		public class ExportFilenameGuess {
 			public string Filename { get; set; }
 			public string Directory { get; set; }
-			public int Priority { get; set; }
+			public float Priority { get; set; }
 		}
 		public class BinData {
 			public Jade_Key Key { get; set; }
@@ -508,9 +509,19 @@ namespace Ray1Map.Jade {
 									} else {
 										filename = FileInfos[currentRef.Key].FilePathValidCharacters;
 									}
-									var outFilename = Context.BasePath + "files/" + filename;
+									var outFilename = $"{Context.BasePath}files/{filename}";
 									if (File.Exists(outFilename)) {
 										Context.SystemLogger?.LogInfo($"File already exists: {outFilename}");
+
+										// Append key to filename
+										var filenameOnly = filename.Replace("\\","/");
+										var dirname = "";
+										var slashIndex = filenameOnly.LastIndexOf("/");
+										if(slashIndex != -1) {
+											dirname = filenameOnly.Substring(0, slashIndex + 1);
+											filenameOnly = filenameOnly.Substring(slashIndex + 1);
+										}
+										outFilename = $"{Context.BasePath}files/{dirname}{currentRef.Key.Key:X8}_{filenameOnly}";
 									}
 									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
 									if (FileInfos.ContainsKey(currentRef.Key)) {

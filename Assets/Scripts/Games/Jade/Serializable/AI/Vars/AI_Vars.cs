@@ -115,7 +115,7 @@ namespace Ray1Map.Jade {
             ExportIDAStruct(null);*/
         }
 
-        public void ExportVarsOverview(string worldName, string name) {
+        public string ExportVarsOverview() {
             StringBuilder b = new StringBuilder();
             b.AppendLine($"VARS COUNT: {Vars.Length}");
 
@@ -130,21 +130,14 @@ namespace Ray1Map.Jade {
                     $"\n\t\tValue element size: {Vars[i].Link.Size}" +
                     $"\n\t\tValue count: {Vars[i].Info.ArrayLength}" +
                     $"\n\t\tValue dimensions count: {Vars[i].Info.ArrayDimensionsCount}" +
-                    $"\n\t\tVariable flags: {Vars[i].Info.Flags:X4}" +
-                    $"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags & 0x20) != 0}");
+                    $"\n\t\tVariable flags: {Vars[i].Info.Flags}" +
+                    $"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags.HasFlag(AI_VarInfoFlags.Reinit))}");
             }
-            string basePath = $"{Context.BasePath}vars/";
-            if (worldName != null) basePath += $"{worldName}/";
-            string path = basePath + Key + "_" + Context.GetR1Settings().Platform + ".vardec";
-            if (name != null) {
-                path = basePath + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
-            }
-            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-            System.IO.File.WriteAllText(path, b.ToString());
+            return b.ToString();
 
         }
 
-        public void ExportStruct(string worldName, string name, bool save = false, ExportStructMode mode = ExportStructMode.IDA) 
+        public string ExportStruct(string name, bool save = false, ExportStructMode mode = ExportStructMode.IDA) 
         {
             StringBuilder b = new StringBuilder();
             StringBuilder serializeImplStr = mode == ExportStructMode.BinarySerializable ? new StringBuilder() : null;
@@ -183,9 +176,9 @@ namespace Ray1Map.Jade {
                     }
                 }
 
-                if (!save || 
-                    BitHelpers.ExtractBits(v.Info.Flags, 1, 6) == 1 || // If this is 0, the values are read from the save file but not overwritten
-                    BitHelpers.ExtractBits(v.Info.Flags, 1, 4) == 1) 
+                if (!save ||
+					v.Info.Flags.HasFlag(AI_VarInfoFlags.SaveAl) || // If this is 0, the values are read from the save file but not overwritten
+					v.Info.Flags.HasFlag(AI_VarInfoFlags.Save)) 
                 {
                     string varName = v.Name;
                     
@@ -265,7 +258,20 @@ namespace Ray1Map.Jade {
                             type = "Var_String";
                             isValue = false;
                             break;
-                    }
+
+						case AI_VarType.Function: // PointerRef
+							type = "Var_Function";
+							isValue = false;
+							break;
+						case AI_VarType.Model: // PointerRef
+							type = "Var_Model";
+							isValue = false;
+							break;
+						case AI_VarType.Network: // PointerRef
+							type = "Var_Network";
+							isValue = false;
+							break;
+					}
 
                     if (mode == ExportStructMode.IDA)
                     {
@@ -300,21 +306,137 @@ namespace Ray1Map.Jade {
                 b.AppendLine($"}}");
             }
 
-            string basePath = $"{Context.BasePath}vars_{mode.ToString().ToLower()}/";
-
-            if (worldName != null) 
-                basePath += $"{worldName}/";
-
-            string path = basePath + Key + "_" + Context.GetR1Settings().Platform + ".varida";
-
-            if (name != null) 
-                path = basePath + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
-
-            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-            System.IO.File.WriteAllText(path, b.ToString());
+            return b.ToString();
 
         }
 
+		public string ExportVarFile() {
+			StringBuilder b = new StringBuilder();
+
+            b.AppendLine("// Define at least one function in a track");
+            for(int i = 0; i < Functions.Length; i++) {
+                var func = Functions[i];
+                var name = "name";
+                if (func.IsNull) {
+                    b.Append("//");
+                } else {
+                    name = func.Value.FunctionDef?.Name;
+                }
+                b.AppendLine($"function track{i} = \"{name}\"");
+			}
+            b.AppendLine();
+
+			foreach (AI_Var v in Vars) {
+                var type = v.Type switch {
+                    AI_VarType.Bool => "bool",
+                    AI_VarType.Int => "int",
+					AI_VarType.Float => "float",
+					AI_VarType.Vector => "vector",
+					AI_VarType.String => "string",
+                    AI_VarType.Function => "function",
+					AI_VarType.GAO => "object",
+					AI_VarType.Message => "message",
+                    AI_VarType.Model => "model",
+                    AI_VarType.Network => "network",
+					AI_VarType.Text => "text",
+					AI_VarType.Key => "key",
+					AI_VarType.Color => "color",
+					AI_VarType.Sound => "sound",
+					AI_VarType.Byref => "byref",
+					AI_VarType.Byrefarr => "byrefarr",
+					AI_VarType.MessageId => "messageid",
+					AI_VarType.Trigger => "trigger",
+
+					AI_VarType.Void => "void",
+					AI_VarType.Every => "every",
+					AI_VarType.Hexa => "hexa",
+					AI_VarType.Binary => "binary",
+					AI_VarType.Private => "private",
+					AI_VarType.Separator => "separator",
+					AI_VarType.Enum => "enum",
+					AI_VarType.Save => "save",
+					AI_VarType.Reinit => "reinit",
+					AI_VarType.Saveal => "saveal",
+					AI_VarType.Optim => "optim",
+
+					_ => "unknown"
+                };
+                var flags = v.Info.Flags;
+
+                if (flags.HasFlag(AI_VarInfoFlags.Pointer)) {
+					type = $"pointer {type}";
+				}
+                if (flags.HasFlag(AI_VarInfoFlags.SaveAl)) {
+                    type = $"saveal {type}";
+                } else if (flags.HasFlag(AI_VarInfoFlags.Save)) {
+                    type = $"save {type}";
+                }
+				if (flags.HasFlag(AI_VarInfoFlags.Reinit)) {
+					type = $"reinit {type}";
+				}
+				if (flags.HasFlag(AI_VarInfoFlags.Private)) {
+                    type = $"private {type}";
+                }
+                var tabs = 8;
+                tabs -= type.Length / 4;
+                if(tabs <= 0) tabs = 1;
+                b.Append(type);
+                for(int i = 0; i < tabs; i++) b.Append('\t');
+				b.Append(v.Name);
+
+                bool usedVraiFauxEnum = false;
+
+                if (v.Info.ArrayDimensionsCount != 0) {
+                    for (int i = 0; i < v.Info.ArrayDimensionsCount; i++) {
+                        b.Append('[');
+                        b.Append(v.Value.Dimensions[i]);
+                        b.Append(']');
+                    }
+                    // TODO: array values are like this = (-1, -1, -1, -1)
+                } else {
+                    switch (v.Type) {
+                        case AI_VarType.Bool:
+                            if(v.Value.ValueBool)
+                                b.Append(" = (1==1)");
+                            break;
+                        case AI_VarType.Int:
+                            if (v.Name.StartsWith("b_") && (v.Value.ValueInt == 0 || v.Value.ValueInt == 1)) {
+                                usedVraiFauxEnum = true;
+                                if (v.Value.ValueInt == 1)
+                                    b.Append($" = faux_vrai");
+                                else
+                                    b.Append($" = vrai_faux");
+                            } else {
+                                if (v.Value.ValueInt != 0)
+                                    b.Append($" = {v.Value.ValueInt}");
+                            }
+                            break;
+						case AI_VarType.Float:
+							if (v.Value.ValueFloat != 0)
+								b.Append($" = {v.Value.ValueFloat}");
+                            break;
+						case AI_VarType.Vector:
+                            var vec = v.Value.ValueVector;
+							if (vec != Jade_Vector.Zero)
+								b.Append($" = cvector({vec.X}, {vec.Y}, {vec.Z})");
+                            else
+                                b.Append(" = Cv_NullVector");
+							break;
+                        case AI_VarType.Color:
+                            if (v.Value.ValueInt != 0) {
+								b.Append($" = 0x{v.Value.ValueUInt:X8}");
+							}
+                            break;
+					}
+                }
+                if (flags.HasFlag(AI_VarInfoFlags.Enum) && !usedVraiFauxEnum) {
+					b.Append(" // Enum");
+				}
+                b.AppendLine();
+			}
+
+			return b.ToString();
+		}
 		public string ExportForUnbinarizeImport() {
 			StringBuilder b = new StringBuilder();
 

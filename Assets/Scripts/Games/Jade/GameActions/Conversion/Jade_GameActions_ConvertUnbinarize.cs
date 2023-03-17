@@ -259,7 +259,7 @@ namespace Ray1Map {
 							int count = validworlds.Count();
 							int i = 0;
 							foreach (var w in validworlds) {
-								namingData.AddGuess(w.Key, null, directory, 100 * (i + 1) / count);
+								namingData.AddGuess(w.Key, null, directory, 100f * (i + 1) / count);
 								i++;
 							}
 						}
@@ -275,18 +275,61 @@ namespace Ray1Map {
 							};
 							writeloader.Raw_FilenameGuesses = namingData;
 							if (exportForDifferentGameMode) {
-								writeloader.Raw_RelocateKeys = true;
+								/*writeloader.Raw_RelocateKeys = true;
 								writeloader.Raw_KeysToAvoid = keysToAvoid;
 								writeloader.Raw_DontRelocateKeys = dontRelocateKeys;
 								writeloader.Raw_DontWriteKeys = dontWriteKeys;
 								writeloader.Raw_KeysToRelocate = keysToRelocate;
-								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
+								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;*/
 							}
 							writeloader.WrittenFileKeys = writtenFileKeys;
 							writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
 
 							foreach (var wol in wols) {
-								var wkey = writeloader.Raw_RelocateKeyIfNecessary(wol.Key);
+								var wkey = Raw_RelocateKeyIfNecessary(wol.Key);
+
+								if (exportForDifferentGameMode) {
+									// Relocate keys in wol...
+									foreach (var wow in wol.Worlds) {
+										if (!wow.Key.IsNull)
+											wow.Key = new Jade_Key(writeContext, Raw_RelocateKeyIfNecessary(wow.Key));
+									}
+									// ... and add existing wows (_basic_global, _basic_Rayman)
+									if (targetMode == GameModeSelection.RaymanRavingRabbidsPCPrototype) {
+										const uint basicRaymanKey = 0x9E00DCD2;
+										const uint basicGlobalKey = 0x9E007AEA;
+										bool addBasicGlobal = false, addBasicRayman = false;
+										foreach (var wow in wol.Worlds) {
+											if (!wow.Key.IsNull && keysToRelocateReverse.ContainsKey(wow.Key)) {
+												switch (keysToRelocateReverse[wow.Key]) {
+													case basicGlobalKey: addBasicGlobal = true; break;
+													case basicRaymanKey: addBasicRayman = true; break;
+												}
+											}
+										}
+										if (addBasicGlobal || addBasicRayman) {
+											List<Jade_GenericReference> worlds = new List<Jade_GenericReference>();
+											var validworlds = wol?.Worlds?.Where(w => !w.IsNull);
+											if (addBasicGlobal) {
+												worlds.Add(
+													new Jade_GenericReference(writeContext,
+													new Jade_Key(writeContext, basicGlobalKey),
+													new Jade_FileType() { Extension = ".wow" }));
+											}
+											if (addBasicRayman) {
+												worlds.Add(
+													new Jade_GenericReference(writeContext,
+													new Jade_Key(writeContext, basicRaymanKey),
+													new Jade_FileType() { Extension = ".wow" }));
+
+											}
+											worlds.AddRange(validworlds);
+											wol.Worlds = worlds.ToArray();
+											wol.FileSize = (uint)wol.Worlds.Length * 8;
+										}
+									}
+								}
+
 								Jade_Reference<WOR_WorldList> writeWol = new Jade_Reference<WOR_WorldList>(writeContext, new Jade_Key(context, wkey)) {
 									Value = wol
 								};
