@@ -279,14 +279,19 @@ namespace Ray1Map {
 								writeloader.Raw_KeysToAvoid = keysToAvoid;
 								writeloader.Raw_DontRelocateKeys = dontRelocateKeys;
 								writeloader.Raw_DontWriteKeys = dontWriteKeys;
-								writeloader.Raw_KeysToRelocate = keysToRelocate;
-								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;*/
+								writeloader.Raw_KeysToRelocate = keysToRelocate;*/
+								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
 							}
 							writeloader.WrittenFileKeys = writtenFileKeys;
 							writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
 
 							foreach (var wol in wols) {
+								uint originalWolKey = wol.Key;
 								var wkey = Raw_RelocateKeyIfNecessary(wol.Key);
+								if (wkey != originalWolKey) {
+									var originalFilename = namingData.GetMostLikelyFilename(originalWolKey);
+									namingData.AddFact(wkey, originalFilename.Filename, originalFilename.Directory);
+								}
 
 								if (exportForDifferentGameMode) {
 									// Relocate keys in wol...

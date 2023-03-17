@@ -62,11 +62,11 @@ namespace Ray1Map.Jade {
 				case AI_VarType.Float: return $"{Parameter}/{ValueFloat}";
 				case AI_VarType.Key:
 				case AI_VarType.GAO:
-					return ValueKey.ToString();
-				case AI_VarType.PointerRef:
-				case AI_VarType.Function: // All of these are PointerRef
-				case AI_VarType.Model:
 				case AI_VarType.Network:
+				case AI_VarType.PointerRef:
+					return ValueKey.ToString();
+				case AI_VarType.Function:
+				case AI_VarType.Model:
 					var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 					if (links.CompiledFunctions.ContainsKey(ValueKey)) return links.CompiledFunctions[ValueKey].Name;
 					if (links.Links.ContainsKey(ValueKey)) return links.Links[ValueKey].Name;

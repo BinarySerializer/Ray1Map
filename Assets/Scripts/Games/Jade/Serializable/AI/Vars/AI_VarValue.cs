@@ -19,6 +19,7 @@ namespace Ray1Map.Jade {
 		public Jade_Vector ValueVector { get; set; }
 		public Jade_Key ValueKey { get; set; }
 		public AI_VarValue[] ValueArray { get; set; }
+		public Jade_Color ValueColor { get; set; }
 
 		public Jade_Key TextFileKey { get; set; }
 		public int TextEntryIDKey { get; set; }
@@ -54,12 +55,15 @@ namespace Ray1Map.Jade {
 						break;
 					case AI_VarType.Key:
 					case AI_VarType.GAO:
+
+					case AI_VarType.PointerRef:
+					case AI_VarType.Network:
+					case AI_VarType.Function:
+					case AI_VarType.Model:
 						ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
 						break;
 					case AI_VarType.Vector:
-						if (Var.Link.Key == 37) { // TODO: Why only this vector type?
-							ValueVector = s.SerializeObject<Jade_Vector>(ValueVector, name: nameof(ValueVector));
-						}
+						ValueVector = s.SerializeObject<Jade_Vector>(ValueVector, name: nameof(ValueVector));
 						break;
 					case AI_VarType.Text:
 						TextFileKey = s.SerializeObject<Jade_Key>(TextFileKey, name: nameof(TextFileKey));
@@ -75,7 +79,15 @@ namespace Ray1Map.Jade {
 					case AI_VarType.Trigger:
 						ValueTrigger = s.SerializeObject<AI_Trigger>(ValueTrigger, name: nameof(ValueTrigger));
 						break;
+					case AI_VarType.String:
+						ValueInt = s.Serialize<int>(ValueInt, name: nameof(ValueInt));
+						break;
+					case AI_VarType.Color:
+						ValueColor = s.SerializeObject<Jade_Color>(ValueColor, name: nameof(ValueColor));
+						break;
 					default:
+						//throw new Exception($"What should I do for {Var.Type}?");
+						s.SystemLogger?.LogInfo($"Value with type {Var.Type} at {s.CurrentPointer}");
 						if (Var.Link.Size == 4) {
 							ValueInt = s.Serialize<int>(ValueInt, name: nameof(ValueInt));
 						}
