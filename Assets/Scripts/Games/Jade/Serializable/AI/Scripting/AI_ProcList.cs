@@ -102,6 +102,8 @@ namespace Ray1Map.Jade {
 
 
 		public string ExportForUnbinarizeImport() {
+			if(Procs == null) return null;
+
 			StringBuilder b = new StringBuilder();
 
 			foreach (Proc p in Procs) {

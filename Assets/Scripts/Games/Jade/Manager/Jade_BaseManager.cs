@@ -42,7 +42,7 @@ namespace Ray1Map {
 				new GameAction("Export textures", false, true, (input, output) => new Jade_GameActions_ExportTextures(this).ExportTexturesAsync(settings, output, true)),
 				new GameAction("Export models", false, true, (input, output) => new Jade_GameActions_ExportModels(this).ExportModelsAsync(settings, output)),
 				new GameAction("Export sounds", false, true, (input, output) => new Jade_GameActions_ExportSounds(this).ExportSoundsAsync(settings, output, true)),
-				new GameAction("Export AI Lists", false, true, (input, output) => new Jade_GameActions_ExportAIModels(this).ExportAI(settings, output)),
+				new GameAction("Export AI Lists", false, true, (input, output) => new Jade_GameActions_ExportAIModels(this).ExportAI(settings, output, exportInstances: true)),
 				new GameAction("Export unbinarized assets", false, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, null, output, true, null)),
 				new GameAction("Export unbinarized into RRR format", true, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPC)),
 				new GameAction("Export unbinarized into RRR Prototype format", true, true, (input, output) => new Jade_GameActions_ConvertUnbinarize(this).ExportUnbinarizedAsync(settings, input, output, true, targetMode: GameModeSelection.RaymanRavingRabbidsPCPrototype)),
