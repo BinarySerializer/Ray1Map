@@ -488,6 +488,7 @@ public class SettingsWindow : UnityWindow
         DrawHeader("Serialization");
 
         Settings.BackupFiles = EditorField("Create .BAK backup files", Settings.BackupFiles);
+        Settings.ExportReadMaps = EditorField("Export read maps", Settings.ExportReadMaps);
 
         Rect rect = GetNextRect(ref YPos);
         rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));

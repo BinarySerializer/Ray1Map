@@ -58,7 +58,10 @@ namespace Ray1Map
             /// </summary>
             public PointerSize? LoggingPointerSize => PointerSize.Pointer32;
 
-			public Endian DefaultEndianness => Endian.Little;
+            public bool AutoInitReadMap => Ray1Map.Settings.ExportReadMaps;
+            public bool AutoExportReadMap => Ray1Map.Settings.ExportReadMaps;
+
+            public Endian DefaultEndianness => Endian.Little;
 		}
 
         public class R1FileManager : IFileManager

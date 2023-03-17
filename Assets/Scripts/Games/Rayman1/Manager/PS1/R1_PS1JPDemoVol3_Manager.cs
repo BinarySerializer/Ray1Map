@@ -3,9 +3,10 @@ using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
+using Animation = BinarySerializer.Ray1.Animation;
+using Context = BinarySerializer.Context;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace Ray1Map.Rayman1
@@ -47,7 +48,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level tile set file path</returns>
-        public virtual string GetTileSetFilePath(GameSettings settings) => $"_{GetWorldName(settings.R1_World)}_{settings.Level:00}.R16";
+        public virtual string GetTileSetFilePath(GameSettings settings) => $"_{GetWorldName(settings.R1_World)}_01.R16";
 
         /// <summary>
         /// Gets the file path for the level map file
@@ -67,10 +68,14 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.EnumerateWorlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(w)}_*.MAP", SearchOption.TopDirectoryOnly)
-            .Select(FileSystem.GetFileNameWithoutExtensions)
-            .Select(x => Int32.Parse(x.Substring(4)))
-            .ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[]
+        {
+            new GameInfo_Volume(null, new GameInfo_World[]
+            {
+                new GameInfo_World(1, "Jungle", new[] { 1, 2, 3, 4, 5, 6 }),
+                new GameInfo_World(3, "Mountain", new[] { 1 }),
+            })
+        };
 
         public override string ExeFilePath => "RAY.EXE";
         public override uint? ExeBaseAddress => 0x80180000 - 0x800;
@@ -184,12 +189,130 @@ namespace Ray1Map.Rayman1
             var levelPath = GetLevelFilePath(context.GetR1Settings());
             var mapPath = GetMapFilePath(context.GetR1Settings());
 
-            // Read the files
-            var map = FileFactory.Read<MapData>(context, mapPath);
-            var lvl = FileFactory.Read<PS1_LevelData>(context, levelPath);
+            // Do this to include unused world graphics data
+            if (context.GetR1Settings().R1_World == World.Mountain)
+                ReadAllWorldData(context);
+
+            // Read the level
+            // The game hard-codes these addresses in a table, so we should ideally read that. But this works for now.
+            int lvlOffset = 0x8000 * (context.GetR1Settings().Level - 1);
+            var lvl = FileFactory.Read<PS1_LevelData>(context, context.FilePointer(levelPath) + lvlOffset);
+
+            // Read the map
+            MapData map;
+
+            if (context.FileExists(mapPath))
+            {
+                map = FileFactory.Read<MapData>(context, mapPath);
+            }
+            else
+            {
+                ObjData maxObjX = lvl.Objects.OrderBy(x => x.XPosition + x.OffsetBX).Last();
+                ObjData maxObjY = lvl.Objects.OrderBy(x => x.YPosition + x.OffsetBY).Last();
+                int width = (maxObjX.XPosition + maxObjX.OffsetBX) / 16 + 4;
+                int height = (maxObjY.YPosition + maxObjY.OffsetBY) / 16 + 2;
+
+                map = new MapData(width, height);
+            }
 
             // Load the level
             return await LoadAsync(context, map, lvl.Objects, lvl.ObjectLinkingTable.Select(x => (ushort)x).ToArray());
+        }
+
+        private void ReadAllWorldData(Context context)
+        {
+            // Hacky, but this also gets unreferenced data for which there is some in Mountain
+            //
+            // Data is always stored like:
+            //  Animation[]
+            //  ImgBuffer
+            //  Sprite[]
+            //  
+            //  Repeat:
+            //  AnimationLayer[]
+            //  AnimationFrame[]
+            //
+
+            string worldPath = GetWorldFilePath(context.GetR1Settings());
+            BinaryFile worldFile = context.GetRequiredFile(worldPath);
+            BinaryDeserializer s = context.Deserializer;
+            s.DoAt(worldFile.StartPointer, () =>
+            {
+                List<DES> des = new();
+                int i = 0;
+
+                while (s.CurrentFileOffset < worldFile.Length)
+                {
+                    int animsCount = 0;
+
+                    while (s.SerializePointer(default, allowInvalid: true, name: "FirstAnimValue") != null)
+                    {
+                        animsCount++;
+                        s.Goto(s.CurrentPointer + (12 - 4));
+                    }
+
+                    s.Goto(s.CurrentPointer - (12 * animsCount) - 4);
+
+                    Animation[] animations = s.SerializeObjectArray<Animation>(default, animsCount, name: "Animations");
+
+                    Pointer imgBufferPointer = s.CurrentPointer;
+
+                    long spritesAndImgBufferLength = animations[0].LayersPointer.FileOffset - 4 - s.CurrentPointer.FileOffset;
+                    int currentSpritesLength = 0;
+                    int maxImgBufferLength = 0;
+                    int spritesCount = 0;
+
+                    s.Goto(animations[0].LayersPointer - 4 - 24);
+
+                    Pointer spritesPointer = null;
+
+                    // Read sprites in reverse
+                    while (maxImgBufferLength + currentSpritesLength < spritesAndImgBufferLength)
+                    {
+                        currentSpritesLength += 24;
+                        spritesCount++;
+
+                        spritesPointer = s.CurrentPointer;
+                        Sprite sprite = s.SerializeObject<Sprite>(default, name: "Sprite");
+
+                        int imgBufferLength = sprite.ImageBufferOffset;
+
+                        if (sprite.Depth == SpriteDepth.BPP_8)
+                            imgBufferLength += sprite.Width * sprite.Height;
+                        else
+                            imgBufferLength += sprite.Width * sprite.Height / 2;
+
+                        if (imgBufferLength > maxImgBufferLength)
+                            maxImgBufferLength = imgBufferLength;
+
+                        s.Log($"{maxImgBufferLength + currentSpritesLength} < {spritesAndImgBufferLength}");
+                        s.Goto(s.CurrentPointer - 24 * 2);
+                    }
+
+                    des.Add(new DES
+                    {
+                        ImageDescriptorsPointer = spritesPointer,
+                        AnimationDescriptorsPointer = animations.First().Offset,
+                        ImageBufferPointer = imgBufferPointer,
+                        ImageDescriptorCount = (ushort)spritesCount,
+                        AnimationDescriptorCount = (byte)animations.Length,
+                        ImageBufferLength = (uint?)maxImgBufferLength,
+                        Name = $"Unused {i}",
+                        EventData = null
+                    });
+
+                    s.Goto(animations.Last().Frames.Last().Offset + 4);
+                    i++;
+                }
+
+                context.StoreObject("DES", des);
+            });
+        }
+
+        protected override IEnumerable<DES> GetLevelDES(Context context, IEnumerable<ObjData> events)
+        {
+            // Hacky way to add graphics
+            return base.GetLevelDES(context, events).Concat((IEnumerable<DES>)context.GetStoredObject<List<DES>>("DES") ?? Array.Empty<DES>());
         }
 
         public override async UniTask LoadFilesAsync(Context context)

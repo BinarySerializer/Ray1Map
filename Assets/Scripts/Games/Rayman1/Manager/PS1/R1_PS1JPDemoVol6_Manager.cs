@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using BinarySerializer.PS1;
 using UnityEngine;
+using Animation = BinarySerializer.Ray1.Animation;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace Ray1Map.Rayman1
 {
@@ -132,6 +134,21 @@ namespace Ray1Map.Rayman1
 
             // Load the level
             return await LoadAsync(context, map, level.Objects, level.ObjectLinkingTable.Select(x => (ushort)x).ToArray());
+        }
+
+
+        protected override IEnumerable<DES> GetLevelDES(Context context, IEnumerable<ObjData> events)
+        {
+            // Hacky way to add unused graphics
+            var worldFile = context.GetRequiredFile(GetWorldFilePath(context.GetR1Settings()));
+            return base.GetLevelDES(context, events).Append(new DES
+            {
+                ImageDescriptorsPointer = new Pointer(0xD3DC, worldFile, offsetType: Pointer.OffsetType.File),
+                AnimationDescriptorsPointer = new Pointer(0xD3B8, worldFile, offsetType: Pointer.OffsetType.File),
+                ImageDescriptorCount = 16,
+                AnimationDescriptorCount = 3,
+                Name = "Unused",
+            });
         }
 
         public override async UniTask LoadFilesAsync(Context context)
