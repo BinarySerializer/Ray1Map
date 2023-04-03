@@ -306,11 +306,17 @@ namespace Ray1Map {
 										const uint basicRaymanKey = 0x9E00DCD2;
 										const uint basicGlobalKey = 0x9E007AEA;
 										bool addBasicGlobal = false, addBasicRayman = false;
-										foreach (var wow in wol.Worlds) {
-											if (!wow.Key.IsNull && keysToRelocateReverse.ContainsKey(wow.Key)) {
-												switch (keysToRelocateReverse[wow.Key]) {
-													case basicGlobalKey: addBasicGlobal = true; break;
-													case basicRaymanKey: addBasicRayman = true; break;
+
+										if (context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR && context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRRPrototype) {
+											addBasicGlobal = true;
+											addBasicRayman = true;
+										} else {
+											foreach (var wow in wol.Worlds) {
+												if (!wow.Key.IsNull && keysToRelocateReverse.ContainsKey(wow.Key)) {
+													switch (keysToRelocateReverse[wow.Key]) {
+														case basicGlobalKey: addBasicGlobal = true; break;
+														case basicRaymanKey: addBasicRayman = true; break;
+													}
 												}
 											}
 										}
@@ -409,6 +415,21 @@ namespace Ray1Map {
 						}
 
 						LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+
+						// RRR: Don't export audio files that already exist in the proto, as the proto's are sourced from the final anyway
+						if (!removeSound && exportForDifferentGameMode && targetMode.Value == GameModeSelection.RaymanRavingRabbidsPCPrototype && context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR) {
+							foreach (var cache in actualLoader.Caches) {
+								foreach (var cachedObj in cache.Value) {
+									var key = cachedObj.Key;
+									var obj = cachedObj.Value;
+									if (obj != null && obj.GetType() == typeof(SND_Wave) && keysToAvoid.Contains(key)) {
+										DontRelocateKey(key);
+										DontWriteKey(key);
+									}
+								}
+							}
+						}
+
 						var worlds = actualLoader.LoadedWorlds;
 
 						if (exportForDifferentGameMode) {
