@@ -447,7 +447,9 @@ namespace Ray1Map.Jade {
                 b.Append(",");
                 b.Append(v.Type.ToString());
                 b.Append(",");
-                b.Append(v.Info.ArrayDimensionsCount);
+				b.Append(((uint)(v.Info.Flags)).ToString("X4"));
+				b.Append(",");
+				b.Append(v.Info.ArrayDimensionsCount);
                 b.Append(",");
                 b.Append(v.Info.ArrayLength);
                 b.AppendLine();

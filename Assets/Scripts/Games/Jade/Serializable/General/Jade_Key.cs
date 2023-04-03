@@ -11,11 +11,15 @@ namespace Ray1Map.Jade {
 
         public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (!IsNull && Loader != null) {
+			if (!IsNull && Loader != null) { // Only works on already read keys
 				if(Loader.Raw_RelocateKeys) Key = Loader.Raw_RelocateKeyIfNecessary(Key);
-				if(Pre_IsTextKey) Loader.AddTextKey(Key);
 			}
+
 			Key = s.Serialize<uint>(Key, name: nameof(Key));
+
+			if (!IsNull && Loader != null) {
+				if (Pre_IsTextKey) Loader.AddTextKey(Key);
+			}
 		}
 
 		public Jade_Key() { }

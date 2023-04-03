@@ -22,6 +22,7 @@ namespace Ray1Map {
 				public string Name { get; set; }
 				public AI_VarType Type { get; set; }
 				public int ArrayLength { get; set; }
+				public AI_VarInfoFlags Flags { get; set; }
 				public int ArrayDimensionsCount { get; set; }
 			}
 		}
@@ -114,7 +115,7 @@ namespace Ray1Map {
 			if (inputDir != null) {
 				DirectoryInfo keysDir = new DirectoryInfo(Path.Combine(inputDir,"Keys"));
 				if (keysDir.Exists) {
-					var keyFiles = keysDir.GetFiles("*.txt", SearchOption.TopDirectoryOnly);
+					var keyFiles = keysDir.GetFiles("*.txt", SearchOption.AllDirectories);
 					foreach (var f in keyFiles) {
 						string[] lines = File.ReadAllLines(f.FullName);
 						foreach (var l in lines) {
@@ -155,8 +156,9 @@ namespace Ray1Map {
 							AIModelInfo.Var variable = new AIModelInfo.Var() {
 								Name = lineSplit[0],
 								Type = (AI_VarType)Enum.Parse(typeof(AI_VarType), lineSplit[1]),
-								ArrayDimensionsCount = int.Parse(lineSplit[2]),
-								ArrayLength = int.Parse(lineSplit[3])
+								Flags = (AI_VarInfoFlags)Convert.ToUInt32(lineSplit[2], 16),
+								ArrayDimensionsCount = int.Parse(lineSplit[3]),
+								ArrayLength = int.Parse(lineSplit[4])
 							};
 							vars.Add(variable);
 						}
@@ -608,6 +610,11 @@ namespace Ray1Map {
 																continue;
 															}
 
+															// Warn when overwriting private variable
+															if (modelVar.Flags.HasFlag(AI_VarInfoFlags.Private)) {
+																Debug.Log($"{allowedAI[aiModel.Key].Name}: Overwriting private variable: {variable.Name} - {variable.Type}");
+															}
+
 															// Go over int values (in arrays too!)
 															// If the int matches any loaded key, relocate it in advance
 															if (variable.Type == AI_VarType.Int) {
@@ -648,6 +655,82 @@ namespace Ray1Map {
 																	}
 																}
 																DoForAllValues(variable, v => CheckTrigger(v));
+															}
+														}
+
+														// ADD SPECIFIC VARIABLES
+														void AddVariable(string name, AI_VarType type, object value, AI_VarInfoFlags flags) {
+															if (!modelVars.Any(mv => mv.Name == name)) return;
+
+															// Note: arrays are not yet supported
+															var namesList = vars.Names.ToList();
+															var nameObject = new AI_VarName() {
+																Name = name
+															};
+															namesList.Add(nameObject);
+															vars.Names = namesList.ToArray();
+															vars.NameBufferSize += 30; // Name object size
+
+															var variable = new AI_Var() {
+																Type = type,
+																Index = vars.VarInfos.Length,
+															};
+															var varInfo = new AI_VarInfo() {
+																Flags = flags,
+																ArrayDimensionsCount = 0,
+																ArrayLength = 1,
+																BufferOffset = (int)vars.VarValueBufferSize,
+															};
+															var varValue = new AI_VarValue() {
+																Var = variable,
+																
+															};
+															switch (type) {
+																case AI_VarType.Int:
+																	varInfo.Type = 33; // TODO: Get this index from Links directly
+																	varValue.ValueInt = (int)value;
+																	break;
+																default:
+																	throw new NotImplementedException($"Unsupported variable type {type}");
+															}
+
+															var links = vars.Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
+															variable.Link = links.Links[(uint)varInfo.Type];
+															variable.Info = varInfo;
+															variable.Value = varValue;
+
+															// Add info
+															vars.VarInfosBufferSize += 12; // VarInfo size
+															var varInfosList = vars.VarInfos.ToList();
+															varInfosList.Add(varInfo);
+															vars.VarInfos = varInfosList.ToArray();
+
+															// Add value
+															var valuesList = vars.Values.ToList();
+															valuesList.Remove(varValue);
+															vars.Values = valuesList.ToArray();
+															vars.VarValueBufferSize += variable.Link.Size;
+														}
+														if (targetMode == GameModeSelection.RaymanRavingRabbidsPCPrototype && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+															// Enable "final" flags
+															var model = allowedAI[aiModel.Key];
+															switch (model.Name) {
+																case "PNJ_Lapin":
+																case "PNJ_Volant":
+																case "PNJ_Bipod":
+																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+																	break;
+																case "PNJ_Quadri":
+																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+
+																	AddVariable("monture_action", AI_VarType.Int, (int)1, AI_VarInfoFlags.None); // Dash
+																	AddVariable("DISPLAY", AI_VarType.Int, (int)0, AI_VarInfoFlags.None); // don't show debug info
+																	AddVariable("i_gfx_enabled", AI_VarType.Int, (int)0, AI_VarInfoFlags.None); // don't show red eyes
+																	break;
+																case "PNJ_Snake":
+																case "PNJ_Spider":
+																	AddVariable("i_burn", AI_VarType.Int, (int)0, AI_VarInfoFlags.None);
+																	break;
 															}
 														}
 													}
