@@ -76,7 +76,9 @@ namespace Ray1Map.Jade {
 							for (int i = 0; i < txl.Count; i++) {
 								// TODO: Complete
 								txl.Text[i] = new TEXT_OneText() {
-									IdKey = new Jade_Key(newContext, newLoader.Raw_GetNewKey()),
+									IdKey = new Jade_Key(newContext, newLoader.Raw_GetNewKey()) {
+										Pre_IsTextKey = true
+									},
 									OffsetInBuffer = (int)ids.Ids[i].StringOffset,
 									IDString = ids.Ids[i].Name,
 									Text = strings.Strings.FirstOrDefault(str => (str.Offset - strings.Offset) == ids.Ids[i].StringOffset)?.String ?? "",

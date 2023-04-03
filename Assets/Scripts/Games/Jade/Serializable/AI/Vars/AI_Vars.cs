@@ -326,7 +326,9 @@ namespace Ray1Map.Jade {
 			}
             b.AppendLine();
 
-			foreach (AI_Var v in Vars) {
+            var vars = (IEnumerable<AI_Var>)Vars.OrderBy(v => v.Info.BufferOffset);
+
+			foreach (AI_Var v in vars) {
                 var type = v.Type switch {
                     AI_VarType.Bool => "bool",
                     AI_VarType.Int => "int",

@@ -23,6 +23,7 @@ namespace Ray1Map {
 
 			Dictionary<int, Dictionary<string, string>> langTables = null;
 			if (!perWorld) langTables = new Dictionary<int, Dictionary<string, string>>();
+			HashSet<uint> textKeys = new HashSet<uint>();
 
 
 			void ExportLangTable(string name) {
@@ -56,6 +57,8 @@ namespace Ray1Map {
 
 						Debug.Log($"Loaded level. Exporting text...");
 						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+						textKeys.UnionWith(loader.TextKeys);
+
 						foreach (var w in loader.LoadedWorlds) {
 							if (perWorld) langTables = new Dictionary<int, Dictionary<string, string>>();
 							var text = w?.Text;
@@ -106,12 +109,22 @@ namespace Ray1Map {
 			}
 			if (!perWorld) ExportLangTable("localization");
 
+
+			StringBuilder b = new StringBuilder();
+			foreach (var tk in textKeys) {
+				b.AppendLine($"{tk:X8}");
+			}
+			File.WriteAllText(Path.Combine(outputDir, "textkeys.txt"), b.ToString());
+
 			Debug.Log($"Finished export");
 		}
 		public async UniTask ExportLocalizationUnbinarizedAsync(GameSettings settings, string outputDir) {
+			HashSet<uint> textKeys = new HashSet<uint>();
 			using (var context = new Ray1MapContext(settings)) {
 				await LoadFilesAsync(context);
 				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: true, initSound: true);
+				loader.TextKeys = textKeys;
+
 				var texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
 				Dictionary<string, KeyValuePair<string, Dictionary<int, TEXT_OneText>>?[]> textGroups
@@ -177,6 +190,13 @@ namespace Ray1Map {
 				string json = JsonConvert.SerializeObject(output, Formatting.Indented);
 				Util.ByteArrayToFile(Path.Combine(outputDir, $"localization_{settings.GameModeSelection}.json"), System.Text.Encoding.UTF8.GetBytes(json));
 			}
+
+			// Export text keys
+			StringBuilder b = new StringBuilder();
+			foreach (var tk in textKeys) {
+				b.AppendLine($"{tk:X8}");
+			}
+			File.WriteAllText(Path.Combine(outputDir, "textkeys.txt"), b.ToString());
 
 			// Unload textures
 			await Controller.WaitIfNecessary();

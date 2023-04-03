@@ -37,6 +37,7 @@ namespace Ray1Map {
 			var levIndex = 0;
 			uint currentKey = 0;
 			Dictionary<uint, string> writtenFileKeys = new Dictionary<uint, string>();
+			HashSet<uint> textKeys = new HashSet<uint>();
 
 			// Key relocation (for writing as RRR mod)
 			Dictionary<uint, uint> keysToRelocate = new Dictionary<uint, uint>();
@@ -283,6 +284,7 @@ namespace Ray1Map {
 								writeloader.Raw_KeysToRelocateReverse = keysToRelocateReverse;
 							}
 							writeloader.WrittenFileKeys = writtenFileKeys;
+							writeloader.TextKeys = textKeys;
 							writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
 
 							foreach (var wol in wols) {
@@ -761,6 +763,7 @@ namespace Ray1Map {
 									loader.Raw_FilenameGuesses = namingData;
 
 									loader.WrittenFileKeys = writtenFileKeys;
+									loader.TextKeys = textKeys;
 									writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
 									var sndListWrite = new SND_GlobalList();
 									writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
@@ -806,6 +809,7 @@ namespace Ray1Map {
 								loader.Raw_FilenameGuesses = namingData;
 
 								loader.WrittenFileKeys = writtenFileKeys;
+								loader.TextKeys = textKeys;
 								writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
 								var sndListWrite = new SND_GlobalList();
 								writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
@@ -864,6 +868,12 @@ namespace Ray1Map {
 				b.AppendLine($"{fk.Key:X8},{fk.Value}");
 			}
 			File.WriteAllText(Path.Combine(outputDir, "filekeys.txt"), b.ToString());
+
+			b = new StringBuilder();
+			foreach (var tk in textKeys) {
+				b.AppendLine($"{tk:X8}");
+			}
+			File.WriteAllText(Path.Combine(outputDir, "textkeys.txt"), b.ToString());
 
 			Debug.Log($"Finished export");
 		}

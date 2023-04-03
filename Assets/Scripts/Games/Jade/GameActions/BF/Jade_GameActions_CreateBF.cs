@@ -28,7 +28,7 @@ namespace Ray1Map {
 
 				Dictionary<string, List<LOA_Loader.FileInfo>> fileInfos = null;
 				Dictionary<string, uint> moddedFileInfos = new Dictionary<string, uint>();
-				Dictionary<string, Tuple<string, string>> modPathReplace = new Dictionary<string, Tuple<string, string>>();
+				Dictionary<string, List<Tuple<string, string>>> modPathReplace = new Dictionary<string, List<Tuple<string, string>>>();
 				List<LOA_Loader.FileInfo> GetJadeFileByPath(string path) {
 					if (fileInfos == null) {
 						fileInfos = new Dictionary<string, List<LOA_Loader.FileInfo>>();
@@ -102,7 +102,8 @@ namespace Ray1Map {
 										if (value == "true") ignoreNonexistentFiles = true;
 										break;
 									case "replacepath":
-										modPathReplace[modDir] = new Tuple<string, string>(configElement[1], configElement[2]);
+										if(!modPathReplace.ContainsKey(modDir)) modPathReplace[modDir] = new List<Tuple<string, string>>();
+										modPathReplace[modDir].Add(new Tuple<string, string>(configElement[1], configElement[2]));
 										break;
 								}
 							}
@@ -216,11 +217,17 @@ namespace Ray1Map {
 					})).ToArray();
 
 				foreach (var mod in mods) {
+					string ReplacePath(string path) {
+						string tempPath = path;
+						if (modPathReplace.ContainsKey(mod.Key)) {
+							foreach (var replace in modPathReplace[mod.Key]) {
+								tempPath = tempPath.Replace(replace.Item1, replace.Item2);
+							}
+						}
+						return tempPath;
+					}
 					FilesToPack = FilesToPack.Concat(mod.Value.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = modPathReplace.ContainsKey(mod.Key)
-							? (fk.Value ?? $"{fk.Key:X8}")
-								.Replace(modPathReplace[mod.Key].Item1, modPathReplace[mod.Key].Item2) // Replace path here
-							: (fk.Value ?? $"{fk.Key:X8}"),
+						FullPath = ReplacePath(fk.Value ?? $"{fk.Key:X8}"),
 						FullPathBeforeReplace = fk.Value ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Mod,

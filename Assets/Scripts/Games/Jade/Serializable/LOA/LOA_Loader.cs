@@ -33,6 +33,7 @@ namespace Ray1Map.Jade {
 		// Writing
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
 		public Dictionary<uint, string> WrittenFileKeys { get; set; } = new Dictionary<uint, string>();
+		public HashSet<uint> TextKeys { get; set; } = new HashSet<uint>();
 		public bool Raw_WriteFilesAlreadyInBF { get; set; } = false;
 		public bool Raw_RelocateKeys { get; set; } = false;
 		public bool Raw_UseOriginalFileNames { get; set; } = false;
@@ -83,6 +84,9 @@ namespace Ray1Map.Jade {
 			return key;
 		}
 		public uint Raw_GetNewKey() => Raw_RelocateKey(Raw_CurrentUnusedKey);
+		public void AddTextKey(uint key) {
+			if(!TextKeys.Contains(key)) TextKeys.Add(key);
+		}
 
 		// Loaded objects
 		public WOR_World WorldToLoadIn { get; set; }

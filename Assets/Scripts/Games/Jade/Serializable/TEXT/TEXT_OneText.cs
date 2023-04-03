@@ -30,7 +30,7 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			if (!HasSound || !Loader.IsBinaryData) IdKey = s.SerializeObject<Jade_Key>(IdKey, name: nameof(IdKey));
+			if (!HasSound || !Loader.IsBinaryData) IdKey = s.SerializeObject<Jade_Key>(IdKey, onPreSerialize: k => k.Pre_IsTextKey = true, name: nameof(IdKey));
 			if (HasSound || !Loader.IsBinaryData) Sound = s.SerializeObject<Jade_Reference<SND_Wave>>(Sound, name: nameof(Sound));
 			if (!HasSound || !Loader.IsBinaryData) {
 				ObjKey = s.SerializeObject<Jade_Key>(ObjKey, name: nameof(ObjKey));

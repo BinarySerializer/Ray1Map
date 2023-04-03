@@ -21,8 +21,8 @@ namespace Ray1Map.Jade {
 		public AI_VarValue[] ValueArray { get; set; }
 		public Jade_Color ValueColor { get; set; }
 
-		public Jade_Key TextFileKey { get; set; }
-		public int TextEntryIDKey { get; set; }
+		public Jade_Key TextFile { get; set; }
+		public Jade_Key TextEntryID { get; set; }
 
 		public int MsgID_MsgID { get; set; }
 		public int MsgID_ID { get; set; }
@@ -66,8 +66,8 @@ namespace Ray1Map.Jade {
 						ValueVector = s.SerializeObject<Jade_Vector>(ValueVector, name: nameof(ValueVector));
 						break;
 					case AI_VarType.Text:
-						TextFileKey = s.SerializeObject<Jade_Key>(TextFileKey, name: nameof(TextFileKey));
-						TextEntryIDKey = s.Serialize<int>(TextEntryIDKey, name: nameof(TextEntryIDKey));
+						TextFile = s.SerializeObject<Jade_Key>(TextFile, name: nameof(TextFile));
+						TextEntryID = s.SerializeObject<Jade_Key>(TextEntryID, onPreSerialize: k => k.Pre_IsTextKey = true, name: nameof(TextEntryID));
 						break;
 					case AI_VarType.MessageId:
 						MsgID_MsgID = s.Serialize<int>(MsgID_MsgID, name: nameof(MsgID_MsgID));
