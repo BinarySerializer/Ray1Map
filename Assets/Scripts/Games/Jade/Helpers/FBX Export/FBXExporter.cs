@@ -535,6 +535,7 @@ namespace Ray1Map.Jade {
 				bool hasNormals = true; // geo.Normals != null;
 				if (hasNormals) {
 					// ===== WRITE THE NORMALS ==========
+					if(geo.Normals == null) geo.ComputeNormals();
 					var normals = geo.Normals;
 					tempObjectSb.AppendLine("\t\tLayerElementNormal: 0 {");
 					tempObjectSb.AppendLine("\t\t\tVersion: 101");
@@ -1135,7 +1136,7 @@ namespace Ray1Map.Jade {
 						throw new Exception($"Unexpected RenderObject of type {mat.RenderObject.Value.GetType()} being parsed as material!");
 				}
 
-				void writeColor(string name, Jade_Color color) {
+				void writeColor(string name, BinarySerializer.BaseColor color) {
 
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}\", \"Vector3D\", \"Vector\", \"\",{color.Red},{color.Green},{color.Blue}");
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}Color\", \"Color\", \"\", \"A\",{color.Red},{color.Green},{color.Blue}");
@@ -1143,9 +1144,9 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}Factor\", \"Number\", \"\", \"A\",{color.Alpha}");
 				}
 
-				writeColor("Ambient", ambient);
-				writeColor("Diffuse", diffuse);
-				writeColor("Specular", specular);
+				writeColor("Ambient", ambient ?? Jade_Color.White);
+				writeColor("Diffuse", diffuse ?? Jade_Color.White);
+				writeColor("Specular", specular ?? Jade_Color.White);
 
 				// This is already 0 in the model, but Blender needs this to be 0 in the material too, otherwise the material becomes Metallic
 				tempObjectSb.AppendLine("\t\t\tP: \"ReflectionFactor\", \"Number\", \"\", \"A\",0");

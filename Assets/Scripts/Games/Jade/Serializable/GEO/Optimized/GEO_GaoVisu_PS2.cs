@@ -377,17 +377,19 @@ namespace Ray1Map.Jade {
 					int vifProgramIndex = 0;
 
 
-					List<Jade_Vector> currentVertices = new List<Jade_Vector>();
+					List<PS2_VU_Vertex> currentVertices = new List<PS2_VU_Vertex>();
 					List<Jade_Vector> currentNormals = new List<Jade_Vector>();
 					List<GEO_GeometricObject.UV> currentUVs = new List<GEO_GeometricObject.UV>();
 					List<Jade_Color> currentColors = new List<Jade_Color>();
 					List<GEO_GeometricObjectElement.Triangle> currentTriangles = new List<GEO_GeometricObjectElement.Triangle>();
 
+					bool addBackfaces = true;
 					bool isFillingVertices = true;
 					bool isFillingUVs = true;
 					bool isFillingNormals = true;
 					bool isFillingColors = true;
 					bool isFillingTriangles = true;
+					bool useFlagsForWindingOrder = Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4);
 
 					foreach (var vifProg in EnumerateVIFPrograms()) {
 						int triIndex = 0;
@@ -400,7 +402,7 @@ namespace Ray1Map.Jade {
 
 							// Vertices
 							if (isFillingVertices) {
-								currentVertices.AddRange(vuData.Vertices.Take(curCount).Select(v => new Jade_Vector(v.X, v.Y, v.Z)));
+								currentVertices.AddRange(vuData.Vertices.Take(curCount));
 							}
 							verticesCount += curCount;
 							
@@ -431,43 +433,52 @@ namespace Ray1Map.Jade {
 										throw new System.Exception($"{jadeGao.Key}: Incorrect triangle strip. See GEO_GaoVisu_PS2");
 									}
 									if (isFillingTriangles) {
-										var tri = new GEO_GeometricObjectElement.Triangle();
-										tri.SmoothingGroup = (uint)subElementIndex;
-										tri.Vertex0 = (ushort)(verticesCountStart + (i - 2));
-										tri.Vertex1 = (ushort)(verticesCountStart + (i - 1));
-										tri.Vertex2 = (ushort)(verticesCountStart + (i - 0));
-										if (vuData.UVs != null) {
-											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
-											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
-											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+										if (addBackfaces || currentVertices[verticesCountStart + (i - 0)].WindingOrder(useFlagsForWindingOrder)) {
+											var tri = new GEO_GeometricObjectElement.Triangle();
+											tri.SmoothingGroup = (uint)subElementIndex;
+											tri.Vertex0 = (ushort)(verticesCountStart + (i - 2));
+											tri.Vertex1 = (ushort)(verticesCountStart + (i - 1));
+											tri.Vertex2 = (ushort)(verticesCountStart + (i - 0));
+											if (vuData.UVs != null) {
+												tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+												tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+												tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+											}
+											currentTriangles.Add(tri);
 										}
-										currentTriangles.Add(tri);
-
-										tri = new GEO_GeometricObjectElement.Triangle() {
-											SmoothingGroup = tri.SmoothingGroup,
-											Vertex0 = tri.Vertex0,
-											Vertex1 = tri.Vertex2,
-											Vertex2 = tri.Vertex1,
-											UV0 = tri.UV0,
-											UV1 = tri.UV2,
-											UV2 = tri.UV1,
-										};
-										currentTriangles.Add(tri);
+										if(addBackfaces || !currentVertices[verticesCountStart + (i - 0)].WindingOrder(useFlagsForWindingOrder)) {
+											var tri = new GEO_GeometricObjectElement.Triangle();
+											tri.SmoothingGroup = (uint)subElementIndex;
+											tri.Vertex0 = (ushort)(verticesCountStart + (i - 2));
+											tri.Vertex1 = (ushort)(verticesCountStart + (i - 0));
+											tri.Vertex2 = (ushort)(verticesCountStart + (i - 1));
+											if (vuData.UVs != null) {
+												tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+												tri.UV1 = (ushort)(uvsCountStart + (i - 0));
+												tri.UV2 = (ushort)(uvsCountStart + (i - 1));
+											}
+											currentTriangles.Add(tri);
+										}
 									} else if (isFillingUVs) {
-										var tri = currentTriangles[triIndex];
-										if (vuData.UVs != null) {
-											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
-											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
-											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+										if (addBackfaces || currentVertices[verticesCountStart + (i - 0)].WindingOrder(useFlagsForWindingOrder)) {
+											var tri = currentTriangles[triIndex];
+											if (vuData.UVs != null) {
+												tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+												tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+												tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+											}
 										}
-										tri = currentTriangles[triIndex + 1];
-										if (vuData.UVs != null) {
-											tri.UV0 = (ushort)(uvsCountStart + (i - 2));
-											tri.UV2 = (ushort)(uvsCountStart + (i - 0));
-											tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+										if (addBackfaces || !currentVertices[verticesCountStart + (i - 0)].WindingOrder(useFlagsForWindingOrder)) {
+											var tri = currentTriangles[triIndex + 1];
+											if (vuData.UVs != null) {
+												tri.UV0 = (ushort)(uvsCountStart + (i - 2));
+												tri.UV2 = (ushort)(uvsCountStart + (i - 0));
+												tri.UV1 = (ushort)(uvsCountStart + (i - 1));
+											}
 										}
 									}
-									triIndex += 2;
+									triIndex++;
+									if(addBackfaces) triIndex++;
 								}
 							}
 						}
@@ -484,7 +495,7 @@ namespace Ray1Map.Jade {
 					int totalVerticesCount = vertices.Count;
 					int totalUVsCount = uvs.Count;
 					int currentUVsCount = currentUVs.Count;
-					vertices.AddRange(currentVertices);
+					vertices.AddRange(currentVertices.Select(v => new Jade_Vector(v.X, v.Y, v.Z)));
 					normals.AddRange(currentNormals);
 					uvs.AddRange(currentUVs);
 					colors.AddRange(currentColors);
@@ -513,6 +524,7 @@ namespace Ray1Map.Jade {
 			geo.ElementsCount = (uint)geo.Elements.Length;
 			geo.Vertices = vertices.ToArray();
 			geo.VerticesCount = (uint)geo.Vertices.Length;
+			geo.Code_00 = geo.VerticesCount;
 			geo.UVs = uvs.ToArray();
 			geo.UVsCount = (uint)geo.UVs.Length;
 			if (normals.Count > 0) {
@@ -527,6 +539,78 @@ namespace Ray1Map.Jade {
 					geo.Colors = colors.ToArray();
 					geo.Montreal_HasColors = 1;
 					geo.ColorsCount = (uint)geo.Colors.Length;
+				}
+			}
+			bool removeDuplicate = false;
+			if (removeDuplicate) {
+
+				// Optimize: remove duplicate UVs
+				if (geo.UVs.Length > 0) {
+					var newUVs = geo.UVs.Distinct().ToArray();
+					var oldUvsMapping = geo.UVs.Select(uv => System.Array.IndexOf(newUVs, uv)).ToArray();
+
+					foreach (var el in geo.Elements) {
+						foreach (var tri in el.Triangles) {
+							tri.UV0 = (ushort)oldUvsMapping[tri.UV0];
+							tri.UV1 = (ushort)oldUvsMapping[tri.UV1];
+							tri.UV2 = (ushort)oldUvsMapping[tri.UV2];
+						}
+					}
+					geo.UVs = newUVs;
+					geo.UVsCount = (uint)geo.UVs.Length;
+				}
+
+				// Optimize: remove duplicate vertices
+				if (geo.Vertices.Length > 0) {
+					var oldVertices = geo.Vertices.Select(v => new GEO_UniqueVertex() {
+						Vertex = v,
+					}).ToArray();
+					if (colors != null && colors.Count > 0) {
+						for (int i = 0; i < oldVertices.Length; i++)
+							oldVertices[i].Color = colors[i];
+					}
+
+					if (normals != null && normals.Count > 0) {
+						for (int i = 0; i < oldVertices.Length; i++)
+							oldVertices[i].Normal = normals[i];
+					}
+					var uniqueVertices = oldVertices.Distinct().ToArray();
+					var oldVerticesMapping = oldVertices.Select(uv => System.Array.IndexOf(uniqueVertices, uv)).ToArray();
+
+					foreach (var el in geo.Elements) {
+						foreach (var tri in el.Triangles) {
+							tri.Vertex0 = (ushort)oldVerticesMapping[tri.Vertex0];
+							tri.Vertex1 = (ushort)oldVerticesMapping[tri.Vertex1];
+							tri.Vertex2 = (ushort)oldVerticesMapping[tri.Vertex2];
+						}
+					}
+					geo.Vertices = uniqueVertices.Select(v => v.Vertex).ToArray();
+					geo.VerticesCount = (uint)geo.Vertices.Length;
+					geo.Code_00 = geo.VerticesCount;
+
+					if (colors != null && colors.Count > 0) {
+						if (jadeGao?.Base?.Visual != null) {
+							jadeGao.Base.Visual.VertexColors = uniqueVertices.Select(v => v.Color).ToArray();
+							jadeGao.Base.Visual.VertexColorsCount = (uint)jadeGao.Base.Visual.VertexColors.Length;
+						} else {
+							geo.Colors = uniqueVertices.Select(v => v.Color).ToArray();
+							geo.Montreal_HasColors = 1;
+							geo.ColorsCount = (uint)geo.Colors.Length;
+						}
+					}
+
+					if (normals != null && normals.Count > 0) {
+						geo.Normals = uniqueVertices.Select(v => v.Normal).ToArray();
+						geo.Montreal_HasNormals = 1;
+					}
+					Context.SystemLogger?.LogInfo($"Vertex count: old:{oldVertices.Length} - new:{geo.VerticesCount}");
+				}
+
+				// Optimize: remove duplicate triangles
+				foreach (var el in geo.Elements) {
+					el.Triangles = el.Triangles.Distinct().ToArray();
+					Context.SystemLogger?.LogInfo($"Triangles count: old:{el.TrianglesCount} - new:{el.Triangles.Length}");
+					el.TrianglesCount = (uint)el.Triangles.Length;
 				}
 			}
 		}

@@ -60,6 +60,7 @@ namespace Ray1Map.Jade {
 					case AI_VarType.Network:
 					case AI_VarType.Function:
 					case AI_VarType.Model:
+					case AI_VarType.Sound:
 						ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
 						break;
 					case AI_VarType.Vector:

@@ -30,10 +30,10 @@ namespace Ray1Map.Jade
             public Jade_Reference<ANI_Shape> Shape { get; set; }
             public byte Repetition { get; set; }
             public byte FramesCountForBlend { get; set; }
-            public byte Flag { get; set; }
+            public byte Frequency { get; set; }
             public byte CustomBit { get; set; }
             public ushort DesignFlags { get; set; }
-            public byte Color { get; set; }
+            public byte Flag { get; set; }
             public byte UseCounter { get; set; }
 
             public BAS_Array_Transitions Transitions { get; set; }
@@ -64,11 +64,11 @@ namespace Ray1Map.Jade
                 Shape = s.SerializeObject<Jade_Reference<ANI_Shape>>(Shape, name: nameof(Shape))?.Resolve();
                 Repetition = s.Serialize<byte>(Repetition, name: nameof(Repetition));
                 FramesCountForBlend = s.Serialize<byte>(FramesCountForBlend, name: nameof(FramesCountForBlend));
-                Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+                Frequency = s.Serialize<byte>(Frequency, name: nameof(Frequency));
                 CustomBit = s.Serialize<byte>(CustomBit, name: nameof(CustomBit));
                 DesignFlags = s.Serialize<ushort>(DesignFlags, name: nameof(DesignFlags));
                 if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || !Loader.IsBinaryData) {
-                    Color = s.Serialize<byte>(Color, name: nameof(Color));
+                    Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
                     if (!Loader.IsBinaryData) UseCounter = s.Serialize<byte>(UseCounter, name: nameof(UseCounter));
                 }
             }

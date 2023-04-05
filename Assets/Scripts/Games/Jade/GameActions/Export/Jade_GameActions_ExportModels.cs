@@ -43,6 +43,7 @@ namespace Ray1Map {
 							if (gaos == null) continue;
 							foreach (var o in gaos) {
 								if (o.IsNull || exportedObjects.Contains(o.Key.Key)) continue;
+								o.Value.UnoptimizeGeometry();
 								exportedObjects.Add(o.Key.Key);
 								string objectID = "";
 								if (o?.Value?.Base?.Visual != null) {

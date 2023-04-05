@@ -214,6 +214,7 @@ namespace Ray1Map.Jade {
 				if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors = VertexData.Points.Select(v => ProcessColor(v.Color)).ToArray();
 			}
 			GeometricObject.VerticesCount = (uint)GeometricObject.Vertices.Length;
+			GeometricObject.Code_00 = GeometricObject.VerticesCount;
 			if (GeometricObject.Montreal_HasColors == 1) GeometricObject.ColorsCount = (uint)GeometricObject.Colors.Length;
 
 			GeometricObject.ElementsCount = ElementsCount;

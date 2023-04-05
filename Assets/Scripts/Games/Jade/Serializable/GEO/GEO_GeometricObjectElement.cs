@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace Ray1Map.Jade {
 	// Found in GEO_v_CreateElementsFromBuffer
@@ -46,7 +47,7 @@ namespace Ray1Map.Jade {
 			Strips = s.SerializeObjectArray<OneStrip>(Strips, StripDataCount, name: nameof(Strips));
 		}
 
-		public class Triangle : BinarySerializable {
+		public class Triangle : BinarySerializable, IEquatable<Triangle> {
 			public ushort Vertex0 { get; set; }
 			public ushort Vertex1 { get; set; }
 			public ushort Vertex2 { get; set; }
@@ -54,7 +55,7 @@ namespace Ray1Map.Jade {
 			public ushort UV1 { get; set; }
 			public ushort UV2 { get; set; }
 			public uint SmoothingGroup { get; set; }
-			public uint UInt_10 { get; set; }
+			public uint MaxFlags { get; set; } // Not used by Jade, only Max
 
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -68,9 +69,41 @@ namespace Ray1Map.Jade {
 				SmoothingGroup = s.Serialize<uint>(SmoothingGroup, name: nameof(SmoothingGroup));
 
 				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || !Loader.IsBinaryData) {
-					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+					MaxFlags = s.Serialize<uint>(MaxFlags, name: nameof(MaxFlags));
 				}
 			}
+
+			#region Equality
+
+			public override bool Equals(object other) {
+				if (other is Triangle tri)
+					return Equals(tri);
+				else
+					return false;
+			}
+
+			public bool Equals(Triangle other) {
+				if (other == null)
+					return false;
+				if (other.Vertex0 != Vertex0 || other.Vertex1 != Vertex1 || other.Vertex2 != Vertex2
+					|| other.UV0 != UV0 || other.UV1 != UV1 || other.UV2 != UV2
+					|| other.SmoothingGroup != SmoothingGroup || other.MaxFlags != MaxFlags)
+					return false;
+				return true;
+			}
+
+			public override int GetHashCode() => (Vertex0, Vertex1, Vertex2, UV0, UV1, UV2, SmoothingGroup, MaxFlags).GetHashCode();
+
+			public static bool operator ==(Triangle term1, Triangle term2) {
+				if ((object)term1 == null)
+					return (object)term2 == null;
+
+				return term1.Equals(term2);
+			}
+
+			public static bool operator !=(Triangle term1, Triangle term2) => !(term1 == term2);
+
+			#endregion
 		}
 
 		public class MRM_Element : BinarySerializable {

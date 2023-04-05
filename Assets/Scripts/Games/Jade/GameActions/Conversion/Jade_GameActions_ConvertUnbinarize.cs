@@ -135,10 +135,10 @@ namespace Ray1Map {
 					foreach (var f in aimodelsFiles) {
 						var filename = Path.GetFileNameWithoutExtension(f.Name);
 
-						var keystr = f.Name.Substring(0, f.Name.IndexOf("_"));
+						var keystr = filename.Substring(0, filename.IndexOf("_"));
 						uint key = uint.Parse(keystr, System.Globalization.NumberStyles.HexNumber);
 
-						var name = f.Name.Substring(f.Name.IndexOf("_")+1);
+						var name = filename.Substring(filename.IndexOf("_")+1);
 
 						var aiModelValue = new AIModelInfo() {
 							Name = name,
@@ -457,6 +457,7 @@ namespace Ray1Map {
 							foreach (var w in worlds) {
 								//w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
 								foreach (var gao in w.SerializedGameObjects) {
+									gao.UnoptimizeGeometry();
 									if (removeSound) {
 										gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
 									}

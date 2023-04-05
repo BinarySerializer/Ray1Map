@@ -26,7 +26,8 @@ namespace Ray1Map.Jade {
 
         public void Transfer(Writer w, List<PS2_DMAChainData> chainData) {
             w.Write(DataToTransfer);
-            w.Write(ExtraDataToTransfer);
+            if(ExtraDataToTransfer != null)
+                w.Write(ExtraDataToTransfer);
             switch (DMATag.ID) {
                 case Chain_DMAtag.TagID.REF:
                     uint addr = DMATag.ADDR;

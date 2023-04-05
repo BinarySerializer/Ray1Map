@@ -139,5 +139,41 @@ namespace Ray1Map.Jade {
 				}
 			}
 		}
+
+
+		public void UnoptimizeGeometry() {
+			// Fill in regular geometry data based on optimized data
+			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				var gao = this;
+				var gro = gao.Base?.Visual?.GeometricObject?.Value;
+				if (gro != null) {
+					if (gro.RenderObject.Type == GRO_Type.GEO_StaticLOD) {
+						gro = (gro.RenderObject?.Value as GEO_StaticLOD).LODLevels[0]?.Value;
+					}
+					if (gro.RenderObject.Type == GRO_Type.GEO) {
+						var geo = (GEO_GeometricObject)gro.RenderObject.Value;
+
+						if (geo.OptimizedGeoObject_PS2 != null
+							//&& geo.Context.GetR1Settings().Platform == Platform.PS2
+							&& !geo.Montreal_FilledUnoptimizedData) {
+							var ps2 = geo.OptimizedGeoObject_PS2;
+							if (geo.Context.GetR1Settings().Platform == Platform.PS2) {
+								geo.Montreal_FilledUnoptimizedData = true;
+								gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2);
+							} else if (geo.Context.GetR1Settings().Platform == Platform.PSP) {
+								geo.Montreal_FilledUnoptimizedData = true;
+								gao?.Base?.Visual?.VisuPS2?.ExecuteGEPrograms(gao, geo, ps2);
+							}
+						} else if (geo.OptimizedGeoObject_PC != null
+							&& !geo.Montreal_FilledUnoptimizedData) {
+							geo.OptimizedGeoObject_PC.Unoptimize();
+						}
+						if (geo.Montreal_WasOptimized && geo.OptimizedGeoObject_PC != null) {
+							gao?.Base?.Visual?.VisuPC?.Unoptimize(gao?.Base?.Visual, geo, geo?.OptimizedGeoObject_PC);
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -271,6 +271,11 @@ namespace Ray1Map.Jade {
 							type = "Var_Network";
 							isValue = false;
 							break;
+
+                        case AI_VarType.Sound:
+                            type = "Var_Sound";
+                            isValue = false;
+                            break;
 					}
 
                     if (mode == ExportStructMode.IDA)

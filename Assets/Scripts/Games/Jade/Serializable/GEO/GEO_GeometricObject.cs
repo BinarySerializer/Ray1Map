@@ -358,7 +358,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public class UV : BinarySerializable {
+		public class UV : BinarySerializable, IEquatable<UV>, ISerializerShortLog {
 			public float U { get; set; }
 			public float V { get; set; }
 			
@@ -372,6 +372,39 @@ namespace Ray1Map.Jade {
 				U = s.Serialize<float>(U, name: nameof(U));
 				V = s.Serialize<float>(V, name: nameof(V));
 			}
+
+			public string ShortLog => ToString();
+			public override string ToString() => $"UV({U}, {V})";
+
+			#region Equality
+
+			public override bool Equals(object other) {
+				if (other is UV cba)
+					return Equals(cba);
+				else
+					return false;
+			}
+
+			public bool Equals(UV other) {
+				if (other == null)
+					return false;
+				if (other.U != U || other.V != V)
+					return false;
+				return true;
+			}
+
+			public override int GetHashCode() => (U, V).GetHashCode();
+
+			public static bool operator ==(UV term1, UV term2) {
+				if ((object)term1 == null)
+					return (object)term2 == null;
+
+				return term1.Equals(term2);
+			}
+
+			public static bool operator !=(UV term1, UV term2) => !(term1 == term2);
+
+			#endregion
 		}
 
 		[Flags]

@@ -79,7 +79,6 @@ namespace Ray1Map.Jade {
 				} else if (Raw_KeysToAvoid.Contains(key)) {
 					return Raw_RelocateKey(key);
 				}
-				return Raw_RelocateKey(key);
 			}
 			return key;
 		}

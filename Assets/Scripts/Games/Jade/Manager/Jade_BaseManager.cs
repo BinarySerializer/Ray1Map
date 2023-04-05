@@ -606,6 +606,8 @@ namespace Ray1Map {
 			foreach (var world in worlds) {
 				GameObject w_gao = new GameObject($"({world.Key}) {world.Name}");
 				foreach (var gao in world.SerializedGameObjects) {
+					gao.UnoptimizeGeometry();
+
 					GameObject g_gao = new GameObject(); // GameObject.CreatePrimitive(PrimitiveType.Sphere);
 					g_gao.name = $"({gao.Key}) {gao.Name}";
 					g_gao.transform.SetParent(w_gao.transform);
@@ -672,24 +674,6 @@ namespace Ray1Map {
 							g_geo.transform.SetParent(g_gao.transform, false);
 							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
 
-							if (geo.OptimizedGeoObject_PS2 != null
-								//&& geo.Context.GetR1Settings().Platform == Platform.PS2
-								&& !geo.Montreal_FilledUnoptimizedData) {
-								var ps2 = geo.OptimizedGeoObject_PS2;
-								if (geo.Context.GetR1Settings().Platform == Platform.PS2) {
-									geo.Montreal_FilledUnoptimizedData = true;
-									gao?.Base?.Visual?.VisuPS2?.ExecuteChainPrograms(gao, geo, ps2);
-								} else if (geo.Context.GetR1Settings().Platform == Platform.PSP) {
-									geo.Montreal_FilledUnoptimizedData = true;
-									gao?.Base?.Visual?.VisuPS2?.ExecuteGEPrograms(gao, geo, ps2);
-								}
-							} else if (geo.OptimizedGeoObject_PC != null
-								&& !geo.Montreal_FilledUnoptimizedData) {
-								geo.OptimizedGeoObject_PC.Unoptimize();
-							}
-							if (geo.Montreal_WasOptimized && geo.OptimizedGeoObject_PC != null) {
-								gao?.Base?.Visual?.VisuPC?.Unoptimize(gao?.Base?.Visual, geo, geo?.OptimizedGeoObject_PC);
-							}
 							if (geo.Elements != null) {
 								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 								var uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
