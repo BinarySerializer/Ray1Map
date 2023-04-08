@@ -100,7 +100,7 @@ namespace Ray1Map {
 					} else if (keysToAvoid.Contains(key)) {
 						return Raw_RelocateKey(key);
 					}
-					return Raw_RelocateKey(key);
+					//return Raw_RelocateKey(key);
 				}
 				return key;
 			}
@@ -612,9 +612,9 @@ namespace Ray1Map {
 															}
 
 															// Warn when overwriting private variable
-															if (modelVar.Flags.HasFlag(AI_VarInfoFlags.Private)) {
-																Debug.Log($"{allowedAI[aiModel.Key].Name}: Overwriting private variable: {variable.Name} - {variable.Type}");
-															}
+															//if (modelVar.Flags.HasFlag(AI_VarInfoFlags.Private)) {
+															//	Debug.Log($"{allowedAI[aiModel.Key].Name}: Overwriting private variable: {variable.Name} - {variable.Type}");
+															//}
 
 															// Go over int values (in arrays too!)
 															// If the int matches any loaded key, relocate it in advance
@@ -664,7 +664,7 @@ namespace Ray1Map {
 															if (!modelVars.Any(mv => mv.Name == name)) return;
 
 															// Note: arrays are not yet supported
-															var namesList = vars.Names.ToList();
+															var namesList = vars.Names?.ToList() ?? new List<AI_VarName>();
 															var nameObject = new AI_VarName() {
 																Name = name
 															};

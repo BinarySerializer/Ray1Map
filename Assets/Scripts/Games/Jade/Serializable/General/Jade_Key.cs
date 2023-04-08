@@ -8,17 +8,26 @@ namespace Ray1Map.Jade {
         public string ShortLog => ToString();
 		
 		public bool Pre_IsTextKey { get; set; }
+		
 
         public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (!IsNull && Loader != null) { // Only works on already read keys
-				if(Loader.Raw_RelocateKeys) Key = Loader.Raw_RelocateKeyIfNecessary(Key);
-			}
+			RelocateIfNecessary(Loader);
 
 			Key = s.Serialize<uint>(Key, name: nameof(Key));
 
 			if (!IsNull && Loader != null) {
 				if (Pre_IsTextKey) Loader.AddTextKey(Key);
+			}
+		}
+
+		int LastRelocatedLoader { get; set; }
+		public void RelocateIfNecessary(LOA_Loader loader) {
+			if (!IsNull && loader != null) { // Only works on already read keys
+				if (loader.Raw_RelocateKeys && LastRelocatedLoader != loader.GetHashCode()) {
+					LastRelocatedLoader = loader.GetHashCode();
+					Key = loader.Raw_RelocateKeyIfNecessary(Key);
+				}
 			}
 		}
 

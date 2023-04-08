@@ -42,7 +42,12 @@ namespace Ray1Map.Jade {
 			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (Info != null && Info.ContentKey != Key) {
+			Info?.ContentKey?.RelocateIfNecessary(loader);
+			//Content?.ContentKey?.RelocateIfNecessary(loader);
+			//if (Info != null) Info.Info = null;
+			//if (Content != null) Content.Info = null;
+
+			if (Info != null && Content != null && Info != Content && Info.ContentKey != Key) {
 				loader.RequestFile(Key, Info, (s, configureAction) => {
 					Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
 						configureAction(f); f.IsContent = false; onPreSerialize?.Invoke(s, f);
@@ -55,7 +60,7 @@ namespace Ray1Map.Jade {
 				cache: LOA_Loader.CacheType.TextureInfo,
 				flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 				name: nameof(TEX_File));
-
+				
 				loader.RequestFile(Info.ContentKey, Content, (s, configureAction) => {
 					Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
 						configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
