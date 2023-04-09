@@ -221,7 +221,8 @@ namespace Ray1Map {
 								if (filename.Contains('.')) {
 									filename = filename.Substring(0, filename.LastIndexOf('.'));
 								}
-								namingData.AddGuess(key, filename, dir, 0);
+								//namingData.AddGuess(key, filename, dir, 0);
+								namingData.AddFact(key, filename, dir);
 							}
 						}
 					}
@@ -691,6 +692,10 @@ namespace Ray1Map {
 																	varInfo.Type = 33; // TODO: Get this index from Links directly
 																	varValue.ValueInt = (int)value;
 																	break;
+																case AI_VarType.Float:
+																	varInfo.Type = 34;
+																	varValue.ValueFloat = (float)value;
+																	break;
 																default:
 																	throw new NotImplementedException($"Unsupported variable type {type}");
 															}
@@ -708,7 +713,7 @@ namespace Ray1Map {
 
 															// Add value
 															var valuesList = vars.Values.ToList();
-															valuesList.Remove(varValue);
+															valuesList.Add(varValue);
 															vars.Values = valuesList.ToArray();
 															vars.VarValueBufferSize += variable.Link.Size;
 														}
@@ -718,8 +723,11 @@ namespace Ray1Map {
 															switch (model.Name) {
 																case "PNJ_Lapin":
 																case "PNJ_Volant":
+																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+																	break;
 																case "PNJ_Bipod":
 																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+																	AddVariable("dist_attaque", AI_VarType.Float, (float)10f, AI_VarInfoFlags.None); // Make them harmless unless you get really close
 																	break;
 																case "PNJ_Quadri":
 																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
@@ -813,6 +821,7 @@ namespace Ray1Map {
 										var cobDir = $"{wowDir}/Collision Objects";
 										var cinDir = $"{wowDir}/COL Instances";
 										var lnkDir = $"{wowDir}/Links";
+										var wayDir = $"{wowDir}/Networks";
 										var aiDir  = $"{wowDir}/AI Instances";
 										var rliDir = $"{wowDir}/Game Objects RLI";
 										var grpDir = $"{wowDir}/Groups";
@@ -826,8 +835,9 @@ namespace Ray1Map {
 										void ProcessTexture(Jade_TextureReference tex, string name) {
 											if(tex == null || tex.IsNull || (tex.Info == null && tex.Content == null)) return;
 											namingData.AddGuess(tex.Key, name, texDir, gaoPrio);
-											if (tex.Content?.Content_RawPal != null) {
-												var slot = tex.Content.Content_RawPal.PreferredSlot;
+											var content = tex.Content ?? tex.Info;
+											if (content?.Content_RawPal != null) {
+												var slot = content.Content_RawPal.PreferredSlot;
 												ProcessTexture(slot.TextureRef, name); // .raw
 												if (slot.Palette != null && !slot.Palette.IsNull) {
 													namingData.AddGuess(slot.Palette.Key, name, texDir, gaoPrio);
@@ -876,6 +886,12 @@ namespace Ray1Map {
 												}
 											}
 											namingData.AddGuess(obj.Extended?.Links?.Key, objname, lnkDir, gaoPrio);
+											if (obj.Extended?.Links?.Value?.LinkLists != null) {
+												for(int neti = 0; neti < obj.Extended.Links.Value.LinkLists.Length; neti++) {
+													var lnk = obj.Extended.Links.Value.LinkLists[neti];
+													namingData.AddGuess(lnk?.Network?.Key, $"{objname}_NET_{neti}", wayDir, gaoPrio);
+												}
+											}
 											namingData.AddGuess(obj.COL_Instance?.Key, objname, cinDir, gaoPrio);
 											if (obj.FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
 												var aiModelName = obj?.Extended?.AI?.Value?.Model?.Value?.FunctionDef?.Name;

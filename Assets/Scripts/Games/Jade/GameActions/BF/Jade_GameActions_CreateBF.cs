@@ -13,6 +13,16 @@ namespace Ray1Map {
 	public class Jade_GameActions_CreateBF : Jade_GameActions {
 		public Jade_GameActions_CreateBF(Jade_BaseManager manager) : base(manager) { }
 
+		public class BFFile {
+			public string FilePath { get; set; }
+			public string ReplacedPath { get; set; }
+		}
+		public class BFMod {
+			public string Name { get; set; }
+			public Dictionary<uint, BFFile> Files { get; set; } = new Dictionary<uint, BFFile>();
+			public List<Tuple<string, string>> ReplacePath { get; set; } = new List<Tuple<string, string>>();
+		}
+
 
 		public async UniTask CreateBFAsync(GameSettings settings, string inputDir, string outputDir,
 			bool keepAllUnbinarizedFiles = true,
@@ -42,6 +52,16 @@ namespace Ray1Map {
 						return val;
 					} else
 						return null;
+				}
+
+				string ReplacePath(string m, string path) {
+					string tempPath = path;
+					if (modPathReplace.ContainsKey(m)) {
+						foreach (var replace in modPathReplace[m]) {
+							tempPath = tempPath.Replace(replace.Item1, replace.Item2);
+						}
+					}
+					return tempPath;
 				}
 				// Read file keys (unbinarized)
 				string keyListPath = Path.Combine(inputDir, "original/filekeys.txt");
@@ -75,7 +95,7 @@ namespace Ray1Map {
 				}
 
 				// Read file keys (modded)
-				List<KeyValuePair<string, Dictionary<uint, string>>> mods = new List<KeyValuePair<string, Dictionary<uint, string>>>();
+				List<KeyValuePair<string, BFMod>> mods = new List<KeyValuePair<string, BFMod>>();
 				var modDirectory = Path.Combine(inputDir, "mod");
 				foreach (var modDir in Directory.GetDirectories(modDirectory).OrderBy(dirName => dirName)) {
 					readContext?.SystemLogger?.LogInfo($"Loading mod: {new DirectoryInfo(modDir).Name}");
@@ -111,7 +131,9 @@ namespace Ray1Map {
 					}
 					string modKeyListPath = Path.Combine(modDir, "filekeys.txt");
 					if (File.Exists(modKeyListPath)) {
-						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
+						var mod = new KeyValuePair<string, BFMod>(modDir, new BFMod() {
+							Name = modDir
+						});
 						mods.Add(mod);
 						string[] lines = File.ReadAllLines(modKeyListPath);
 						foreach (var l in lines) {
@@ -120,6 +142,7 @@ namespace Ray1Map {
 							uint k;
 							if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out k)) {
 								var path = lineSplit[1].Replace('\\', '/');
+								var replacedPath = ReplacePath(mod.Key, path);
 								var absolutePath = Path.Combine(modDir, $"files/{path}");
 								if (File.Exists(absolutePath)) {
 									bool isNewModOnlyFile = true;
@@ -135,29 +158,35 @@ namespace Ray1Map {
 										else addModFile = false;
 									}
 									foreach (var otherMod in mods) {
-										if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+										if (otherMod.Key != mod.Key && otherMod.Value.Files.ContainsKey(k)) {
 											isNewModOnlyFile = false;
 											if (overwrite) {
-												readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {path}");
-												otherMod.Value.Remove(k);
+												readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {replacedPath}");
+												otherMod.Value.Files.Remove(k);
 											} else addModFile = false;
 										}
 									}
-									if (addModFile) mod.Value[k] = path;
+									if (addModFile) mod.Value.Files[k] = new BFFile() {
+										FilePath = path,
+										ReplacedPath = replacedPath
+									};
 									if (isNewModOnlyFile)
-										moddedFileInfos[path] = k;
+										moddedFileInfos[replacedPath] = k;
 								} else if (!ignoreNonexistentFiles) {
 									readContext?.SystemLogger?.LogInfo($"File does not exist in mod directory: {path}");
 								}
 							}
 						}
 					} else if (useKeysFromBFFilenameOnly) {
-						var mod = new KeyValuePair<string, Dictionary<uint, string>>(modDir, new Dictionary<uint, string>());
+						var mod = new KeyValuePair<string, BFMod>(modDir, new BFMod() {
+							Name = modDir
+						});
 						mods.Add(mod);
 						var modFilesDir = Path.Combine(modDir, $"files");
 						foreach (string file in Directory.EnumerateFiles(modFilesDir, "*", SearchOption.AllDirectories)) {
 							string relPath = file.Substring(modFilesDir.Length + 1).Replace('\\', '/');
-							var fil = GetJadeFileByPath(relPath);
+							string replacedPath = ReplacePath(mod.Key, relPath);
+							var fil = GetJadeFileByPath(replacedPath);
 							if (fil != null) {
 								foreach (var fi in fil) {
 									uint k = fi.Key;
@@ -171,30 +200,36 @@ namespace Ray1Map {
 										else addModFile = false;
 									} else {
 										foreach (var otherMod in mods) {
-											if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+											if (otherMod.Key != mod.Key && otherMod.Value.Files.ContainsKey(k)) {
 												if (overwrite) {
-													readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {relPath}");
-													otherMod.Value.Remove(k);
+													readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {replacedPath}");
+													otherMod.Value.Files.Remove(k);
 												} else addModFile = false;
 											}
 										}
 									}
-									if (addModFile) mod.Value[k] = relPath;
+									if (addModFile) mod.Value.Files[k] = new BFFile() {
+										FilePath = relPath,
+										ReplacedPath = replacedPath
+									};
 								}
-							} else if (moddedFileInfos.ContainsKey(relPath)) {
-								var k = moddedFileInfos[relPath];
+							} else if (moddedFileInfos.ContainsKey(replacedPath)) {
+								var k = moddedFileInfos[replacedPath];
 								bool addModFile = true;
 								foreach (var otherMod in mods) {
-									if (otherMod.Key != mod.Key && otherMod.Value.ContainsKey(k)) {
+									if (otherMod.Key != mod.Key && otherMod.Value.Files.ContainsKey(k)) {
 										if (overwrite) {
-											readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {relPath}");
-											otherMod.Value.Remove(k);
+											readContext?.SystemLogger?.LogInfo($"Overwriting previously loaded mod file: {replacedPath}");
+											otherMod.Value.Files.Remove(k);
 										} else addModFile = false;
 									}
 								}
-								if (addModFile) mod.Value[k] = relPath;
+								if (addModFile) mod.Value.Files[k] = new BFFile() {
+									FilePath = relPath,
+									ReplacedPath = replacedPath
+								};
 							} else if (!ignoreNonexistentFiles) {
-								readContext?.SystemLogger?.LogInfo($"Could not find matching file in BF: {relPath}");
+								readContext?.SystemLogger?.LogInfo($"Could not find matching file in BF: {replacedPath}");
 							}
 						}
 					}
@@ -217,18 +252,9 @@ namespace Ray1Map {
 					})).ToArray();
 
 				foreach (var mod in mods) {
-					string ReplacePath(string path) {
-						string tempPath = path;
-						if (modPathReplace.ContainsKey(mod.Key)) {
-							foreach (var replace in modPathReplace[mod.Key]) {
-								tempPath = tempPath.Replace(replace.Item1, replace.Item2);
-							}
-						}
-						return tempPath;
-					}
-					FilesToPack = FilesToPack.Concat(mod.Value.Select(fk => new BIG_BigFile.FileInfoForCreate() {
-						FullPath = ReplacePath(fk.Value ?? $"{fk.Key:X8}"),
-						FullPathBeforeReplace = fk.Value ?? $"{fk.Key:X8}",
+					FilesToPack = FilesToPack.Concat(mod.Value.Files.Select(fk => new BIG_BigFile.FileInfoForCreate() {
+						FullPath = ReplacePath(mod.Key, fk.Value.FilePath ?? $"{fk.Key:X8}"),
+						FullPathBeforeReplace = fk.Value.FilePath ?? $"{fk.Key:X8}",
 						Key = new Jade_Key(readContext, fk.Key),
 						Source = BIG_BigFile.FileInfoForCreate.FileSource.Mod,
 						ModDirectory = mod.Key,
