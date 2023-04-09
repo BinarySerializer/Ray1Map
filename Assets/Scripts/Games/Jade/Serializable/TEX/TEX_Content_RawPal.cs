@@ -8,14 +8,15 @@ namespace Ray1Map.Jade
 
         public Slot[] Slots { get; set; }
 
-        public uint UInt_00 { get; set; }
-        public int Int_04 { get; set; }
-        public int Int_08 { get; set; }
-        public int Int_0C { get; set; }
-        public int Int_10 { get; set; }
-        public int Int_14 { get; set; }
-        public int Int_18 { get; set; }
-        public int Int_1C { get; set; }
+        // Xenon
+        public uint XE_Version { get; set; }
+        public int XE_Flags { get; set; }
+        public int XE_OriginalTexture { get; set; }
+        public int XE_NativeTexture { get; set; }
+        public int XE_OutputWidth { get; set; }
+        public int XE_OutputHeight { get; set; }
+        public int XE_OutputFormat { get; set; }
+        public int XE_LevelsCount { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
             uint ContentSize = Texture.ContentSize;
@@ -34,15 +35,15 @@ namespace Ray1Map.Jade
                 throw new BinarySerializableException(this, $"Invalid {nameof(TEX_Content_RawPal)}");
             }
             if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && ContentSize < Texture.ContentSize) {
-                UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                if (UInt_00 != 0) {
-                    Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
-                    Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
-                    Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
-                    Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
-                    Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
-                    Int_18 = s.Serialize<int>(Int_18, name: nameof(Int_18));
-                    Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
+                XE_Version = s.Serialize<uint>(XE_Version, name: nameof(XE_Version));
+                if (XE_Version != 0) {
+                    XE_Flags = s.Serialize<int>(XE_Flags, name: nameof(XE_Flags));
+                    XE_OriginalTexture = s.Serialize<int>(XE_OriginalTexture, name: nameof(XE_OriginalTexture));
+                    XE_NativeTexture = s.Serialize<int>(XE_NativeTexture, name: nameof(XE_NativeTexture));
+                    XE_OutputWidth = s.Serialize<int>(XE_OutputWidth, name: nameof(XE_OutputWidth));
+                    XE_OutputHeight = s.Serialize<int>(XE_OutputHeight, name: nameof(XE_OutputHeight));
+                    XE_OutputFormat = s.Serialize<int>(XE_OutputFormat, name: nameof(XE_OutputFormat));
+                    XE_LevelsCount = s.Serialize<int>(XE_LevelsCount, name: nameof(XE_LevelsCount));
                 }
             }
         }

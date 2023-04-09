@@ -816,13 +816,59 @@ namespace Ray1Map {
 										var aiDir  = $"{wowDir}/AI Instances";
 										var rliDir = $"{wowDir}/Game Objects RLI";
 										var grpDir = $"{wowDir}/Groups";
+										var groDir = $"{wowDir}/Graphic Objects";
+										var grmDir = $"{wowDir}/Materials";
+										var texDir = $"{wowDir}/Textures";
+										// TODO: Events (trl), Actions (act, ack)
+										// TODO: all this for objects not directly in world too
 										var gaoPrio = 10000 / objects.Length;
+
+										void ProcessTexture(Jade_TextureReference tex, string name) {
+											if(tex == null || tex.IsNull || (tex.Info == null && tex.Content == null)) return;
+											namingData.AddGuess(tex.Key, name, texDir, gaoPrio);
+											if (tex.Content?.Content_RawPal != null) {
+												var slot = tex.Content.Content_RawPal.PreferredSlot;
+												ProcessTexture(slot.TextureRef, name); // .raw
+												if (slot.Palette != null && !slot.Palette.IsNull) {
+													namingData.AddGuess(slot.Palette.Key, name, texDir, gaoPrio);
+												}
+											}
+										}
+										void ProcessMaterial(GEO_Object mat, string name) {
+											if(mat == null) return;
+											var renderobj = mat?.RenderObject?.Value;
+											namingData.AddGuess(mat.Key, name, grmDir, gaoPrio);
+											switch (renderobj) {
+												case MAT_MSM_MultiSingleMaterial msm:
+													if(msm.Materials == null) return;
+													for (int mati = 0; mati < msm.Materials.Length; mati++) {
+														ProcessMaterial(msm.Materials[mati]?.Value, $"{name}__{mati}");
+													}
+													break;
+												case MAT_MTT_MultiTextureMaterial mtt:
+													if(mtt.Levels == null) return;
+													for (int mati = 0; mati < mtt.Levels.Length; mati++) {
+														ProcessTexture(mtt.Levels[mati]?.Texture, $"{name}__{mati}");
+													}
+													break;
+												case MAT_SIN_SingleMaterial sin:
+													ProcessTexture(sin?.Texture, name);
+													break;
+											}
+										}
+
+
 										foreach (var objRef in objects) {
 											var obj = objRef?.Value;
 											if(obj == null) continue;
 											var objname = obj.Export_FileBasename;
 											namingData.AddGuess(obj.Key, objname, gaoDir, gaoPrio);
 											namingData.AddGuess(obj.Base?.Visual?.RLI?.Key, objname, rliDir, gaoPrio);
+
+											namingData.AddGuess(obj.Base?.Visual?.GeometricObject?.Key, objname, groDir, gaoPrio);
+											namingData.AddGuess(obj.Base?.Visual?.Material?.Key, objname, grmDir, gaoPrio);
+											ProcessMaterial(obj.Base?.Visual?.Material.Value, objname);
+
 											namingData.AddGuess(obj.COL_ColMap?.Key, objname, cinDir, gaoPrio);
 											if (obj.COL_ColMap?.Value?.Cobs != null) {
 												foreach (var cob in obj.COL_ColMap?.Value?.Cobs) {
