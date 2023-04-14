@@ -307,6 +307,7 @@ namespace Ray1Map {
 					if (exportWOLfiles) {
 						const uint basicRaymanKey = 0x9E00DCD2;
 						const uint basicGlobalKey = 0x9E007AEA;
+						const uint basicSoundKey  = 0xBBBBBB00;
 						uint bgeMainFixKey = Raw_RelocateKeyIfNecessary(0x5E0084DE);
 
 						using (var writeContext = new Ray1MapContext(outputDir, settings)) {
@@ -346,11 +347,12 @@ namespace Ray1Map {
 									}
 									// ... and add existing wows (_basic_global, _basic_Rayman)
 									if (targetMode == GameModeSelection.RaymanRavingRabbidsPCPrototype) {
-										bool addBasicGlobal = false, addBasicRayman = false, addBGEMainFix = false;
+										bool addBasicGlobal = false, addBasicRayman = false, addBGEMainFix = false, addBasicSound = false;
 
 										if (context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR && context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRRPrototype) {
 											addBasicGlobal = true;
 											addBasicRayman = true;
+											addBasicSound = true;
 											if ((context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE ||
 												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) &&
 												!wol.Worlds.Any(w => w.Key.Key == bgeMainFixKey))
@@ -386,6 +388,12 @@ namespace Ray1Map {
 													new Jade_Key(writeContext, basicRaymanKey),
 													new Jade_FileType() { Extension = ".wow" }));
 
+											}
+											if (addBasicSound) {
+												worlds.Add(
+													new Jade_GenericReference(writeContext,
+													new Jade_Key(writeContext, basicSoundKey),
+													new Jade_FileType() { Extension = ".wow" }));
 											}
 											worlds.AddRange(validworlds);
 											wol.Worlds = worlds.ToArray();
