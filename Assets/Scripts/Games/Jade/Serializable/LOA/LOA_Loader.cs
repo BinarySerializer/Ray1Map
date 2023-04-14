@@ -110,6 +110,13 @@ namespace Ray1Map.Jade {
 				});
 			}
 
+			public bool HasGuess(uint key) {
+				if (key == 0 || key == 0xFFFFFFFF) return true;
+				if (!Guesses.ContainsKey(key)) return false;
+				if(Guesses[key].Any()) return true;
+				return false;
+			}
+
 			public void AddFact(uint key, string filename, string directory) {
 				if(key == 0 || key == 0xFFFFFFFF) return; 
 				Facts[key] = new ExportFilenameGuess() {
@@ -524,11 +531,15 @@ namespace Ray1Map.Jade {
 											dirname = filenameOnly.Substring(0, slashIndex + 1);
 											filenameOnly = filenameOnly.Substring(slashIndex + 1);
 										}
-										outFilename = $"{Context.BasePath}files/{dirname}{currentRef.Key.Key:X8}_{filenameOnly}";
+										filename = $"{dirname}{currentRef.Key.Key:X8}_{filenameOnly}";
+										outFilename = $"{Context.BasePath}files/{filename}";
 									}
-									Util.ByteArrayToFile(Context.BasePath + "files/" + filename, bytes);
+									if (outFilename.Length >= 260) {
+										Context.SystemLogger?.LogInfo($"Filename length exceeds MAX_PATH: {outFilename}");
+									}
+									Util.ByteArrayToFile(outFilename, bytes);
 									if (FileInfos.ContainsKey(currentRef.Key)) {
-										File.SetLastWriteTime(Context.BasePath + "files/" + filename, FileInfos[currentRef.Key].FatFileInfo.DateLastModified);
+										File.SetLastWriteTime(outFilename, FileInfos[currentRef.Key].FatFileInfo.DateLastModified);
 									}
 									WrittenFileKeys[currentRef.Key.Key] = filename;
 									Context.RemoveFile(streamFile);

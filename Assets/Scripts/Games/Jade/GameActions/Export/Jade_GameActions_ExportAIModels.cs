@@ -117,7 +117,7 @@ namespace Ray1Map {
 			}
 		}
 
-		public async UniTask ExportAIUnbinarized(GameSettings settings, string outputDir) {
+		public async UniTask ExportAIUnbinarized(GameSettings settings, string outputDir, bool validOnly = true) {
 			void StringToFile(string path, string str) {
 				var bytes = System.Text.Encoding.UTF8.GetBytes(str);
 				Util.ByteArrayToFile(Path.Combine(outputDir, path), bytes);
@@ -130,6 +130,7 @@ namespace Ray1Map {
 				foreach (var kvp in loader.FileInfos) {
 					var fileInfo = kvp.Value;
 					if (fileInfo.FileName != null) {
+						if(validOnly && !fileInfo.FilePath.Contains("AI Models")) continue;
 						if (fileInfo.FileName.EndsWith("omd")) {
 							try {
 								Jade_Reference<AI_Model> omdRef = new Jade_Reference<AI_Model>(context, fileInfo.Key);

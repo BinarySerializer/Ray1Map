@@ -27,6 +27,41 @@ namespace Ray1Map {
 			}
 		}
 
+		private class DefaultDirectories {
+			public string GAO { get; set; }
+			public string COB { get; set; }
+			public string CIN { get; set; }
+			public string LNK { get; set; }
+			public string WAY { get; set; }
+			public string AI { get; set; }
+			public string RLI { get; set; }
+			public string GRP { get; set; }
+			public string GRO { get; set; }
+			public string GRM { get; set; }
+			public string TEX { get; set; }
+			public string SHP { get; set; }
+			public string TRL { get; set; }
+			public string ACT { get; set; }
+
+			public DefaultDirectories() { }
+			public DefaultDirectories(string wowDir) {
+				GAO = $"{wowDir}/Game Objects";
+				COB = $"{wowDir}/Collision Objects";
+				CIN = $"{wowDir}/COL Instances";
+				LNK = $"{wowDir}/Links";
+				WAY = $"{wowDir}/Networks";
+				AI = $"{wowDir}/AI Instances";
+				RLI = $"{wowDir}/Game Objects RLI";
+				GRP = $"{wowDir}/Groups";
+				GRO = $"{wowDir}/Graphic Objects";
+				GRM = $"{wowDir}/Materials";
+				TEX = $"{wowDir}/Textures";
+				SHP = $"{wowDir}/Shapes";
+				TRL = $"{wowDir}/Events";
+				ACT = $"{wowDir}/Actions";
+			}
+		}
+
 		public async UniTask ExportUnbinarizedAsync(
 			GameSettings settings,
 			string inputDir, string outputDir,
@@ -270,6 +305,10 @@ namespace Ray1Map {
 					}
 
 					if (exportWOLfiles) {
+						const uint basicRaymanKey = 0x9E00DCD2;
+						const uint basicGlobalKey = 0x9E007AEA;
+						uint bgeMainFixKey = Raw_RelocateKeyIfNecessary(0x5E0084DE);
+
 						using (var writeContext = new Ray1MapContext(outputDir, settings)) {
 							// Set up loader
 							LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
@@ -290,6 +329,7 @@ namespace Ray1Map {
 							writeloader.TextKeys = textKeys;
 							writeContext.StoreObject<LOA_Loader>(LoaderKey, writeloader);
 
+
 							foreach (var wol in wols) {
 								uint originalWolKey = wol.Key;
 								var wkey = Raw_RelocateKeyIfNecessary(wol.Key);
@@ -306,13 +346,15 @@ namespace Ray1Map {
 									}
 									// ... and add existing wows (_basic_global, _basic_Rayman)
 									if (targetMode == GameModeSelection.RaymanRavingRabbidsPCPrototype) {
-										const uint basicRaymanKey = 0x9E00DCD2;
-										const uint basicGlobalKey = 0x9E007AEA;
-										bool addBasicGlobal = false, addBasicRayman = false;
+										bool addBasicGlobal = false, addBasicRayman = false, addBGEMainFix = false;
 
 										if (context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR && context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRRPrototype) {
 											addBasicGlobal = true;
 											addBasicRayman = true;
+											if ((context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE ||
+												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) &&
+												!wol.Worlds.Any(w => w.Key.Key == bgeMainFixKey))
+												addBGEMainFix = true;
 										} else {
 											foreach (var wow in wol.Worlds) {
 												if (!wow.Key.IsNull && keysToRelocateReverse.ContainsKey(wow.Key)) {
@@ -326,6 +368,12 @@ namespace Ray1Map {
 										if (addBasicGlobal || addBasicRayman) {
 											List<Jade_GenericReference> worlds = new List<Jade_GenericReference>();
 											var validworlds = wol?.Worlds?.Where(w => !w.IsNull);
+											if (addBGEMainFix) {
+												worlds.Add(
+													new Jade_GenericReference(writeContext,
+													new Jade_Key(writeContext, bgeMainFixKey),
+													new Jade_FileType() { Extension = ".wow" }));
+											}
 											if (addBasicGlobal) {
 												worlds.Add(
 													new Jade_GenericReference(writeContext,
@@ -370,6 +418,10 @@ namespace Ray1Map {
 						continue;
 					}
 				}
+				/*if (levIndex % 5 != 0) {
+					levIndex++;
+					continue;
+				}*/
 				/*if (levIndex <= 15) {
 					levIndex++;
 					continue;
@@ -400,17 +452,25 @@ namespace Ray1Map {
 
 				try {
 					using (var context = new Ray1MapContext(settings)) {
-						bool removeSound = (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)
+						bool removeSound = (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRPrototype)
+										|| context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)
+										|| context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)
 										|| (targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype && targetMode != GameModeSelection.RaymanRavingRabbidsPC));
-
-
+						bool removeText = (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)
+										|| context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)
+										|| context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)
+										|| (targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype && targetMode != GameModeSelection.RaymanRavingRabbidsPC));
+						bool removeAI = (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)
+										|| context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)
+										|| (targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype && targetMode != GameModeSelection.RaymanRavingRabbidsPC));
 						currentKey = 0;
 						await LoadFilesAsync(context);
 						if (exportForDifferentGameMode) {
 							var lf = LoadFlags.Maps | LoadFlags.Textures;
-							lf |= LoadFlags.TextNoSound;
+							if(!removeText) lf |= LoadFlags.TextNoSound;
 							if (!removeSound) {
-								lf |= LoadFlags.TextSound | LoadFlags.Sounds;
+								if(!removeText) lf |= LoadFlags.TextSound;
+								lf |= LoadFlags.Sounds;
 							}
 							await LoadJadeAsync(context, new Jade_Key(context, lev.Key), lf);
 						} else {
@@ -456,13 +516,15 @@ namespace Ray1Map {
 								}
 							}
 							foreach (var w in worlds) {
-								//w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
+								if (removeText) {
+									w.Text = new Jade_TextReference(context, new Jade_Key(context, 0xFFFFFFFF));
+								}
 								foreach (var gao in w.SerializedGameObjects) {
 									gao.UnoptimizeGeometry();
 									if (removeSound) {
 										gao.FlagsIdentity &= ~OBJ_GameObject_IdentityFlags.Sound;
 									}
-									if (allowedAI.Any()) {
+									if (!removeAI && allowedAI.Any()) {
 										if (gao.Extended?.AI?.Value != null) {
 											// Check if AI is supported by target mode
 											var aiInstance = gao.Extended?.AI?.Value;
@@ -514,7 +576,7 @@ namespace Ray1Map {
 
 																	// Resize dimensions
 																	var dimensionsCountDiff = modelVar.ArrayDimensionsCount - variable.Info.ArrayDimensionsCount;
-																	vars.VarValueBufferSize += (uint)(dimensionsCountDiff * 4);
+																	vars.VarValueBufferSize = (uint)(vars.VarValueBufferSize + (dimensionsCountDiff * 4));
 																	if (modelVar.ArrayDimensionsCount != 0) {
 																		if (value.Dimensions == null)
 																			value.Dimensions = new uint[modelVar.ArrayDimensionsCount];
@@ -568,12 +630,15 @@ namespace Ray1Map {
 																			variable.Value = value;
 																		}
 																	}
-																	var valueSizeDiff = modelVar.ArrayLength - variable.Info.ArrayLength;
-																	vars.VarValueBufferSize += (uint)(valueSizeDiff * variable.Link.Size);
+																	var valueSizeDiff = (modelVar.ArrayLength - variable.Info.ArrayLength) * variable.Link.Size;
+																	variable.Info.ArrayLength = modelVar.ArrayLength;
+																	variable.Info.ArrayDimensionsCount = modelVar.ArrayDimensionsCount;
+																	vars.VarValueBufferSize = (uint)(vars.VarValueBufferSize + valueSizeDiff);
 																	// Go over rest of infos
 																	foreach (var otherVarInfo in vars.VarInfos) {
-																		if (otherVarInfo.BufferOffset >= varInfo.BufferOffset) {
-																			otherVarInfo.BufferOffset += valueSizeDiff;
+																		if(otherVarInfo == variable.Info) continue;
+																		if (otherVarInfo.BufferOffset > varInfo.BufferOffset) {
+																			otherVarInfo.BufferOffset += (int)valueSizeDiff + (dimensionsCountDiff * 4);
 																		}
 																	}
 																}
@@ -581,32 +646,7 @@ namespace Ray1Map {
 																remove = true;
 															}
 															if (remove) {
-																// Remove name
-																var nameObject = vars.Names.FirstOrDefault(n => n.Name == variable.Name);
-																vars.NameBufferSize -= (uint)nameObject.SerializedSize;
-																var namesList = vars.Names.ToList();
-																namesList.Remove(nameObject);
-																vars.Names = namesList.ToArray();
-
-																// Remove value
-																var value = variable.Value;
-																vars.VarValueBufferSize -= (uint)value.SerializedSize;
-																var valuesList = vars.Values.ToList();
-																valuesList.Remove(value);
-																vars.Values = valuesList.ToArray();
-
-																// Remove info
-																var varInfo = variable.Info;
-																vars.VarInfosBufferSize -= (uint)varInfo.SerializedSize;
-																var varInfosList = vars.VarInfos.ToList();
-																varInfosList.Remove(varInfo);
-																vars.VarInfos = varInfosList.ToArray();
-																// Go over rest of infos
-																foreach (var otherVarInfo in vars.VarInfos) {
-																	if (otherVarInfo.BufferOffset >= varInfo.BufferOffset) {
-																		otherVarInfo.BufferOffset -= (int)value.SerializedSize;
-																	}
-																}
+																RemoveVariable(variable.Name);
 
 																// TODO: Editor infos
 																continue;
@@ -717,13 +757,55 @@ namespace Ray1Map {
 															vars.Values = valuesList.ToArray();
 															vars.VarValueBufferSize += variable.Link.Size;
 														}
+														void RemoveVariable(string name) {
+															var variable = vars.Vars.FirstOrDefault(v => v.Name == name);
+															if(variable == null) return;
+
+															// Remove name
+															var nameObject = vars.Names.FirstOrDefault(n => n.Name == variable.Name);
+															vars.NameBufferSize -= 30; //(uint)nameObject.SerializedSize;
+															var namesList = vars.Names.ToList();
+															namesList.Remove(nameObject);
+															vars.Names = namesList.ToArray();
+
+															// Remove value
+															var value = variable.Value;
+															long valueSize = variable.Link.Size * variable.Info.ArrayLength + variable.Info.ArrayDimensionsCount * 4;
+															vars.VarValueBufferSize -= (uint)valueSize; //(uint)value.SerializedSize;
+															var valuesList = vars.Values.ToList();
+															valuesList.Remove(value);
+															vars.Values = valuesList.ToArray();
+
+															// Remove info
+															var varInfo = variable.Info;
+															vars.VarInfosBufferSize -= 12;// (uint)varInfo.SerializedSize;
+															var varInfosList = vars.VarInfos.ToList();
+															varInfosList.Remove(varInfo);
+															vars.VarInfos = varInfosList.ToArray();
+															// Go over rest of infos
+															foreach (var otherVarInfo in vars.VarInfos) {
+																if (otherVarInfo == variable.Info) continue;
+																if (otherVarInfo.BufferOffset > varInfo.BufferOffset) {
+																	otherVarInfo.BufferOffset -= (int)valueSize;
+																}
+															}
+
+															// TODO: Editor infos
+														}
+
 														if (targetMode == GameModeSelection.RaymanRavingRabbidsPCPrototype && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 															// Enable "final" flags
 															var model = allowedAI[aiModel.Key];
 															switch (model.Name) {
 																case "PNJ_Lapin":
+																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+																	if (!vars.Vars.Any(v => v.Name == "Mort_SeReleve")) {
+																		AddVariable("Mort_SeReleve", AI_VarType.Int, (int)0, AI_VarInfoFlags.None); // Default value is 0 in final, but 1 in proto
+																	}
+																	break;
 																case "PNJ_Volant":
 																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
+																	RemoveVariable("o_start_wp"); // These mounts tend to be buggy if they move, let's drop them immediately
 																	break;
 																case "PNJ_Bipod":
 																	AddVariable("i_IsFinal", AI_VarType.Int, (int)1, AI_VarInfoFlags.None);
@@ -802,6 +884,126 @@ namespace Ray1Map {
 							if (!exportForDifferentGameMode) await ExportRest();
 						}
 
+						void ProcessTexture(Jade_TextureReference tex, string name, float gaoPrio, DefaultDirectories dirs) {
+							if (tex == null || tex.IsNull || (tex.Info == null && tex.Content == null)) return;
+							namingData.AddGuess(tex.Key, name, dirs.TEX, gaoPrio);
+							var content = tex.Content ?? tex.Info;
+							if (content?.Content_RawPal != null) {
+								var slot = content.Content_RawPal.PreferredSlot;
+								ProcessTexture(slot.TextureRef, name, gaoPrio, dirs); // .raw
+								if (slot.Palette != null && !slot.Palette.IsNull) {
+									namingData.AddGuess(slot.Palette.Key, name, dirs.TEX, gaoPrio);
+								}
+							}
+							if (content?.FontDesc?.Value != null) {
+								namingData.AddGuess(content?.FontDesc?.Key, name, dirs.TEX, gaoPrio);
+							}
+						}
+						void ProcessMaterial(GEO_Object mat, string name, float gaoPrio, DefaultDirectories dirs) {
+							if (mat == null) return;
+							var renderobj = mat?.RenderObject?.Value;
+							namingData.AddGuess(mat.Key, name, dirs.GRM, gaoPrio);
+							switch (renderobj) {
+								case MAT_MSM_MultiSingleMaterial msm:
+									if (msm.Materials == null) return;
+									for (int mati = 0; mati < msm.Materials.Length; mati++) {
+										ProcessMaterial(msm.Materials[mati]?.Value, $"{name}_mat{mati}", gaoPrio, dirs);
+									}
+									break;
+								case MAT_MTT_MultiTextureMaterial mtt:
+									if (mtt.Levels == null) return;
+									for (int mati = 0; mati < mtt.Levels.Length; mati++) {
+										ProcessTexture(mtt.Levels[mati]?.Texture, $"{name}_tex{mati}", gaoPrio, dirs);
+									}
+									break;
+								case MAT_SIN_SingleMaterial sin:
+									ProcessTexture(sin?.Texture, name, gaoPrio, dirs);
+									break;
+							}
+						}
+						void ProcessGameObject(OBJ_GameObject obj, float gaoPrio, DefaultDirectories dirs) {
+							if (obj == null) return;
+							var objname = obj.Export_FileBasename;
+							namingData.AddGuess(obj.Key, objname, dirs.GAO, gaoPrio);
+							namingData.AddGuess(obj.Base?.Visual?.RLI?.Key, objname, dirs.RLI, gaoPrio);
+
+							namingData.AddGuess(obj.Base?.Visual?.GeometricObject?.Key, objname, dirs.GRO, gaoPrio);
+							namingData.AddGuess(obj.Base?.Visual?.Material?.Key, objname, dirs.GRM, gaoPrio);
+							ProcessMaterial(obj.Base?.Visual?.Material.Value, objname, gaoPrio, dirs);
+							namingData.AddGuess(obj.Extended?.Light?.Key, $"{objname}_Light", dirs.GRO, gaoPrio - 100f);
+
+							namingData.AddGuess(obj.COL_ColMap?.Key, objname, dirs.CIN, gaoPrio);
+							if (obj.COL_ColMap?.Value?.Cobs != null) {
+								foreach (var cob in obj.COL_ColMap?.Value?.Cobs) {
+									namingData.AddGuess(cob.Key, $"{cob.Key.Key:X8}_{objname}", dirs.COB, gaoPrio);
+								}
+							}
+							namingData.AddGuess(obj.Extended?.Links?.Key, objname, dirs.LNK, gaoPrio);
+							if (obj.Extended?.Links?.Value?.LinkLists != null) {
+								for (int neti = 0; neti < obj.Extended.Links.Value.LinkLists.Length; neti++) {
+									var lnk = obj.Extended.Links.Value.LinkLists[neti];
+									namingData.AddGuess(lnk?.Network?.Key, $"{objname}_net{neti}", dirs.WAY, gaoPrio);
+								}
+							}
+							namingData.AddGuess(obj.COL_Instance?.Key, objname, dirs.CIN, gaoPrio);
+							if (obj.FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
+								var aiModelName = obj?.Extended?.AI?.Value?.Model?.Value?.FunctionDef?.Name;
+								if (aiModelName != null) {
+									namingData.AddGuess(obj.Extended?.AI?.Key, objname, $"{dirs.AI}/{aiModelName}", gaoPrio);
+									namingData.AddGuess(obj.Extended?.AI?.Value?.Vars?.Key, objname, $"{dirs.AI}/{aiModelName}", gaoPrio);
+								} else {
+									namingData.AddGuess(obj.Extended?.AI?.Key, objname, dirs.AI, gaoPrio);
+									namingData.AddGuess(obj.Extended?.AI?.Value?.Vars?.Key, objname, dirs.AI, gaoPrio);
+								}
+							}
+
+							ProcessGroup(obj.Extended?.Group?.Value, objname, false, gaoPrio, dirs);
+							ProcessGroup(obj.Base?.ActionData?.SkeletonGroup?.Value, objname, true,  gaoPrio, dirs);
+
+							namingData.AddGuess(obj.Base?.ActionData?.Shape?.Key, objname, dirs.SHP, gaoPrio);
+							namingData.AddGuess(obj.Base?.ActionData?.ListTracks?.Key, $"{objname}_anm", dirs.TRL, gaoPrio - 100f);
+							namingData.AddGuess(obj.Extended?.Events?.Key, $"{objname}", dirs.TRL, gaoPrio - 100f);
+
+							if (!namingData.HasGuess(obj?.Base?.ActionData?.ActionKit?.Key)) {
+								var ack = obj?.Base?.ActionData?.ActionKit?.Value;
+								namingData.AddGuess(ack?.Key, objname, dirs.ACT, gaoPrio);
+								for(int i = 0; i < ack.Actions.Length; i++) { 
+									var act = ack.Actions[i].Action;
+									if(act?.Value == null) continue;
+									var actname = $"{objname}_act{i}";
+									namingData.AddGuess(act?.Key, actname, dirs.ACT, gaoPrio);
+									if (act?.Value?.ActionItems == null) continue;
+									for (int j = 0; j < act.Value.ActionItems.Length; j++) {
+										var item = act.Value.ActionItems[j];
+										namingData.AddGuess(item?.TrackList?.Key, $"{actname}_{j}", dirs.TRL, gaoPrio);
+									}
+								}
+							}
+
+							ProcessGameObject(obj?.Base?.HierarchyData?.Father?.Value, gaoPrio, dirs);
+
+						}
+						void ProcessGroup(GRP_Grp grp, string objname, bool isSkeleton, float gaoPrio, DefaultDirectories dirs) {
+							if (grp != null) {
+								objname = $"{objname}_{(isSkeleton ? "Squelette" : "Group")}";
+								namingData.AddGuess(grp.Key, objname, dirs.GRP, gaoPrio);
+								var grpKey = grp.GroupObjectList?.Key;
+								bool hasGuess = namingData.HasGuess(grpKey.Key);
+								namingData.AddGuess(grpKey, objname, dirs.GRP, gaoPrio);
+								if (grpKey != null && !grpKey.IsNull && !hasGuess) {
+									var gol = grp.GroupObjectList.Value;
+									if (gol?.GameObjects != null) {
+										// DON'T create further
+										//var grpDirs = new DefaultDirectories($"{dirs.GRP}/{objname}");
+										var grpDirs = dirs;
+										foreach (var gao in gol.GameObjects) {
+											ProcessGameObject(gao?.Value, gaoPrio, grpDirs);
+										}
+									}
+								}
+							}
+						}
+
 						async UniTask ExportUnbinarized(WOR_World world) {
 							if (world != null) {
 								Debug.Log($"Loaded level. Exporting unbinarized assets...");
@@ -817,94 +1019,13 @@ namespace Ray1Map {
 									namingData.AddGuess(world.AllNetworks?.Key, world.Name, wowDir, 100);
 									var objects = world?.GameObjects?.Value?.GameObjects;
 									if (objects != null && objects.Any()) {
-										var gaoDir = $"{wowDir}/Game Objects";
-										var cobDir = $"{wowDir}/Collision Objects";
-										var cinDir = $"{wowDir}/COL Instances";
-										var lnkDir = $"{wowDir}/Links";
-										var wayDir = $"{wowDir}/Networks";
-										var aiDir  = $"{wowDir}/AI Instances";
-										var rliDir = $"{wowDir}/Game Objects RLI";
-										var grpDir = $"{wowDir}/Groups";
-										var groDir = $"{wowDir}/Graphic Objects";
-										var grmDir = $"{wowDir}/Materials";
-										var texDir = $"{wowDir}/Textures";
-										// TODO: Events (trl), Actions (act, ack)
+										var dirs = new DefaultDirectories(wowDir);
 										// TODO: all this for objects not directly in world too
-										var gaoPrio = 10000 / objects.Length;
-
-										void ProcessTexture(Jade_TextureReference tex, string name) {
-											if(tex == null || tex.IsNull || (tex.Info == null && tex.Content == null)) return;
-											namingData.AddGuess(tex.Key, name, texDir, gaoPrio);
-											var content = tex.Content ?? tex.Info;
-											if (content?.Content_RawPal != null) {
-												var slot = content.Content_RawPal.PreferredSlot;
-												ProcessTexture(slot.TextureRef, name); // .raw
-												if (slot.Palette != null && !slot.Palette.IsNull) {
-													namingData.AddGuess(slot.Palette.Key, name, texDir, gaoPrio);
-												}
-											}
-										}
-										void ProcessMaterial(GEO_Object mat, string name) {
-											if(mat == null) return;
-											var renderobj = mat?.RenderObject?.Value;
-											namingData.AddGuess(mat.Key, name, grmDir, gaoPrio);
-											switch (renderobj) {
-												case MAT_MSM_MultiSingleMaterial msm:
-													if(msm.Materials == null) return;
-													for (int mati = 0; mati < msm.Materials.Length; mati++) {
-														ProcessMaterial(msm.Materials[mati]?.Value, $"{name}__{mati}");
-													}
-													break;
-												case MAT_MTT_MultiTextureMaterial mtt:
-													if(mtt.Levels == null) return;
-													for (int mati = 0; mati < mtt.Levels.Length; mati++) {
-														ProcessTexture(mtt.Levels[mati]?.Texture, $"{name}__{mati}");
-													}
-													break;
-												case MAT_SIN_SingleMaterial sin:
-													ProcessTexture(sin?.Texture, name);
-													break;
-											}
-										}
-
+										var gaoPrio = 10000f / objects.Length;
 
 										foreach (var objRef in objects) {
 											var obj = objRef?.Value;
-											if(obj == null) continue;
-											var objname = obj.Export_FileBasename;
-											namingData.AddGuess(obj.Key, objname, gaoDir, gaoPrio);
-											namingData.AddGuess(obj.Base?.Visual?.RLI?.Key, objname, rliDir, gaoPrio);
-
-											namingData.AddGuess(obj.Base?.Visual?.GeometricObject?.Key, objname, groDir, gaoPrio);
-											namingData.AddGuess(obj.Base?.Visual?.Material?.Key, objname, grmDir, gaoPrio);
-											ProcessMaterial(obj.Base?.Visual?.Material.Value, objname);
-
-											namingData.AddGuess(obj.COL_ColMap?.Key, objname, cinDir, gaoPrio);
-											if (obj.COL_ColMap?.Value?.Cobs != null) {
-												foreach (var cob in obj.COL_ColMap?.Value?.Cobs) {
-													namingData.AddGuess(cob.Key, $"{cob.Key.Key:X8}_{objname}", cobDir, gaoPrio);
-												}
-											}
-											namingData.AddGuess(obj.Extended?.Links?.Key, objname, lnkDir, gaoPrio);
-											if (obj.Extended?.Links?.Value?.LinkLists != null) {
-												for(int neti = 0; neti < obj.Extended.Links.Value.LinkLists.Length; neti++) {
-													var lnk = obj.Extended.Links.Value.LinkLists[neti];
-													namingData.AddGuess(lnk?.Network?.Key, $"{objname}_NET_{neti}", wayDir, gaoPrio);
-												}
-											}
-											namingData.AddGuess(obj.COL_Instance?.Key, objname, cinDir, gaoPrio);
-											if (obj.FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
-												var aiModelName = obj?.Extended?.AI?.Value?.Model?.Value?.FunctionDef?.Name;
-												if (aiModelName != null) {
-													namingData.AddGuess(obj.Extended?.AI?.Key, objname, $"{aiDir}/{aiModelName}", gaoPrio);
-													namingData.AddGuess(obj.Extended?.AI?.Value?.Vars?.Key, objname, $"{aiDir}/{aiModelName}", gaoPrio);
-												} else {
-													namingData.AddGuess(obj.Extended?.AI?.Key, objname, aiDir, gaoPrio);
-													namingData.AddGuess(obj.Extended?.AI?.Value?.Vars?.Key, objname, aiDir, gaoPrio);
-												}
-											}
-											namingData.AddGuess(obj.Extended?.Group?.Key, objname, grpDir, gaoPrio);
-											namingData.AddGuess(obj.Extended?.Group?.Value?.GroupObjectList?.Key, objname, grpDir, gaoPrio);
+											ProcessGameObject(obj, gaoPrio, dirs);
 										}
 									}
 								}
