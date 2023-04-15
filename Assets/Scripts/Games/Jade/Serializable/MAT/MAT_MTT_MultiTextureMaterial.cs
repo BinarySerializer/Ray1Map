@@ -237,6 +237,14 @@ namespace Ray1Map.Jade {
 				Default15,
 			}
 
+			protected override void OnChangeContext(Context oldContext, Context newContext) {
+				base.OnChangeContext(oldContext, newContext);
+
+				if (newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && !oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+					Flags &= ~MaterialFlags.OnlyAdditionalLayer; // This changed to a fur flag with King Kong
+				}
+			}
+
 			public class CompressedUV : BinarySerializable, ISerializerShortLog {
 				public float Scale {
 					get {
