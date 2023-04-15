@@ -79,7 +79,6 @@ namespace Ray1Map.Jade {
 			public MAT_MTT_MultiTextureMaterial Material { get; set; } // Set in onPreSerialize
 
 			public short TextureID { get; set; }
-			public uint AdditionalFlags { get; set; }
 			public CompressedUV ScaleSpeedPosU { get; set; } = new CompressedUV();
 			public CompressedUV ScaleSpeedPosV { get; set; } = new CompressedUV();
 			public Jade_TextureReference Texture { get; set; }
@@ -108,13 +107,34 @@ namespace Ray1Map.Jade {
 			public int AlphaTreshold { get; set; }
 			public UVDynamicTransformation UVTransformation { get; set; }
 
+			// Additional Flags
+			public ushort AdditionalFlags { get; set; }
+			public SFlags SpecialFlags { get; set; }
+			public XYZ Axis { get; set; }
+			public Matrix MatrixFrom { get; set; }
+			public byte GizmoNumber { get; set; }
+			public byte LocalAlpha { get; set; }
+
 
 			public override void SerializeImpl(SerializerObject s) {
 				TextureID = s.Serialize<short>(TextureID, name: nameof(TextureID));
 				if (Material.ObjectVersion < 7) {
-					AdditionalFlags = s.Serialize<ushort>((ushort)AdditionalFlags, name: nameof(AdditionalFlags));
+					s.DoBits<ushort>(b => {
+						SpecialFlags = b.SerializeBits<SFlags>(SpecialFlags, 4, name: nameof(SpecialFlags));
+						Axis = b.SerializeBits<XYZ>(Axis, 2, name: nameof(Axis));
+						MatrixFrom = b.SerializeBits<Matrix>(MatrixFrom, 2, name: nameof(MatrixFrom));
+						GizmoNumber = b.SerializeBits<byte>(GizmoNumber, 7, name: nameof(GizmoNumber));
+						LocalAlpha = b.SerializeBits<byte>(LocalAlpha, 9, name: nameof(LocalAlpha));
+					});
 				} else {
-					AdditionalFlags = s.Serialize<uint>(AdditionalFlags, name: nameof(AdditionalFlags));
+					s.DoBits<uint>(b => {
+						SpecialFlags = b.SerializeBits<SFlags>(SpecialFlags, 4, name: nameof(SpecialFlags));
+						Axis = b.SerializeBits<XYZ>(Axis, 2, name: nameof(Axis));
+						MatrixFrom = b.SerializeBits<Matrix>(MatrixFrom, 2, name: nameof(MatrixFrom));
+						GizmoNumber = b.SerializeBits<byte>(GizmoNumber, 7, name: nameof(GizmoNumber));
+						LocalAlpha = b.SerializeBits<byte>(LocalAlpha, 9, name: nameof(LocalAlpha));
+						AdditionalFlags = b.SerializeBits<ushort>(AdditionalFlags, 16, name: nameof(AdditionalFlags));
+					});
 				}
 				s.DoBits<uint>(b => {
 					Flags = b.SerializeBits<MaterialFlags>(Flags, 12, name: nameof(Flags));
@@ -174,22 +194,24 @@ namespace Ray1Map.Jade {
 					ScaleSpeedPosV.RotationBitLower = BitHelpers.ExtractBits(rotation, 1, 0) == 1;
 				}
 			}
-			
+
+			// Flags
 			[Flags] // From Horsez
 			public enum MaterialFlags : ushort {
-				TilingU             = 0b0000000000000001,
-				TilingV             = 0b0000000000000010,
-				BilinearFiltering   = 0b0000000000000100,
-				TrilinearFiltering  = 0b0000000000001000,
-				AlphaTest           = 0b0000000000010000,
-				HideAlpha           = 0b0000000000100000,
-				HideColor           = 0b0000000001000000,
-				InvertAlpha         = 0b0000000010000000,
-				WriteOnlyOnSameZ    = 0b0000000100000000, // "WConATF" in Montreal (Spree)
-				NoZBuffer           = 0b0000001000000000,
-				UseLocalAlpha       = 0b0000010000000000,
-				ActiveLayer         = 0b0000100000000000,
-				OnlyAdditionalLayer = 0b0001000000000000,
+				TilingU              = 0b0000000000000001,
+				TilingV              = 0b0000000000000010,
+				BilinearFiltering    = 0b0000000000000100,
+				TrilinearFiltering   = 0b0000000000001000,
+				//ShiftUsingNormal_Bug = 0b0000000000001000,
+				AlphaTest            = 0b0000000000010000,
+				HideAlpha            = 0b0000000000100000,
+				HideColor            = 0b0000000001000000,
+				InvertAlpha          = 0b0000000010000000,
+				WriteOnlyOnSameZ     = 0b0000000100000000, // "WConATF" in Montreal (Spree)
+				NoZBuffer            = 0b0000001000000000,
+				UseLocalAlpha        = 0b0000010000000000,
+				ActiveLayer          = 0b0000100000000000,
+				OnlyAdditionalLayer  = 0b0001000000000000,
 			}
 			public enum ColorOp : byte {
 				Diffuse       = 0,
@@ -217,7 +239,6 @@ namespace Ray1Map.Jade {
 				PS2ShadowSpecific = 8,
 				SpecialContrast   = 9,
 			}
-
 			public enum UVSource : byte {
 				Object1 = 0,
 				Object2,
@@ -237,11 +258,65 @@ namespace Ray1Map.Jade {
 				Default15,
 			}
 
+			// Additional Flags
+			[Flags]
+			public enum SFlags : byte {
+				UseScale     = 0b00000001,
+				UseSymmetric = 0b00000010,
+				UseNegative  = 0b00000100,
+				DeductAlpha  = 0b00001000,
+				//ShiftUsingNormal_Fix = 0b00001000,
+			}
+			public enum XYZ : byte {
+				X = 0,
+				Y = 1,
+				Z = 2,
+				XYZ = 3
+			}
+			public enum Matrix : byte {
+				Object = 0,
+				World = 1,
+				Camera = 2,
+				Gizmo = 3
+			}
+
+			public const MaterialFlags ShiftUsingNormal_Bug = MaterialFlags.TrilinearFiltering;
+			public const SFlags ShiftUsingNormal_Fix = SFlags.DeductAlpha;
+
 			protected override void OnChangeContext(Context oldContext, Context newContext) {
 				base.OnChangeContext(oldContext, newContext);
 
-				if (newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && !oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
-					Flags &= ~MaterialFlags.OnlyAdditionalLayer; // This changed to a fur flag with King Kong
+				bool old_isFurSupported = oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong);
+				bool new_isFurSupported = newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong);
+
+				if (old_isFurSupported || new_isFurSupported) {
+					bool old_hasFurBug = oldContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && oldContext.GetR1Settings().EngineVersion != EngineVersion.Jade_RRRPrototype;
+					bool new_hasFurBug = newContext.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && newContext.GetR1Settings().EngineVersion != EngineVersion.Jade_RRRPrototype;
+
+					if (!new_isFurSupported) {
+						if (!old_hasFurBug) {
+							SpecialFlags &= ~ShiftUsingNormal_Fix; // Remove fix
+						}
+						// If we come from a mode with the fur flag issue, don't remove it, as we may want to keep trilinear rendering
+					} else {
+						if (new_hasFurBug) {
+							if (!old_isFurSupported) {
+								// Pre-fur materials should not have the fur flag
+								Flags &= ~ShiftUsingNormal_Bug;
+							} else if (!old_hasFurBug) {
+								// Fur was supported and fur bug did not exist
+								if (SpecialFlags.HasFlag(ShiftUsingNormal_Fix)) {
+									SpecialFlags &= ~ShiftUsingNormal_Fix; // Remove fix
+									Flags |= ShiftUsingNormal_Bug; // Add bug
+								}
+							}
+						} else if (old_hasFurBug) {
+							if (Flags.HasFlag(ShiftUsingNormal_Bug))
+								SpecialFlags |= ShiftUsingNormal_Fix;
+							// Keep bug flag intact in case trilinear filtering is still desired
+						}
+
+					}
 				}
 			}
 
