@@ -56,6 +56,9 @@ namespace Ray1Map.Jade {
 			[".txl"] = FileType.TEXT_TextList,
 			[".txi"] = FileType.TEXT_Ids,
 			[".txs"] = FileType.TEXT_Strings,
+
+			// Light
+			[".lrl"] = FileType.LIGHT_RejectionList,
 		};
 
 		public enum FileType {
@@ -88,6 +91,8 @@ namespace Ray1Map.Jade {
 			TEXT_TextList,
 			TEXT_Ids,
 			TEXT_Strings,
+
+			LIGHT_RejectionList,
 		}
 	}
 }

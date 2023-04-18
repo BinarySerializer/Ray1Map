@@ -61,7 +61,7 @@ namespace Ray1Map {
 								}
 								//UnityEngine.Debug.Log($"{bf.Offset.file.AbsolutePath} - {i} - {f.Key} - {(fi.Name != null ? Path.Combine(directories[fi.ParentDirectory], fi.Name) : fi.Name)}");
 								byte[] fileBytes = null;
-								await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
+								await bf.SerializeFile(s, fatIndex, i, (fileSize, isBranch) => {
 									fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileSize + 4));
 									if (fileIsCompressed) {
 										try {

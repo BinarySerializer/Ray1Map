@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-	public class LIGHT_Rejection : Jade_File {
+	public class LIGHT_RejectionList : Jade_File {
 		public override string Export_Extension => "lrl";
 		public uint Version { get; set; }
 		public Entry[] V0_Entries { get; set; }

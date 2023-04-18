@@ -67,7 +67,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public async UniTask SerializeFile(SerializerObject s, int fatIndex, int fileIndex, Action<uint> action) {
+		public async UniTask SerializeFile(SerializerObject s, int fatIndex, int fileIndex, Action<uint, bool> action) {
 			var fat = FatFiles[fatIndex];
 			Pointer off_current = s.CurrentPointer;
 			Pointer off_target = fat.Files[fileIndex].FileOffset;
@@ -75,14 +75,19 @@ namespace Ray1Map.Jade {
 			var indInSortedFileList = sortedFileList.FindItemIndex(f => f.FileOffset == off_target);*/
 			s.Goto(off_target);
 			uint FileSize = 0;
+			bool IsBranch = false;
 			await s.FillCacheForReadAsync(4);
-			FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+			s.DoBits<uint>(b => {
+				FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
+				IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
+			});
+		
 			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
 			/*if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) {
 				FileSize = fat.FileInfos[fileIndex].FileSize;
 			}*/
 			await s.FillCacheForReadAsync(FileSize);
-			action(FileSize);
+			action(FileSize, IsBranch);
 			s.Goto(off_current);
 		}
 

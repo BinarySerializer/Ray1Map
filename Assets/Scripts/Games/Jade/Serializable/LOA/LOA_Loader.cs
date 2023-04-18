@@ -288,12 +288,13 @@ namespace Ray1Map.Jade {
 				LoadQueue.RemoveFirst();
 				if (currentRef.IsSizeRequest) {
 					if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
-						uint fileSize = currentRef.Size_CurrentValue;
+						uint FileSize = currentRef.Size_CurrentValue;
+						bool IsBranch = false;
 						if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 							var f = Cache[currentRef.Key];
 							if (f != null) {
-								fileSize = f.FileSize;
-								currentRef.Size_ResolveAction(fileSize);
+								FileSize = f.FileSize;
+								currentRef.Size_ResolveAction(FileSize);
 							}
 						} else {
 							Pointer off_current = s.CurrentPointer;
@@ -304,9 +305,15 @@ namespace Ray1Map.Jade {
 							string previousState = Controller.DetailedState;
 							Controller.DetailedState = $"{previousState}\n{f}";
 							await s.FillCacheForReadAsync(4);
-							fileSize = s.Serialize<uint>(default, name: "FileSize");
+
+							s.DoBits<uint>(b => {
+								FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
+								IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
+							});
 							s.Goto(off_current);
-							currentRef.Size_ResolveAction(fileSize);
+							if(IsBranch)
+								throw new NotImplementedException($"Loader does not support branches yet!");
+							currentRef.Size_ResolveAction(FileSize);
 						}
 					}
 					continue;
@@ -327,19 +334,26 @@ namespace Ray1Map.Jade {
 						string previousState = Controller.DetailedState;
 						Controller.DetailedState = $"{previousState}\n{f}";
 						await s.FillCacheForReadAsync(4);
-						var fileSize = s.Serialize<uint>(default, name: "FileSize");
+						uint FileSize = default;
+						bool IsBranch = false;
+						s.DoBits<uint>(b => {
+							FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
+							IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
+						});
+						if (IsBranch)
+							throw new NotImplementedException($"Loader does not support branches yet!");
 
 						string regionName = f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}";
-						if (fileSize != 0) {
-							await s.FillCacheForReadAsync(fileSize);
+						if (FileSize != 0) {
+							await s.FillCacheForReadAsync(FileSize);
 
 							// Add region
-							off_target.File.AddRegion(off_target.FileOffset + 4, fileSize, regionName);
+							off_target.File.AddRegion(off_target.FileOffset + 4, FileSize, regionName);
 						}
 
 						if (currentRef.IsBin && Bin != null) {
 							if (IsCompressed) {
-								Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
+								Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(FileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
 									filename: regionName);
 								Bin.CurrentPosition = Bin.StartPosition;
 								s.Goto(Bin.StartPosition);
@@ -355,7 +369,7 @@ namespace Ray1Map.Jade {
 								s.EndEncoded(Bin.CurrentPosition);
 							} else {
 								Bin.Serializer = s;
-								Bin.TotalSize = fileSize;
+								Bin.TotalSize = FileSize;
 								if (Bin?.SerializeAction != null) {
 									await Bin.SerializeAction(s);
 								} else {
@@ -365,7 +379,7 @@ namespace Ray1Map.Jade {
 						} else {
 							currentRef.LoadCallback(s, (f) => {
 								f.Key = currentRef.Key;
-								f.FileSize = fileSize;
+								f.FileSize = FileSize;
 								f.Loader = this;
 								if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
 									TotalCache[f.Key] = f;

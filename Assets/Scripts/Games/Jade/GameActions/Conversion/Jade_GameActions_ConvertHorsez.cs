@@ -108,7 +108,7 @@ namespace Ray1Map {
 										int fat = bf.FatFiles.FindItemIndex(bfat => i >= bfat.FirstIndex && i <= bfat.LastIndex);
 										var indexInFat = i - bf.FatFiles[fat].FirstIndex;
 
-										await bf.SerializeFile(s, fat, (int)indexInFat, (fileSize) => {
+										await bf.SerializeFile(s, fat, (int)indexInFat, (fileSize, isBranch) => {
 											jaderefs = s.SerializeObjectArray<Jade_GenericReference>(jaderefs, fileSize / 8, name: "JadeRefs");
 										});
 										if (extension == ".mdl") {
