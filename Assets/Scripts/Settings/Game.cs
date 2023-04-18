@@ -124,6 +124,7 @@
         Jade_MyWordCoach,
         Jade_MyFrenchCoach,
         Jade_MySpanishCoach,
+        Jade_TMNT,
         Jade_RRRTVParty,
 
         // GEN

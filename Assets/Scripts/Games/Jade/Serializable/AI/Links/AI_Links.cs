@@ -138,6 +138,8 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS3:
 
 				case GameModeSelection.MyWordCoachWii:
+
+				case GameModeSelection.TMNTPC:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
 				case GameModeSelection.HorsezPS2:

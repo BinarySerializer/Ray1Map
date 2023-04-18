@@ -923,8 +923,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MySpanishCoach, "My Spanish Coach (Wii)", typeof(Jade_MySpanishCoach_Wii_Manager), Platform.Wii)]
         MySpanishCoachWii,
 
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_TMNT, Game.Jade_TMNT, "TMNT (PC)", typeof(Jade_TMNT_PC_Manager), Platform.PC)]
+		TMNTPC,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsTVPartyWii,
 
         #endregion
