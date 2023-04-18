@@ -20,6 +20,7 @@ namespace Ray1Map.Jade {
 		public Jade_Key ValueKey { get; set; }
 		public AI_VarValue[] ValueArray { get; set; }
 		public Jade_Color ValueColor { get; set; }
+		public long ValueLong { get; set; }
 
 		public Jade_Key TextFile { get; set; }
 		public Jade_Key TextEntryID { get; set; }
@@ -85,6 +86,9 @@ namespace Ray1Map.Jade {
 						break;
 					case AI_VarType.Color:
 						ValueColor = s.SerializeObject<Jade_Color>(ValueColor, name: nameof(ValueColor));
+						break;
+					case AI_VarType.Long64:
+						ValueLong = s.Serialize<long>(ValueLong, name: nameof(ValueLong));
 						break;
 					default:
 						//throw new Exception($"What should I do for {Var.Type}?");

@@ -353,6 +353,7 @@ namespace Ray1Map.Jade {
 					AI_VarType.Byrefarr => "byrefarr",
 					AI_VarType.MessageId => "messageid",
 					AI_VarType.Trigger => "trigger",
+                    AI_VarType.Long64 => "long",
 
 					AI_VarType.Void => "void",
 					AI_VarType.Every => "every",

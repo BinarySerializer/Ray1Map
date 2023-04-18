@@ -10,7 +10,9 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			KeyFile = s.SerializeObject<Jade_Key>(KeyFile, name: nameof(KeyFile));
 			CFunctionPointer = s.Serialize<int>(CFunctionPointer, name: nameof(CFunctionPointer));
-			Name = s.SerializeString(Name, length: 64, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+				Name = s.SerializeString(Name, length: 64, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+			}
 			Message = s.SerializeObject<AI_Message>(Message, name: nameof(Message));
 		}
 

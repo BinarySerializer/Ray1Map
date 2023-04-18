@@ -25,8 +25,8 @@ namespace Ray1Map.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+				Sender = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Sender, name: nameof(Sender));
 				GAO1 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GAO1, name: nameof(GAO1));
-				GAO2 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GAO2, name: nameof(GAO2));
 				Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
 				Vector2 = s.SerializeObject<Jade_Vector>(Vector2, name: nameof(Vector2));
 				BGE_Float_0 = s.Serialize<float>(BGE_Float_0, name: nameof(BGE_Float_0));

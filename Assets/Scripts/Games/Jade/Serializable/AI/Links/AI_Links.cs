@@ -116,6 +116,8 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS3:
+					links = new AI_Links_PoP_SoT_PS2_Proto();
+					break;
 
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPC:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPCDemo:
@@ -140,7 +142,7 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.MyWordCoachWii:
 
 				case GameModeSelection.TMNTPC:
-					links = new AI_Links_PoP_SoT_PS2_Proto();
+					links = new AI_Links_TMNT_GC();
 					break;
 				case GameModeSelection.HorsezPS2:
 					links = new AI_Links_Horsez_PS2();

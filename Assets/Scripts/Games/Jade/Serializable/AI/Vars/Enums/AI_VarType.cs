@@ -16,6 +16,7 @@
 		Sound,
 		MessageId,
 		Trigger,
+		Long64,
 
 		Function,
 		Model,
