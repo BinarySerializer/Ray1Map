@@ -16,8 +16,14 @@ namespace Ray1Map.Jade {
 		public byte[] StringBuffer { get; set; }
 		public string[] Strings { get; set; }
 		public Dictionary<long, int> StringOffsetToIndex { get; set; }
+		public uint LocalStackFrameBufferLength { get; set; }
+		public AI_LocalStackFrame[] LocalStackFrame { get; set; }
 		public uint LocalsBufferLength { get; set; }
 		public AI_Local[] Locals { get; set; }
+		public int TMNT_LocalsUnknown0 { get; set; }
+		public bool TMNT_LocalsUnknownFlag { get; set; }
+		public uint TMNT_LocalsUnknownBufferSize { get; set; }
+		public AI_Local[] LocalsUnknown { get; set; }
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
@@ -30,7 +36,18 @@ namespace Ray1Map.Jade {
 				s.Log("Compiled function found! Function name: {0}", FunctionDef.Name);
 			}
 
-			SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
+				s.DoBits<uint>(b => {
+					TMNT_LocalsUnknown0 = b.SerializeBits<int>(TMNT_LocalsUnknown0, 31, name: nameof(TMNT_LocalsUnknown0));
+					TMNT_LocalsUnknownFlag = b.SerializeBits<bool>(TMNT_LocalsUnknownFlag, 1, name: nameof(TMNT_LocalsUnknownFlag));
+				});
+				if(TMNT_LocalsUnknownFlag)
+					SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
+				else
+					SizeLocalStack = TMNT_LocalsUnknown0;
+			} else {
+				SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
+			}
 			FunctionBufferLength = s.Serialize<uint>(FunctionBufferLength, name: nameof(FunctionBufferLength));
 			if(Loader.IsBinaryData) BinaryFunctionBufferLength = FunctionBufferLength;
 
@@ -69,9 +86,29 @@ namespace Ray1Map.Jade {
 				});
 			}
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
-			if (/*!Loader.SpeedMode && */s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize/* && !(s is BinarySerializer.BinarySerializer)*/) {
-				LocalsBufferLength = s.Serialize<uint>(LocalsBufferLength, name: nameof(LocalsBufferLength));
-				Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsBufferLength / 40, name: nameof(Locals));
+			if (!Loader.IsBinaryData) { // Actually, check is for SpeedMode, but BinaryData check is better in this case
+
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT) &&
+					(s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize)) {
+					TMNT_LocalsUnknownBufferSize = s.Serialize<uint>(TMNT_LocalsUnknownBufferSize, name: nameof(TMNT_LocalsUnknownBufferSize));
+
+					var localSize = s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)
+									? ((TMNT_LocalsUnknownFlag && TMNT_LocalsUnknown0 != 0) ? 0x40 : 0x3c)
+									: 40;
+					LocalsUnknown = s.SerializeObjectArray<AI_Local>(LocalsUnknown, TMNT_LocalsUnknownBufferSize / localSize, name: nameof(LocalsUnknown));
+				}
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT) &&
+					(s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize)) {
+					LocalStackFrameBufferLength = s.Serialize<uint>(LocalStackFrameBufferLength, name: nameof(LocalStackFrameBufferLength));
+					LocalStackFrame = s.SerializeObjectArray<AI_LocalStackFrame>(LocalStackFrame, LocalStackFrameBufferLength / 0x10, name: nameof(LocalStackFrame));
+				}
+				if (s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize) {
+					var localSize = s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)
+									? ((TMNT_LocalsUnknownFlag && TMNT_LocalsUnknown0 != 0) ? 0x40 : 0x3c)
+									: 40;
+					LocalsBufferLength = s.Serialize<uint>(LocalsBufferLength, name: nameof(LocalsBufferLength));
+					Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsBufferLength / localSize, name: nameof(Locals));
+				}
 			}
 			//if (!Loader.IsBinaryData) ExportScript(s);
 		}

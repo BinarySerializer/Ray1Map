@@ -46,6 +46,10 @@ namespace Ray1Map.Jade {
 		public Jade_Code PrefabFileMark { get; set; }
 		public Jade_Key Prefab { get; set; }
 		public Jade_Reference<OBJ_GameObject> PrefabObject { get; set; }
+		public uint MontrealEditor0 { get; set; }
+		public uint MontrealEditor1 { get; set; }
+		public uint MontrealEditor2 { get; set; }
+		public uint MontrealEditor3 { get; set; }
 
 		public bool IsObjInitialized { get; set; }
 
@@ -122,6 +126,13 @@ namespace Ray1Map.Jade {
 				InvisibleObjectIndex = s.Serialize<uint>(InvisibleObjectIndex, name: nameof(InvisibleObjectIndex));
 				ForceLODIndex = s.Serialize<uint>(ForceLODIndex, name: nameof(ForceLODIndex));
 				User3 = s.Serialize<uint>(User3, name: nameof(User3));
+				if ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && Version != 0)
+					|| s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					MontrealEditor0 = s.Serialize<uint>(MontrealEditor0, name: nameof(MontrealEditor0));
+					MontrealEditor1 = s.Serialize<uint>(MontrealEditor1, name: nameof(MontrealEditor1));
+					MontrealEditor2 = s.Serialize<uint>(MontrealEditor2, name: nameof(MontrealEditor2));
+					MontrealEditor3 = s.Serialize<uint>(MontrealEditor3, name: nameof(MontrealEditor3));
+				}
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
 				if (Version > 12) PhoenixMontreal_V12_Long = s.Serialize<long>(PhoenixMontreal_V12_Long, name: nameof(PhoenixMontreal_V12_Long));
