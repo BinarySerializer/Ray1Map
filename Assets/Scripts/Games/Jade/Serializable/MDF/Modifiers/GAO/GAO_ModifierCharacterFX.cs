@@ -171,8 +171,8 @@ namespace Ray1Map.Jade {
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				Beam = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Beam, name: nameof(Beam))?.Resolve();
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.GBA_TMNT)) {
-					if (CharacterFX.Version < 4) GrowEffect = s.Serialize<int>(GrowEffect, name: nameof(GrowEffect));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PostTMNT)) {
+					if (CharacterFX.Version < 4) GrowEffect = s.Serialize<byte>((byte)GrowEffect, name: nameof(GrowEffect));
 				} else {
 					GrowEffect = s.Serialize<byte>((byte)GrowEffect, name: nameof(GrowEffect));
 				}
@@ -472,7 +472,7 @@ namespace Ray1Map.Jade {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 				Id = s.Serialize<int>(Id, name: nameof(Id));
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PostTMNT)) {
 					if (CharacterFX.Version >= 12) {
 						ColMatIDsCount = s.Serialize<short>(ColMatIDsCount, name: nameof(ColMatIDsCount));
 						ColMatIDs = s.SerializeArray<uint>(ColMatIDs, ColMatIDsCount, name: nameof(ColMatIDs));
@@ -533,7 +533,7 @@ namespace Ray1Map.Jade {
 			}
 			public class CharacterFX_GroupParticleElement : CharacterFX_BaseElement {
 
-				public override bool HasDuration => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT) || Manager.CharacterFX.Version >= 1;
+				public override bool HasDuration => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PostTMNT) || Manager.CharacterFX.Version >= 1;
 
 				public int ForceStop { get; set; } // Boolean
 				public int StopGenerating { get; set; } // Boolean

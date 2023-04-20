@@ -914,7 +914,11 @@ namespace Ray1Map
         PrinceOfPersiaTheTwoThronesPS3,
 
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Beowulf, Game.Jade_Beowulf, "Beowulf (PSP)", typeof(Jade_Beowulf_PSP_Manager), Platform.PSP)]
+		BeowulfPSP,
+
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
         MyWordCoachWii,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyFrenchCoach, "My French Coach (Wii)", typeof(Jade_MyFrenchCoach_Wii_Manager), Platform.Wii)]
@@ -923,8 +927,19 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MySpanishCoach, "My Spanish Coach (Wii)", typeof(Jade_MySpanishCoach_Wii_Manager), Platform.Wii)]
         MySpanishCoachWii,
 
+
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_TMNT, Game.Jade_TMNT, "TMNT (PC)", typeof(Jade_TMNT_PC_Manager), Platform.PC)]
 		TMNTPC,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_TMNT, Game.Jade_TMNT, "TMNT (PS2)", typeof(Jade_TMNT_PS2_Manager), Platform.PS2)]
+		TMNTPS2,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_TMNT, Game.Jade_TMNT, "TMNT (GC)", typeof(Jade_TMNT_GC_Manager), Platform.GC)]
+		TMNTGC,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_TMNT, Game.Jade_TMNT, "TMNT (Wii)", typeof(Jade_TMNT_Wii_Manager), Platform.Wii)]
+		TMNTWii,
+
 
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsTVPartyWii,

@@ -77,11 +77,13 @@ namespace Ray1Map.Jade
                     break;
                 case JTX_Format.Intensity_8:
                 case JTX_Format.AlphaIntensity_8:
+                case JTX_Format.Alpha_8:
                     BPP = 8;
                     break;
                 case JTX_Format.Intensity_4:
                 case JTX_Format.AlphaIntensity_4:
-                    BPP = 4;
+				case JTX_Format.Alpha_4:
+					BPP = 4;
                     break;
                 case JTX_Format.S3TC:
                 case JTX_Format.S3TC_A:

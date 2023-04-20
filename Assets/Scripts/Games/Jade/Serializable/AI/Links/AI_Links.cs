@@ -139,9 +139,14 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox_20051002:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS3:
 
+				case GameModeSelection.BeowulfPSP:
+
 				case GameModeSelection.MyWordCoachWii:
 
 				case GameModeSelection.TMNTPC:
+				case GameModeSelection.TMNTPS2:
+				case GameModeSelection.TMNTGC:
+				case GameModeSelection.TMNTWii:
 					links = new AI_Links_TMNT_GC();
 					break;
 				case GameModeSelection.HorsezPS2:

@@ -24,7 +24,7 @@ namespace Ray1Map.Jade {
 			HaloLocalPos = s.SerializeObject<Jade_Vector>(HaloLocalPos, name: nameof(HaloLocalPos));
 			MinTransparency = s.Serialize<float>(MinTransparency, name: nameof(MinTransparency));
 			MaxTransparency = s.Serialize<float>(MaxTransparency, name: nameof(MaxTransparency));
-			if (Version < 3) Angle = s.Serialize<float>(Angle, name: nameof(Angle));
+			if (Version > 3) Angle = s.Serialize<float>(Angle, name: nameof(Angle));
 			Material = s.SerializeObject<Jade_Reference<GEO_Object>>(Material, name: nameof(Material))?.Resolve();
 		}
 	}

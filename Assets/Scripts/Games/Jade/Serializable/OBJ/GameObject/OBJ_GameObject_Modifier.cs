@@ -146,6 +146,8 @@ namespace Ray1Map.Jade {
 				MDF_ModifierType_Montreal.GAO_ModifierEcharpe => SerializeModifier<GAO_ModifierEcharpe>(s),
 				MDF_ModifierType_Montreal.GAO_ModifierSoftBodyColl => SerializeModifier<GAO_ModifierSoftBodyColl>(s),
 				MDF_ModifierType_Montreal.GAO_ModifierInteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
+				MDF_ModifierType_Montreal.GAO_ModifierMotionBlur => SerializeModifier<GAO_ModifierMotionBlur>(s),
+				MDF_ModifierType_Montreal.GAO_ModifierAlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

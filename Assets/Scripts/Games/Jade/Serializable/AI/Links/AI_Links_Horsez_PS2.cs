@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Ray1Map.Jade {
-	public class AI_Links_Horsez_PS2 : AI_Links_PoP_SoT_PS2_Proto {
+	public class AI_Links_Horsez_PS2 : AI_Links_TMNT_GC {
 		protected override void InitFunctionDefs() {
 			base.InitFunctionDefs();
 

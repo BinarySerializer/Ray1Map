@@ -15,6 +15,7 @@ namespace Ray1Map
 			await UniTask.CompletedTask;
 			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
 			//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
+			// TODO: Read WOLInfo if it exists
 			List<KeyValuePair<uint, LevelInfo>> levels = new List<KeyValuePair<uint, LevelInfo>>();
 			foreach (var g in groups) {
 				if (!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;

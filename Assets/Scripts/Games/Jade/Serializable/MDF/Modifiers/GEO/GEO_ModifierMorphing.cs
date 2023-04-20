@@ -10,23 +10,42 @@ namespace Ray1Map.Jade {
 		public Data[] MorphData { get; set; }
 		public Channel[] MorphChannels { get; set; }
 
-		public uint Xenon_Version { get; set; } = 1;
+		public float InterChannelLoopDuration { get; set; }
+		public float InterChannelLoopSmoothFactor { get; set; }
+		public float ChannelAnimationDurationMin { get; set; }
+		public float ChannelAnimationDurationMax { get; set; }
+		public float ChannelAnimationDurationTurbulance { get; set; }
+		public float ChannelAnimationDurationVariation { get; set; }
+
+		public uint Version { get; set; } = 1;
 		public uint Xenon_ElementsCount { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
-			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && DataSize == 0) {
-				Xenon_Version = s.Serialize<uint>(Xenon_Version, name: nameof(Xenon_Version));
+			if ((s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
+				|| s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))
+				&& DataSize == 0) {
+				Version = s.Serialize<uint>(Version, name: nameof(Version));
 			}
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			PointsCount = s.Serialize<uint>(PointsCount, name: nameof(PointsCount));
 			MorphDataCount = s.Serialize<uint>(MorphDataCount, name: nameof(MorphDataCount));
 			ChannelsCount = s.Serialize<uint>(ChannelsCount, name: nameof(ChannelsCount));
-			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Xenon_Version == 2) Xenon_ElementsCount = s.Serialize<uint>(Xenon_ElementsCount, name: nameof(Xenon_ElementsCount));
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version == 2) Xenon_ElementsCount = s.Serialize<uint>(Xenon_ElementsCount, name: nameof(Xenon_ElementsCount));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 2) {
+				InterChannelLoopDuration = s.Serialize<float>(InterChannelLoopDuration, name: nameof(InterChannelLoopDuration));
+				InterChannelLoopSmoothFactor = s.Serialize<float>(InterChannelLoopSmoothFactor, name: nameof(InterChannelLoopSmoothFactor));
+				if (Version >= 3) {
+					ChannelAnimationDurationMin = s.Serialize<float>(ChannelAnimationDurationMin, name: nameof(ChannelAnimationDurationMin));
+					ChannelAnimationDurationMax = s.Serialize<float>(ChannelAnimationDurationMax, name: nameof(ChannelAnimationDurationMax));
+					ChannelAnimationDurationTurbulance = s.Serialize<float>(ChannelAnimationDurationTurbulance, name: nameof(ChannelAnimationDurationTurbulance));
+					ChannelAnimationDurationVariation = s.Serialize<float>(ChannelAnimationDurationVariation, name: nameof(ChannelAnimationDurationVariation));
+				}
+			}
 			MorphData = s.SerializeObjectArray<Data>(MorphData, MorphDataCount, v => {
-				v.Xenon_Version = Xenon_Version;
+				v.Version = Version;
 				v.Xenon_ElementsCount = Xenon_ElementsCount;
 			}, name: nameof(MorphData));
 			MorphChannels = s.SerializeObjectArray<Channel>(MorphChannels, ChannelsCount, name: nameof(MorphChannels));
@@ -40,7 +59,7 @@ namespace Ray1Map.Jade {
 		}
 
 		public class Data : BinarySerializable {
-			public uint Xenon_Version { get; set; }
+			public uint Version { get; set; }
 			public uint Xenon_ElementsCount { get; set; } // Set in onPreSerialize
 
 			public uint VectorsCount { get; set; }
@@ -57,9 +76,9 @@ namespace Ray1Map.Jade {
 				Indices = s.SerializeArray<uint>(Indices, VectorsCount, name: nameof(Indices));
 				Vectors = s.SerializeObjectArray<Jade_Vector>(Vectors, VectorsCount, name: nameof(Vectors));
 				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
-					if (Xenon_Version == 2) {
+					if (Version == 2) {
 						XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, Xenon_ElementsCount, name: nameof(XenonDatas));
-					} else if (Xenon_Version >= 3) {
+					} else if (Version >= 3) {
 						XenonDatas = s.SerializeObjectArray<XenonData>(XenonDatas, 1, name: nameof(XenonDatas));
 					}
 				}

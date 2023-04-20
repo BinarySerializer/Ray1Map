@@ -164,6 +164,8 @@ namespace Ray1Map
         Jade_PoP_T2T_20051002,
         Jade_PoP_T2T,
         Jade_PoP_TFS,
+        Jade_SeanWhiteSkateboarding,
+        Jade_Beowulf,
         Jade_PhoenixRayman4,
         Jade_Horsez,
         Jade_MyWordCoach,
@@ -173,6 +175,8 @@ namespace Ray1Map
         Jade_Avatar,
         Jade_TMNT,
         Jade_RRRTVParty,
+
+        Jade_PostTMNT,
 
         Jade_Naruto,
         Jade_Naruto1RiseOfANinja,
