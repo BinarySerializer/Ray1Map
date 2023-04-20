@@ -3,29 +3,29 @@
 namespace Ray1Map.Jade {
 	public class BIG_BigFile_V43Data : BinarySerializable {
 		public uint UInt_00 { get; set; }
-		public uint UInt_04 { get; set; }
-		public uint UInt_08 { get; set; }
-		public uint UInt_0C { get; set; }
-		public uint UInt_10 { get; set; }
-		public uint UInt_14 { get; set; }
-		public uint UInt_18 { get; set; }
-		public uint UInt_1C { get; set; }
-		public uint UInt_20 { get; set; }
-		public uint UInt_24 { get; set; }
-		public uint UInt_28 { get; set; }
+		public Jade_Key VersionTag { get; set; }
+		public Jade_Key EditorTexture { get; set; }
+		public Jade_Key DefaultTexture { get; set; }
+		public Jade_Key DebugFontTexture { get; set; }
+		public Jade_Key DebugFontDescriptor { get; set; }
+		public Jade_Key GMat { get; set; }
+		public Jade_Key SystemAIFunction { get; set; }
+		public Jade_Key Icon { get; set; }
+		public Jade_Key LoadingTextureHigh { get; set; }
+		public Jade_Key LoadingTextureNormal { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
-			UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
-			UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
-			UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
-			UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
-			UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
-			UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
-			UInt_20 = s.Serialize<uint>(UInt_20, name: nameof(UInt_20));
-			UInt_24 = s.Serialize<uint>(UInt_24, name: nameof(UInt_24));
-			UInt_28 = s.Serialize<uint>(UInt_28, name: nameof(UInt_28));
+			VersionTag = s.SerializeObject<Jade_Key>(VersionTag, name: nameof(VersionTag));
+			EditorTexture = s.SerializeObject<Jade_Key>(EditorTexture, name: nameof(EditorTexture));
+			DefaultTexture = s.SerializeObject<Jade_Key>(DefaultTexture, name: nameof(DefaultTexture));
+			DebugFontTexture = s.SerializeObject<Jade_Key>(DebugFontTexture, name: nameof(DebugFontTexture));
+			DebugFontDescriptor = s.SerializeObject<Jade_Key>(DebugFontDescriptor, name: nameof(DebugFontDescriptor));
+			GMat = s.SerializeObject<Jade_Key>(GMat, name: nameof(GMat));
+			SystemAIFunction = s.SerializeObject<Jade_Key>(SystemAIFunction, name: nameof(SystemAIFunction));
+			Icon = s.SerializeObject<Jade_Key>(Icon, name: nameof(Icon));
+			LoadingTextureHigh = s.SerializeObject<Jade_Key>(LoadingTextureHigh, name: nameof(LoadingTextureHigh));
+			LoadingTextureNormal = s.SerializeObject<Jade_Key>(LoadingTextureNormal, name: nameof(LoadingTextureNormal));
 		}
 	}
 }

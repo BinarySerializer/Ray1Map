@@ -13,24 +13,100 @@ namespace Ray1Map
     public abstract class Jade_Montreal_BaseManager : Jade_BaseManager {
 		public override async UniTask CreateLevelList(LOA_Loader l) {
 			await UniTask.CompletedTask;
-			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
-			//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
+
 			// TODO: Read WOLInfo if it exists
 			List<KeyValuePair<uint, LevelInfo>> levels = new List<KeyValuePair<uint, LevelInfo>>();
-			foreach (var g in groups) {
-				if (!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
-				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
-				string mapName = null;
-				string worldName = null;
-				uint? overrideKey = null;
-				LevelInfo.FileType? fileType = null;
-				if (kvpair.Value == null) {
-					kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
+			bool keysAreComposed = !l.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty);
 
-					if (kvpair.Value != null) {
-						if(kvpair.Value.DirectoryName == "ROOT/Bin") {
+			if (keysAreComposed) {
+				var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
+				//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
+
+				foreach (var g in groups) {
+					if (!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
+					var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
+					string mapName = null;
+					string worldName = null;
+					uint? overrideKey = null;
+					LevelInfo.FileType? fileType = null;
+					if (kvpair.Value == null) {
+						kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
+
+						if (kvpair.Value != null) {
+							if (kvpair.Value.DirectoryName == "ROOT/Bin") {
+								string FilenamePattern = @"^(?<name>.*)_(?<type>(wow|wol|oin))(?<optionalKey> \[0X(?<actualKey>[0-9a-f]{1,8})\])?_(?<key>[0-9a-f]{1,8}).bin";
+								Match m = Regex.Match(kvpair.Value.FileName, FilenamePattern, RegexOptions.IgnoreCase);
+								if (m.Success) {
+									var name = m.Groups["name"].Value;
+									var keyStr = m.Groups["key"].Value;
+									var type = m.Groups["type"].Value;
+									var optionalKey = m.Groups["actualKey"];
+									if (optionalKey.Success) {
+										var hex = optionalKey.Value;
+										uint actualKey = 0;
+										bool parsedSuccessfully = uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture, out actualKey);
+										if (Jade_Key.GetBinaryForKey(l.Context, actualKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
+											overrideKey = actualKey;
+										}
+									}
+									if (type.ToLower() == "oin") {
+										continue;
+									} else {
+										mapName = name;
+										worldName = type.ToUpper();
+										if (worldName == "WOW") {
+											fileType = LevelInfo.FileType.WOW;
+										} else if (worldName == "WOL") fileType = LevelInfo.FileType.WOL;
+									}
+								}
+							}
+						}
+					}
+					if (!overrideKey.HasValue) {
+						try {
+							Jade_Reference<Jade_DummyFile> dummy = new Jade_Reference<Jade_DummyFile>(l.Context, new Jade_Key(l.Context, g.Key));
+							l.BeginSpeedMode(dummy.Key, serializeAction: async s => {
+								dummy.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+								await l.LoadLoopBINAsync();
+							});
+							await l.LoadLoop(l.Context.Deserializer);
+							l.EndSpeedMode();
+							var newKey = dummy?.Value?.BinFileHeader?.Key;
+							if (newKey != null) {
+								if (Jade_Key.GetBinaryForKey(l.Context, newKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
+									overrideKey = newKey;
+								}
+							}
+						} catch (Exception) {
+							l.EndSpeedMode();
+						}
+					}
+					//if (kvpair.Value != null) {
+					//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
+					//}
+					levels.Add(new KeyValuePair<uint, LevelInfo>(overrideKey ?? g.Key, new LevelInfo(
+						overrideKey ?? g.Key,
+						kvpair.Value?.DirectoryName ?? "null",
+						kvpair.Value?.FileName ?? "null",
+						worldName: worldName,
+						mapName: mapName,
+						type: fileType)));
+				}
+			} else {
+				var groups = l.FileInfos.OrderBy(f => f.Key?.Key);
+				//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
+
+				foreach (var f in groups) {
+					string mapName = null;
+					string worldName = null;
+					uint? overrideKey = null;
+					LevelInfo.FileType? fileType = null;
+					if (f.Value.FileName != null && f.Value.FileName.EndsWith(".wol")) {
+					} else if (f.Value.FileName != null && f.Value.FileName.EndsWith(".bin") && (f.Value.FileName.Contains("_wow_") || f.Value.FileName.Contains("_wol_"))) {
+
+						if (f.Value.DirectoryName == "ROOT/Bin") {
 							string FilenamePattern = @"^(?<name>.*)_(?<type>(wow|wol|oin))(?<optionalKey> \[0X(?<actualKey>[0-9a-f]{1,8})\])?_(?<key>[0-9a-f]{1,8}).bin";
-							Match m = Regex.Match(kvpair.Value.FileName, FilenamePattern, RegexOptions.IgnoreCase);
+							Match m = Regex.Match(f.Value.FileName, FilenamePattern, RegexOptions.IgnoreCase);
 							if (m.Success) {
 								var name = m.Groups["name"].Value;
 								var keyStr = m.Groups["key"].Value;
@@ -40,7 +116,7 @@ namespace Ray1Map
 									var hex = optionalKey.Value;
 									uint actualKey = 0;
 									bool parsedSuccessfully = uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture, out actualKey);
-									if (Jade_Key.GetBinaryForKey(l.Context, actualKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
+									if (Jade_Key.GetBinaryForKey(l.Context, actualKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, f.Key, Jade_Key.KeyType.Map)) {
 										overrideKey = actualKey;
 									}
 								}
@@ -51,41 +127,43 @@ namespace Ray1Map
 									worldName = type.ToUpper();
 									if (worldName == "WOW") {
 										fileType = LevelInfo.FileType.WOW;
-									} else if(worldName == "WOL") fileType = LevelInfo.FileType.WOL;
+									} else if (worldName == "WOL") fileType = LevelInfo.FileType.WOL;
 								}
 							}
 						}
+					} else {
+						continue;
 					}
-				}
-				if (!overrideKey.HasValue) {
-					try {
-						Jade_Reference<Jade_DummyFile> dummy = new Jade_Reference<Jade_DummyFile>(l.Context, new Jade_Key(l.Context, g.Key));
-						l.BeginSpeedMode(dummy.Key, serializeAction: async s => {
-							dummy.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
-							await l.LoadLoopBINAsync();
-						});
-						await l.LoadLoop(l.Context.Deserializer);
-						l.EndSpeedMode();
-						var newKey = dummy?.Value?.BinFileHeader?.Key;
-						if (newKey != null) {
-							if (Jade_Key.GetBinaryForKey(l.Context, newKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
-								overrideKey = newKey;
+					if (!overrideKey.HasValue) {
+						try {
+							Jade_Reference<Jade_DummyFile> dummy = new Jade_Reference<Jade_DummyFile>(l.Context, new Jade_Key(l.Context, f.Key));
+							l.BeginSpeedMode(dummy.Key, serializeAction: async s => {
+								dummy.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+								await l.LoadLoopBINAsync();
+							});
+							await l.LoadLoop(l.Context.Deserializer);
+							l.EndSpeedMode();
+							var newKey = dummy?.Value?.BinFileHeader?.Key;
+							if (newKey != null) {
+								if (Jade_Key.GetBinaryForKey(l.Context, newKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, f.Key, Jade_Key.KeyType.Map)) {
+									overrideKey = newKey;
+								}
 							}
+						} catch (Exception) {
+							l.EndSpeedMode();
 						}
-					} catch (Exception) {
-						l.EndSpeedMode();
 					}
+					//if (kvpair.Value != null) {
+					//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
+					//}
+					levels.Add(new KeyValuePair<uint, LevelInfo>(overrideKey ?? f.Key, new LevelInfo(
+						overrideKey ?? f.Key,
+						f.Value?.DirectoryName ?? "null",
+						f.Value?.FileName ?? "null",
+						worldName: worldName,
+						mapName: mapName,
+						type: fileType)));
 				}
-				//if (kvpair.Value != null) {
-				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
-				//}
-				levels.Add(new KeyValuePair<uint, LevelInfo>(overrideKey ?? g.Key, new LevelInfo(
-					overrideKey ?? g.Key,
-					kvpair.Value?.DirectoryName ?? "null",
-					kvpair.Value?.FileName ?? "null",
-					worldName: worldName,
-					mapName: mapName,
-					type: fileType)));
 			}
 
 			var str = new StringBuilder();

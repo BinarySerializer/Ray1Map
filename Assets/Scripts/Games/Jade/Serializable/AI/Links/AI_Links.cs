@@ -149,6 +149,12 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.TMNTWii:
 					links = new AI_Links_TMNT_GC();
 					break;
+
+				case GameModeSelection.RaymanRavingRabbidsTVPartyWii:
+				case GameModeSelection.AvatarWii:
+					links = new AI_Links_PoP_TFS_Wii();
+					break;
+
 				case GameModeSelection.HorsezPS2:
 					links = new AI_Links_Horsez_PS2();
 					break;

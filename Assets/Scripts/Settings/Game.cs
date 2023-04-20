@@ -126,6 +126,7 @@
         Jade_MyFrenchCoach,
         Jade_MySpanishCoach,
         Jade_TMNT,
+        Jade_Avatar,
         Jade_RRRTVParty,
 
         // GEN

@@ -841,13 +841,16 @@ namespace Ray1Map.Jade {
 					if (FileInfos.ContainsKey(key)) {
 						ReadMode = Read.Binary;
 						Bin = new BinData() { Key = key, SerializeAction = serializeAction };
+						bool forceCompressedMapsBin = Bin.Key.Context?.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) ?? false;
 						switch (key.Type) {
-							case Jade_Key.KeyType.Map: Bin.QueueType = QueueType.Maps; break;
 							case Jade_Key.KeyType.Sounds: Bin.QueueType = QueueType.Sound; break;
 							case Jade_Key.KeyType.TextNoSound: Bin.QueueType = QueueType.TextNoSound; break;
 							case Jade_Key.KeyType.TextSound: Bin.QueueType = QueueType.TextSound; break;
 							case Jade_Key.KeyType.Textures: Bin.QueueType = QueueType.Textures; break;
+							case Jade_Key.KeyType.Map: Bin.QueueType = QueueType.Maps; break;
 						}
+						if(forceCompressedMapsBin) Bin.QueueType = QueueType.Maps;
+
 						LoadQueues[QueueType.BigFat].AddLast(new FileReference() {
 							Name = "BIN",
 							Key = key,
@@ -855,7 +858,7 @@ namespace Ray1Map.Jade {
 							Flags = ReferenceFlags.MustExist,
 							Cache = IsLoadingFix ? CacheType.Fix : CacheType.Main,
 						});
-						IsCompressed = Bin.Key.IsCompressed;
+						IsCompressed = Bin.Key.IsCompressed || forceCompressedMapsBin;
 						ReadBinFileHeader = IsCompressed;
 						Context.SystemLogger?.LogInfo($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {

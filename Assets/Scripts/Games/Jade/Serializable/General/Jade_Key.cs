@@ -84,6 +84,8 @@ namespace Ray1Map.Jade {
 			return newKey;
 		}
 		public static uint UncomposeBinKey(Context context, uint key) {
+			if(context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty))
+				return key; // bin keys are not composed!
 			uint newKey = WorldKey(context, key);
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				uint bottom = (uint)BitHelpers.ExtractBits((int)newKey, 16, 0);
@@ -94,6 +96,8 @@ namespace Ray1Map.Jade {
 		}
 		public static Jade_Key GetBinaryForKey(Context context, uint worldKey, KeyType type, int languageID = 0) {
 			uint newKey = worldKey;
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty))
+				return new Jade_Key(context, newKey); // bin keys are not composed in this engine version
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				newKey = ComposeMontrealKey(newKey);
 			}

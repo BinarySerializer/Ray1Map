@@ -941,6 +941,10 @@ namespace Ray1Map
 		TMNTWii,
 
 
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Avatar, Game.Jade_Avatar, "James Cameron's Avatar: The Game (Wii)", typeof(Jade_Avatar_Wii_Manager), Platform.Wii)]
+		AvatarWii,
+
+
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsTVPartyWii,
 

@@ -50,24 +50,24 @@ namespace Ray1Map
                                                 ),
                                                 new Node(EngineVersion.Jade_Beowulf),
                                                 new Node(EngineVersion.Jade_PoP_T2T_20051002).SetChildren(
-                                                    new Node(EngineVersion.Jade_PoP_T2T).SetChildren(
-                                                        new Node(EngineVersion.Jade_TMNT).SetChildren(
-															new Node(EngineVersion.Jade_MyWordCoach),
+                                                    new Node(EngineVersion.Jade_PoP_T2T).SetChildren( // BIG: 0x26
+														new Node(EngineVersion.Jade_TMNT).SetChildren( // BIG: 0x2A
+															new Node(EngineVersion.Jade_MyWordCoach), // BIG: 0x2A
 															new Node(EngineVersion.Jade_PostTMNT).SetChildren(
-                                                                new Node(EngineVersion.Jade_Naruto).SetChildren(
-                                                                    new Node(EngineVersion.Jade_Naruto1RiseOfANinja).SetChildren(
-                                                                        new Node(EngineVersion.Jade_Naruto2TheBrokenBond)
+                                                                new Node(EngineVersion.Jade_Naruto).SetChildren( // BIG: 0x2A
+																	new Node(EngineVersion.Jade_Naruto1RiseOfANinja).SetChildren(
+																		new Node(EngineVersion.Jade_Naruto2TheBrokenBond)
                                                                     )
                                                                 ),
-                                                                new Node(EngineVersion.Jade_Avatar).SetChildren(
-                                                                    new Node(EngineVersion.Jade_PoP_TFS).SetChildren(
-                                                                        new Node(EngineVersion.Jade_SeanWhiteSkateboarding)
-                                                                    )
+																new Node(EngineVersion.Jade_RRRTVParty).SetChildren( // BIG: 0x2C
+																	new Node(EngineVersion.Jade_JustDance)
+																),
+																new Node(EngineVersion.Jade_Avatar).SetChildren( // BIG: 0x2A
+																	new Node(EngineVersion.Jade_PoP_TFS).SetChildren( // BIG: 0x2A
+																		new Node(EngineVersion.Jade_SeanWhiteSkateboarding) // BIG: 0x2A (but BF64!)
+																	)
                                                                 ),
-                                                                new Node(EngineVersion.Jade_RRRTVParty).SetChildren(
-                                                                    new Node(EngineVersion.Jade_JustDance)
-                                                                ),
-                                                                new Node(EngineVersion.Jade_CloudyWithAChanceOfMeatballs).SetChildren(
+                                                                new Node(EngineVersion.Jade_CloudyWithAChanceOfMeatballs).SetChildren( // BIG: 0x2B
                                                                     new Node(EngineVersion.Jade_NCIS)
                                                                 )
                                                             )

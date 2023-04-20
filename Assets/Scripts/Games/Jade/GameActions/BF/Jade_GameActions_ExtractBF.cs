@@ -59,6 +59,10 @@ namespace Ray1Map {
 									// Hack. Really whether it's compressed or not also depends on whether speed mode is enabled when loading this specific key
 									fileIsCompressed = false;
 								}
+								if (!fileIsCompressed && fi.Name != null && fi.Name.EndsWith(".bin") && fi.Name.Contains("_wo")
+									&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+									fileIsCompressed = true;
+								}
 								//UnityEngine.Debug.Log($"{bf.Offset.file.AbsolutePath} - {i} - {f.Key} - {(fi.Name != null ? Path.Combine(directories[fi.ParentDirectory], fi.Name) : fi.Name)}");
 								byte[] fileBytes = null;
 								await bf.SerializeFile(s, fatIndex, i, (fileSize, isBranch) => {
