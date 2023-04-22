@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using System;
+using System.Diagnostics;
 
 namespace Ray1Map.Jade {
 	public class OBJ_GameObject_Extended : BinarySerializable {
@@ -8,9 +9,9 @@ namespace Ray1Map.Jade {
 
 		public Jade_Reference<GRP_Grp> Group { get; set; }
 		public uint HasModifiers { get; set; }
+		public uint LightListFlags { get; set; }
 		public float LODai { get; set; }
 		public float DistCut { get; set; }
-		public uint UInt_Editor_08 { get; set; }
 		public uint UInt_Editor_0C { get; set; }
 		public uint UInt_Editor_10 { get; set; }
 		public uint UInt_Editor_14 { get; set; }
@@ -22,6 +23,7 @@ namespace Ray1Map.Jade {
 		public byte AiPrio { get; set; }
 		public byte Blank { get; set; }
 		public OBJ_GameObject_ExtraFlags ExtraFlags { get; set; } // Flags
+		public uint ExtendedFlags { get; set; }
 
 		public Jade_Reference<AI_Instance> AI { get; set; }
 		public Jade_Reference<EVE_ListTracks> Events { get; set; }
@@ -29,10 +31,13 @@ namespace Ray1Map.Jade {
 		public DARE_SoundParam SoundDARE { get; set; }
 		public Jade_Reference<WAY_AllLinkLists> Links { get; set; }
 		public Jade_Reference<GEO_Object> Light { get; set; }
+		public Jade_Reference<OBJ_GameObject>[] LightList { get; set; }
 		public OBJ_GameObject_DesignStruct Design { get; set; }
 		public OBJ_GameObject_ExtendedXenonData XenonData { get; set; }
 		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
 		public OBJ_GameObject_Extended_CurrentStaticWind CurrentStaticWind { get; set; }
+		public uint JadeCPP_V25_UInt { get; set; }
+		public uint NameHash { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -40,15 +45,15 @@ namespace Ray1Map.Jade {
 			Group = s.SerializeObject<Jade_Reference<GRP_Grp>>(Group, name: nameof(Group));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Group)) Group?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) || GameObject.Version < 0x19)) {
 				LODai = s.Serialize<float>(LODai, name: nameof(LODai));
 				DistCut = s.Serialize<float>(DistCut, name: nameof(DistCut));
 			}
 			if (!Loader.IsBinaryData
 				|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002))) {
-				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
+				LightListFlags = s.Serialize<uint>(LightListFlags, name: nameof(LightListFlags));
 			}
-			if (!Loader.IsBinaryData) {
+			if (!Loader.IsBinaryData && (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) || GameObject.Version < 0x19)) {
 				UInt_Editor_0C = s.Serialize<uint>(UInt_Editor_0C, name: nameof(UInt_Editor_0C));
 				UInt_Editor_10 = s.Serialize<uint>(UInt_Editor_10, name: nameof(UInt_Editor_10));
 				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_14, name: nameof(UInt_Editor_14));
@@ -79,10 +84,19 @@ namespace Ray1Map.Jade {
 			AiPrio = s.Serialize<byte>(AiPrio, name: nameof(AiPrio));
 			Blank = s.Serialize<byte>(Blank, name: nameof(Blank));
 			ExtraFlags = s.Serialize<OBJ_GameObject_ExtraFlags>(ExtraFlags, name: nameof(ExtraFlags));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && GameObject.Version >= 14) {
+				ExtendedFlags = s.Serialize<uint>(ExtendedFlags, name: nameof(ExtendedFlags));
+			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
 				AI = s.SerializeObject<Jade_Reference<AI_Instance>>(AI, name: nameof(AI))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
 			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && (ExtendedFlags & 2) != 0 && GameObject.Version >= 14) {
+				// TODO: CPP version
+				// If ExtendedFlags & 2 != 0 => load AI_System here, but only if it isn't loaded yet!
+				s?.SystemLogger?.LogWarning($"GameObject {GameObject.Key} might need to load AI_System!");
+			}
+
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Events)) {
 				Events = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(Events, name: nameof(Events))?.Resolve();
 			}
@@ -101,6 +115,10 @@ namespace Ray1Map.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Lights)) {
 				Light = s.SerializeObject<Jade_Reference<GEO_Object>>(Light, name: nameof(Light))?.Resolve();
 			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002) &&
+				GameObject.Version >= 12 && (LightListFlags & 0x1) != 0) {
+				LightList = s.SerializeObjectArray<Jade_Reference<OBJ_GameObject>>(LightList, 4, name: nameof(LightList))?.Resolve();
+			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.DesignStruct)) {
 				Design = s.SerializeObject<OBJ_GameObject_DesignStruct>(Design, name: nameof(Design));
 			}
@@ -112,6 +130,11 @@ namespace Ray1Map.Jade {
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && (GameObject.MiscFlags & 0x10) != 0) {
 				CurrentStaticWind = s.SerializeObject<OBJ_GameObject_Extended_CurrentStaticWind>(CurrentStaticWind, name: nameof(CurrentStaticWind));
+			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && GameObject.Version >= 0x19)
+					JadeCPP_V25_UInt = s.Serialize<uint>(JadeCPP_V25_UInt, name: nameof(JadeCPP_V25_UInt));
+				NameHash = s.Serialize<uint>(NameHash, name: nameof(NameHash));
 			}
 		}
 	}

@@ -42,11 +42,11 @@ namespace Ray1Map.Jade {
 
 		public class TEXT_Eval : BinarySerializable {
 			public Jade_Key FileKey { get; set; }
-			public int ID { get; set; }
+			public Jade_Key ID { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				FileKey = s.SerializeObject<Jade_Key>(FileKey, name: nameof(FileKey));
-				ID = s.Serialize<int>(ID, name: nameof(ID));
+				ID = s.SerializeObject<Jade_Key>(ID, onPreSerialize: tk => tk.Pre_IsTextKey = true, name: nameof(ID));
 			}
 		}
 	}

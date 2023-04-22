@@ -23,6 +23,7 @@ namespace Ray1Map.Jade {
 		public OBJ_GameObject_TypeFlags DesignFlags { get; set; }
 		public OBJ_GameObject_FixFlags FixFlags { get; set; }
 		public Jade_Matrix Matrix { get; set; }
+		public Jade_Matrix Matrix2 { get; set; }
 		
 		public OBJ_BV_BoundingVolume BoundingVolume { get; set; }
 		public OBJ_GameObject_Base Base { get; set; }
@@ -93,6 +94,9 @@ namespace Ray1Map.Jade {
 			DesignFlags = s.Serialize<OBJ_GameObject_TypeFlags>(DesignFlags, name: nameof(DesignFlags));
 			FixFlags = s.Serialize<OBJ_GameObject_FixFlags>(FixFlags, name: nameof(FixFlags));
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
+			if (!Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				Matrix2 = s.SerializeObject<Jade_Matrix>(Matrix2, name: nameof(Matrix2));
+			}
 
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.BaseObject)) {

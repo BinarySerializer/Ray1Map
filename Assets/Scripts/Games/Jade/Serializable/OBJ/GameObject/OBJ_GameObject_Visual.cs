@@ -42,6 +42,8 @@ namespace Ray1Map.Jade {
 		public GEO_GaoVisu_PS2 VisuPS2 { get; set; }
 		public GEO_GaoVisu_PC VisuPC { get; set; }
 
+		public Jade_TextureReference LightmapTexture { get; set; }
+
 		// Montpellier
 		public sbyte Padding_Montpellier { get; set; } // Seem to be flags of some sort
 		public OBJ_GameObject_GeometricData_Xenon Xenon { get; set; }
@@ -97,23 +99,25 @@ namespace Ray1Map.Jade {
 					hasLocalFog = !UnknownFlags.HasFlag(Unknown.NoLocalFog);
 				}
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-				if (hasEditorData && !Loader.IsBinaryData) {
-					MontrealHasEditorData = s.Serialize<uint>(MontrealHasEditorData, name: nameof(MontrealHasEditorData));
-					if (MontrealHasEditorData == 1) {
-						Montreal_EditorData_UInt = s.Serialize<uint>(Montreal_EditorData_UInt, name: nameof(Montreal_EditorData_UInt));
-						Montreal_EditorData_Float = s.Serialize<float>(Montreal_EditorData_Float, name: nameof(Montreal_EditorData_Float));
+				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) || Version < 15) {
+					if (hasEditorData && !Loader.IsBinaryData) {
+						MontrealHasEditorData = s.Serialize<uint>(MontrealHasEditorData, name: nameof(MontrealHasEditorData));
+						if (MontrealHasEditorData == 1 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+							Montreal_EditorData_UInt = s.Serialize<uint>(Montreal_EditorData_UInt, name: nameof(Montreal_EditorData_UInt));
+							Montreal_EditorData_Float = s.Serialize<float>(Montreal_EditorData_Float, name: nameof(Montreal_EditorData_Float));
+						}
 					}
-				}
-				if (hasLightMap) {
-					AmbientUnknown = s.Serialize<uint>(AmbientUnknown, name: nameof(AmbientUnknown));
-					AmbientTexture = s.SerializeObject<Jade_TextureReference>(AmbientTexture, name: nameof(AmbientTexture))?.Resolve();
-					if (!AmbientTexture.IsNull
-						&& ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && (s.GetR1Settings().Platform == Platform.GC || s.GetR1Settings().Platform == Platform.Wii))
-						|| (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030723 && s.GetR1Settings().Platform == Platform.Xbox)
-						|| !Loader.IsBinaryData)) {
-						AmbientElementCount = s.Serialize<uint>(AmbientElementCount, name: nameof(AmbientElementCount));
-						if ((AmbientElementCount & 0xFFFF) != 0) {
-							AmbientElements = s.SerializeObjectArray<OBJ_GameObject_Visual_AmbientElement>(AmbientElements, AmbientElementCount, name: nameof(AmbientElements));
+					if (hasLightMap) {
+						AmbientUnknown = s.Serialize<uint>(AmbientUnknown, name: nameof(AmbientUnknown));
+						AmbientTexture = s.SerializeObject<Jade_TextureReference>(AmbientTexture, name: nameof(AmbientTexture))?.Resolve();
+						if (!AmbientTexture.IsNull
+							&& ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && (s.GetR1Settings().Platform == Platform.GC || s.GetR1Settings().Platform == Platform.Wii))
+							|| (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030723 && s.GetR1Settings().Platform == Platform.Xbox)
+							|| !Loader.IsBinaryData)) {
+							AmbientElementCount = s.Serialize<uint>(AmbientElementCount, name: nameof(AmbientElementCount));
+							if ((AmbientElementCount & 0xFFFF) != 0) {
+								AmbientElements = s.SerializeObjectArray<OBJ_GameObject_Visual_AmbientElement>(AmbientElements, AmbientElementCount, name: nameof(AmbientElements));
+							}
 						}
 					}
 				}
@@ -161,6 +165,9 @@ namespace Ray1Map.Jade {
 							s.SystemLogger?.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 							break;
 					}
+				}
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 15) {
+					LightmapTexture = s.SerializeObject<Jade_TextureReference>(LightmapTexture, name: nameof(LightmapTexture));
 				}
 
 			} else {

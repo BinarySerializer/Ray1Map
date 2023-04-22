@@ -11,12 +11,14 @@ namespace Ray1Map.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
-			Flag = s.Serialize<uint>(Flag, name: nameof(Flag));
+			if(!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) Flag = s.Serialize<uint>(Flag, name: nameof(Flag));
 			DistSatur = s.Serialize<float>(DistSatur, name: nameof(DistSatur));
 			DistBackGround = s.Serialize<float>(DistBackGround, name: nameof(DistBackGround));
-			if (Version >= 16) {
-				DistTransitLinear = s.Serialize<float>(DistTransitLinear, name: nameof(DistTransitLinear));
-				DistInaudible = s.Serialize<float>(DistInaudible, name: nameof(DistInaudible));
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+				if (Version >= 16 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					DistTransitLinear = s.Serialize<float>(DistTransitLinear, name: nameof(DistTransitLinear));
+					DistInaudible = s.Serialize<float>(DistInaudible, name: nameof(DistInaudible));
+				}
 			}
 		}
 	}

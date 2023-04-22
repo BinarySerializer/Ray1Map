@@ -59,6 +59,8 @@
 		GAO_ModifierAlphaFade = 52,
 		GAO_ModifierAlphaOccluder = 53,
 		GAO_ModifierInteractivePlant = 54,
+
+		// NCIS branch v
 		SPG2_Modifier = 55,
 		FakeHDR_Modifier = 56,
 		DARE_ModifierSoundVolumetric = 57,

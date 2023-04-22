@@ -5,7 +5,7 @@ namespace Ray1Map.Jade {
 	public class OBJ_GameObject_Modifier : BinarySerializable {
 		public MDF_ModifierType Type { get; set; }
         public MDF_ModifierType_Montreal Type_Montreal { get; set; }
-        public MDF_ModifierType_RRRTVP Type_RRRTVP { get; set; }
+        public MDF_ModifierType_CPP Type_CPP { get; set; }
 		public uint Flags { get; set; }
         public uint Platform { get; set; }
         public MDF_Modifier Modifier { get; set; }
@@ -26,7 +26,11 @@ namespace Ray1Map.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-                SerializeImpl_Montreal(s);
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					SerializeImpl_CPP(s);
+				} else {
+					SerializeImpl_Montreal(s);
+				}
                 return;
             }
 
@@ -148,8 +152,105 @@ namespace Ray1Map.Jade {
 				MDF_ModifierType_Montreal.GAO_ModifierInteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
 				MDF_ModifierType_Montreal.GAO_ModifierMotionBlur => SerializeModifier<GAO_ModifierMotionBlur>(s),
 				MDF_ModifierType_Montreal.GAO_ModifierAlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
+				MDF_ModifierType_Montreal.Outline_Modifier => SerializeModifier<Outline_Modifier>(s),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }
-    }
+
+
+		public void SerializeImpl_CPP(SerializerObject s) {
+			Type_CPP = s.Serialize<MDF_ModifierType_CPP>(Type_CPP, name: nameof(Type_CPP));
+			if (Type_CPP != MDF_ModifierType_CPP.None) {
+				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+				if ((Flags & 0x20000000) != 0) {
+					Platform = s.Serialize<uint>(Platform, name: nameof(Platform));
+				}
+			}
+			if (Type_CPP >= MDF_ModifierType_CPP.MDF_EngineSplit) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+					Modifier = Type_CPP switch {
+						//MDF_ModifierType_CPP.MDF_SoundBank => SerializeModifier<>(s),
+						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
+					};
+				} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_SeanWhiteSkateboarding)) {
+					Modifier = Type_CPP switch {
+						MDF_ModifierType_CPP.MDF_AnimIK => SerializeModifier<GAO_ModifierAnimIK>(s),
+						// MDF_ModifierType_CPP.MDF_ClothDistort  => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_Skybox => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_3DText => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_AudioAmbiancePortal_SW => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_RadioTrigger => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_ConstColorBlend => SerializeModifier<>(s),
+						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
+					};
+				} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					Modifier = Type_CPP switch {
+						MDF_ModifierType_CPP.MDF_AnimIK => SerializeModifier<GAO_ModifierAnimIK>(s),
+						// MDF_ModifierType_CPP.MDF_Melt => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_AudioAmbiancePortal => SerializeModifier<>(s),
+						// MDF_ModifierType_CPP.MDF_EvilPlant => SerializeModifier<>(s),
+						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
+					};
+				} else {
+					throw new NotImplementedException();
+				}
+			} else {
+				Modifier = Type_CPP switch {
+					MDF_ModifierType_CPP.None => null,
+					MDF_ModifierType_CPP.MDF_WaveYourBody => SerializeModifier<GEO_ModifierOnduleTonCorps>(s),
+					MDF_ModifierType_CPP.MDF_Morphing => SerializeModifier<GEO_ModifierMorphing>(s),
+					MDF_ModifierType_CPP.MDF_Lazy => SerializeModifier<GAO_ModifierLazy>(s),
+					// MDF_ModifierType_CPP.MDF_BoneMeca => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_SemiLookAt => SerializeModifier<GAO_ModifierSemiLookAt>(s),
+					MDF_ModifierType_CPP.MDF_Shadow => SerializeModifier<GAO_ModifierShadow>(s),
+					MDF_ModifierType_CPP.MDF_SpecialLookAt => SerializeModifier<GAO_ModifierSpecialLookAt>(s),
+					MDF_ModifierType_CPP.MDF_BoneRefine => SerializeModifier<GAO_ModifierBoneRefine>(s),
+					MDF_ModifierType_CPP.MDF_XMEN => SerializeModifier<GAO_ModifierXMEN>(s),
+
+					MDF_ModifierType_CPP.MDF_RotR => SerializeModifier<GAO_ModifierROTR>(s),
+					MDF_ModifierType_CPP.MDF_Snake => SerializeModifier<GAO_ModifierSNAKE>(s),
+					// MDF_ModifierType_CPP.MDF_Audio => SerializeModifier<>(s),
+					// MDF_ModifierType_CPP.MDF_AudioAttenuator => SerializeModifier<>(s),
+
+					MDF_ModifierType_CPP.MDF_SoftBody => SerializeModifier<GAO_ModifierSoftBody>(s),
+					MDF_ModifierType_CPP.MDF_Spring => SerializeModifier<GAO_ModifierSpring>(s),
+
+					MDF_ModifierType_CPP.MDF_Water => SerializeModifier<WATER3D_Modifier>(s),
+					MDF_ModifierType_CPP.MDF_RotC => SerializeModifier<GAO_ModifierRotC>(s),
+					MDF_ModifierType_CPP.MDF_BeamGen => SerializeModifier<GAO_ModifierBeamGen>(s),
+					MDF_ModifierType_CPP.MDF_Disturber => SerializeModifier<Disturber_Modifier>(s),
+					// MDF_ModifierType_CPP.MDF_Nop => SerializeModifier<>(s),
+					//MDF_ModifierType_CPP.MDF_AnimatedScale => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_Wind => SerializeModifier<GAO_ModifierWind>(s),
+
+					MDF_ModifierType_CPP.MDF_Halo => SerializeModifier<Halo_Modifier>(s),
+					MDF_ModifierType_CPP.MDF_SectoElement => SerializeModifier<GAO_ModifierSectorisationElement>(s),
+					MDF_ModifierType_CPP.MDF_AnimatedMaterial => SerializeModifier<GAO_ModifierAnimatedMaterial>(s),
+					MDF_ModifierType_CPP.MDF_RotationPaste => SerializeModifier<GAO_ModifierRotationPaste>(s),
+					MDF_ModifierType_CPP.MDF_Ambiance => SerializeModifier<Ambiance_Modifier>(s),
+					MDF_ModifierType_CPP.MDF_AmbianceLinker => SerializeModifier<AmbianceLinker_Modifier>(s),
+					MDF_ModifierType_CPP.MDF_AmbiancePocket => SerializeModifier<AmbiancePocket_Modifier>(s),
+					MDF_ModifierType_CPP.MDF_Pendula => SerializeModifier<GAO_ModifierPendula>(s),
+					MDF_ModifierType_CPP.MDF_TranslationPaste => SerializeModifier<GAO_ModifierTranslationPaste>(s),
+					MDF_ModifierType_CPP.MDF_AnimatedPAG => SerializeModifier<GAO_ModifierAnimatedPAG>(s),
+					MDF_ModifierType_CPP.MDF_AnimatedGAO => SerializeModifier<GAO_ModifierAnimatedGAO>(s),
+
+					MDF_ModifierType_CPP.MDF_CharacterFX => SerializeModifier<GAO_ModifierCharacterFX>(s),
+
+					// MDF_ModifierType_CPP.MDF_SoftBodyColl => SerializeModifier<>(s),
+
+					// MDF_ModifierType_CPP.MDF_AlphaFade => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_AlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
+					MDF_ModifierType_CPP.MDF_InteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
+					// MDF_ModifierType_CPP.MDF_PreDepthPass => SerializeModifier<>(s),
+					// MDF_ModifierType_CPP.MDF_VolumetricSound => SerializeModifier<>(s),
+					// MDF_ModifierType_CPP.MDF_ProceduralBone => SerializeModifier<>(s),
+					// MDF_ModifierType_CPP.MDF_AudioReverbZone => SerializeModifier<>(s),
+
+					// MDF_ModifierType_CPP.MDF_CharacterFxRef  => SerializeModifier<>(s),
+					_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
+				};
+			}
+		}
+	}
 }
