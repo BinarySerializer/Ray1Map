@@ -914,6 +914,13 @@ namespace Ray1Map
         PrinceOfPersiaTheTwoThronesPS3,
 
 
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_TFS, Game.Jade_PoP_TFS, "Prince of Persia: The Forgotten Sands (Wii)", typeof(Jade_PoP_TFS_Wii_Manager), Platform.Wii)]
+		PrinceOfPersiaTheForgottenSandsWii,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_TFS, Game.Jade_PoP_TFS, "Prince of Persia: The Forgotten Sands (PSP)", typeof(Jade_PoP_TFS_PSP_Manager), Platform.PSP)]
+		PrinceOfPersiaTheForgottenSandsPSP,
+
+
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Beowulf, Game.Jade_Beowulf, "Beowulf (PSP)", typeof(Jade_Beowulf_PSP_Manager), Platform.PSP)]
 		BeowulfPSP,
 
@@ -943,6 +950,9 @@ namespace Ray1Map
 
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Avatar, Game.Jade_Avatar, "James Cameron's Avatar: The Game (Wii)", typeof(Jade_Avatar_Wii_Manager), Platform.Wii)]
 		AvatarWii,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Avatar, Game.Jade_Avatar, "James Cameron's Avatar: The Game (PSP)", typeof(Jade_Avatar_PSP_Manager), Platform.PSP)]
+		AvatarPSP,
 
 
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]

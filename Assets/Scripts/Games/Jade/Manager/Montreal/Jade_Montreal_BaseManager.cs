@@ -16,7 +16,7 @@ namespace Ray1Map
 
 			// TODO: Read WOLInfo if it exists
 			List<KeyValuePair<uint, LevelInfo>> levels = new List<KeyValuePair<uint, LevelInfo>>();
-			bool keysAreComposed = !l.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty);
+			bool keysAreComposed = !l.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP);
 
 			if (keysAreComposed) {
 				var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);

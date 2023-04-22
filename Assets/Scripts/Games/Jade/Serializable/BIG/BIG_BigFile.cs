@@ -11,7 +11,7 @@ namespace Ray1Map.Jade {
 			BIG_FatFile.HeaderLength
 			+ SizeOfFat * BIG_FatFile.FileReference.StructSize
 			+ SizeOfFat * BIG_FatFile.FileInfo.StructSize(this)
-			+ SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize);
+			+ SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize(this));
 		
 		public string BIG_gst { get; set; }
 		public uint Version { get; set; }
@@ -140,7 +140,7 @@ namespace Ray1Map.Jade {
 				Pointer nextFatOffset = curFatOffset + BIG_FatFile.HeaderLength
 					+ bf.SizeOfFat * BIG_FatFile.FileReference.StructSize
 					+ bf.SizeOfFat * BIG_FatFile.FileInfo.StructSize(bf)
-					+ bf.SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize;
+					+ bf.SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize(bf);
 				var curFilesInFat = nextFileIndex - curFileIndex;
 				var curDirectoriesInFat = nextDirectoryIndex - curDirectoryIndex;
 				fat.Big = bf;
@@ -167,6 +167,7 @@ namespace Ray1Map.Jade {
 						FirstFile = dir.FirstFileID,
 						Previous = dir.PreviousDirectoryID,
 						Next = dir.NextDirectoryID,
+						Big = bf,
 					};
 				}
 				for (int file_i = 0; file_i < curFilesInFat; file_i++) {

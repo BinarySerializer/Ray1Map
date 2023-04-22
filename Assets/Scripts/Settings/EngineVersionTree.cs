@@ -54,18 +54,19 @@ namespace Ray1Map
 														new Node(EngineVersion.Jade_TMNT).SetChildren( // BIG: 0x2A
 															new Node(EngineVersion.Jade_MyWordCoach), // BIG: 0x2A
 															new Node(EngineVersion.Jade_PostTMNT).SetChildren(
-                                                                new Node(EngineVersion.Jade_Naruto).SetChildren( // BIG: 0x2A
+                                                                new Node(EngineVersion.Jade_Fox).SetChildren( // BIG: 0x2A
 																	new Node(EngineVersion.Jade_Naruto1RiseOfANinja).SetChildren(
 																		new Node(EngineVersion.Jade_Naruto2TheBrokenBond)
                                                                     )
                                                                 ),
-																new Node(EngineVersion.Jade_RRRTVParty).SetChildren( // BIG: 0x2C
-																	new Node(EngineVersion.Jade_JustDance)
-																),
-																new Node(EngineVersion.Jade_Avatar).SetChildren( // BIG: 0x2A
-																	new Node(EngineVersion.Jade_PoP_TFS).SetChildren( // BIG: 0x2A
-																		new Node(EngineVersion.Jade_SeanWhiteSkateboarding) // BIG: 0x2A (but BF64!)
-																	)
+                                                                new Node(EngineVersion.Jade_CPP).SetChildren( // bf name format: [game]_bin_[platform].bf
+																    new Node(EngineVersion.Jade_RRRTVParty).SetChildren( // BIG: 0x2C
+																	    new Node(EngineVersion.Jade_JustDance)
+																    ),
+																    new Node(EngineVersion.Jade_PoP_TFS).SetChildren( // BIG: 0x2A
+																	    new Node(EngineVersion.Jade_SeanWhiteSkateboarding) // BIG: 0x2A (but BF64!)
+																    ),
+																    new Node(EngineVersion.Jade_Avatar) // BIG: 0x2A
                                                                 ),
                                                                 new Node(EngineVersion.Jade_CloudyWithAChanceOfMeatballs).SetChildren( // BIG: 0x2B
                                                                     new Node(EngineVersion.Jade_NCIS)

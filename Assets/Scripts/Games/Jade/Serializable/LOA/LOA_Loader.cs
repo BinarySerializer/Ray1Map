@@ -841,7 +841,7 @@ namespace Ray1Map.Jade {
 					if (FileInfos.ContainsKey(key)) {
 						ReadMode = Read.Binary;
 						Bin = new BinData() { Key = key, SerializeAction = serializeAction };
-						bool forceCompressedMapsBin = Bin.Key.Context?.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) ?? false;
+						bool forceCompressedMapsBin = Bin.Key.Context?.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) ?? false;
 						switch (key.Type) {
 							case Jade_Key.KeyType.Sounds: Bin.QueueType = QueueType.Sound; break;
 							case Jade_Key.KeyType.TextNoSound: Bin.QueueType = QueueType.TextNoSound; break;

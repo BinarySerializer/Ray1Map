@@ -33,7 +33,7 @@ namespace Ray1Map.Jade {
 				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, MaxFile, onPreSerialize: fi => fi.Big = Big, name: nameof(FileInfos));
 			});
 			s.DoAt(PosFat + Big.SizeOfFat * FileReference.StructSize + Big.SizeOfFat * FileInfo.StructSize(Big), () => {
-				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, MaxDir, name: nameof(DirectoryInfos));
+				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, MaxDir, onPreSerialize: fi => fi.Big = Big, name: nameof(DirectoryInfos));
 			});
 			if (NextPosFat != -1) {
 				s.Goto(s.CurrentPointer.File.StartPointer + NextPosFat - HeaderLength);
@@ -61,9 +61,13 @@ namespace Ray1Map.Jade {
 				if (big.Version == 34 || big.Version == 37 || big.Version == 38)
 					return 0x54;
 				if (big.Version >= 42)
-					return 0x7C;
+					return 0x3C + NameSize(big); // 0x7C usually, but 0xBC for Avatar
+				if (big.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CloudyWithAChanceOfMeatballs))
+					return 0x80;
 				return 0x58;
 			}
+			private static uint NameSize(BIG_BigFile big) => big.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Avatar) ? (uint)0x80 : 0x40;
+
 			public BIG_BigFile Big { get; set; }
 
 			public string Name { get; set; }
@@ -98,7 +102,7 @@ namespace Ray1Map.Jade {
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					DateLastModifiedUInt = s.Serialize<uint>(DateLastModifiedUInt, name: nameof(DateLastModifiedUInt));
 					if(s.IsSerializerLoggerEnabled) s.Log("Date: {0:ddd, dd/MM/yyyy - HH:mm:ss}", DateLastModified);
-					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+					Name = s.SerializeString(Name, NameSize(Big), encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
 						P4RevisionClient = s.Serialize<uint>(P4RevisionClient, name: nameof(P4RevisionClient));
 					}
@@ -117,7 +121,10 @@ namespace Ray1Map.Jade {
 		/// Directories. Not read by the engine
 		/// </summary>
 		public class DirectoryInfo : BinarySerializable {
-			public static uint StructSize => 0x54;
+			public static uint StructSize(BIG_BigFile big) => 0x14 + NameSize(big); // 0x54 usually, but 0x94 for Avatar
+			private static uint NameSize(BIG_BigFile big) => big.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Avatar) ? (uint)0x80 : 0x40;
+
+			public BIG_BigFile Big { get; set; }
 
 			public int FirstFile { get; set; }
 			public int FirstSubDirectory { get; set; }
@@ -131,7 +138,7 @@ namespace Ray1Map.Jade {
 				Previous = s.Serialize<int>(Previous, name: nameof(Previous));
 				Next = s.Serialize<int>(Next, name: nameof(Next));
 				Parent = s.Serialize<int>(Parent, name: nameof(Parent));
-				Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+				Name = s.SerializeString(Name, NameSize(Big), encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 		}
 

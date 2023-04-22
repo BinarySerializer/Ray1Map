@@ -177,8 +177,9 @@ namespace Ray1Map
         Jade_RRRTVParty,
 
         Jade_PostTMNT,
+        Jade_CPP,
 
-        Jade_Naruto,
+        Jade_Fox,
         Jade_Naruto1RiseOfANinja,
         Jade_Naruto2TheBrokenBond,
 

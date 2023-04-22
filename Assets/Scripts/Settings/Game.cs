@@ -121,6 +121,7 @@
         Jade_PoP_SoT,
         Jade_PoP_WW,
         Jade_PoP_T2T,
+        Jade_PoP_TFS,
         Jade_Beowulf,
         Jade_MyWordCoach,
         Jade_MyFrenchCoach,

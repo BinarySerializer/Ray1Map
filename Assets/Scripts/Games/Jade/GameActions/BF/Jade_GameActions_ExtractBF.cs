@@ -60,7 +60,7 @@ namespace Ray1Map {
 									fileIsCompressed = false;
 								}
 								if (!fileIsCompressed && fi.Name != null && fi.Name.EndsWith(".bin") && fi.Name.Contains("_wo")
-									&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+									&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
 									fileIsCompressed = true;
 								}
 								//UnityEngine.Debug.Log($"{bf.Offset.file.AbsolutePath} - {i} - {f.Key} - {(fi.Name != null ? Path.Combine(directories[fi.ParentDirectory], fi.Name) : fi.Name)}");
