@@ -21,6 +21,7 @@ namespace Ray1Map.Jade {
 		public float FieldOfVision { get; set; }
 		public Jade_Color BackgroundColor { get; set; }
 		public Jade_Color AmbientColor2 { get; set; }
+		public uint UInt_Montreal_AfterBackgroundColor_V7 { get; set; }
 		public uint Editor_UInt_Montreal_AfterBackgroundColor_V4 { get; set; }
 		public uint Editor_UInt_Montreal_AfterBackgroundColor { get; set; }
 		public uint UInt_9C_Version5 { get; set; }
@@ -37,6 +38,7 @@ namespace Ray1Map.Jade {
 		public WOR_Secto[] AllSectos { get; set; }
 		public Jade_Reference<LIGHT_RejectionList> LightRejection { get; set; }
 		public Jade_Reference<WOR_MagmaGroup> MagmaGroup { get; set; }
+		public uint JadeMontrealCPP_UnknownV6 { get; set; }
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public TEX_GlobalList TextureList_Montreal { get; set; }
@@ -49,6 +51,10 @@ namespace Ray1Map.Jade {
 			Loader.LoadedWorlds.Add(this);
 
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
+			if ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version == 6) ||
+				(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) && Version >= 6)) {
+				JadeMontrealCPP_UnknownV6 = s.Serialize<uint>(JadeMontrealCPP_UnknownV6, name: nameof(JadeMontrealCPP_UnknownV6));
+			}
 			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
 			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
@@ -69,6 +75,9 @@ namespace Ray1Map.Jade {
 					UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 				}
 			} else {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) && Version >= 7) {
+					UInt_Montreal_AfterBackgroundColor_V7 = s.Serialize<uint>(UInt_Montreal_AfterBackgroundColor_V7, name: nameof(UInt_Montreal_AfterBackgroundColor_V7));
+				}
 				if (!Loader.IsBinaryData) {
 					if (Version >= 4)
 						Editor_UInt_Montreal_AfterBackgroundColor_V4 = s.Serialize<uint>(Editor_UInt_Montreal_AfterBackgroundColor_V4, name: nameof(Editor_UInt_Montreal_AfterBackgroundColor_V4));
@@ -105,7 +114,10 @@ namespace Ray1Map.Jade {
 					LightRejection = s.SerializeObject<Jade_Reference<LIGHT_RejectionList>>(LightRejection, name: nameof(LightRejection))?.Resolve();
 				}
 			} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				if (Version >= 5) MagmaGroup = s.SerializeObject<Jade_Reference<WOR_MagmaGroup>>(MagmaGroup, name: nameof(MagmaGroup))?.Resolve();
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				} else {
+					if (Version >= 5) MagmaGroup = s.SerializeObject<Jade_Reference<WOR_MagmaGroup>>(MagmaGroup, name: nameof(MagmaGroup))?.Resolve();
+				}
 			}
 		}
 

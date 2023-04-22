@@ -10,7 +10,8 @@ namespace Ray1Map.Jade {
 		public Jade_Reference<AI_Vars> Vars { get; set; }
 
 		protected override void SerializeFile(SerializerObject s) {
-			Model = s.SerializeObject<Jade_Reference<AI_Model>>(Model, name: nameof(Model))?.Resolve();
+			Model = s.SerializeObject<Jade_Reference<AI_Model>>(Model, name: nameof(Model));
+			if(!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) Model?.Resolve();
 			Vars = s.SerializeObject<Jade_Reference<AI_Vars>>(Vars, name: nameof(Vars))?
 				.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc);
 		}
