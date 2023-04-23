@@ -22,16 +22,24 @@ namespace Ray1Map.Jade {
 		public uint StripDataCount { get; set; }
 		public OneStrip[] Strips { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) {
-			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+		// CPP
+		public GEO_CPP_IndexBuffer IndexBuffer { get; set; }
 
-			TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
-			MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
-			if (GeometricObject.ObjectVersion < 2) {
-				MrmElementAdditionalInfoPointer = s.Serialize<uint>(MrmElementAdditionalInfoPointer, name: nameof(MrmElementAdditionalInfoPointer));
-				UsedIndexCount = s.Serialize<uint>(UsedIndexCount, name: nameof(UsedIndexCount));
+		public override void SerializeImpl(SerializerObject s) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && GeometricObject.ObjectVersion >= 15) {
+				MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
+				IndexBuffer = s.SerializeObject<GEO_CPP_IndexBuffer>(IndexBuffer, name: nameof(IndexBuffer));
+			} else {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+				TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
+				MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
+				if (GeometricObject.ObjectVersion < 2) {
+					MrmElementAdditionalInfoPointer = s.Serialize<uint>(MrmElementAdditionalInfoPointer, name: nameof(MrmElementAdditionalInfoPointer));
+					UsedIndexCount = s.Serialize<uint>(UsedIndexCount, name: nameof(UsedIndexCount));
+				}
+				if (!Loader.IsBinaryData) UInts_Editor = s.SerializeArray<uint>(UInts_Editor, 6, name: nameof(UInts_Editor));
 			}
-			if (!Loader.IsBinaryData) UInts_Editor = s.SerializeArray<uint>(UInts_Editor, 6, name: nameof(UInts_Editor));
 		}
 		public void SerializeArrays(SerializerObject s) {
 			Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));

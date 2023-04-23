@@ -44,6 +44,11 @@ namespace Ray1Map.Jade {
 		public int Montreal_HasColors { get; set; }
 		public int Montreal_HasNormals { get; set; } // Boolean
 
+		// CPP
+		public GEO_CPP_VertexBuffer CPP_VertexBuffer { get; set; }
+		public ushort CPP_StitchMatricesCount { get; set; }
+		public GEO_CPP_StitchMatrix[] CPP_StitchMatrices { get; set; }
+
 		public bool Montreal_IsOptimized(GameSettings s) {
 			switch (s.Platform) {
 				case Platform.PS2:
@@ -111,10 +116,12 @@ namespace Ray1Map.Jade {
 					Montreal_Editor_UInt_5 = s.Serialize<uint>(Montreal_Editor_UInt_5, name: nameof(Montreal_Editor_UInt_5));
 				}
 				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
-				if (Montreal_HasUnoptimizedData(s.GetR1Settings())
-					|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T) && s.GetR1Settings().Platform == Platform.Xbox)) {
-					VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
-					Code_00 = VerticesCount;
+				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					if (Montreal_HasUnoptimizedData(s.GetR1Settings())
+						|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T) && s.GetR1Settings().Platform == Platform.Xbox)) {
+						VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+						Code_00 = VerticesCount;
+					}
 				}
 			} else {
 				Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
@@ -130,46 +137,61 @@ namespace Ray1Map.Jade {
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Montreal_HasUnoptimizedData(s.GetR1Settings())) {
 				Montreal_FilledUnoptimizedData = true;
-
-				ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
-				if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
-				UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
-				ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
-				if (!Loader.IsBinaryData) EditorFlags = s.Serialize<uint>(EditorFlags, name: nameof(EditorFlags));
-				if (ObjectVersion < 2) MRM_ObjectAdditionalInfoPointer = s.Serialize<uint>(MRM_ObjectAdditionalInfoPointer, name: nameof(MRM_ObjectAdditionalInfoPointer));
-				Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
-				if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
-					ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
-				}
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-					if (ObjectVersion != 0) Montreal_HasNormals = s.Serialize<int>(Montreal_HasNormals, name: nameof(Montreal_HasNormals));
+				if (ObjectVersion >= 15 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					CPP_VertexBuffer = s.SerializeObject<GEO_CPP_VertexBuffer>(CPP_VertexBuffer, name: nameof(CPP_VertexBuffer));
+					ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
+					Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
+					if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
+						ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
+					}
+					Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, onPreSerialize: e => e.GeometricObject = this, name: nameof(Elements));
+					if (ObjectVersion >= 16 && ObjectPonderation != null) {
+						CPP_StitchMatricesCount = s.Serialize<ushort>(CPP_StitchMatricesCount, name: nameof(CPP_StitchMatricesCount));
+						CPP_StitchMatrices = s.SerializeObjectArray<GEO_CPP_StitchMatrix>(CPP_StitchMatrices, CPP_StitchMatricesCount, name: nameof(CPP_StitchMatrices));
+						throw new NotImplementedException("Serialize stitch buckets");
+					}
 				} else {
-					if ((Code_01 & 1) != 0) {
-						OK3_Boxes = s.SerializeObject<COL_OK3>(OK3_Boxes, name: nameof(OK3_Boxes));
+					ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
+					if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
+					UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
+					ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
+					if (!Loader.IsBinaryData) EditorFlags = s.Serialize<uint>(EditorFlags, name: nameof(EditorFlags));
+					if (ObjectVersion < 2) MRM_ObjectAdditionalInfoPointer = s.Serialize<uint>(MRM_ObjectAdditionalInfoPointer, name: nameof(MRM_ObjectAdditionalInfoPointer));
+					Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
+					if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
+						ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
 					}
-				}
-				Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
-				if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
-					|| (Montreal_HasNormals != 0 && ObjectVersion >= 3)) {
-					if (Normals == null && s is BinarySerializer.BinarySerializer) {
-						ComputeNormals();
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+						if (ObjectVersion != 0) Montreal_HasNormals = s.Serialize<int>(Montreal_HasNormals, name: nameof(Montreal_HasNormals));
+					} else {
+						if ((Code_01 & 1) != 0) {
+							OK3_Boxes = s.SerializeObject<COL_OK3>(OK3_Boxes, name: nameof(OK3_Boxes));
+						}
 					}
-					Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
-				}
-				if (MRM_ObjectAdditionalInfoPointer != 0) {
-					throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
-				}
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
-					|| !Loader.IsBinaryData || Montreal_HasColors != 0) {
-					Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
-				}
-				UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
+					Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
+					if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
+						|| (Montreal_HasNormals != 0 && ObjectVersion >= 3)) {
+						if (Normals == null && s is BinarySerializer.BinarySerializer) {
+							ComputeNormals();
+						}
+						Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
+					}
+					if (MRM_ObjectAdditionalInfoPointer != 0) {
+						throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
+					}
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
+						|| !Loader.IsBinaryData || Montreal_HasColors != 0) {
+						Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
+					}
+					UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
 
-				// Serialize elements
-				Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, onPreSerialize: e => e.GeometricObject = this, name: nameof(Elements));
-				foreach (var el in Elements) {
-					el.SerializeArrays(s);
+					// Serialize elements
+					Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, onPreSerialize: e => e.GeometricObject = this, name: nameof(Elements));
+					foreach (var el in Elements) {
+						el.SerializeArrays(s);
+					}
 				}
+
 				StripFlag = s.Serialize<uint>(StripFlag, name: nameof(StripFlag));
 				if ((StripFlag & 1) != 0) {
 					foreach (var el in Elements) {

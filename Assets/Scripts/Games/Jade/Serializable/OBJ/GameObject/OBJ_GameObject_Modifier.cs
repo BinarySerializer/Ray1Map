@@ -13,7 +13,10 @@ namespace Ray1Map.Jade {
         public bool IsNull {
             get {
                 if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-                    return Type_Montreal == MDF_ModifierType_Montreal.None;
+					if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP))
+						return Type_CPP == MDF_ModifierType_CPP.None;
+					else
+						return Type_Montreal == MDF_ModifierType_Montreal.None;
                 } else {
                     return Type == MDF_ModifierType.None;
                 }
@@ -169,7 +172,9 @@ namespace Ray1Map.Jade {
 			if (Type_CPP >= MDF_ModifierType_CPP.MDF_EngineSplit) {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
 					Modifier = Type_CPP switch {
-						//MDF_ModifierType_CPP.MDF_SoundBank => SerializeModifier<>(s),
+						MDF_ModifierType_CPP.MDF_SoundBank => SerializeModifier<MDF_TVP_SoundBank>(s),
+						//MDF_ModifierType_CPP.MDF_FlashTex => SerializeModifier<>(s),
+						//MDF_ModifierType_CPP.MDF_BinkTex => SerializeModifier<>(s),
 						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
 					};
 				} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_SeanWhiteSkateboarding)) {

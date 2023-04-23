@@ -58,7 +58,9 @@
 
 		// Next are different per game
 		MDF_EngineSplit = 64,
-		MDF_SoundBank = 64, // TV party
+		MDF_SoundBank = 64, // TV party, JD
+		MDF_FlashTex = 65, // JD
+		MDF_BinkTex = 66, // JD
 
 		MDF_AnimIK = 64, // PoP: TFS, Sean White
 		MDF_Melt = 65, // PoP: TFS
