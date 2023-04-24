@@ -19,11 +19,14 @@ namespace Ray1Map.Jade {
 
 		public uint Version { get; set; } = 1;
 		public uint Xenon_ElementsCount { get; set; }
+		public Jade_Vector[] Points { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
+			}
 			if ((s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
 				|| s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))
 				&& DataSize == 0) {
@@ -31,6 +34,9 @@ namespace Ray1Map.Jade {
 			}
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			PointsCount = s.Serialize<uint>(PointsCount, name: nameof(PointsCount));
+			if (Version >= 4 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				Points = s.SerializeObjectArray<Jade_Vector>(Points, PointsCount, name: nameof(Points));
+			}
 			MorphDataCount = s.Serialize<uint>(MorphDataCount, name: nameof(MorphDataCount));
 			ChannelsCount = s.Serialize<uint>(ChannelsCount, name: nameof(ChannelsCount));
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version == 2) Xenon_ElementsCount = s.Serialize<uint>(Xenon_ElementsCount, name: nameof(Xenon_ElementsCount));

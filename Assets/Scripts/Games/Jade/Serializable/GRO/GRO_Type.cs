@@ -18,7 +18,7 @@
 		// Added for Montreal
 		GEO_SubGeometry = 12,
 		PRO_Projector = 13,
-		// Added in PoP:TFS
+		// Added in CPP version
 		GRA_GrassField = 14,
 		PRO_TextureProjector = 15,
 

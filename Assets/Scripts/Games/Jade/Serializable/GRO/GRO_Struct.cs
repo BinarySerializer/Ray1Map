@@ -26,21 +26,25 @@ namespace Ray1Map.Jade {
                 Bytes_Editor = s.SerializeArray<byte>(Bytes_Editor, Count_Editor, name: nameof(Bytes_Editor));
             }
 
-            Value = Type switch
+            T SerializeStruct<T>() where T : GRO_GraphicRenderObject, new()
+                => s.SerializeObject<T>((T)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value));
+
+
+			Value = Type switch
             {
                 GRO_Type.None => null,
                 GRO_Type.Unknown => null,
-                GRO_Type.GEO => Value = s.SerializeObject<GEO_GeometricObject>((GEO_GeometricObject)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.GEO_StaticLOD => Value = s.SerializeObject<GEO_StaticLOD>((GEO_StaticLOD)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.GEO_SubGeometry => Value = s.SerializeObject<GEO_SubGeometry>((GEO_SubGeometry)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.MAT_SIN => Value = s.SerializeObject<MAT_SIN_SingleMaterial>((MAT_SIN_SingleMaterial)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.MAT_MSM => Value = s.SerializeObject<MAT_MSM_MultiSingleMaterial>((MAT_MSM_MultiSingleMaterial)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.MAT_MTT => Value = s.SerializeObject<MAT_MTT_MultiTextureMaterial>((MAT_MTT_MultiTextureMaterial)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.STR => Value = s.SerializeObject<STR_StringRenderObject>((STR_StringRenderObject)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.LIGHT => Value = s.SerializeObject<LIGHT_Light>((LIGHT_Light)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.CAM => Value = s.SerializeObject<CAM_Camera>((CAM_Camera)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                GRO_Type.PAG => Value = s.SerializeObject<PAG_ParticleGeneratorObject>((PAG_ParticleGeneratorObject)Value, onPreSerialize: o => o.GRO = this, name: nameof(Value)),
-                _ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
+                GRO_Type.GEO => SerializeStruct<GEO_GeometricObject>(),
+				GRO_Type.GEO_StaticLOD => SerializeStruct<GEO_StaticLOD>(),
+				GRO_Type.GEO_SubGeometry => SerializeStruct<GEO_SubGeometry>(),
+				GRO_Type.MAT_SIN => SerializeStruct<MAT_SIN_SingleMaterial>(),
+				GRO_Type.MAT_MSM => SerializeStruct<MAT_MSM_MultiSingleMaterial>(),
+				GRO_Type.MAT_MTT => SerializeStruct<MAT_MTT_MultiTextureMaterial>(),
+				GRO_Type.STR => SerializeStruct<STR_StringRenderObject>(),
+				GRO_Type.LIGHT => SerializeStruct<LIGHT_Light>(),
+				GRO_Type.CAM => SerializeStruct<CAM_Camera>(),
+				GRO_Type.PAG => SerializeStruct<PAG_ParticleGeneratorObject>(),
+				_ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }
 	}

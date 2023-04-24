@@ -20,6 +20,7 @@ namespace Ray1Map.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			bool isTVP = s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty);
 
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			Usage = s.Serialize<UsageType>(Usage, name: nameof(Usage));
@@ -38,7 +39,7 @@ namespace Ray1Map.Jade {
 			Normals  = s.SerializeObjectArray<GEO_CPP_CompressedVector>(Normals,  NormalsCount,  onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : CompressionMode.HighCompression), name: nameof(Normals));
 			Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
 			Tex0 = s.SerializeObjectArray<GEO_CPP_CompressedUV>(Tex0, Tex0Count, onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : CompressionMode.LowCompression), name: nameof(Tex0));
-			Tex1 = s.SerializeObjectArray<GEO_CPP_CompressedUV>(Tex1, Tex1Count, onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : CompressionMode.HighCompression), name: nameof(Tex1));
+			Tex1 = s.SerializeObjectArray<GEO_CPP_CompressedUV>(Tex1, Tex1Count, onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : (isTVP ? CompressionMode.LowCompression : CompressionMode.HighCompression)), name: nameof(Tex1));
 		}
 
 		public enum UsageType : uint {

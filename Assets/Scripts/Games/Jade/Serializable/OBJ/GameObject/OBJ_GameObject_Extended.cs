@@ -100,7 +100,7 @@ namespace Ray1Map.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Events)) {
 				Events = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(Events, name: nameof(Events))?.Resolve();
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
 				Sound = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(Sound, name: nameof(Sound));
 				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))
 					Sound?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);

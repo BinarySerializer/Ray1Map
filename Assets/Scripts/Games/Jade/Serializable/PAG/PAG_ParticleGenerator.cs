@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Klonoa.DTP;
 using System;
 
 namespace Ray1Map.Jade {
@@ -134,6 +135,45 @@ namespace Ray1Map.Jade {
         public float FrontForceMax { get; set; }
         public float RearForceMax { get; set; }
         public float LODMinPercentageOfParticles { get; set; }
+
+        // CPP
+        public uint InitialRTFlags { get; set; }
+        public PAG_DrawType DrawType { get; set; }
+        public float SimulationDistance { get; set; }
+        public float DisplayDistance { get; set; }
+        public float AmbientFactor { get; set; }
+        public float BurstDurationMin { get; set; }
+		public float BurstDurationMax { get; set; }
+		public float FrequencyMin { get; set; }
+		public float FrequencyMax { get; set; }
+		public float DelayDurationMin { get; set; }
+		public float DelayDurationMax { get; set; }
+        public float SizeBirthFactor { get; set; }
+        public byte V47_Byte0_TVP { get; set; }
+		public byte V47_Byte1_TVP { get; set; }
+		public byte V42_Byte_TVP { get; set; }
+        public Jade_Reference<OBJ_GameObject> V49_SpawnGenerator_TVP { get; set; }
+        public ushort V49_AmountToSpawn_TVP { get; set; }
+        public PAG_ParticleParameters CPP_ParticleParameters { get; set; }
+        public uint EndSoundID { get; set; }
+        public float DurationMin { get; set; }
+        public float DurationMax { get; set; }
+        public PAG_TimebaseProperty ScaleXOverLife { get; set; }
+		public PAG_TimebaseProperty ScaleYOverLife { get; set; }
+		public PAG_TimebaseProperty ScaleZOverLife { get; set; }
+		public PAG_TimebaseProperty ColorROverLife { get; set; }
+		public PAG_TimebaseProperty ColorGOverLife { get; set; }
+		public PAG_TimebaseProperty ColorBOverLife { get; set; }
+		public PAG_TimebaseProperty ColorAOverLife { get; set; }
+        public byte AnimationSetMax { get; set; }
+        public PAG_TimebaseProperty AnimationOverLife { get; set; }
+        public Jade_Vector GenRotation { get; set; }
+        public float V40_Float0 { get; set; }
+        public float V40_Float1 { get; set; }
+        public uint V41_UInt0 { get; set; }
+        public uint V41_UInt1 { get; set; }
+        public float TimeBeforeBirthMin { get; set; }
+        public float TimeBeforeBirthMax { get; set; }
 
 		protected override void OnChangeContext(Context oldContext, Context newContext) {
 			base.OnChangeContext(oldContext, newContext);
@@ -312,8 +352,18 @@ namespace Ray1Map.Jade {
                 Flags = s.Serialize<PAG_ParticleGeneratorFlags>(Flags, name: nameof(Flags));
                 if (Version >= 20) MoreFlags = s.Serialize<uint>(MoreFlags, name: nameof(MoreFlags));
 
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+                    if (Version >= 45) InitialRTFlags = s.Serialize<uint>(InitialRTFlags, name: nameof(InitialRTFlags));
+                    if (Version >= 47) {
+                        SimulationDistance = s.Serialize<float>(SimulationDistance, name: nameof(SimulationDistance));
+                        DisplayDistance = s.Serialize<float>(DisplayDistance, name: nameof(DisplayDistance));
+                    }
+                    if (Version >= 48) AmbientFactor = s.Serialize<float>(AmbientFactor, name: nameof(AmbientFactor));
+                }
                 GenType = s.Serialize<byte>(GenType, name: nameof(GenType));
                 SpeedType = s.Serialize<byte>(SpeedType, name: nameof(SpeedType));
+                if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 37)
+                    DrawType = s.Serialize<PAG_DrawType>(DrawType, name: nameof(DrawType));
                 if (Version >= 29) {
 					GenOffsetX = s.Serialize<float>(GenOffsetX, name: nameof(GenOffsetX));
 					GenOffsetY = s.Serialize<float>(GenOffsetY, name: nameof(GenOffsetY));
@@ -325,7 +375,7 @@ namespace Ray1Map.Jade {
 					ZMaxRotationStrength = s.Serialize<float>(ZMaxRotationStrength, name: nameof(ZMaxRotationStrength));
 					FrictionRotation = s.Serialize<float>(FrictionRotation, name: nameof(FrictionRotation));
 
-                    if (Version >= 32 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PostTMNT)) {
+                    if (Version >= 32 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CloudyWithAChanceOfMeatballs)) {
                         ZMinRotationStrengthY = s.Serialize<float>(ZMinRotationStrengthY, name: nameof(ZMinRotationStrengthY));
                         ZMaxRotationStrengthY = s.Serialize<float>(ZMaxRotationStrengthY, name: nameof(ZMaxRotationStrengthY));
                         FrictionRotationY = s.Serialize<float>(FrictionRotationY, name: nameof(FrictionRotationY));
@@ -345,8 +395,19 @@ namespace Ray1Map.Jade {
                 GenParam1 = s.Serialize<float>(GenParam1, name: nameof(GenParam1));
                 GenParam2 = s.Serialize<float>(GenParam2, name: nameof(GenParam2));
 
-                GenCountPerSecondInit = s.Serialize<float>(GenCountPerSecondInit, name: nameof(GenCountPerSecondInit));
-                GenCountPerSecond = GenCountPerSecondInit; // NbPerSecondWantedByUser in NCIS
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 36) {
+                    BurstDurationMin = s.Serialize<float>(BurstDurationMin, name: nameof(BurstDurationMin));
+                    BurstDurationMax = s.Serialize<float>(BurstDurationMax, name: nameof(BurstDurationMax));
+                    FrequencyMin = s.Serialize<float>(FrequencyMin, name: nameof(FrequencyMin));
+                    FrequencyMax = s.Serialize<float>(FrequencyMax, name: nameof(FrequencyMax));
+                    DelayDurationMin = s.Serialize<float>(DelayDurationMin, name: nameof(DelayDurationMin));
+                    DelayDurationMax = s.Serialize<float>(DelayDurationMax, name: nameof(DelayDurationMax));
+                    GenCountPerSecondInit = FrequencyMin;
+                    GenCountPerSecond = GenCountPerSecondInit;
+                } else {
+                    GenCountPerSecondInit = s.Serialize<float>(GenCountPerSecondInit, name: nameof(GenCountPerSecondInit));
+                    GenCountPerSecond = GenCountPerSecondInit; // NbPerSecondWantedByUser in NCIS
+                }
 
                 Speed0 = s.Serialize<float>(Speed0, name: nameof(Speed0));
                 Speed1 = s.Serialize<float>(Speed1, name: nameof(Speed1));
@@ -375,9 +436,12 @@ namespace Ray1Map.Jade {
                 TimeBirthMin = s.Serialize<float>(TimeBirthMin, name: nameof(TimeBirthMin));
                 TimeBirthMax = s.Serialize<float>(TimeBirthMax, name: nameof(TimeBirthMax));
 
-                Acceleration = s.SerializeObject(Acceleration, name: nameof(Acceleration));
+                Acceleration = s.SerializeObject<Jade_Vector>(Acceleration, name: nameof(Acceleration));
 
                 Friction = s.Serialize<float>(Friction, name: nameof(Friction)); // FrictionTranslationOriginal
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Version >= 50) {
+                    SizeBirthFactor = s.Serialize<float>(SizeBirthFactor, name: nameof(SizeBirthFactor));
+                }
                 SizeDeathFactor = s.Serialize<float>(SizeDeathFactor, name: nameof(SizeDeathFactor));
 
                 BirthColor = s.SerializeObject<Jade_Color>(BirthColor, name: nameof(BirthColor));
@@ -405,10 +469,18 @@ namespace Ray1Map.Jade {
 				FramesCountX = s.Serialize<byte>(FramesCountX, name: nameof(FramesCountX));
 				FramesCountY = s.Serialize<byte>(FramesCountY, name: nameof(FramesCountY));
                 AnimTicksCountPerAnimFrame = s.Serialize<byte>(AnimTicksCountPerAnimFrame, name: nameof(AnimTicksCountPerAnimFrame));
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+                    if (Version >= 47) V47_Byte0_TVP = s.Serialize<byte>(V47_Byte0_TVP, name: nameof(V47_Byte0_TVP));
+                    if (Version >= 42) V42_Byte_TVP = s.Serialize<byte>(V42_Byte_TVP, name: nameof(V42_Byte_TVP));
+                }
 
                 GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
-
-                EndLifeSpawnGenerator = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(EndLifeSpawnGenerator, name: nameof(EndLifeSpawnGenerator))?.Resolve();
+                
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) && Version >= 49) {
+                    V49_SpawnGenerator_TVP = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(V49_SpawnGenerator_TVP, name: nameof(V49_SpawnGenerator_TVP))?.Resolve();
+                    V49_AmountToSpawn_TVP = s.Serialize<ushort>(V49_AmountToSpawn_TVP, name: nameof(V49_AmountToSpawn_TVP));
+                }
+				EndLifeSpawnGenerator = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(EndLifeSpawnGenerator, name: nameof(EndLifeSpawnGenerator))?.Resolve();
                 AmountToSpawnOnEndLife = s.Serialize<ushort>(AmountToSpawnOnEndLife, name: nameof(AmountToSpawnOnEndLife));
                 DeathSpawnGeneratorA = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(DeathSpawnGeneratorA, name: nameof(DeathSpawnGeneratorA))?.Resolve();
                 AmountToSpawnOnDeathA = s.Serialize<ushort>(AmountToSpawnOnDeathA, name: nameof(AmountToSpawnOnDeathA));
@@ -416,9 +488,21 @@ namespace Ray1Map.Jade {
                     DeathSpawnGeneratorB = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(DeathSpawnGeneratorB, name: nameof(DeathSpawnGeneratorB))?.Resolve();
                     AmountToSpawnOnDeathA = s.Serialize<ushort>(AmountToSpawnOnDeathB, name: nameof(AmountToSpawnOnDeathB));
                 }
-                if (Version >= 15) {
-                    Particle3DObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Particle3DObject, name: nameof(Particle3DObject))?.Resolve();
-
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 37) {
+                    T SerializeParameters<T>() where T : PAG_ParticleParameters, new()
+                        => s.SerializeObject<T>((T)CPP_ParticleParameters, onPreSerialize: par => par.Pre_Generator = this, name: nameof(CPP_ParticleParameters));
+                    CPP_ParticleParameters = DrawType switch {
+                        PAG_DrawType._2D => SerializeParameters<PAG_2DParticleParameters>(),
+                        PAG_DrawType._3D => SerializeParameters<PAG_3DParticleParameters>(),
+                        PAG_DrawType.Strip => SerializeParameters<PAG_StripParticleParameters>(),
+                        _ => throw new BinarySerializableException(this, $"PAG: Incorrect DrawType {DrawType}")
+                    };
+                } else {
+                    if (Version >= 14) {
+                        Particle3DObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Particle3DObject, name: nameof(Particle3DObject))?.Resolve();
+                    }
+                }
+				if (Version >= 15) {
                     RotationMinY = s.Serialize<float>(RotationMinY, name: nameof(RotationMinY));
                     RotationMaxY = s.Serialize<float>(RotationMaxY, name: nameof(RotationMaxY));
                     RotationSpeedMinY = s.Serialize<float>(RotationSpeedMinY, name: nameof(RotationSpeedMinY));
@@ -429,15 +513,20 @@ namespace Ray1Map.Jade {
                     RotationSpeedMaxZ = s.Serialize<float>(RotationSpeedMaxZ, name: nameof(RotationSpeedMaxZ));
                 }
                 if (Version >= 17) {
-					SpecialLookAtX = s.Serialize<byte>(SpecialLookAtX, name: nameof(SpecialLookAtX));
-					SpecialLookAtY = s.Serialize<byte>(SpecialLookAtY, name: nameof(SpecialLookAtY));
+                    SpecialLookAtX = s.Serialize<byte>(SpecialLookAtX, name: nameof(SpecialLookAtX));
+                    SpecialLookAtY = s.Serialize<byte>(SpecialLookAtY, name: nameof(SpecialLookAtY));
                 }
             }
 
 
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                 if (Version >= 18) SoundID = s.Serialize<uint>(SoundID, name: nameof(SoundID));
-				if (Version >= 19) PoolsCount = s.Serialize<int>(PoolsCount, name: nameof(PoolsCount));
+                if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Version >= 51)
+                    EndSoundID = s.Serialize<uint>(EndSoundID, name: nameof(EndSoundID));
+                if (Version >= 19) PoolsCount = s.Serialize<int>(PoolsCount, name: nameof(PoolsCount));
+                if (Version >= 47 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+                    V47_Byte1_TVP = s.Serialize<byte>(V47_Byte1_TVP, name: nameof(V47_Byte1_TVP));
+                }
                 if (Version >= 22) {
                     AttractorType = s.Serialize<byte>(AttractorType, name: nameof(AttractorType));
 					if (Version >= 28) Attractor = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Attractor, name: nameof(Attractor));
@@ -466,6 +555,40 @@ namespace Ray1Map.Jade {
 				} else {
                     LODMinPercentageOfParticles = 0.5f;
                 }
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)){
+                    if (ObjectVersion >= 33 && (MoreFlags & 0x8000000) != 0) {
+                        DurationMin = s.Serialize<float>(DurationMin, name: nameof(DurationMin));
+                        DurationMax = s.Serialize<float>(DurationMax, name: nameof(DurationMax));
+                        ScaleXOverLife = s.SerializeObject<PAG_TimebaseProperty>(ScaleXOverLife, name: nameof(ScaleXOverLife));
+                        ScaleYOverLife = s.SerializeObject<PAG_TimebaseProperty>(ScaleYOverLife, name: nameof(ScaleYOverLife));
+                        ScaleZOverLife = s.SerializeObject<PAG_TimebaseProperty>(ScaleZOverLife, name: nameof(ScaleZOverLife));
+                        ColorROverLife = s.SerializeObject<PAG_TimebaseProperty>(ColorROverLife, name: nameof(ColorROverLife));
+                        ColorGOverLife = s.SerializeObject<PAG_TimebaseProperty>(ColorGOverLife, name: nameof(ColorGOverLife));
+                        ColorBOverLife = s.SerializeObject<PAG_TimebaseProperty>(ColorBOverLife, name: nameof(ColorBOverLife));
+                        ColorAOverLife = s.SerializeObject<PAG_TimebaseProperty>(ColorAOverLife, name: nameof(ColorAOverLife));
+                    }
+					if (ObjectVersion >= 34 && (MoreFlags & 0x8000000) != 0) {
+                        AnimationSetMax = s.Serialize<byte>(AnimationSetMax, name: nameof(AnimationSetMax));
+                        AnimationOverLife = s.SerializeObject<PAG_TimebaseProperty>(AnimationOverLife, name: nameof(AnimationOverLife));
+                    }
+                    if (ObjectVersion >= 35) {
+                        GenRotation = s.SerializeObject<Jade_Vector>(GenRotation, name: nameof(GenRotation));
+                    }
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+						if (ObjectVersion >= 40) {
+                            V40_Float0 = s.Serialize<float>(V40_Float0, name: nameof(V40_Float0));
+                            V40_Float1 = s.Serialize<float>(V40_Float1, name: nameof(V40_Float1));
+                        }
+						if (ObjectVersion >= 41) {
+                            V41_UInt0 = s.Serialize<uint>(V41_UInt0, name: nameof(V41_UInt0));
+                            V41_UInt1 = s.Serialize<uint>(V41_UInt1, name: nameof(V41_UInt1));
+                        }
+                    }
+                    if (ObjectVersion >= 44) {
+                        TimeBeforeBirthMin = s.Serialize<float>(TimeBeforeBirthMin, name: nameof(TimeBeforeBirthMin));
+                        TimeBeforeBirthMax = s.Serialize<float>(TimeBeforeBirthMax, name: nameof(TimeBeforeBirthMax));
+                    }
+				}
 			}
         }
     }

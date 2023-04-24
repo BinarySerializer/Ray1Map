@@ -113,34 +113,63 @@ namespace Ray1Map.Jade
                     if (Event.Index != 0 && Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.SameType))
                         currentStructSize -= 2;
 
-                    switch ((ushort)Type & 3) {
-                        case 0:
-                            if (Type.HasFlag(TypeFlags.RotationQuaternion)) {
-                                if (Loader.IsBinaryData) {
-                                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+                        var translationtype = ((ushort)Type & 0x801);
+                        if (translationtype != 0) {
+                            if (translationtype == 0x800) {
+                                Vector2 = s.SerializeObject<Jade_Vector>(Vector2, name: nameof(Vector2));
+                                Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
+                                Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                            } else if (translationtype == 0x1) {
+                                Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                            }
+                        } else if (((ushort)Type & 0x2) != 0) {
+                            Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                        } else {
+							if (Type.HasFlag(TypeFlags.RotationQuaternion)) {
+								if (Loader.IsBinaryData) {
+									if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
 										CompressedQuaternion10 = s.SerializeObject<Jade_CompressedQuaternion10>(CompressedQuaternion10, name: nameof(CompressedQuaternion10));
 									} else {
-                                        CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));
-                                    }
+										CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));
+									}
 								} else {
-                                    Quaternion = s.SerializeObject<Jade_Quaternion>(Quaternion, name: nameof(Quaternion));
+									Quaternion = s.SerializeObject<Jade_Quaternion>(Quaternion, name: nameof(Quaternion));
+								}
+							} else if (Type.HasFlag(TypeFlags.RotationMatrix)) {
+								Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
+							}
+						}
+					} else {
+                        switch ((ushort)Type & 3) {
+                            case 0:
+                                if (Type.HasFlag(TypeFlags.RotationQuaternion)) {
+                                    if (Loader.IsBinaryData) {
+                                        if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW_20040920)) {
+                                            CompressedQuaternion10 = s.SerializeObject<Jade_CompressedQuaternion10>(CompressedQuaternion10, name: nameof(CompressedQuaternion10));
+                                        } else {
+                                            CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));
+                                        }
+                                    } else {
+                                        Quaternion = s.SerializeObject<Jade_Quaternion>(Quaternion, name: nameof(Quaternion));
+                                    }
+                                } else if (Type.HasFlag(TypeFlags.RotationMatrix)) {
+                                    Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
                                 }
-                            } else if (Type.HasFlag(TypeFlags.RotationMatrix)) {
-                                Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
-                            }
-                            break;
-                        case 1:
-                            Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
-                            break;
-                        case 2:
-                            Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
-                            Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
-                            break;
-                        case 3:
-                            Vector2 = s.SerializeObject<Jade_Vector>(Vector2, name: nameof(Vector2));
-                            Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
-                            Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
-                            break;
+                                break;
+                            case 1:
+                                Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                                break;
+                            case 2:
+                                Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
+                                Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                                break;
+                            case 3:
+                                Vector2 = s.SerializeObject<Jade_Vector>(Vector2, name: nameof(Vector2));
+                                Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
+                                Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
+                                break;
+                        }
                     }
                     if (Type.HasFlag(TypeFlags.Time)) {
                         uint curSize = (uint)(s.CurrentPointer - Offset);

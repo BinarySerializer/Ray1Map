@@ -28,7 +28,7 @@ namespace Ray1Map.Jade {
 			if (Version >= 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
 				UInt_V3_TFS = s.Serialize<uint>(UInt_V3_TFS, name: nameof(UInt_V3_TFS));
 			}
-			if(Version < 4) IndexTypes &= ~IndexType.Mat;
+			if(Version < (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) ? 3 : 4)) IndexTypes &= ~IndexType.Mat;
 			if (IndexTypes.HasFlag(IndexType.Pos)) IndicesPos = s.SerializeArray<ushort>(IndicesPos, Count, name: nameof(IndicesPos));
 			if (IndexTypes.HasFlag(IndexType.Nor)) IndicesNor = s.SerializeArray<ushort>(IndicesNor, Count, name: nameof(IndicesNor));
 			if (IndexTypes.HasFlag(IndexType.Col)) IndicesCol = s.SerializeArray<ushort>(IndicesCol, Count, name: nameof(IndicesCol));

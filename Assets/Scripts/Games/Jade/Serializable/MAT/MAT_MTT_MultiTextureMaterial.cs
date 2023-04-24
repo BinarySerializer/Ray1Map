@@ -13,6 +13,7 @@ namespace Ray1Map.Jade {
 		public uint Flags { get; set; }
 		public uint FirstLevelPointer { get; set; } // Leftover, this is overwritten
 		public uint ValidateMask { get; set; }
+		public uint V11_TFS_UInt { get; set; }
 
 		// Float_0C Negative -> NF (Negative Float)
 		public byte Version { get; set; }
@@ -29,6 +30,9 @@ namespace Ray1Map.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) || !Loader.IsBinaryData) {
 				Ambiant = s.SerializeObject<Jade_Color>(Ambiant, name: nameof(Ambiant));
+			}
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) || !Loader.IsBinaryData || 
+				(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) && ObjectVersion >= 11)) {
 				Diffuse = s.SerializeObject<Jade_Color>(Diffuse, name: nameof(Diffuse));
 			}
 			Specular = s.SerializeObject<Jade_Color>(Specular, name: nameof(Specular));
@@ -65,6 +69,9 @@ namespace Ray1Map.Jade {
 				if (ObjectVersion >= 1) {
 					if (!Loader.IsBinaryData) Float_Editor_Montreal = s.Serialize<float>(Float_Editor_Montreal, name: nameof(Float_Editor_Montreal));
 				}
+				if (ObjectVersion >= 11 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					V11_TFS_UInt = s.Serialize<uint>(V11_TFS_UInt, name: nameof(V11_TFS_UInt));
+				}
 			}
 
 			if (FirstLevelPointer != 0) {
@@ -98,6 +105,7 @@ namespace Ray1Map.Jade {
 			public int FrameCycle { get; set; }
 			public bool IsRotationAnim { get; set; }
 			public int RotationSpeed { get; set; }
+			public uint V10_TVP_UInt { get; set; }
 
 			// Flags
 			public MaterialFlags Flags { get; set; }
@@ -150,7 +158,9 @@ namespace Ray1Map.Jade {
 				if (s.IsSerializerLoggerEnabled) {
 					s.Log($"Rotation: {0}", UVRotation);
 				}
-
+				if (Material.ObjectVersion >= 10 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+					V10_TVP_UInt = s.Serialize<uint>(V10_TVP_UInt, name: nameof(V10_TVP_UInt));
+				}
 				if (Material.ObjectVersion >= 9) {
 					DispLayersCount = s.Serialize<byte>(DispLayersCount, name: nameof(DispLayersCount));
 					DispOffset = s.Serialize<float>(DispOffset, name: nameof(DispOffset));

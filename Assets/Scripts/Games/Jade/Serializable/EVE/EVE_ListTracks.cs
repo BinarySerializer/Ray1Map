@@ -6,6 +6,7 @@ namespace Ray1Map.Jade
     public class EVE_ListTracks : Jade_File {
 		public override string Export_Extension => "trl";
 		public override bool HasHeaderBFFile => true;
+		public bool Pre_IsEmbedded { get; set; } = false;
 
         public Jade_Reference<EVE_ListTracks> ListTracks_TRS { get; set; }
         public ushort TracksCount { get; set; }
@@ -14,12 +15,16 @@ namespace Ray1Map.Jade
         public EVE_Track[] Tracks { get; set; }
         public ushort Montreal_Version { get; set; }
 
+		public byte[] FastInterpolationKeyTracks { get; set; }
+
+		public uint TotalTracksCount => (uint)Tracks.Length + (uint)(ListTracks_TRS?.Value?.Tracks?.Length ?? 0);
+
         protected override void SerializeFile(SerializerObject s)
         {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
 				ListTracks_TRS = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(ListTracks_TRS, name: nameof(ListTracks_TRS));
                 if (Loader.IsBinaryData) {
-                    ListTracks_TRS?.ResolveEmbedded(s, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist, unknownFileSize: true);
+                    ListTracks_TRS?.ResolveEmbedded(s, onPreSerialize: (_,e) => e.Pre_IsEmbedded = true, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.MustExist, unknownFileSize: true);
                 } else {
                     ListTracks_TRS?.Resolve();
                 }
@@ -33,6 +38,10 @@ namespace Ray1Map.Jade
             }
 			Flags = s.Serialize<TracksFlags>(Flags, name: nameof(Flags));
             Tracks = s.SerializeObjectArray<EVE_Track>(Tracks, useCount2 ? TracksCount2 : TracksCount, onPreSerialize: trk => trk.ListTracks = this, name: nameof(Tracks));
+
+			if (!Pre_IsEmbedded && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				FastInterpolationKeyTracks = s.SerializeArray<byte>(FastInterpolationKeyTracks, (TotalTracksCount / 8) + (TotalTracksCount % 8 == 0 ? 0 : 1), name: nameof(FastInterpolationKeyTracks));
+			}
         }
 
 		protected override void OnChangeContext(Context oldContext, Context newContext) {

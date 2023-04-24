@@ -315,6 +315,9 @@ namespace Ray1Map.Jade {
 				}
 
 				actionData.SkeletonGroup?.Resolve();
+				if (!Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					actionData.SkeletonInfo?.Resolve();
+				}
 				await Loader.LoadBinOrNot(s);
 
 				// Attach skeleton

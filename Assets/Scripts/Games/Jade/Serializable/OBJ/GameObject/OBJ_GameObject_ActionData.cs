@@ -10,7 +10,7 @@ namespace Ray1Map.Jade {
 		// Montreal
 		public uint BonesVisuCount { get; set; }
 		public VisuForBones[] BonesVisu { get; set; }
-		public uint UInt_JadeCPP_V14 { get; set; }
+		public Jade_Reference<ANI_SkeletonInfo> SkeletonInfo { get; set; }
 		public byte GOAnimSavedFlags { get; set; }
 		public Jade_Reference<AG_AnimGraph> AnimGraph { get; set; }
 
@@ -22,13 +22,13 @@ namespace Ray1Map.Jade {
 			Shape = s.SerializeObject<Jade_Reference<ANI_Shape>>(Shape, name: nameof(Shape));
 			SkeletonGroup = s.SerializeObject<Jade_Reference<GRP_Grp>>(SkeletonGroup, name: nameof(SkeletonGroup));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Base.GameObject.Version >= 14) {
-				UInt_JadeCPP_V14 = s.Serialize<uint>(UInt_JadeCPP_V14, name: nameof(UInt_JadeCPP_V14));
+				SkeletonInfo = s.SerializeObject<Jade_Reference<ANI_SkeletonInfo>>(SkeletonInfo, name: nameof(SkeletonInfo));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Base.GameObject.Version >= 2) {
 				BonesVisuCount = s.Serialize<uint>(BonesVisuCount, name: nameof(BonesVisuCount));
 				BonesVisu = s.SerializeObjectArray<VisuForBones>(BonesVisu, BonesVisuCount, onPreSerialize: b => b.ActionData = this, name: nameof(BonesVisu));
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Base.GameObject.Version >= 19) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Base.GameObject.Version >= 19) {
 				GOAnimSavedFlags = s.Serialize<byte>(GOAnimSavedFlags, name: nameof(GOAnimSavedFlags));
 			}
 
@@ -37,6 +37,7 @@ namespace Ray1Map.Jade {
 			if (!Loader.IsBinaryData) {
 				Shape?.Resolve();
 				SkeletonGroup?.Resolve();
+				SkeletonInfo?.Resolve();
 				ListTracks?.Resolve();
 			}
 

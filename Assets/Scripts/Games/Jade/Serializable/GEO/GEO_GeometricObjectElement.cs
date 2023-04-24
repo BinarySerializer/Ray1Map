@@ -24,6 +24,8 @@ namespace Ray1Map.Jade {
 
 		// CPP
 		public GEO_CPP_IndexBuffer IndexBuffer { get; set; }
+		public byte StitchBucketsCount { get; set; }
+		public GEO_CPP_StitchBucket[] StitchBuckets { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && GeometricObject.ObjectVersion >= 15) {
@@ -53,6 +55,10 @@ namespace Ray1Map.Jade {
 			StripDataFlags = s.Serialize<uint>(StripDataFlags, name: nameof(StripDataFlags));
 			StripDataCount = s.Serialize<uint>(StripDataCount, name: nameof(StripDataCount));
 			Strips = s.SerializeObjectArray<OneStrip>(Strips, StripDataCount, name: nameof(Strips));
+		}
+		public void SerializeStitchBuckets(SerializerObject s) {
+			StitchBucketsCount = s.Serialize<byte>(StitchBucketsCount, name: nameof(StitchBucketsCount));
+			StitchBuckets = s.SerializeObjectArray<GEO_CPP_StitchBucket>(StitchBuckets, StitchBucketsCount, name: nameof(StitchBuckets));
 		}
 
 		public class Triangle : BinarySerializable, IEquatable<Triangle> {

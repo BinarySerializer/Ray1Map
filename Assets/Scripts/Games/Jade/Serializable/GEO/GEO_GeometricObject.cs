@@ -148,7 +148,7 @@ namespace Ray1Map.Jade {
 					if (ObjectVersion >= 16 && ObjectPonderation != null) {
 						CPP_StitchMatricesCount = s.Serialize<ushort>(CPP_StitchMatricesCount, name: nameof(CPP_StitchMatricesCount));
 						CPP_StitchMatrices = s.SerializeObjectArray<GEO_CPP_StitchMatrix>(CPP_StitchMatrices, CPP_StitchMatricesCount, name: nameof(CPP_StitchMatrices));
-						throw new NotImplementedException("Serialize stitch buckets");
+						foreach(var e in Elements) e?.SerializeStitchBuckets(s);
 					}
 				} else {
 					ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
