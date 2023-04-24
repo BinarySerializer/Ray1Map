@@ -12,7 +12,9 @@ namespace Ray1Map.Jade
         public byte CustomBits2 { get; set; }
         public Jade_Reference<COL_Cob>[] Cobs { get; set; }
 
-        protected override void SerializeFile(SerializerObject s) 
+		public COL_EventObject EventObject { get; set; }
+
+		protected override void SerializeFile(SerializerObject s) 
         {
             if (FileSize - HeaderBFFileSize == 4)
             {
@@ -30,6 +32,12 @@ namespace Ray1Map.Jade
             }
 
             Cobs = s.SerializeObjectArray<Jade_Reference<COL_Cob>>(Cobs, CobsCount, name: nameof(Cobs))?.Resolve();
+
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+                if (Activation != 0xFF) {
+					EventObject = s.SerializeObject<COL_EventObject>(EventObject, name: nameof(EventObject));
+				}
+            }
         }
     }
 }

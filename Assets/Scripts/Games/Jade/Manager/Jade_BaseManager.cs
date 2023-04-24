@@ -675,8 +675,14 @@ namespace Ray1Map {
 							var geo = (GEO_GeometricObject)gro.RenderObject.Value;
 
 							if (geo.Elements != null) {
-								var verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
-								var uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
+								Vector3[] verts = null;
+								Vector2[] uvs = null;
+								if (geo.CPP_VertexBuffer != null) {
+									continue;
+								} else {
+									verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
+									uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
+								}
 								Color[] colors = null;
 								Color ComputeColor(Color c) {
 									return Color.Lerp(Color.white, new Color(c.r, c.g, c.b, 1f), c.a);

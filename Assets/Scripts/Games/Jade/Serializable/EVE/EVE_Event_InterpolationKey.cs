@@ -88,11 +88,16 @@ namespace Ray1Map.Jade
 
                 bool CompressedRotation = Type.HasFlag(TypeFlags.CompressedQuaternion) || Type.HasFlag(TypeFlags.UltraCompressedQuaternionX) || Type.HasFlag(TypeFlags.UltraCompressedQuaternionY) || Type.HasFlag(TypeFlags.UltraCompressedQuaternionZ); // 0x780
                 bool HasRotation = Type.HasFlag(TypeFlags.RotationMatrix) || Type.HasFlag(TypeFlags.RotationQuaternion);
-                bool HasTranslation = Type.HasFlag(TypeFlags.Translation0) || Type.HasFlag(TypeFlags.Translation1);
-                bool CompressedTranslation = Type.HasFlag(TypeFlags.CompressedAbsoluteTranslation) || Type.HasFlag(TypeFlags.CompressedRelativeTranslation)
+                bool HasTranslation = Type.HasFlag(TypeFlags.Translation0)
+                    || (Type.HasFlag(TypeFlags.Translation1) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty))
+                    || (Type.HasFlag(TypeFlags.CompressedAbsoluteTranslation) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty));
+                bool CompressedTranslation =
+                    (Type.HasFlag(TypeFlags.CompressedAbsoluteTranslation) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) // This one flag is used for something else in TV party's branch
+                    || Type.HasFlag(TypeFlags.CompressedRelativeTranslation)
                     || Type.HasFlag(TypeFlags.UltraCompressedTranslationX) || Type.HasFlag(TypeFlags.UltraCompressedTranslationY) || Type.HasFlag(TypeFlags.UltraCompressedTranslationZ);
-                bool HasTranslationOrRotation = HasTranslation || HasRotation;
-                if (HasRotation && CompressedRotation) {
+                bool HasTranslationOrRotation = HasTranslation || HasRotation
+                    || (Type.HasFlag(TypeFlags.Translation1) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty));
+				if (HasRotation && CompressedRotation) {
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                 } else {
                     if (HasTranslation && CompressedTranslation) {

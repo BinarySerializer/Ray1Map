@@ -12,6 +12,8 @@ namespace Ray1Map.Jade {
 		public float DTMin { get; set; }
 		public uint UserID { get; set; }
 		public Jade_Vector OffsetVector { get; set; }
+		public uint CPP_UInt_V5 { get; set; }
+		public uint CPP_UInt_V6 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -27,10 +29,16 @@ namespace Ray1Map.Jade {
 			if(Version >= 3) UserID = s.Serialize<uint>(UserID, name: nameof(UserID));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 4) {
 				OffsetVector = s.SerializeObject<Jade_Vector>(OffsetVector, name: nameof(OffsetVector));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					if (Version >= 5) CPP_UInt_V5 = s.Serialize<uint>(CPP_UInt_V5, name: nameof(CPP_UInt_V5));
+					if (Version >= 6) CPP_UInt_V6 = s.Serialize<uint>(CPP_UInt_V6, name: nameof(CPP_UInt_V6));
+				}
 			}
-			//if ((Flags & 8) == 0) { // This is always 0 -- it does Flags &= 0xFFFFFFF7 after reading it
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				//if ((Flags & 8) == 0) { // This is always 0 -- it does Flags &= 0xFFFFFFF7 after reading it
 				Material?.Resolve();
-			//}
+				//}
+			}
 		}
 
 		public class XMEN_Chhlaahhh : BinarySerializable {
