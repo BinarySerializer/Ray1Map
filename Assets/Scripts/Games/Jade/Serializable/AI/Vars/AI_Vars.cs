@@ -28,12 +28,23 @@ namespace Ray1Map.Jade {
         public uint ExtraFunctionsCount { get; set; }
         public Jade_Reference<AI_Function>[] ExtraFunctions { get; set; }
 
+        // TFS
+        public uint Flags { get; set; }
+        public uint Version { get; set; } = 0;
+        public uint V4_UInt_00 { get; set; }
+
         // Custom
         public AI_Var[] Vars { get; set; }
 
         protected override void SerializeFile(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+                    Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+                    if ((Flags & 0x40000000) != 0) {
+                        Version = s.Serialize<uint>(Version, name: nameof(Version));
+                    }
+                    if (Version >= 4) V4_UInt_00 = s.Serialize<uint>(V4_UInt_00, name: nameof(V4_UInt_00));
+                } else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
                     s.DoBits<uint>(b => {
                         RewindVarEndOffset = (uint)b.SerializeBits<int>((int)RewindVarEndOffset, 31, name: nameof(RewindVarEndOffset));
                         HasRewindZones = b.SerializeBits<int>(HasRewindZones ? 1 : 0, 1, name: nameof(HasRewindZones)) == 1;

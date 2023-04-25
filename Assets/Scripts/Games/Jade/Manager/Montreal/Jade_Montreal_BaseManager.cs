@@ -195,7 +195,7 @@ namespace Ray1Map
 			var curPos = Loader.Bin.CurrentPosition;
 			Jade_Key currentBinHeaderKey = null;
 			HashSet<Jade_Key> dontAdd = new HashSet<Jade_Key>();
-			while (currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) {
+			while ((currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) && (Loader.Bin.CurrentPosition.FileOffset <= Loader.Bin.TotalSize - 12)) {
 				Jade_Reference<TEX_File_Montreal_Dummy> dummyFile = new Jade_Reference<TEX_File_Montreal_Dummy>(s.Context, new Jade_Key(s.Context, 0)) { ForceResolve = true };
 				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
 				await Loader.LoadLoopBINAsync();
@@ -299,7 +299,9 @@ namespace Ray1Map
 						await w.JustAfterLoad_Montreal(s, false);
 						await Jade_Montreal_BaseManager.LoadTextures_Montreal(s, w);
 					}
-					terminator.Resolve();
+					if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+						terminator.Resolve();
+					}
 					await Loader.LoadLoopBINAsync();
 
 				});

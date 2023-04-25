@@ -16,6 +16,7 @@ namespace Ray1Map.Jade {
 		public OBJ_GameObject_ControlFlags ControlFlags { get; set; }
 		public byte Secto { get; set; }
 		public byte MiscFlags { get; set; }
+		public float VisibilityDistance { get; set; }
 		public byte VisiCoeff { get; set; }
 		public ushort UShort_12_Alignment { get; set; }
 		public byte LOD_Vis { get; set; }
@@ -35,6 +36,8 @@ namespace Ray1Map.Jade {
 		public uint PhoenixMontreal_V14 { get; set; }
 		public uint NameLength { get; set; }
 		public string Name { get; set; }
+		public uint V23_Name2Length { get; set; }
+		public string V23_Name2 { get; set; }
 		public uint DummyVersion { get; set; }
 		public uint CullingVisibility { get; set; }
 		public uint ObjectModel { get; set; }
@@ -76,6 +79,10 @@ namespace Ray1Map.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+				if (Version >= 23 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					V23_Name2Length = s.Serialize<uint>(V23_Name2Length, name: nameof(V23_Name2Length));
+					V23_Name2 = s.SerializeString(V23_Name2, length: V23_Name2Length, name: nameof(V23_Name2));
+				}
 			}
 			s.DoBits<uint>(b => {
 				StatusFlags = b.SerializeBits<OBJ_GameObject_StatusFlags>(StatusFlags, 8, name: nameof(StatusFlags));
@@ -84,6 +91,9 @@ namespace Ray1Map.Jade {
 			});
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				MiscFlags = s.Serialize<byte>(MiscFlags, name: nameof(MiscFlags));
+				if (Version >= 24 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+					VisibilityDistance = s.Serialize<float>(VisibilityDistance, name: nameof(VisibilityDistance));
+				}
 			} else {
 				Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
 			}

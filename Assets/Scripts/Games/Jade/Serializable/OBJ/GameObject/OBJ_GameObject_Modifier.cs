@@ -244,7 +244,7 @@ namespace Ray1Map.Jade {
 
 					// MDF_ModifierType_CPP.MDF_SoftBodyColl => SerializeModifier<>(s),
 
-					// MDF_ModifierType_CPP.MDF_AlphaFade => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_AlphaFade => SerializeModifier<MDF_AlphaFade>(s),
 					MDF_ModifierType_CPP.MDF_AlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
 					MDF_ModifierType_CPP.MDF_InteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
 					// MDF_ModifierType_CPP.MDF_PreDepthPass => SerializeModifier<>(s),
@@ -252,7 +252,7 @@ namespace Ray1Map.Jade {
 					// MDF_ModifierType_CPP.MDF_ProceduralBone => SerializeModifier<>(s),
 					// MDF_ModifierType_CPP.MDF_AudioReverbZone => SerializeModifier<>(s),
 
-					// MDF_ModifierType_CPP.MDF_CharacterFxRef  => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_CharacterFxRef  => SerializeModifier<GAO_ModifierCharacterFXRef>(s),
 					_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
 				};
 			}
