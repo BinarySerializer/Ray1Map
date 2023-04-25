@@ -39,6 +39,9 @@ namespace Ray1Map.Jade {
 		public Jade_Reference<LIGHT_RejectionList> LightRejection { get; set; }
 		public Jade_Reference<WOR_MagmaGroup> MagmaGroup { get; set; }
 		public uint JadeMontrealCPP_UnknownV6 { get; set; }
+		public uint WorldEnvironmentID { get; set; }
+		public uint NavigationMeshesCount { get; set; }
+
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public TEX_GlobalList TextureList_Montreal { get; set; }
@@ -56,8 +59,12 @@ namespace Ray1Map.Jade {
 				JadeMontrealCPP_UnknownV6 = s.Serialize<uint>(JadeMontrealCPP_UnknownV6, name: nameof(JadeMontrealCPP_UnknownV6));
 			}
 			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
-			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
+				|| (Version >= 11 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS))) {
 				AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
+			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+				WorldEnvironmentID = s.Serialize<uint>(WorldEnvironmentID, name: nameof(WorldEnvironmentID));
 			}
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 
@@ -115,6 +122,12 @@ namespace Ray1Map.Jade {
 				}
 			} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Version >= 8) {
+						NavigationMeshesCount = s.Serialize<uint>(NavigationMeshesCount, name: nameof(NavigationMeshesCount));
+						if (NavigationMeshesCount > 0) {
+							throw new BinarySerializableException(this, $"TODO: Implement NavMesh references");
+						}
+					}
 				} else {
 					if (Version >= 5) MagmaGroup = s.SerializeObject<Jade_Reference<WOR_MagmaGroup>>(MagmaGroup, name: nameof(MagmaGroup))?.Resolve();
 				}

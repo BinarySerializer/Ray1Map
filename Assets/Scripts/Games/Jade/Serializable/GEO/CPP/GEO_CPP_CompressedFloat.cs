@@ -30,5 +30,34 @@ namespace Ray1Map.Jade {
 			_ => "Unknown"
 		};
 		public string ShortLog => ToString();
+
+
+		public float ToFloat(FloatType type) {
+			switch (Pre_Compression) {
+				case GEO_CPP_VertexBuffer.CompressionMode.Uncompressed:
+					return Uncompressed;
+				case GEO_CPP_VertexBuffer.CompressionMode.LowCompression:
+					switch (type) {
+						case FloatType.Vertex: return LowCompression / 512f;
+						case FloatType.Normal: return LowCompression / 64f;
+						case FloatType.TexCoord: return LowCompression / 512f;//0x10000f;
+					}
+					break;
+				case GEO_CPP_VertexBuffer.CompressionMode.HighCompression:
+					switch (type) {
+						case FloatType.Vertex: return HighCompression / 128f;
+						case FloatType.Normal: return HighCompression / 128f;
+						case FloatType.TexCoord: return HighCompression / 512f;// 0x10000f;
+					}
+					break;
+			}
+			throw new NotImplementedException();
+		}
+
+		public enum FloatType {
+			Vertex,
+			Normal,
+			TexCoord,
+		}
 	}
 }

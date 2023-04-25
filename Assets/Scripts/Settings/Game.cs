@@ -129,6 +129,7 @@
         Jade_TMNT,
         Jade_Avatar,
         Jade_RRRTVParty,
+        Jade_JustDance,
 
         // GEN
 

@@ -18,5 +18,9 @@ namespace Ray1Map.Jade {
 		public override string ToString() => $"GEO_CPP_CompressedVector({X}, {Y}, {Z})";
 
 		public string ShortLog => ToString();
+
+		public Jade_Vector ToVector(GEO_CompressedFloat.FloatType type) {
+			return new Jade_Vector(X.ToFloat(type), Y.ToFloat(type), Z.ToFloat(type));
+		}
 	}
 }

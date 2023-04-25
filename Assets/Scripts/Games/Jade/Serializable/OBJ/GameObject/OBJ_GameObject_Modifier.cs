@@ -173,8 +173,8 @@ namespace Ray1Map.Jade {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
 					Modifier = Type_CPP switch {
 						MDF_ModifierType_CPP.MDF_SoundBank => SerializeModifier<MDF_TVP_SoundBank>(s),
-						//MDF_ModifierType_CPP.MDF_FlashTex => SerializeModifier<>(s),
-						//MDF_ModifierType_CPP.MDF_BinkTex => SerializeModifier<>(s),
+						MDF_ModifierType_CPP.MDF_FlashTex => SerializeModifier<GAO_ModifierFlashTex>(s),
+						MDF_ModifierType_CPP.MDF_BinkTex => SerializeModifier<GAO_ModifierBinkTex>(s),
 						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
 					};
 				} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_SeanWhiteSkateboarding)) {

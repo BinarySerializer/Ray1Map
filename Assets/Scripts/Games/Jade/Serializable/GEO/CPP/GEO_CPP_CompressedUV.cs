@@ -16,5 +16,10 @@ namespace Ray1Map.Jade {
 		public override string ToString() => $"GEO_CPP_CompressedUV({U}, {V})";
 
 		public string ShortLog => ToString();
+
+
+		public GEO_GeometricObject.UV ToUV(GEO_CompressedFloat.FloatType type) {
+			return new GEO_GeometricObject.UV(U.ToFloat(type), V.ToFloat(type));
+		}
 	}
 }

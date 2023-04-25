@@ -155,6 +155,7 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaTheForgottenSandsWii:
 				case GameModeSelection.PrinceOfPersiaTheForgottenSandsPSP:
 				case GameModeSelection.RaymanRavingRabbidsTVPartyWii:
+				case GameModeSelection.JustDanceWii:
 					links = new AI_Links_PoP_TFS_Wii();
 					break;
 

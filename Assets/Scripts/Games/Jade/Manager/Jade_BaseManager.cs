@@ -677,39 +677,77 @@ namespace Ray1Map {
 							if (geo.Elements != null) {
 								Vector3[] verts = null;
 								Vector2[] uvs = null;
+								Color[] colors = null;
 								if (geo.CPP_VertexBuffer != null) {
-									continue;
+									var vertsJade = geo.CPP_VertexBuffer.Vertices.Select(v => v.ToVector(GEO_CompressedFloat.FloatType.Vertex)).ToArray();
+									var uvsJade = geo.CPP_VertexBuffer.Tex0.Select(v => v.ToUV(GEO_CompressedFloat.FloatType.TexCoord)).ToArray();
+									verts = vertsJade.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
+									uvs = uvsJade.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
+									colors = geo.CPP_VertexBuffer?.Colors?.Select(c => ComputeColor(c.GetColor()))?.ToArray();
 								} else {
 									verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 									uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
+
+									if (gao.Base?.Visual?.VertexColors != null) {
+										if (gao.Base?.Visual?.VertexColors.Length == verts.Length) {
+											colors = gao.Base?.Visual?.VertexColors?.Select(c => ComputeColor(c.GetColor())).ToArray();
+										}
+									} else if (gao.Base?.Visual?.RLI?.Value != null) {
+										if (gao.Base?.Visual?.RLI?.Value?.VertexRLI.Length == verts.Length) {
+											colors = gao.Base?.Visual?.RLI?.Value?.VertexRLI?.Select(c => ComputeColor(c.GetColor())).ToArray();
+										}
+									} else if (geo.Colors != null) {
+										if (geo.Colors?.Length == verts.Length) {
+											colors = geo.Colors?.Select(c => ComputeColor(c.GetColor())).ToArray();
+										}
+									}
 								}
-								Color[] colors = null;
 								Color ComputeColor(Color c) {
 									return Color.Lerp(Color.white, new Color(c.r, c.g, c.b, 1f), c.a);
 								}
-								if (gao.Base?.Visual?.VertexColors != null) {
-									if (gao.Base?.Visual?.VertexColors.Length == verts.Length) {
-										colors = gao.Base?.Visual?.VertexColors?.Select(c => ComputeColor(c.GetColor())).ToArray();
-									}
-								} else if (gao.Base?.Visual?.RLI?.Value != null) {
-									if (gao.Base?.Visual?.RLI?.Value?.VertexRLI.Length == verts.Length) {
-										colors = gao.Base?.Visual?.RLI?.Value?.VertexRLI?.Select(c => ComputeColor(c.GetColor())).ToArray();
-									}
-								} else if (geo.Colors != null) {
-									if (geo.Colors?.Length == verts.Length) {
-										colors = geo.Colors?.Select(c => ComputeColor(c.GetColor())).ToArray();
-									}
-								}
 								foreach (var e in geo.Elements) {
 									Mesh m = new Mesh();
-									var vertIndices = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 });
+									IEnumerable<int> vertIndices = null;
+									IEnumerable<int> uvIndices = null;
+									IEnumerable<int> colIndices = null;
+									if (e.IndexBuffer != null) {
+										var vertIndicesList = new List<int>();
+										for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
+											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 1]);
+											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 0]);
+											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 2]);
+										}
+										vertIndices = vertIndicesList;
+										if (uvs.Length > 0) {
+											var uvIndicesList = new List<int>();
+											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 1]);
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 0]);
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 2]);
+											}
+											uvIndices = uvIndicesList;
+										}
+
+										if (colors != null && e.IndexBuffer.IndicesCol != null) {
+											var colIndicesList = new List<int>();
+											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
+												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 1]);
+												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 0]);
+												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 2]);
+											}
+											colIndices = colIndicesList;
+										}
+									} else {
+										vertIndices = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 });
+										if(uvs.Length > 0) uvIndices = e.Triangles.SelectMany(t => new int[] { t.UV1, t.UV0, t.UV2 });
+										colIndices = vertIndices;
+									}
 									m.vertices = vertIndices.Select(v => verts[v]).ToArray();
 									if (uvs.Length > 0) {
-										var uvIndices = e.Triangles.SelectMany(t => new int[] { t.UV1, t.UV0, t.UV2 });
 										m.uv = uvIndices.Select(uv => uvs[uv]).ToArray();
 									}
-									if (colors != null) {
-										m.colors = vertIndices.Select(v => colors[v]).ToArray();
+									if (colors != null && colIndices != null && colors.Length > 0) {
+										m.colors = colIndices.Select(v => colors[v]).ToArray();
 									}
 									m.triangles = Enumerable.Range(0, m.vertices.Length).ToArray();
 									m.RecalculateNormals();
@@ -722,12 +760,20 @@ namespace Ray1Map {
 									mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 									var texturesLength = tex?.Length ?? 0;
 									if (texturesLength > 0) {
+										Texture2D mainTex = null;
 										if (texturesLength == 1) {
+											mainTex = tex[0];
 											mr.material.SetTexture("_MainTex", tex[0]);
 										} else {
 											if (e.MaterialID < texturesLength) {
+												mainTex = tex[e.MaterialID];
 												mr.material.SetTexture("_MainTex", tex[e.MaterialID]);
 											}
+										}
+										if (e.IndexBuffer != null && mainTex != null && uvIndices != null) {
+											//var dimensions = new Vector2(0x10000f / mainTex.width, 0x10000f / mainTex.height);
+											var dimensions = Vector2.one;
+											m.uv = uvIndices.Select(uv => uvs[uv] * dimensions).ToArray();
 										}
 									}
 								}

@@ -958,11 +958,14 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsTVPartyWii,
 
-        #endregion
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_JustDance, Game.Jade_JustDance, "Just Dance (Wii)", typeof(Jade_JustDance_Wii_Manager), Platform.Wii)]
+		JustDanceWii,
 
-        #region GEN
+		#endregion
 
-        [GameMode(MajorEngineVersion.GEN, EngineVersion.GEN, Game.GEN_RaymanEveil, "Rayman Eveil (PC)", typeof(GEN_BaseManager), Platform.PC)]
+		#region GEN
+
+		[GameMode(MajorEngineVersion.GEN, EngineVersion.GEN, Game.GEN_RaymanEveil, "Rayman Eveil (PC)", typeof(GEN_BaseManager), Platform.PC)]
         RaymanEveilPC,
 
         #endregion
