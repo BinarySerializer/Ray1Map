@@ -917,7 +917,7 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_TFS, Game.Jade_PoP_TFS, "Prince of Persia: The Forgotten Sands (Wii)", typeof(Jade_PoP_TFS_Wii_Manager), Platform.Wii)]
 		PrinceOfPersiaTheForgottenSandsWii,
 
-		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_TFS, Game.Jade_PoP_TFS, "Prince of Persia: The Forgotten Sands (PSP)", typeof(Jade_PoP_TFS_PSP_Manager), Platform.PSP)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_TFS_PSP, Game.Jade_PoP_TFS, "Prince of Persia: The Forgotten Sands (PSP)", typeof(Jade_PoP_TFS_PSP_Manager), Platform.PSP)]
 		PrinceOfPersiaTheForgottenSandsPSP,
 
 

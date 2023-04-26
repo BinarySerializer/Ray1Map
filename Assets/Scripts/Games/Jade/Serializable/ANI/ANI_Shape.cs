@@ -13,7 +13,7 @@ namespace Ray1Map.Jade
         protected override void SerializeFile(SerializerObject s)
         {
             LastCanal = s.Serialize<byte>(LastCanal, name: nameof(LastCanal));
-            Canals = s.SerializeObjectArray(Canals, Math.Min((byte)64, LastCanal), name: nameof(Canals));
+            Canals = s.SerializeObjectArray(Canals, Math.Min(MaxCanalCount(s.Context), LastCanal), name: nameof(Canals));
         }
 
         public class ANI_Shape_Canal : BinarySerializable
@@ -26,12 +26,15 @@ namespace Ray1Map.Jade
             {
                 Canal = s.Serialize<sbyte>(Canal, name: nameof(Canal));
 
-                if (Canal >= 0 && Canal < 64)
-                {
+                if ((Canal >= 0 && Canal < 64) || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS))
+				{
                     AI_Canal_01 = s.Serialize<byte>(AI_Canal_01, name: nameof(AI_Canal_01));
                     AI_Canal_02 = s.Serialize<byte>(AI_Canal_02, name: nameof(AI_Canal_02));
                 }
             }
         }
+
+        public static int MaxCanalCount(Context context) =>
+            context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) ? 0x80 : 0x40;
     }
 }

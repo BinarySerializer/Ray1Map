@@ -191,8 +191,8 @@ namespace Ray1Map.Jade {
 				} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
 					Modifier = Type_CPP switch {
 						MDF_ModifierType_CPP.MDF_AnimIK => SerializeModifier<GAO_ModifierAnimIK>(s),
-						// MDF_ModifierType_CPP.MDF_Melt => SerializeModifier<>(s),
-						// MDF_ModifierType_CPP.MDF_AudioAmbiancePortal => SerializeModifier<>(s),
+						MDF_ModifierType_CPP.MDF_Melt => SerializeModifier<MDF_Melt>(s),
+						MDF_ModifierType_CPP.MDF_AudioAmbiancePortal => SerializeModifier<MDF_AudioAmbiancePortal>(s),
 						// MDF_ModifierType_CPP.MDF_EvilPlant => SerializeModifier<>(s),
 						_ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_CPP}")
 					};
@@ -247,7 +247,7 @@ namespace Ray1Map.Jade {
 					MDF_ModifierType_CPP.MDF_AlphaFade => SerializeModifier<MDF_AlphaFade>(s),
 					MDF_ModifierType_CPP.MDF_AlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
 					MDF_ModifierType_CPP.MDF_InteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
-					// MDF_ModifierType_CPP.MDF_PreDepthPass => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_PreDepthPass => SerializeModifier<GAO_ModifierPreDepthPass>(s),
 					// MDF_ModifierType_CPP.MDF_VolumetricSound => SerializeModifier<>(s),
 					// MDF_ModifierType_CPP.MDF_ProceduralBone => SerializeModifier<>(s),
 					// MDF_ModifierType_CPP.MDF_AudioReverbZone => SerializeModifier<>(s),

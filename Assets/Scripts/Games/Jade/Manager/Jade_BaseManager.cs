@@ -737,6 +737,40 @@ namespace Ray1Map {
 											}
 											colIndices = colIndicesList;
 										}
+										if (e.StitchBuckets != null) {
+											foreach (var bucket in e.StitchBuckets) {
+												if (bucket.IndexBuffer != null) {
+													var indexBuffer = bucket.IndexBuffer;
+													vertIndicesList = new List<int>();
+													for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
+														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 1]);
+														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 0]);
+														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 2]);
+													}
+													vertIndices = vertIndices.Concat(vertIndicesList).ToArray();
+													if (uvs.Length > 0) {
+														var uvIndicesList = new List<int>();
+														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
+															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 1]);
+															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 0]);
+															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 2]);
+														}
+														uvIndices = uvIndices.Concat(uvIndicesList).ToArray();
+													}
+
+													if (colors != null && indexBuffer.IndicesCol != null) {
+														var colIndicesList = new List<int>();
+														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
+															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 1]);
+															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 0]);
+															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 2]);
+														}
+														if(colIndices != null)
+															colIndices = colIndices.Concat(colIndicesList).ToArray();
+													}
+												}
+											}
+										}
 									} else {
 										vertIndices = e.Triangles.SelectMany(t => new int[] { t.Vertex1, t.Vertex0, t.Vertex2 });
 										if(uvs.Length > 0) uvIndices = e.Triangles.SelectMany(t => new int[] { t.UV1, t.UV0, t.UV2 });

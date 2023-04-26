@@ -164,6 +164,7 @@ namespace Ray1Map
         Jade_PoP_T2T_20051002,
         Jade_PoP_T2T,
         Jade_PoP_TFS,
+        Jade_PoP_TFS_PSP,
         Jade_SeanWhiteSkateboarding,
         Jade_Beowulf,
         Jade_PhoenixRayman4,

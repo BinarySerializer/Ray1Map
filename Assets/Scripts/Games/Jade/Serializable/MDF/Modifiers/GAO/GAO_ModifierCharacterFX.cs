@@ -289,9 +289,11 @@ namespace Ray1Map.Jade {
 
 			public AfterEffectFlags Flags { get; set; }
 			public int Id { get; set; }
+			public uint UInt_Unknown { get; set; }
 			public AfterEffectType AEType { get; set; }
 			public Jade_Vector Vector { get; set; }
 			public float Duration { get; set; }
+			public string Name { get; set; }
 
 			public CharacterFX_ColorOperation_Params ColorOperationParams { get; set; }
 			public CharacterFX_MotionBlur_Params MotionBlurParams { get; set; }
@@ -301,9 +303,11 @@ namespace Ray1Map.Jade {
 
 				Flags = s.Serialize<AfterEffectFlags>(Flags, name: nameof(Flags));
 				Id = s.Serialize<int>(Id, name: nameof(Id));
+				if (CharacterFX.Version < 31) UInt_Unknown = s.Serialize<uint>(UInt_Unknown, name: nameof(UInt_Unknown));
 				AEType = s.Serialize<AfterEffectType>(AEType, name: nameof(AEType));
 				if (CharacterFX.Version < 31) Vector = s.SerializeObject<Jade_Vector>(Vector, name: nameof(Vector));
 				Duration = s.Serialize<float>(Duration, name: nameof(Duration));
+				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 
 				if (CharacterFX.Version >= 14) {
 					switch (AEType) {
@@ -475,16 +479,31 @@ namespace Ray1Map.Jade {
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PostTMNT)) {
 					if (CharacterFX.Version >= 12) {
 						ColMatIDsCount = s.Serialize<short>(ColMatIDsCount, name: nameof(ColMatIDsCount));
+						s.SerializePadding(2, logIfNotNull: true);
 						ColMatIDs = s.SerializeArray<uint>(ColMatIDs, ColMatIDsCount, name: nameof(ColMatIDs));
 						SpecialFilterValue = s.Serialize<int>(SpecialFilterValue, name: nameof(SpecialFilterValue));
 					}
 					if (CharacterFX.Version >= 27) ActionToStartOnOwner = s.Serialize<int>(ActionToStartOnOwner, name: nameof(ActionToStartOnOwner));
 					NumberOfAlphaEffectsInGroup = s.Serialize<short>((short)NumberOfAlphaEffectsInGroup, name: nameof(NumberOfAlphaEffectsInGroup));
+					s.SerializePadding(2, logIfNotNull: true);
 					NumberOfParticleEffectsInGroup = s.Serialize<short>((short)NumberOfParticleEffectsInGroup, name: nameof(NumberOfParticleEffectsInGroup));
-					if (CharacterFX.Version >= 2) NumberOfBeamEffectsInGroup = s.Serialize<short>((short)NumberOfBeamEffectsInGroup, name: nameof(NumberOfBeamEffectsInGroup));
-					if (CharacterFX.Version >= 3) NumberOfSoundEffectsInGroup = s.Serialize<short>((short)NumberOfSoundEffectsInGroup, name: nameof(NumberOfSoundEffectsInGroup));
-					if (CharacterFX.Version >= 5) NumberOfAfterEffectsInGroup = s.Serialize<short>((short)NumberOfAfterEffectsInGroup, name: nameof(NumberOfAfterEffectsInGroup));
-					if (CharacterFX.Version >= 32) NumberOfLightsInGroup = s.Serialize<short>((short)NumberOfLightsInGroup, name: nameof(NumberOfLightsInGroup));
+					s.SerializePadding(2, logIfNotNull: true);
+					if (CharacterFX.Version >= 2) {
+						NumberOfBeamEffectsInGroup = s.Serialize<short>((short)NumberOfBeamEffectsInGroup, name: nameof(NumberOfBeamEffectsInGroup));
+						s.SerializePadding(2, logIfNotNull: true);
+					}
+					if (CharacterFX.Version >= 3) {
+						NumberOfSoundEffectsInGroup = s.Serialize<short>((short)NumberOfSoundEffectsInGroup, name: nameof(NumberOfSoundEffectsInGroup));
+						s.SerializePadding(2, logIfNotNull: true);
+					}
+					if (CharacterFX.Version >= 5) {
+						NumberOfAfterEffectsInGroup = s.Serialize<short>((short)NumberOfAfterEffectsInGroup, name: nameof(NumberOfAfterEffectsInGroup));
+						s.SerializePadding(2, logIfNotNull: true);
+					}
+					if (CharacterFX.Version >= 32) {
+						NumberOfLightsInGroup = s.Serialize<short>((short)NumberOfLightsInGroup, name: nameof(NumberOfLightsInGroup));
+						s.SerializePadding(2, logIfNotNull: true);
+					}
 				} else {
 					NumberOfAlphaEffectsInGroup = s.Serialize<int>(NumberOfAlphaEffectsInGroup, name: nameof(NumberOfAlphaEffectsInGroup));
 					NumberOfParticleEffectsInGroup = s.Serialize<int>(NumberOfParticleEffectsInGroup, name: nameof(NumberOfParticleEffectsInGroup));

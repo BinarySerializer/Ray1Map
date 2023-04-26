@@ -98,7 +98,7 @@ namespace Ray1Map.Jade {
 				Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
 			}
 			VisiCoeff = s.Serialize<byte>(VisiCoeff, name: nameof(VisiCoeff));
-			if(!Loader.IsBinaryData) UShort_12_Alignment = s.Serialize<ushort>(UShort_12_Alignment, name: nameof(UShort_12_Alignment));
+			if(!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS_PSP)) UShort_12_Alignment = s.Serialize<ushort>(UShort_12_Alignment, name: nameof(UShort_12_Alignment));
 			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
 			LOD_Dist = s.Serialize<byte>(LOD_Dist, name: nameof(LOD_Dist));
 			DesignFlags = s.Serialize<OBJ_GameObject_TypeFlags>(DesignFlags, name: nameof(DesignFlags));

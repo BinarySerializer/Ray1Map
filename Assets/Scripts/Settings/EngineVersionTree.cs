@@ -63,7 +63,9 @@ namespace Ray1Map
 																    new Node(EngineVersion.Jade_RRRTVParty).SetChildren( // BIG: 0x2C
 																	    new Node(EngineVersion.Jade_JustDance)
 																    ),
-																    new Node(EngineVersion.Jade_PoP_TFS), // BIG: 0x2A
+																    new Node(EngineVersion.Jade_PoP_TFS).SetChildren(
+                                                                        new Node(EngineVersion.Jade_PoP_TFS_PSP)
+                                                                    ), // BIG: 0x2A
 																    new Node(EngineVersion.Jade_Avatar), // BIG: 0x2A
 																	new Node(EngineVersion.Jade_SeanWhiteSkateboarding) // BIG: 0x2A (but BF64!)
 																),

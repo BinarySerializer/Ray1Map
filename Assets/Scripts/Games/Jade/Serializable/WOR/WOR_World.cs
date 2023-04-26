@@ -109,7 +109,8 @@ namespace Ray1Map.Jade {
 			}
 			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))
 				?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontCache);
-			AllNetworks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(AllNetworks, name: nameof(AllNetworks))?.Resolve();
+			AllNetworks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(AllNetworks, name: nameof(AllNetworks));
+			if(s.GetR1Settings().EngineVersion != EngineVersion.Jade_PoP_TFS_PSP) AllNetworks?.Resolve();
 			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
 
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {

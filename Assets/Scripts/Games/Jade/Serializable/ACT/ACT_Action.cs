@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace Ray1Map.Jade
 {
@@ -11,13 +12,24 @@ namespace Ray1Map.Jade
         public ushort Counter { get; set; }
         public ACT_ActionItem[] ActionItems { get; set; }
 
+        public bool CPP_HasExtraTrackListsCount { get; set; }
+        public byte CPP_ExtraTrackListsCount { get; set; }
+
         protected override void SerializeFile(SerializerObject s) 
         {
-            ActionItemsCount = s.Serialize<byte>(ActionItemsCount, name: nameof(ActionItemsCount));
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+                s.DoBits<byte>(b => {
+                    ActionItemsCount = b.SerializeBits<byte>(ActionItemsCount, 7, name: nameof(ActionItemsCount));
+                    CPP_HasExtraTrackListsCount = b.SerializeBits<bool>(CPP_HasExtraTrackListsCount, 1, name: nameof(CPP_HasExtraTrackListsCount));
+                });
+                if (CPP_HasExtraTrackListsCount) CPP_ExtraTrackListsCount = s.Serialize<byte>(CPP_ExtraTrackListsCount, name: nameof(CPP_ExtraTrackListsCount));
+            } else {
+                ActionItemsCount = s.Serialize<byte>(ActionItemsCount, name: nameof(ActionItemsCount));
+            }
             ActionItemNumberForLoop = s.Serialize<byte>(ActionItemNumberForLoop, name: nameof(ActionItemNumberForLoop));
             if (!Loader.IsBinaryData) Counter = s.Serialize<ushort>(Counter, name: nameof(Counter));
 
-            ActionItems = s.SerializeObjectArray<ACT_ActionItem>(ActionItems, ActionItemsCount, name: nameof(ActionItems));
+            ActionItems = s.SerializeObjectArray<ACT_ActionItem>(ActionItems, ActionItemsCount, onPreSerialize: a => a.Action = this, name: nameof(ActionItems));
             foreach (var item in ActionItems) {
                 item.SerializeTransitions(s);
             }
@@ -25,23 +37,25 @@ namespace Ray1Map.Jade
 
         public class ACT_ActionItem : BinarySerializable
         {
+            public ACT_Action Action { get; set; } // Set in onPreSerialize
+
             public Jade_Reference<EVE_ListTracks> TrackList { get; set; }
             public uint TransitionsPointer { get; set; }
             public Jade_Reference<ANI_Shape> Shape { get; set; }
             public byte Repetition { get; set; }
             public byte FramesCountForBlend { get; set; }
-            public byte Frequency { get; set; }
+            public byte Frequency { get; set; } // "Flag" in montreal
             public byte CustomBit { get; set; }
             public ushort DesignFlags { get; set; }
             public byte Flag { get; set; }
             public byte UseCounter { get; set; }
 
-            public BAS_Array_Transitions Transitions { get; set; }
+			public BAS_Array_Transitions Transitions { get; set; }
 
             // Montreal
 
             public Jade_Reference<EVE_ListTracks>[] TrackLists { get; set; }
-            public float Float_00 { get; set; }
+            public float FrequencyMontreal { get; set; }
 
             protected override void OnChangeContext(Context oldContext, Context newContext) {
                 base.OnChangeContext(oldContext, newContext);
@@ -55,8 +69,8 @@ namespace Ray1Map.Jade
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
                 if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-                    TrackLists = s.SerializeObjectArray<Jade_Reference<EVE_ListTracks>>(TrackLists, 8, name: nameof(TrackLists))?.Resolve();
-					Float_00 = s.Serialize<float>(Float_00, name: nameof(Float_00));
+                    TrackLists = s.SerializeObjectArray<Jade_Reference<EVE_ListTracks>>(TrackLists, 8 + Action.CPP_ExtraTrackListsCount, name: nameof(TrackLists))?.Resolve();
+					FrequencyMontreal = s.Serialize<float>(FrequencyMontreal, name: nameof(FrequencyMontreal));
 				} else {
                     TrackList = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(TrackList, name: nameof(TrackList))?.Resolve();
                 }
