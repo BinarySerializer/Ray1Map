@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
@@ -17,15 +18,25 @@ namespace Ray1Map.Rayman1
         {
             return new[]
             {
-                new GameAction("Calculate Tings", false, false, (input, output) => CalculateTingsCountAsync(settings)),
+                new GameAction("Calculate Collectibles", false, false, (input, output) => CalculateCollectiblesCountAsync(settings)),
             };
         }
 
-        public async UniTask CalculateTingsCountAsync(GameSettings settings)
+        public async UniTask CalculateCollectiblesCountAsync(GameSettings settings)
         {
             await LevelEditorData.InitAsync(settings);
 
-            int count = 0;
+            Dictionary<ObjType, int> counts = new()
+            {
+                [ObjType.TYPE_CAGE] = 0, // Cage
+                [ObjType.TYPE_WIZARD1] = 0, // Magician
+                [ObjType.TYPE_WIZ] = 0, // Ting
+                [ObjType.TYPE_ONEUP] = 0, // Life
+                [ObjType.TYPE_JAUGEUP] = 0, // Big power
+                [ObjType.TYPE_POWERUP] = 0, // Small power
+                [ObjType.TYPE_POING_POWERUP] = 0, // Fist power
+                [ObjType.TYPE_SUPERHELICO] = 0, // Helicopter potion
+            };
 
             foreach (GameInfo_Volume vol in GetLevels(settings))
             {
@@ -44,16 +55,20 @@ namespace Ray1Map.Rayman1
 
                         Unity_Level level = await LoadAsync(context);
 
-                        count += level.EventData.OfType<Unity_Object_R1>().Count(x => x.EventData.Type == ObjType.TYPE_WIZ &&
-                            x.EventData.XPosition != -32000 &&
-                            x.EventData.YPosition != -32000);
+                        foreach (ObjType type in counts.Keys.ToList())
+                        {
+                            counts[type] += level.EventData.OfType<Unity_Object_R1>().Count(x => x.EventData.Type == type &&
+                                x.EventData.XPosition != -32000 &&
+                                x.EventData.YPosition != -32000);
+                        }
 
                         Debug.Log($"{newSettings.R1_World} {map}");
                     }
                 }
             }
 
-            Debug.Log($"Tings: {count}");
+            foreach (ObjType type in counts.Keys)
+                Debug.Log($"{type}: {counts[type]}");
         }
     }
 }
