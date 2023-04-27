@@ -24,6 +24,18 @@ namespace Ray1Map.Jade {
 		public float MaxSpeedForZeroDamping { get; set; }
 		public float SpeedSmooth { get; set; }
 
+		// CPP
+		public int InvertDir { get; set; } // Boolean
+		public float AmplitudeConcentric { get; set; }
+		public float TotalTime { get; set; }
+		public float WaveCenterX { get; set; }
+		public float WaveCenterY { get; set; }
+		public float WaveRadius { get; set; }
+		public float WaveWidth { get; set; }
+		public float Frequency { get; set; }
+		public float StartAngle { get; set; }
+		public int MatLevel { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
@@ -55,6 +67,20 @@ namespace Ray1Map.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				if (Version >= 27) MaxSpeedForZeroDamping = s.Serialize<float>(MaxSpeedForZeroDamping, name: nameof(MaxSpeedForZeroDamping));
 				if (Version >= 28) SpeedSmooth = s.Serialize<float>(SpeedSmooth, name: nameof(SpeedSmooth));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					if (Version >= 29) {
+						InvertDir = s.Serialize<int>(InvertDir, name: nameof(InvertDir));
+						AmplitudeConcentric = s.Serialize<float>(AmplitudeConcentric, name: nameof(AmplitudeConcentric));
+						TotalTime = s.Serialize<float>(TotalTime, name: nameof(TotalTime));
+						WaveCenterX = s.Serialize<float>(WaveCenterX, name: nameof(WaveCenterX));
+						WaveCenterY = s.Serialize<float>(WaveCenterY, name: nameof(WaveCenterY));
+						WaveRadius = s.Serialize<float>(WaveRadius, name: nameof(WaveRadius));
+						WaveWidth = s.Serialize<float>(WaveWidth, name: nameof(WaveWidth));
+						Frequency = s.Serialize<float>(Frequency, name: nameof(Frequency));
+					}
+					if (Version >= 30) StartAngle = s.Serialize<float>(StartAngle, name: nameof(StartAngle));
+					if (Version >= 31) MatLevel = s.Serialize<int>(MatLevel, name: nameof(MatLevel));
+				}
 			}
 		}
 	}

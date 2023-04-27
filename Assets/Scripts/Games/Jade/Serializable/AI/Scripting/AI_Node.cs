@@ -49,6 +49,7 @@ namespace Ray1Map.Jade {
 						case AI_VarType.Model:
 						case AI_VarType.Network:
 						case AI_VarType.Sound:
+						case AI_VarType.FlashMovie:
 							ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
 							break;
 					}
@@ -65,6 +66,7 @@ namespace Ray1Map.Jade {
 				case AI_VarType.GAO:
 				case AI_VarType.Network:
 				case AI_VarType.PointerRef:
+				case AI_VarType.FlashMovie:
 				case AI_VarType.Sound:
 					return ValueKey.ToString();
 				case AI_VarType.Function:

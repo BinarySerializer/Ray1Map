@@ -27,7 +27,7 @@
 				
 				new AI_Link(54, 4, "AI_EvalType_GetInt", AI_VarType.Int), // TODO: what are these?
 				new AI_Link(55, 0xC, "AI_EvalType_GetVector", AI_VarType.Vector),
-				new AI_Link(56, 4, "AI_EvalType_GetInt", AI_VarType.Int),
+				new AI_Link(56, 4, "AI_EvalType_GetInt", AI_VarType.FlashMovie),
 
 				new AI_Link(124, 0xC, "AI_EvalType_GetVector", AI_VarType.Void),
 				new AI_Link(125, 0xC, "AI_EvalType_GetVector", AI_VarType.Every),

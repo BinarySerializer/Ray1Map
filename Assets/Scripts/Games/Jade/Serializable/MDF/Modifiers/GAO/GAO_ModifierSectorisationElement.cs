@@ -8,8 +8,14 @@ namespace Ray1Map.Jade {
 		public uint Group2 { get; set; }
 		public uint Flags { get; set; }
 		public Jade_Reference<OBJ_World_GroupObjectList> Group { get; set; }
+
+		// CPP
 		public uint MaxDepthToGroup1 { get; set; }
 		public uint MaxDepthToGroup2 { get; set; }
+		public Jade_Reference<LIGHT_Partition> LightPartition { get; set; }
+		public Jade_Reference<OBJ_GameObject> AmbientObject { get; set; }
+		public Jade_Reference<OBJ_GameObject> FogObject { get; set; }
+		public Jade_Reference<OBJ_GameObject>[] DirectionalLightObjects { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -36,7 +42,14 @@ namespace Ray1Map.Jade {
 						MaxDepthToGroup2 = s.Serialize<uint>(MaxDepthToGroup2, name: nameof(MaxDepthToGroup2));
 					}
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
-						throw new BinarySerializableException(this, $"TODO for PoP:TFS: Implement LIGHT_Partition reference etc");
+						if (Type == SectoElementType.Sector && Version >= 5) {
+							LightPartition = s.SerializeObject<Jade_Reference<LIGHT_Partition>>(LightPartition, name: nameof(LightPartition))?.Resolve();
+							if (Version >= 6) {
+								AmbientObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(AmbientObject, name: nameof(AmbientObject))?.Resolve();
+								FogObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(FogObject, name: nameof(FogObject))?.Resolve();
+							}
+							if (Version >= 7) DirectionalLightObjects = s.SerializeObjectArray<Jade_Reference<OBJ_GameObject>>(DirectionalLightObjects, 3, name: nameof(DirectionalLightObjects))?.Resolve();
+						}
 					}
 				}
 			}

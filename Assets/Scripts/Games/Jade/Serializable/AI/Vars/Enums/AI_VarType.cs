@@ -17,6 +17,8 @@
 		MessageId,
 		Trigger,
 		Long64,
+		
+		FlashMovie,
 
 		Function,
 		Model,

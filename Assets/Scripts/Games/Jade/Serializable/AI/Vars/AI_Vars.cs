@@ -25,16 +25,20 @@ namespace Ray1Map.Jade {
         public AI_VarValue[] Values { get; set; }
 
         public Jade_Reference<AI_Function>[] Functions { get; set; }
-        public uint ExtraFunctionsCount { get; set; }
-        public Jade_Reference<AI_Function>[] ExtraFunctions { get; set; }
+        public uint ExtendedFunctionsCount { get; set; }
+        public Jade_Reference<AI_Function>[] ExtendedFunctions { get; set; }
 
         // TFS
         public uint Flags { get; set; }
         public uint Version { get; set; } = 0;
         public uint V4_UInt_00 { get; set; }
+        public uint SaveBufferSize { get; set; }
+        public uint SaveChecksum { get; set; }
+        public ushort Flags2 { get; set; }
 
         // Custom
         public AI_Var[] Vars { get; set; }
+        public bool Pre_IsModelVars { get; set; } = false;
 
         protected override void SerializeFile(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
@@ -108,16 +112,26 @@ namespace Ray1Map.Jade {
                 variable.Value = Values[i];
             }
 
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && !Pre_IsModelVars && VarValueBufferSize > 0) {
+                // TODO: Resolve FlashMovie refs
+            }
+
             if(Functions == null) Functions = new Jade_Reference<AI_Function>[5];
             for (int i = 0; i < Functions.Length; i++) {
                 Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
             }
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+                if (Version >= 5) SaveBufferSize = s.Serialize<uint>(SaveBufferSize, name: nameof(SaveBufferSize));
+                if (Version >= 6) SaveChecksum = s.Serialize<uint>(SaveChecksum, name: nameof(SaveChecksum));
+                if (Version >= 5) Flags2 = s.Serialize<ushort>(Flags2, name: nameof(Flags2));
+            }
 
-            if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
+
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
                 if (s.CurrentPointer.AbsoluteOffset < (Offset + FileSize).AbsoluteOffset) {
-                    ExtraFunctionsCount = s.Serialize<uint>(ExtraFunctionsCount, name: nameof(ExtraFunctionsCount));
-                    ExtraFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtraFunctions, ExtraFunctionsCount, name: nameof(ExtraFunctions));
-                    foreach (var extraFunction in ExtraFunctions) {
+                    ExtendedFunctionsCount = s.Serialize<uint>(ExtendedFunctionsCount, name: nameof(ExtendedFunctionsCount));
+                    ExtendedFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtendedFunctions, ExtendedFunctionsCount, name: nameof(ExtendedFunctions));
+                    foreach (var extraFunction in ExtendedFunctions) {
                         extraFunction?.Resolve();
                     }
                 }

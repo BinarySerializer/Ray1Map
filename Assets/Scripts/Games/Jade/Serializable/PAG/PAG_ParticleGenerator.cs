@@ -439,7 +439,7 @@ namespace Ray1Map.Jade {
                 Acceleration = s.SerializeObject<Jade_Vector>(Acceleration, name: nameof(Acceleration));
 
                 Friction = s.Serialize<float>(Friction, name: nameof(Friction)); // FrictionTranslationOriginal
-                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Version >= 50) {
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && Version >= 49) {
                     SizeBirthFactor = s.Serialize<float>(SizeBirthFactor, name: nameof(SizeBirthFactor));
                 }
                 SizeDeathFactor = s.Serialize<float>(SizeDeathFactor, name: nameof(SizeDeathFactor));
