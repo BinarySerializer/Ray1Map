@@ -41,7 +41,12 @@ namespace Ray1Map.Jade {
 						case FloatType.Vertex: return LowCompression / 512f;
 						case FloatType.Normal: return LowCompression / 64f;
 						case FloatType.TexCoord0: return LowCompression / 512f;//0x10000f;
-						case FloatType.TexCoord1: return (LowCompression < 0 ? ((uint)0x10000 + LowCompression) : LowCompression) / 256f;//0x10000f;
+						case FloatType.TexCoord1:
+							if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+								return (LowCompression < 0 ? ((uint)0x10000 + LowCompression) : LowCompression) / 256f;
+							} else {
+								return (LowCompression < 0 ? ((uint)0x10000 + LowCompression) : LowCompression) / 0x10000f;
+							}
 					}
 					break;
 				case GEO_CPP_VertexBuffer.CompressionMode.HighCompression:
@@ -49,7 +54,12 @@ namespace Ray1Map.Jade {
 						case FloatType.Vertex: return HighCompression / 128f;
 						case FloatType.Normal: return HighCompression / 128f;
 						case FloatType.TexCoord0: return HighCompression / 512f;// 0x10000f;
-						case FloatType.TexCoord1: return (HighCompression < 0 ? ((uint)0x100 + HighCompression) : HighCompression) / 256f;// 0x10000f;
+						case FloatType.TexCoord1:
+							if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+								return (HighCompression < 0 ? ((uint)0x100 + HighCompression) : HighCompression) / 256f;
+							} else {
+								return (HighCompression < 0 ? ((uint)0x100 + HighCompression) : HighCompression) / 0x100f;
+							}
 					}
 					break;
 			}

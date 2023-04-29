@@ -717,80 +717,58 @@ namespace Ray1Map {
 									IEnumerable<int> uvIndices = null;
 									IEnumerable<int> uv1Indices = null;
 									IEnumerable<int> colIndices = null;
-									if (e.IndexBuffer != null) {
-										var vertIndicesList = new List<int>();
-										for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
-											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 1]);
-											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 0]);
-											vertIndicesList.Add(e.IndexBuffer.IndicesPos[vi * 3 + 2]);
-										}
-										vertIndices = vertIndicesList;
-										if (uvs.Length > 0) {
-											var uvIndicesList = new List<int>();
-											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 1]);
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 0]);
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 2]);
+									List<int> FillList(ushort[] indices, bool isStrip) {
+										List<int> list = new List<int>();
+										if (!isStrip) {
+											for (int vi = 0; vi < indices.Length / 3; vi++) {
+												list.Add(indices[vi * 3 + 1]);
+												list.Add(indices[vi * 3 + 0]);
+												list.Add(indices[vi * 3 + 2]);
 											}
-											uvIndices = uvIndicesList;
+										} else {
+											for (int vi = 0; vi < indices.Length - 2; vi++) {
+												if (vi % 2 == 0) {
+													list.Add(indices[vi + 1]);
+													list.Add(indices[vi + 0]);
+													list.Add(indices[vi + 2]);
+												} else {
+													list.Add(indices[vi + 0]);
+													list.Add(indices[vi + 1]);
+													list.Add(indices[vi + 2]);
+												}
+											}
+										}
+										return list;
+									}
+									if (e.IndexBuffer != null) {
+										vertIndices = FillList(e.IndexBuffer.IndicesPos, e.IndexBuffer.UseStrips != 0);
+										if (uvs.Length > 0) {
+											uvIndices = FillList(e.IndexBuffer.IndicesTex0, e.IndexBuffer.UseStrips != 0);
 										}
 										if (uvs1.Length > 0) {
-											var uvIndicesList = new List<int>();
-											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 1]);
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 0]);
-												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 2]);
-											}
-											uv1Indices = uvIndicesList;
+											uv1Indices = FillList(e.IndexBuffer.IndicesTex1, e.IndexBuffer.UseStrips != 0);
 										}
-
 										if (colors != null && e.IndexBuffer.IndicesCol != null) {
-											var colIndicesList = new List<int>();
-											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
-												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 1]);
-												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 0]);
-												colIndicesList.Add(e.IndexBuffer.IndicesCol[vi * 3 + 2]);
-											}
-											colIndices = colIndicesList;
+											colIndices = FillList(e.IndexBuffer.IndicesCol, e.IndexBuffer.UseStrips != 0);
 										}
 										if (e.StitchBuckets != null) {
 											foreach (var bucket in e.StitchBuckets) {
 												if (bucket.IndexBuffer != null) {
 													var indexBuffer = bucket.IndexBuffer;
-													vertIndicesList = new List<int>();
-													for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
-														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 1]);
-														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 0]);
-														vertIndicesList.Add(indexBuffer.IndicesPos[vi * 3 + 2]);
-													}
+													var vertIndicesList = FillList(indexBuffer.IndicesPos, indexBuffer.UseStrips != 0);
 													vertIndices = vertIndices.Concat(vertIndicesList).ToArray();
 													if (uvs.Length > 0) {
-														var uvIndicesList = new List<int>();
-														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
-															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 1]);
-															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 0]);
-															uvIndicesList.Add(indexBuffer.IndicesTex0[vi * 3 + 2]);
-														}
+														var uvIndicesList = FillList(indexBuffer.IndicesTex0, indexBuffer.UseStrips != 0);
 														uvIndices = uvIndices.Concat(uvIndicesList).ToArray();
 													}
 													if (uvs1.Length > 0) {
-														var uvIndicesList = new List<int>();
-														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
-															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 1]);
-															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 0]);
-															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 2]);
-														}
+														var uvIndicesList = FillList(indexBuffer.IndicesTex1, indexBuffer.UseStrips != 0);
 														uv1Indices = uv1Indices.Concat(uvIndicesList).ToArray();
 													}
 
 													if (colors != null && indexBuffer.IndicesCol != null) {
-														var colIndicesList = new List<int>();
-														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
-															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 1]);
-															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 0]);
-															colIndicesList.Add(indexBuffer.IndicesCol[vi * 3 + 2]);
-														}
-														if(colIndices != null)
+														var colIndicesList = FillList(indexBuffer.IndicesCol, indexBuffer.UseStrips != 0);
+														if (colIndices != null)
 															colIndices = colIndices.Concat(colIndicesList).ToArray();
 													}
 												}
