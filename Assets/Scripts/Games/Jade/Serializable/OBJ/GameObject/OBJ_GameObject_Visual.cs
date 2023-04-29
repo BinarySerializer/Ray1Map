@@ -167,7 +167,7 @@ namespace Ray1Map.Jade {
 					}
 				}
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 15) {
-					LightmapTexture = s.SerializeObject<Jade_TextureReference>(LightmapTexture, name: nameof(LightmapTexture));
+					LightmapTexture = s.SerializeObject<Jade_TextureReference>(LightmapTexture, name: nameof(LightmapTexture))?.Resolve();
 				}
 
 			} else {

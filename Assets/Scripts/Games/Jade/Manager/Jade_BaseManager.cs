@@ -602,6 +602,24 @@ namespace Ray1Map {
 		public async UniTask CreateTestVisualization(LOA_Loader loader) {
 			await UniTask.CompletedTask;
 			Dictionary<uint, Texture2D> textureKeyDict = new Dictionary<uint, Texture2D>();
+
+
+			Texture2D GetTexture2D(Jade_TextureReference texRef) {
+				if (texRef == null) return null;
+				var texContent = (texRef.Content ?? texRef.Info);
+				if (texContent != null) {
+					if (!textureKeyDict.ContainsKey(texRef.Key)) {
+						textureKeyDict[texRef.Key] = texContent.ToTexture2D();
+						if (textureKeyDict[texRef.Key] != null) {
+							textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
+							textureKeyDict[texRef.Key].filterMode = FilterMode.Bilinear;
+						}
+					}
+					return textureKeyDict[texRef.Key];
+				}
+				return null;
+			}
+
 			var worlds = loader.LoadedWorlds;
 			foreach (var world in worlds) {
 				GameObject w_gao = new GameObject($"({world.Key}) {world.Name}");
@@ -623,21 +641,6 @@ namespace Ray1Map {
 							Texture2D[] tex = null;
 							var gro_m = gao.Base.Visual.Material?.Value;
 							if (gro_m != null) {
-								Texture2D GetTexture2D(Jade_TextureReference texRef) {
-									if(texRef == null) return null;
-									var texContent = (texRef.Content ?? texRef.Info);
-									if (texContent != null) {
-										if (!textureKeyDict.ContainsKey(texRef.Key)) {
-											textureKeyDict[texRef.Key] = texContent.ToTexture2D();
-											if (textureKeyDict[texRef.Key] != null) {
-												textureKeyDict[texRef.Key].wrapMode = TextureWrapMode.Repeat;
-												textureKeyDict[texRef.Key].filterMode = FilterMode.Bilinear;
-											}
-										}
-										return textureKeyDict[texRef.Key];
-									}
-									return null;
-								}
 								Texture2D GetTextureFromRenderObject(GRO_Struct renderObject) {
 									if(renderObject == null) return null;
 									if (renderObject.Type == GRO_Type.MAT_MTT) {
@@ -677,13 +680,16 @@ namespace Ray1Map {
 							if (geo.Elements != null) {
 								Vector3[] verts = null;
 								Vector2[] uvs = null;
+								Vector2[] uvs1 = null;
 								Color[] colors = null;
 								if (geo.CPP_VertexBuffer != null) {
 									var vertsJade = geo.CPP_VertexBuffer.Vertices.Select(v => v.ToVector(GEO_CompressedFloat.FloatType.Vertex)).ToArray();
-									var uvsJade = geo.CPP_VertexBuffer.Tex0.Select(v => v.ToUV(GEO_CompressedFloat.FloatType.TexCoord)).ToArray();
+									var uvsJade = geo.CPP_VertexBuffer.Tex0.Select(v => v.ToUV(GEO_CompressedFloat.FloatType.TexCoord0)).ToArray();
 									verts = vertsJade.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 									uvs = uvsJade.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
 									colors = geo.CPP_VertexBuffer?.Colors?.Select(c => ComputeColor(c.GetColor()))?.ToArray();
+									var uvs1Jade = geo.CPP_VertexBuffer.Tex1.Select(v => v.ToUV(GEO_CompressedFloat.FloatType.TexCoord1)).ToArray();
+									uvs1 = uvs1Jade.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
 								} else {
 									verts = geo.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
 									uvs = geo.UVs.Select(uv => new Vector2(uv.U, uv.V)).ToArray();
@@ -709,6 +715,7 @@ namespace Ray1Map {
 									Mesh m = new Mesh();
 									IEnumerable<int> vertIndices = null;
 									IEnumerable<int> uvIndices = null;
+									IEnumerable<int> uv1Indices = null;
 									IEnumerable<int> colIndices = null;
 									if (e.IndexBuffer != null) {
 										var vertIndicesList = new List<int>();
@@ -726,6 +733,15 @@ namespace Ray1Map {
 												uvIndicesList.Add(e.IndexBuffer.IndicesTex0[vi * 3 + 2]);
 											}
 											uvIndices = uvIndicesList;
+										}
+										if (uvs1.Length > 0) {
+											var uvIndicesList = new List<int>();
+											for (int vi = 0; vi < e.IndexBuffer.Count / 3; vi++) {
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 1]);
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 0]);
+												uvIndicesList.Add(e.IndexBuffer.IndicesTex1[vi * 3 + 2]);
+											}
+											uv1Indices = uvIndicesList;
 										}
 
 										if (colors != null && e.IndexBuffer.IndicesCol != null) {
@@ -757,6 +773,15 @@ namespace Ray1Map {
 														}
 														uvIndices = uvIndices.Concat(uvIndicesList).ToArray();
 													}
+													if (uvs1.Length > 0) {
+														var uvIndicesList = new List<int>();
+														for (int vi = 0; vi < indexBuffer.Count / 3; vi++) {
+															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 1]);
+															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 0]);
+															uvIndicesList.Add(indexBuffer.IndicesTex1[vi * 3 + 2]);
+														}
+														uv1Indices = uv1Indices.Concat(uvIndicesList).ToArray();
+													}
 
 													if (colors != null && indexBuffer.IndicesCol != null) {
 														var colIndicesList = new List<int>();
@@ -780,6 +805,9 @@ namespace Ray1Map {
 									if (uvs.Length > 0) {
 										m.uv = uvIndices.Select(uv => uvs[uv]).ToArray();
 									}
+									if (uvs1.Length > 0) {
+										m.SetUVs(3, uv1Indices.Select(uv => uvs1[uv]).ToArray());
+									}
 									if (colors != null && colIndices != null && colors.Length > 0) {
 										m.colors = colIndices.Select(v => colors[v]).ToArray();
 									}
@@ -791,18 +819,28 @@ namespace Ray1Map {
 									MeshFilter mf = g_geo_e.AddComponent<MeshFilter>();
 									mf.mesh = m;
 									MeshRenderer mr = g_geo_e.AddComponent<MeshRenderer>();
-									mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+									var matSrc = Controller.obj.levelController.controllerTilemap.MaterialPsychonautsAlphaTest;
+
+									Material mat = new Material(matSrc);
+									//mat.SetVector("_MaterialColor", meshFrag.MaterialColor.ToVector4());
+									//mat.SetFloat("_IsSelfIllumination", isSelfIllum ? 1 : 0);
+									mr.sharedMaterial = mat;
+
 									var texturesLength = tex?.Length ?? 0;
+									Vector4 texturesInUse = new Vector4();
 									if (texturesLength > 0) {
 										Texture2D mainTex = null;
 										if (texturesLength == 1) {
 											mainTex = tex[0];
-											mr.material.SetTexture("_MainTex", tex[0]);
+											mat.SetTexture("_Tex0", tex[0]);
 										} else {
 											if (e.MaterialID < texturesLength) {
 												mainTex = tex[e.MaterialID];
-												mr.material.SetTexture("_MainTex", tex[e.MaterialID]);
+												mat.SetTexture("_Tex0", tex[e.MaterialID]);
 											}
+										}
+										if (mainTex != null) {
+											texturesInUse[0] = 1;
 										}
 										if (e.IndexBuffer != null && mainTex != null && uvIndices != null) {
 											//var dimensions = new Vector2(0x10000f / mainTex.width, 0x10000f / mainTex.height);
@@ -810,6 +848,14 @@ namespace Ray1Map {
 											m.uv = uvIndices.Select(uv => uvs[uv] * dimensions).ToArray();
 										}
 									}
+									if (gao.Base?.Visual?.LightmapTexture != null) {
+										var lmTex = GetTexture2D(gao.Base.Visual.LightmapTexture);
+										if (lmTex != null) {
+											mat.SetTexture("_TexLightMap", lmTex);
+											texturesInUse[3] = 1;
+										}
+									}
+									mat.SetVector("_TexturesInUse", texturesInUse);
 								}
 							}
 						}

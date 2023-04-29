@@ -26,6 +26,7 @@ namespace Ray1Map.Jade {
 		public uint ExtendedFlags { get; set; }
 
 		public Jade_Reference<AI_Instance> AI { get; set; }
+		public Jade_Reference<AI_System> AISystem { get; set; }
 		public Jade_Reference<EVE_ListTracks> Events { get; set; }
 		public Jade_Reference<SND_UnknownBank> Sound { get; set; }
 		public DARE_SoundParam SoundDARE { get; set; }
@@ -92,9 +93,8 @@ namespace Ray1Map.Jade {
 					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.Flag6);
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && (ExtendedFlags & 2) != 0 && GameObject.Version >= 14) {
-				// TODO: CPP version
 				// If ExtendedFlags & 2 != 0 => load AI_System here, but only if it isn't loaded yet!
-				s?.SystemLogger?.LogWarning($"GameObject {GameObject.Key} might need to load AI_System!");
+				AISystem = s.SerializeObject<Jade_Reference<AI_System>>(AISystem, name: nameof(AISystem))?.Resolve();
 			}
 
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Events)) {

@@ -12,7 +12,7 @@ namespace Ray1Map.Jade {
 		public VisuForBones[] BonesVisu { get; set; }
 		public Jade_Reference<ANI_SkeletonInfo> SkeletonInfo { get; set; }
 		public byte GOAnimSavedFlags { get; set; }
-		public Jade_Reference<AG_AnimGraph> AnimGraph { get; set; }
+		public Jade_Reference<AG_AnimGraphFile> AnimGraph { get; set; }
 
 		public Jade_Reference<ACT_ActionKit> ActionKit { get; set; } 
 
@@ -45,7 +45,7 @@ namespace Ray1Map.Jade {
 			ActionKit = s.SerializeObject<Jade_Reference<ACT_ActionKit>>(ActionKit, name: nameof(ActionKit))?.Resolve();
 
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Base.GameObject.Version >= 14) {
-				AnimGraph = s.SerializeObject<Jade_Reference<AG_AnimGraph>>(AnimGraph, name: nameof(AnimGraph));
+				AnimGraph = s.SerializeObject<Jade_Reference<AG_AnimGraphFile>>(AnimGraph, name: nameof(AnimGraph));
 				if(!ActionKit.IsNull)
 					AnimGraph?.Resolve();
 			}

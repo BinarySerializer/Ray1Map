@@ -214,8 +214,8 @@ namespace Ray1Map.Jade {
 
 					MDF_ModifierType_CPP.MDF_RotR => SerializeModifier<GAO_ModifierROTR>(s),
 					MDF_ModifierType_CPP.MDF_Snake => SerializeModifier<GAO_ModifierSNAKE>(s),
-					// MDF_ModifierType_CPP.MDF_Audio => SerializeModifier<>(s),
-					// MDF_ModifierType_CPP.MDF_AudioAttenuator => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_Audio => SerializeModifier<DARE_ModifierSound>(s),
+					MDF_ModifierType_CPP.MDF_AudioAttenuator => SerializeModifier<MDF_AudioAttenuator>(s),
 
 					MDF_ModifierType_CPP.MDF_SoftBody => SerializeModifier<GAO_ModifierSoftBody>(s),
 					MDF_ModifierType_CPP.MDF_Spring => SerializeModifier<GAO_ModifierSpring>(s),
@@ -248,7 +248,7 @@ namespace Ray1Map.Jade {
 					MDF_ModifierType_CPP.MDF_AlphaOccluder => SerializeModifier<GAO_ModifierAlphaOccluder>(s),
 					MDF_ModifierType_CPP.MDF_InteractivePlant => SerializeModifier<GAO_ModifierInteractivePlant>(s),
 					MDF_ModifierType_CPP.MDF_PreDepthPass => SerializeModifier<GAO_ModifierPreDepthPass>(s),
-					// MDF_ModifierType_CPP.MDF_VolumetricSound => SerializeModifier<>(s),
+					MDF_ModifierType_CPP.MDF_VolumetricSound => SerializeModifier<AUDIO_ModifierVolumetricSound>(s),
 					// MDF_ModifierType_CPP.MDF_ProceduralBone => SerializeModifier<>(s),
 					// MDF_ModifierType_CPP.MDF_AudioReverbZone => SerializeModifier<>(s),
 
