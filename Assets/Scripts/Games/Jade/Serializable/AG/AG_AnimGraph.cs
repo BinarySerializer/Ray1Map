@@ -86,5 +86,11 @@ namespace Ray1Map.Jade
 				PropertyCRC32 = s.SerializeArray<uint>(PropertyCRC32, 64, name: nameof(PropertyCRC32));
 			}
 		}
+
+		public class Pose : BinarySerializable {
+			public override void SerializeImpl(SerializerObject s) {
+				throw new NotImplementedException();
+			}
+		}
 	}
 }

@@ -742,10 +742,10 @@ namespace Ray1Map {
 									}
 									if (e.IndexBuffer != null) {
 										vertIndices = FillList(e.IndexBuffer.IndicesPos, e.IndexBuffer.UseStrips != 0);
-										if (uvs.Length > 0) {
+										if (uvs != null && uvs.Length > 0) {
 											uvIndices = FillList(e.IndexBuffer.IndicesTex0, e.IndexBuffer.UseStrips != 0);
 										}
-										if (uvs1.Length > 0) {
+										if (uvs1 != null && uvs1.Length > 0) {
 											uv1Indices = FillList(e.IndexBuffer.IndicesTex1, e.IndexBuffer.UseStrips != 0);
 										}
 										if (colors != null && e.IndexBuffer.IndicesCol != null) {
@@ -757,11 +757,11 @@ namespace Ray1Map {
 													var indexBuffer = bucket.IndexBuffer;
 													var vertIndicesList = FillList(indexBuffer.IndicesPos, indexBuffer.UseStrips != 0);
 													vertIndices = vertIndices.Concat(vertIndicesList).ToArray();
-													if (uvs.Length > 0) {
+													if (uvs != null && uvs.Length > 0) {
 														var uvIndicesList = FillList(indexBuffer.IndicesTex0, indexBuffer.UseStrips != 0);
 														uvIndices = uvIndices.Concat(uvIndicesList).ToArray();
 													}
-													if (uvs1.Length > 0) {
+													if (uvs1 != null && uvs1.Length > 0) {
 														var uvIndicesList = FillList(indexBuffer.IndicesTex1, indexBuffer.UseStrips != 0);
 														uv1Indices = uv1Indices.Concat(uvIndicesList).ToArray();
 													}
@@ -780,10 +780,10 @@ namespace Ray1Map {
 										colIndices = vertIndices;
 									}
 									m.vertices = vertIndices.Select(v => verts[v]).ToArray();
-									if (uvs.Length > 0) {
+									if (uvs != null && uvs.Length > 0) {
 										m.uv = uvIndices.Select(uv => uvs[uv]).ToArray();
 									}
-									if (uvs1.Length > 0) {
+									if (uvs1 != null && uvs1.Length > 0) {
 										m.SetUVs(3, uv1Indices.Select(uv => uvs1[uv]).ToArray());
 									}
 									if (colors != null && colIndices != null && colors.Length > 0) {
