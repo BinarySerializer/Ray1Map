@@ -33,6 +33,14 @@ namespace Ray1Map.Jade
 		public int Unknown_3 { get; set; }
 		public int Unknown_4 { get; set; }
 
+		public AG_TagClip[] TagClips { get; set; }
+		public AG_TagPose[] TagPoses { get; set; }
+		public ushort[] ClipEntries { get; set; }
+		public ushort[] AllPoseClips { get; set; }
+		public ushort[] ConvertActionToClip { get; set; }
+		public ushort ReconPropertiesCount { get; set; } = 13;
+		public AG_ReconProperty[] ReconProperties { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
@@ -64,8 +72,17 @@ namespace Ray1Map.Jade
 			Unknown_2 = s.Serialize<int>(Unknown_2, name: nameof(Unknown_2));
 			Unknown_3 = s.Serialize<int>(Unknown_3, name: nameof(Unknown_3));
 			Unknown_4 = s.Serialize<int>(Unknown_4, name: nameof(Unknown_4));
-			//throw new NotImplementedException();
-			s.SystemLogger?.LogWarning($"TODO: Serialize rest of AnimGraph!");
+
+			TagClips = s.SerializeObjectArray<AG_TagClip>(TagClips, MaxTagClipsCount, onPreSerialize: t => t.Pre_AnimGraph = this, name: nameof(TagClips));
+			TagPoses = s.SerializeObjectArray<AG_TagPose>(TagPoses, MaxTagPosesCount, onPreSerialize: t => t.Pre_AnimGraph = this, name: nameof(TagPoses));
+			ClipEntries = s.SerializeArray<ushort>(ClipEntries, MaxClipEntriesCount, name: nameof(ClipEntries));
+			AllPoseClips = s.SerializeArray<ushort>(AllPoseClips, AllPoseClipsCount, name: nameof(AllPoseClips));
+			ConvertActionToClip = s.SerializeArray<ushort>(ConvertActionToClip, 2000, name: nameof(ConvertActionToClip));
+
+			if (Version >= 2) {
+				if (Version >= 7) ReconPropertiesCount = s.Serialize<ushort>(ReconPropertiesCount, name: nameof(ReconPropertiesCount));
+				ReconProperties = s.SerializeObjectArray<AG_ReconProperty>(ReconProperties, ReconPropertiesCount, name: nameof(ReconProperties));
+			}
 		}
 
 		public class ClipCtrl : BinarySerializable {
@@ -84,12 +101,6 @@ namespace Ray1Map.Jade
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				PropertyCRC32 = s.SerializeArray<uint>(PropertyCRC32, 64, name: nameof(PropertyCRC32));
-			}
-		}
-
-		public class Pose : BinarySerializable {
-			public override void SerializeImpl(SerializerObject s) {
-				throw new NotImplementedException();
 			}
 		}
 	}

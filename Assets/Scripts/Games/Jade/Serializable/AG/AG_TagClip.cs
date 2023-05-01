@@ -43,7 +43,17 @@ namespace Ray1Map.Jade
 		public float Float_PreV6_08 { get; set; }
 		public float Float_PreV6_0C { get; set; }
 		public float Float_PreV6_10 { get; set; }
+
 		public uint TriggersCount { get; set; }
+		public AG_TriggerBind[] Triggers { get; set; }
+
+		public uint GroupPropertiesBitfield { get; set; }
+		public int GroupPropertiesCount { get; set; }
+		public AG_GroupProperties[] GroupProperties { get; set; }
+
+		public bool HasRelatedClips { get; set; }
+		public AG_RelatedClips RelatedClips { get; set; }
+		public int InvRelatedBitSet { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -69,7 +79,7 @@ namespace Ray1Map.Jade
 				UInt_PreV4_04 = s.Serialize<uint>(UInt_PreV4_04, name: nameof(UInt_PreV4_04));
 			}
 			ClipType = s.Serialize<int>(ClipType, name: nameof(ClipType));
-			ReceiveInfo = s.SerializeObjectArray<AG_ReceiveInfo>(ReceiveInfo, ReceiveInfoCount, name: nameof(ReceiveInfo));
+			ReceiveInfo = s.SerializeObjectArray<AG_ReceiveInfo>(ReceiveInfo, ReceiveInfoCount, onPreSerialize: r => r.Pre_Version = Pre_AnimGraph.Version, name: nameof(ReceiveInfo));
 			ReceiveInfoNb = s.Serialize<byte>(ReceiveInfoNb, name: nameof(ReceiveInfoNb));
 			PoseStart = s.Serialize<ushort>(PoseStart, name: nameof(PoseStart));
 			PoseEnd = s.Serialize<ushort>(PoseEnd, name: nameof(PoseEnd));
@@ -93,9 +103,17 @@ namespace Ray1Map.Jade
 				Float_PreV6_0C = s.Serialize<float>(Float_PreV6_0C, name: nameof(Float_PreV6_0C));
 				Float_PreV6_10 = s.Serialize<float>(Float_PreV6_10, name: nameof(Float_PreV6_10));
 			}
-			TriggersCount = s.Serialize<uint>(TriggersCount, name: nameof(TriggersCount));
 
-			throw new System.NotImplementedException($"TODO: Implement rest of {GetType()}");
+			TriggersCount = s.Serialize<uint>(TriggersCount, name: nameof(TriggersCount));
+			Triggers = s.SerializeObjectArray<AG_TriggerBind>(Triggers, TriggersCount, onPreSerialize: t => t.Pre_Version = Pre_AnimGraph.Version, name: nameof(Triggers));
+
+			GroupPropertiesBitfield = s.Serialize<uint>(GroupPropertiesBitfield, name: nameof(GroupPropertiesBitfield));
+			GroupPropertiesCount = s.Serialize<int>(GroupPropertiesCount, name: nameof(GroupPropertiesCount));
+			GroupProperties = s.SerializeObjectArray<AG_GroupProperties>(GroupProperties, GroupPropertiesCount, name: nameof(GroupProperties));
+
+			HasRelatedClips = s.Serialize<bool>(HasRelatedClips, name: nameof(HasRelatedClips));
+			if(HasRelatedClips) RelatedClips = s.SerializeObject<AG_RelatedClips>(RelatedClips, name: nameof(RelatedClips));
+			InvRelatedBitSet = s.Serialize<int>(InvRelatedBitSet, name: nameof(InvRelatedBitSet));
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace Ray1Map.Jade
         {
             AnimGraph = s.SerializeObject<AG_AnimGraph>(AnimGraph, name: nameof(AnimGraph));
             AnimGraph?.FightMatrix?.Resolve();
-            s.Goto(Offset + FileSize);
+            //s.Goto(Offset + FileSize);
         }
 
     }
