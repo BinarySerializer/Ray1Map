@@ -266,10 +266,12 @@ namespace Ray1Map
 
 			Loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			Loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
-			for (int i = 0; i < (w.TextureList_Montreal.Textures?.Count ?? 0); i++) {
-				var t = w.TextureList_Montreal.Textures[i];
-				Jade_TextureReference tref = new Jade_TextureReference(s.Context, t.Key);
-				tref.Resolve();
+			if (!Loader.Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
+				for (int i = 0; i < (w.TextureList_Montreal.Textures?.Count ?? 0); i++) {
+					var t = w.TextureList_Montreal.Textures[i];
+					Jade_TextureReference tref = new Jade_TextureReference(s.Context, t.Key);
+					tref.Resolve();
+				}
 			}
 		}
 

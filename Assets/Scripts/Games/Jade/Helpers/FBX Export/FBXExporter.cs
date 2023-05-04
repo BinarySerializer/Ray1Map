@@ -69,6 +69,27 @@ namespace Ray1Map.Jade {
 
 			System.IO.File.WriteAllText(outputFile, buildMesh);
 		}
+		public static async UniTask ExportFBXAsync(WOR_World wow, string outputPath) {
+
+			await UniTask.CompletedTask;
+			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
+			string outputFile = Path.Combine(outputPath, $"WOW_{wow.Key.Key:X8}_{wow.Export_FileBasename}.fbx");
+			var header = new FBXHeader();
+
+			StringBuilder sb2 = new StringBuilder();
+			WriteWorld(sb2, wow, outputPath, header);
+
+			StringBuilder sb = new StringBuilder();
+			WriteHeader(sb, header);
+			sb.AppendLine(sb2.ToString());
+			string buildMesh = sb.ToString();
+
+			if (System.IO.File.Exists(outputFile))
+				System.IO.File.Delete(outputFile);
+
+			System.IO.File.WriteAllText(outputFile, buildMesh);
+		}
 
 		#region Header
 		private static void WriteHeader(StringBuilder sb, FBXHeader header) {
@@ -361,7 +382,54 @@ namespace Ray1Map.Jade {
 			string materialConnectionsSerialized = "";
 
 			// Run recursive FBX Mesh grab over the entire gameobject
-			WriteGeometryForGameObject(gameObj, objectProps, objectConnections, materials, writtenObjects, header, setToZeroPosition: true);
+			WriteGeometryForGameObject(gameObj, objectProps, objectConnections, materials, writtenObjects, header, setToZeroPosition: true, writeLocalVertexColors: false);
+
+			AllMaterialsToString(materials, outputPath, out materialsObjectSerialized, out materialConnectionsSerialized, header);
+
+
+			// write the materials to the objectProps here. Should not do it in the above as it recursive.
+
+			objectProps.Append(materialsObjectSerialized);
+			objectConnections.Append(materialConnectionsSerialized);
+
+			// Close up both builders;
+			objectProps.AppendLine("}");
+			objectConnections.AppendLine("}");
+
+			sb.Append(objectProps.ToString());
+			sb.Append(objectConnections.ToString());
+		}
+
+		private static void WriteWorld(StringBuilder sb, WOR_World world, string outputPath, FBXHeader header) {
+			StringBuilder objectProps = new StringBuilder();
+			objectProps.AppendLine("; Object properties");
+			objectProps.AppendLine(";------------------------------------------------------------------");
+			objectProps.AppendLine("");
+			objectProps.AppendLine("Objects:  {");
+
+			StringBuilder objectConnections = new StringBuilder();
+			objectConnections.AppendLine("; Object connections");
+			objectConnections.AppendLine(";------------------------------------------------------------------");
+			objectConnections.AppendLine("");
+			objectConnections.AppendLine("Connections:  {");
+			objectConnections.AppendLine("\t");
+
+			// Dictionary to collect all materials used by this FBX
+			var materials = new Dictionary<uint, GEO_Object>();
+			var writtenObjects = new HashSet<long>();
+
+			// First finds all unique materials and compiles them (and writes to the object connections) for funzies
+			string materialsObjectSerialized = "";
+			string materialConnectionsSerialized = "";
+
+			// Run recursive FBX Mesh grab over the entire gameobject
+			if (world?.GameObjects?.Value?.GameObjects != null) {
+				foreach (var gaoRef in world?.GameObjects?.Value?.GameObjects) {
+					if (gaoRef.Value != null) {
+						WriteGeometryForGameObject(gaoRef.Value, objectProps, objectConnections, materials, writtenObjects, header, setToZeroPosition: false, writeLocalVertexColors: true);
+					}
+				}
+			}
 
 			AllMaterialsToString(materials, outputPath, out materialsObjectSerialized, out materialConnectionsSerialized, header);
 
@@ -399,7 +467,8 @@ namespace Ray1Map.Jade {
 										   OBJ_GameObject parentObject = null,
 										   long objectGroup = 0,
 										   long parentGao = 0,
-										   bool setToZeroPosition = false) {
+										   bool setToZeroPosition = false,
+										   bool writeLocalVertexColors = false) {
 
 			long gameObjectID = gao.Key.Key;
 			if (objectGroup != 0) {
@@ -425,6 +494,7 @@ namespace Ray1Map.Jade {
 			// A NULL parent means that the gameObject is at the top
 			string modelType = "Null";
 			bool isBone = false;
+			bool isSymmetry = !setToZeroPosition && (!gao?.Base?.Visual?.DrawMask.HasFlag(OBJ_GameObject_Visual.DM.Symetric) ?? false);
 
 			if (geo != null) {
 				modelType = "Mesh";
@@ -505,7 +575,7 @@ namespace Ray1Map.Jade {
 				tempObjectSb.AppendLine($"\tGeometry: {geometryID}, \"{mainGeometryName}\", \"Mesh\" {{");
 
 				// ===== WRITE THE VERTICES =====
-				WriteVectorArray("Vertices", geo.Vertices, tempObjectSb);
+				WriteVectorArray("Vertices", geo.Vertices, tempObjectSb, symmetric: isSymmetry);
 
 				// ======= WRITE THE TRIANGLES ========
 				int triangleCount = geo.Elements.Sum(e => e.Triangles.Length) * 3;
@@ -519,10 +589,17 @@ namespace Ray1Map.Jade {
 						if (appendComma) tempObjectSb.Append(",");
 						appendComma = true;
 
-						tempObjectSb.AppendFormat("{0},{1},{2}",
-												  t.Vertex0,
-												  t.Vertex1,
-												  -t.Vertex2 - 1); // <= Tells the poly is ended
+						if (isSymmetry) {
+							tempObjectSb.AppendFormat("{0},{1},{2}",
+													  t.Vertex1,
+													  t.Vertex0,
+													  -t.Vertex2 - 1); // <= Tells the poly is ended
+						} else {
+							tempObjectSb.AppendFormat("{0},{1},{2}",
+													  t.Vertex0,
+													  t.Vertex1,
+													  -t.Vertex2 - 1); // <= Tells the poly is ended
+						}
 
 					}
 				}
@@ -540,19 +617,27 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine("\t\tLayerElementNormal: 0 {");
 					tempObjectSb.AppendLine("\t\t\tVersion: 101");
 					tempObjectSb.AppendLine("\t\t\tName: \"\"");
-					tempObjectSb.AppendLine("\t\t\tMappingInformationType: \"ByVertex\"");
+					tempObjectSb.AppendLine("\t\t\tMappingInformationType: \"ByVertice\"");
 					tempObjectSb.AppendLine("\t\t\tReferenceInformationType: \"Direct\"");
 
-					if(normals != null) WriteVectorArray("Normals", normals, tempObjectSb, indentCount: 3);
+					if(normals != null) WriteVectorArray("Normals", normals, tempObjectSb, indentCount: 3, symmetric: isSymmetry);
 					tempObjectSb.AppendLine("\t\t}");
 				}
 
 				// ===== WRITE THE COLORS =====
-				bool hasColors = geo.Colors != null && geo.Colors.Length == geo.Vertices.Length;
+				bool hasColors = false;
+				Jade_Color[] colors = null;
+				var localColors = gao.Base?.Visual?.VertexColors ?? gao.Base?.Visual?.RLI?.Value?.VertexRLI;
+				bool hasLocalColors = localColors != null && localColors.Length == geo.Vertices.Length;
+				if (writeLocalVertexColors && hasLocalColors) {
+					hasColors = true;
+					colors = localColors;
+				} else {
+					colors = geo.Colors;
+					hasColors = colors != null && colors.Length == geo.Vertices.Length;
+				}
 
 				if (hasColors) {
-					var colors = geo.Colors;
-
 					Dictionary<UnityEngine.Color, int> colorTable = new Dictionary<UnityEngine.Color, int>(); // reducing amount of data by only keeping unique colors.
 					int idx = 0;
 					int[] colorIndices = new int[colors.Length];
@@ -570,9 +655,9 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine("\t\tLayerElementColor: 0 {");
 					tempObjectSb.AppendLine("\t\t\tVersion: 101");
 					tempObjectSb.AppendLine("\t\t\tName: \"Col\"");
-					tempObjectSb.AppendLine("\t\t\tMappingInformationType: \"ByVertex\"");
+					tempObjectSb.AppendLine("\t\t\tMappingInformationType: \"ByPolygonVertex\"");
 					tempObjectSb.AppendLine("\t\t\tReferenceInformationType: \"IndexToDirect\"");
-					tempObjectSb.AppendLine("\t\t\tColors: *" + colorTable.Count * 4 + " {");
+					tempObjectSb.AppendLine("\t\t\tColors: *" + (colorTable.Count * 4) + " {");
 					tempObjectSb.Append("\t\t\t\ta: ");
 
 					bool first = true;
@@ -587,7 +672,33 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine("\t\t\t\t}");
 
 					// Color index
-					tempObjectSb.AppendLine("\t\t\tColorIndex: *" + colors.Length + " {");
+					// ByVertex/ByVertice way
+					/*tempObjectSb.AppendLine("\t\t\tColorIndex: *" + colors.Length + " {");
+					tempObjectSb.Append("\t\t\t\ta: ");
+
+					for (int i = 0; i < colors.Length; i++) {
+						if (i > 0) tempObjectSb.Append(",");
+
+						tempObjectSb.AppendFormat("{0}", colorIndices[i]);
+					}*/
+					// ByPolygonVertex way
+					tempObjectSb.AppendLine("\t\t\tColorIndex: *" + triangleCount + " {");
+					tempObjectSb.Append("\t\t\t\ta: ");
+
+					appendComma = false;
+					foreach (var e in geo.Elements) {
+						foreach (var t in e.Triangles) {
+							if (appendComma) tempObjectSb.Append(",");
+							appendComma = true;
+
+							if (isSymmetry) {
+								tempObjectSb.AppendFormat("{0},{1},{2}", t.Vertex1, t.Vertex0, t.Vertex2);
+							} else {
+								tempObjectSb.AppendFormat("{0},{1},{2}", t.Vertex0, t.Vertex1, t.Vertex2);
+							}
+
+						}
+					}
 					tempObjectSb.Append("\t\t\t\ta: ");
 
 					for (int i = 0; i < colors.Length; i++) {
@@ -637,7 +748,11 @@ namespace Ray1Map.Jade {
 						if (appendComma) tempObjectSb.Append(",");
 						appendComma = true;
 
-						tempObjectSb.AppendFormat("{0},{1},{2}", t.UV0, t.UV1, t.UV2);
+						if (isSymmetry) {
+							tempObjectSb.AppendFormat("{0},{1},{2}", t.UV1, t.UV0, t.UV2);
+						} else {
+							tempObjectSb.AppendFormat("{0},{1},{2}", t.UV0, t.UV1, t.UV2);
+						}
 
 					}
 				}
@@ -750,8 +865,8 @@ namespace Ray1Map.Jade {
 				}
 
 				// Write morph data
-				WriteMorphTargetsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, header);
-				//WriteDeformationsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, objectGroup, header);
+				WriteMorphTargetsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, header, isSymmetry);
+				//WriteDeformationsForGameObject(gao, tempObjectSb, tempConnectionsSb, geometryID, mainGeometryName, objectGroup, header, isSymmetry);
 			}
 
 			if (isBone) {
@@ -762,7 +877,7 @@ namespace Ray1Map.Jade {
 			// Export parent
 			if (gao.Base?.HierarchyData?.Father?.Value != null) {
 				var father = gao.Base?.HierarchyData?.Father?.Value;
-				WriteGeometryForGameObject(father, objects, connections, materials, writtenObjects, header, parentObject, objectGroup, parentGao, setToZeroPosition);
+				WriteGeometryForGameObject(father, objects, connections, materials, writtenObjects, header, parentObject, objectGroup, parentGao, setToZeroPosition, writeLocalVertexColors);
 			}
 
 			// Write connections
@@ -776,7 +891,7 @@ namespace Ray1Map.Jade {
 				foreach (var o in group) {
 					if (o.Value != null) {
 						WriteGeometryForGameObject(o.Value, objects, connections, materials, writtenObjects, header,
-							gao, groupID, gameObjectID, false);
+							gao, groupID, gameObjectID, false, writeLocalVertexColors);
 					}
 				}
 			}
@@ -788,7 +903,7 @@ namespace Ray1Map.Jade {
 				foreach (var o in group) {
 					if (o.Value != null) {
 						WriteGeometryForGameObject(o.Value, objects, connections, materials, writtenObjects, header,
-							parentObject, objectGroup, parentGao, false);
+							parentObject, objectGroup, parentGao, false, writeLocalVertexColors);
 					}
 				}
 			}
@@ -802,7 +917,7 @@ namespace Ray1Map.Jade {
 			}*/
 		}
 
-		public static void WriteMorphTargetsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, FBXHeader header) {
+		public static void WriteMorphTargetsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, FBXHeader header, bool isSymmetry) {
 
 			if (gao?.Extended?.Modifiers != null) {
 				var modifier = gao.Extended.Modifiers.FirstOrDefault(m => m.Type == MDF_ModifierType.GEO_ModifierMorphing);
@@ -855,7 +970,7 @@ namespace Ray1Map.Jade {
 						tempObjectSb.AppendLine();
 						tempObjectSb.AppendLine("\t\t}");
 
-						WriteVectorArray("Vertices", md.Vectors, tempObjectSb);
+						WriteVectorArray("Vertices", md.Vectors, tempObjectSb, symmetric: isSymmetry);
 						//WriteVectorArray("Normals", md.Vectors.Select(m => new Jade_Vector()).ToArray(), tempObjectSb);
 						tempObjectSb.AppendLine("\t}");
 						tempObjectSb.AppendLine();
@@ -873,7 +988,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public static void WriteDeformationsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, long objectGroup, FBXHeader header) {
+		public static void WriteDeformationsForGameObject(OBJ_GameObject gao, StringBuilder tempObjectSb, StringBuilder tempConnectionsSb, long mainGeometryID, string mainGeometryName, long objectGroup, FBXHeader header, bool isSymmetry) {
 
 			long gameObjectID = gao.Key.Key;
 			if (objectGroup != 0) {
@@ -1014,7 +1129,7 @@ namespace Ray1Map.Jade {
 						tempObjectSb.AppendLine();
 						tempObjectSb.AppendLine("\t\t}");
 
-						WriteVectorArray("Vertices", md.Vectors, tempObjectSb);
+						WriteVectorArray("Vertices", md.Vectors, tempObjectSb, symmetric: isSymmetry);
 						//WriteVectorArray("Normals", md.Vectors.Select(m => new Jade_Vector()).ToArray(), tempObjectSb);
 						tempObjectSb.AppendLine("\t}");
 						tempObjectSb.AppendLine();
@@ -1053,14 +1168,14 @@ namespace Ray1Map.Jade {
 		}
 		#endregion
 
-		private static void WriteVectorArray(string name, Jade_Vector[] vectors, StringBuilder tempObjectSb, int indentCount = 2) {
+		private static void WriteVectorArray(string name, Jade_Vector[] vectors, StringBuilder tempObjectSb, int indentCount = 2, bool symmetric = false) {
 			string indent = new string('\t', indentCount);
 			tempObjectSb.AppendLine($"{indent}{name}: *{vectors.Length * 3} {{");
 			tempObjectSb.Append($"{indent}\ta: ");
 			for (int i = 0; i < vectors.Length; i++) {
 				if (i > 0) tempObjectSb.Append(",");
 
-				tempObjectSb.AppendFormat("{0},{1},{2}", vectors[i].X, vectors[i].Y, vectors[i].Z);
+				tempObjectSb.AppendFormat("{0},{1},{2}", (symmetric ? -vectors[i].X : vectors[i].X), vectors[i].Y, vectors[i].Z);
 			}
 			tempObjectSb.AppendLine();
 			tempObjectSb.AppendLine($"{indent}}}");

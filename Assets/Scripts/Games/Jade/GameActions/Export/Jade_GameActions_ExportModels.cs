@@ -16,6 +16,7 @@ namespace Ray1Map {
 			uint currentKey = 0;
 			HashSet<uint> exportedObjects = new HashSet<uint>();
 			HashSet<string> exportedObjectIDs = new HashSet<string>();
+			HashSet<uint> exportedWOWs = new HashSet<uint>();
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -38,6 +39,8 @@ namespace Ray1Map {
 
 						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						foreach (var w in loader.LoadedWorlds) {
+							if(exportedWOWs.Contains(w.Key)) continue;
+							exportedWOWs.Add(w.Key);
 							worldName = w?.Name;
 							var gaos = w.GameObjects?.Value?.GameObjects;
 							if (gaos == null) continue;
@@ -60,6 +63,7 @@ namespace Ray1Map {
 								exportedObjectIDs.Add(objectID);
 								if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
 							}
+							await FBXExporter.ExportFBXAsync(w, outputDir);
 						}
 					}
 				} catch (Exception ex) {
@@ -88,6 +92,7 @@ namespace Ray1Map {
 
 			var parsedTexs = new HashSet<uint>();
 			HashSet<uint> exportedObjects = new HashSet<uint>();
+			HashSet<uint> exportedWOWs = new HashSet<uint>();
 			HashSet<string> exportedObjectIDs = new HashSet<string>();
 
 			using (var context = new Ray1MapContext(settings)) {
@@ -120,6 +125,26 @@ namespace Ray1Map {
 							}
 							if (exportedObjectIDs.Contains(objectID)) continue;
 							exportedObjectIDs.Add(objectID);
+							if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
+
+						} catch (Exception ex) {
+							UnityEngine.Debug.LogError(ex);
+						} finally {
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
+						}
+						await Controller.WaitIfNecessary();
+					} else if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".wow"))) {
+
+						try {
+							Jade_Reference<WOR_World> wowRef = new Jade_Reference<WOR_World>(context, fileInfo.Key);
+							wowRef.Resolve();
+							await loader.LoadLoop(context.Deserializer);
+
+							var o = wowRef;
+
+							if (o.IsNull || exportedWOWs.Contains(o.Key.Key)) continue;
+							exportedWOWs.Add(o.Key.Key);
 							if (o.Value != null) await FBXExporter.ExportFBXAsync(o.Value, outputDir);
 
 						} catch (Exception ex) {
