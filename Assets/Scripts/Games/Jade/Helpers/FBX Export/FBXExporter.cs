@@ -777,10 +777,14 @@ namespace Ray1Map.Jade {
 
 				StringBuilder submeshesSb = new StringBuilder();
 
+				appendComma = false;
 				for (int i = 0; i < geo.Elements.Length; i++) {
 					var e = geo.Elements[i];
 					foreach (var t in e.Triangles) {
-						submeshesSb.AppendFormat("{0},", e.MaterialID);
+						if (appendComma) submeshesSb.Append(",");
+						appendComma = true;
+						submeshesSb.Append(e.MaterialID);
+						//submeshesSb.AppendFormat("{0}", e.MaterialID);
 						totalFaceCount += 1;
 					}
 				}
