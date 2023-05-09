@@ -14,7 +14,7 @@ namespace Ray1Map.Jade {
 			NameDebugStringId = s.Serialize<int>(NameDebugStringId, name: nameof(NameDebugStringId));
 
 			if (Pre_System.Version != 0 && NameDebugStringId >= 0) {
-				if (Pre_System.DebugStringPool != null) {
+				if (Pre_System.DebugStringPool != null && NameDebugStringId < Pre_System.DebugStringPool.StringBufferSize) {
 					s.DoAt(Pre_System.DebugStringPool.Offset + 8 + NameDebugStringId, () => {
 						Name = s.SerializeString(Name, name: nameof(Name));
 					});

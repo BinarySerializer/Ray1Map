@@ -35,15 +35,16 @@ namespace Ray1Map.Jade {
                 GRO_Type.None => null,
                 GRO_Type.Unknown => null,
                 GRO_Type.GEO => SerializeStruct<GEO_GeometricObject>(),
-				GRO_Type.GEO_StaticLOD => SerializeStruct<GEO_StaticLOD>(),
-				GRO_Type.GEO_SubGeometry => SerializeStruct<GEO_SubGeometry>(),
+				GRO_Type.LIGHT => SerializeStruct<LIGHT_Light>(),
 				GRO_Type.MAT_SIN => SerializeStruct<MAT_SIN_SingleMaterial>(),
 				GRO_Type.MAT_MSM => SerializeStruct<MAT_MSM_MultiSingleMaterial>(),
 				GRO_Type.MAT_MTT => SerializeStruct<MAT_MTT_MultiTextureMaterial>(),
-				GRO_Type.STR => SerializeStruct<STR_StringRenderObject>(),
-				GRO_Type.LIGHT => SerializeStruct<LIGHT_Light>(),
 				GRO_Type.CAM => SerializeStruct<CAM_Camera>(),
+				GRO_Type.GEO_StaticLOD => SerializeStruct<GEO_StaticLOD>(),
+				GRO_Type.STR => SerializeStruct<STR_StringRenderObject>(),
 				GRO_Type.PAG => SerializeStruct<PAG_ParticleGeneratorObject>(),
+				GRO_Type.GEO_SubGeometry => SerializeStruct<GEO_SubGeometry>(),
+				GRO_Type.GRA_GrassField => SerializeStruct<GRA_GrassField>(),
 				_ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }
