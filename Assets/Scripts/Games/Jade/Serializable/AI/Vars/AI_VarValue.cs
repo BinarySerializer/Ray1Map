@@ -25,6 +25,8 @@ namespace Ray1Map.Jade {
 		public Jade_Key TextFile { get; set; }
 		public Jade_Key TextEntryID { get; set; }
 
+		public Jade_Reference<FLA_FlashMovie> ValueFlashMovie { get; set; }
+
 		public int MsgID_MsgID { get; set; }
 		public int MsgID_ID { get; set; }
 
@@ -62,8 +64,11 @@ namespace Ray1Map.Jade {
 					case AI_VarType.Function:
 					case AI_VarType.Model:
 					case AI_VarType.Sound:
-					case AI_VarType.FlashMovie:
 						ValueKey = s.SerializeObject<Jade_Key>(ValueKey, name: nameof(ValueKey));
+						break;
+					case AI_VarType.FlashMovie:
+						ValueFlashMovie = s.SerializeObject<Jade_Reference<FLA_FlashMovie>>(ValueFlashMovie, name: nameof(ValueFlashMovie));
+						ValueKey = ValueFlashMovie?.Key;
 						break;
 					case AI_VarType.Vector:
 						ValueVector = s.SerializeObject<Jade_Vector>(ValueVector, name: nameof(ValueVector));
@@ -135,6 +140,13 @@ namespace Ray1Map.Jade {
 		public uint ValueUInt {
 			get => unchecked((uint)ValueInt);
 			set => ValueInt = unchecked((int)value);
+		}
+
+		public void ResolveReferences() {
+			if (ValueArray != null) {
+				foreach(var v in ValueArray) v.ResolveReferences();
+			}
+			ValueFlashMovie?.Resolve();
 		}
 
 		// TODO: Add other getters/setters

@@ -24,6 +24,9 @@ namespace Ray1Map.Jade {
 					case Jade_FileType.FileType.AI_TT:
 						reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache);
 						break;
+					case Jade_FileType.FileType.AI_Vars:
+						reference.Resolve(onPreSerialize: (_, f) => ((AI_Vars)f).Pre_IsModelVars = true);
+						break;
 					default:
 						reference.Resolve();
 						break;

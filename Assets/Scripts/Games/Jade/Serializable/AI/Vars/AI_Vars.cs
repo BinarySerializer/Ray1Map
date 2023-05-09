@@ -113,7 +113,8 @@ namespace Ray1Map.Jade {
             }
 
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) && !Pre_IsModelVars && VarValueBufferSize > 0) {
-                // TODO: Resolve FlashMovie refs
+                // Resolve FlashMovie refs
+                foreach(var v in Values) v?.ResolveReferences();
             }
 
             if(Functions == null) Functions = new Jade_Reference<AI_Function>[5];

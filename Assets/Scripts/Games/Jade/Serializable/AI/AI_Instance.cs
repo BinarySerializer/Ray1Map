@@ -21,14 +21,16 @@ namespace Ray1Map.Jade {
 				Model = s.SerializeObject<Jade_Reference<AI_Model>>(Model, name: nameof(Model));
 				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) Model?.Resolve();
 				Vars = s.SerializeObject<Jade_Reference<AI_Vars>>(Vars, name: nameof(Vars))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc,
+					onPreSerialize: (_, v) => v.Pre_IsModelVars = false);
 			} else {
 				// PoP: TFS and up
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
 				Model = s.SerializeObject<Jade_Reference<AI_Model>>(Model, name: nameof(Model));
 				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) Model?.Resolve();
 				Vars = s.SerializeObject<Jade_Reference<AI_Vars>>(Vars, name: nameof(Vars))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.TmpAlloc,
+					onPreSerialize: (_,v) => v.Pre_IsModelVars = false);
 				if (Version >= 2) {
 					ActivationPolicy = s.Serialize<byte>(ActivationPolicy, name: nameof(ActivationPolicy));
 					ActivationRadius = s.Serialize<float>(ActivationRadius, name: nameof(ActivationRadius));
