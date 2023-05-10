@@ -2,6 +2,7 @@
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.PS2;
 using UnityEngine;
 
 namespace Ray1Map.Jade
@@ -229,7 +230,7 @@ namespace Ray1Map.Jade
                     content = PS2_Content.Content;
                 }
             } else if (PSP_Content != null) {
-                content = PSP_Content.UnswizzledContent;
+                content = PSP_Content.Texture?.UnswizzledContent;
             }
             if(content == null) return null;
             Color[] palette = Palette?.Value != null ? Palette.Value.Colors.Select(c => c.GetColor()).ToArray() : null;

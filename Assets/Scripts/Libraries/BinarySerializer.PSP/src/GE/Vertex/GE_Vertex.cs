@@ -18,7 +18,26 @@ namespace BinarySerializer.PSP
         public GE_VertexNumber[] Position { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
-            if(Pre_VertexType.WeightFormat != GE_VertexNumberFormat.None)
+            // Calculate alignment
+            int alignBytes = 1;
+            if(Pre_VertexType.WeightFormat == GE_VertexNumberFormat.FloatingPoint_32Bit ||
+                Pre_VertexType.TextureFormat == GE_VertexNumberFormat.FloatingPoint_32Bit ||
+                Pre_VertexType.ColorFormat == GE_ColorFormat.ABGR8888 ||
+                Pre_VertexType.NormalFormat == GE_VertexNumberFormat.FloatingPoint_32Bit ||
+                Pre_VertexType.PositionFormat == GE_VertexNumberFormat.FloatingPoint_32Bit)
+                alignBytes = 4;
+            else if (Pre_VertexType.WeightFormat == GE_VertexNumberFormat.FixedPoint_16Bit ||
+				Pre_VertexType.TextureFormat == GE_VertexNumberFormat.FixedPoint_16Bit ||
+				Pre_VertexType.ColorFormat == GE_ColorFormat.ABGR4444 ||
+				Pre_VertexType.ColorFormat == GE_ColorFormat.ABGR5551 ||
+				Pre_VertexType.ColorFormat == GE_ColorFormat.BGR565 ||
+				Pre_VertexType.NormalFormat == GE_VertexNumberFormat.FixedPoint_16Bit ||
+				Pre_VertexType.PositionFormat == GE_VertexNumberFormat.FixedPoint_16Bit)
+                alignBytes = 2;
+
+            //if(alignBytes > 1) s.Align(alignBytes, Pre_Line.Offset, logIfNotNull: true);
+
+			if (Pre_VertexType.WeightFormat != GE_VertexNumberFormat.None)
                 Weights = s.SerializeObjectArray<GE_VertexNumber>(Weights, Pre_VertexType.WeightsCount + 1, onPreSerialize: v => {
                     v.Pre_AlignOffset = Pre_Line.Offset;
                     v.Pre_Format = Pre_VertexType.WeightFormat;
@@ -51,6 +70,8 @@ namespace BinarySerializer.PSP
                     v.Pre_Format = Pre_VertexType.PositionFormat;
                     v.Pre_Type = GE_VertexNumberType.Position;
                 }, name: nameof(Position));
-        }
+
+			if (alignBytes > 1) s.Align(alignBytes, Pre_Line.Offset, logIfNotNull: true);
+		}
     }
 }

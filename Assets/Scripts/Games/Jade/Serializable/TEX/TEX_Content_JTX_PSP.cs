@@ -1,49 +1,72 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using BinarySerializer;
+using BinarySerializer.PSP;
 
 namespace Ray1Map.Jade
 {
-    // TODO: This is actually a GE program - parse it as one
     public class TEX_Content_JTX_PSP : BinarySerializable {
         public TEX_Content_JTX JTX { get; set; }
 
-        public byte[] Bytes_00 { get; set; }
-        public TextureFormat Format { get; set; }
-        public byte[] Bytes_01 { get; set; }
-        public byte WidthPower { get; set; }
-        public byte HeightPower { get; set; }
-        public byte[] Bytes_02 { get; set; }
-        public byte[] Content { get; set; }
+		public byte[] Bytes { get; set; }
+		public GE_Command[] SerializedCommands { get; set; }
 
+        public GE_Texture Texture { get; set; }
 
-        public int Width => 1 << WidthPower;
-        public int Height => 1 << HeightPower;
+        private bool UseLineSizeLimit => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002);
 
         public override void SerializeImpl(SerializerObject s) {
             uint FileSize = JTX.PS2_Size;
             if (FileSize == 0) return;
+
             if (JTX.Format == TEX_Content_JTX.JTX_Format.Raw32) {
-                Format = TextureFormat.RGBA8888;
-                WidthPower = (byte)NextPow2(JTX.Width);
-                HeightPower = (byte)NextPow2(JTX.Height);
-                Content = s.SerializeArray<byte>(Content, FileSize, name: nameof(Content));
+                // Somehow not a GE program?
+                Texture = s.SerializeObject<GE_Texture>(Texture,
+                    onPreSerialize: t => {
+                        t.Pre_Format = GE_PixelStorageMode.RGBA8888;
+                        t.Pre_TBW = new GE_Command_TextureBufferWidth() {
+                            BufferWidth = (ushort)JTX.Width
+						};
+                        t.Pre_TSIZE = new GE_Command_TextureSize() {
+                            TW = (byte)NextPow2(JTX.Width),
+                            TH = (byte)NextPow2(JTX.Height),
+						};
+                        t.Pre_IsSwizzled = true;
+                        t.Pre_UseLineSizeLimit = UseLineSizeLimit;
+				    },
+                    name: nameof(Texture));
             } else {
-                Bytes_00 = s.SerializeArray<byte>(Bytes_00, 0xC, name: nameof(Bytes_00));
-                Format = s.Serialize<TextureFormat>(Format, name: nameof(Format));
-                Bytes_01 = s.SerializeArray<byte>(Bytes_01, 0xF, name: nameof(Bytes_01));
-                WidthPower = s.Serialize<byte>(WidthPower, name: nameof(WidthPower));
-                HeightPower = s.Serialize<byte>(HeightPower, name: nameof(HeightPower));
-                Bytes_02 = s.SerializeArray<byte>(Bytes_02, 0x12, name: nameof(Bytes_02));
-                Content = s.SerializeArray<byte>(Content, FileSize - 0x30, name: nameof(Content));
+                // GE Program
+                Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
+
+                if (SerializedCommands == null) {
+                    Execute(Context);
+                    Texture = SerializedCommands?.LastOrDefault(c => c.LinkedTextureData != null)?.LinkedTextureData;
+                }
             }
+            return;
 		}
 
-        public byte[] UnswizzledContent {
-            get {
-                byte[] target = Defilter(Content, 0, Content.Length);
-                return target;
-            }
-        }
+
+
+		public void Execute(Context context) {
+			var progKey = $"GEData_{Offset}";
+			using (Context c = new Context("", serializerLogger: new ParentContextSerializerLogger(context.SerializerLogger), systemLogger: context.SystemLogger)) {
+				// Parse GE program
+				var file = c.AddStreamFile(progKey, new MemoryStream(Bytes));
+				try {
+					var s = c.Deserializer;
+					var parser = new GE_Parser() {
+                        UseLineSizeLimitForTextures = UseLineSizeLimit
+                    };
+					parser.Parse(s, file.StartPointer);
+					SerializedCommands = parser.SerializedCommands.ToArray();
+				} finally {
+					c.RemoveFile(file);
+				}
+			}
+		}
 
         int NextPow2(uint x) {
             int power = 1;
@@ -53,57 +76,6 @@ namespace Ray1Map.Jade
                 mul++;
             }
             return mul;
-        }
-
-        byte[] Defilter(byte[] originalData, int index, int length) {
-            byte[] Buf = new byte[length];
-            int bpp = Format switch {
-                TextureFormat.Index4 => 4,
-                TextureFormat.Index8 => 8,
-                TextureFormat.RGBA8888 => 32,
-                _ => throw new NotImplementedException($"Unsupported JTX PSP texture format {Format}")
-            };
-            int w = (Width * bpp) / 8;
-            int tileWidth = Math.Min(Width, 16);
-            int tileHeight = Math.Min(Height, 8);
-            int lineSize = Math.Min(tileWidth, (tileWidth * bpp) / 8);
-
-            if (bpp == 4 && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
-                if (Width > 16) lineSize = tileWidth;
-            }
-            int i = 0;
-
-            for (int y = 0; y < Height; y += tileHeight) {
-                for (int x = 0; x < w; x += lineSize) {
-                    for (int tileY = y; tileY < y + tileHeight; tileY++) {
-                        for (int tileX = x; tileX < x + lineSize; tileX++) {
-                            byte data = originalData[index + i++];
-
-                            if (tileX >= w || tileY >= Height) {
-                                continue;
-                            }
-
-                            Buf[tileY * w + tileX] = data;
-                        }
-                    }
-                }
-            }
-
-            return Buf;
-        }
-
-        public enum TextureFormat : byte {
-            RGBA5650 = 0x00,
-            RGBA5551 = 0x01,
-            RGBA4444 = 0x02,
-            RGBA8888 = 0x03,
-            Index4 = 0x04,
-            Index8 = 0x05,
-            Index16 = 0x06,
-            Index32 = 0x07,
-            DXT1 = 0x08,
-            DXT3 = 0x09,
-            DXT5 = 0x0A,
         }
     }
 }

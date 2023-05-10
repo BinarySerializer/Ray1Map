@@ -44,8 +44,8 @@ namespace BinarySerializer.PSP
                     s.Align(4, Pre_AlignOffset);
                     ValueFloat = s.Serialize<float>(ValueFloat, name: nameof(ValueFloat));
                     break;
-            }
-        }
+			}
+		}
 
         public float Value {
             get {
