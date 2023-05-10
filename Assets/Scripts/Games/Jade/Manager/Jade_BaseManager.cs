@@ -864,7 +864,8 @@ namespace Ray1Map {
 				loader.BeginSpeedMode(univers.Key, async s => { // Univers is bin compressed in Montreal version
 					univers.Resolve();
 					await loader.LoadLoopBINAsync();
-					if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4) && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+					if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)
+					&& !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
 						terminator.Resolve();
 						await loader.LoadLoopBINAsync();
 					}

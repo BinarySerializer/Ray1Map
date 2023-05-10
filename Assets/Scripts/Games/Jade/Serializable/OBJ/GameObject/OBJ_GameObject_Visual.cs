@@ -63,6 +63,7 @@ namespace Ray1Map.Jade {
 					&& f.RenderObject.Type != GRO_Type.CAM
 					&& f.RenderObject.Type != GRO_Type.STR
 					&& f.RenderObject.Type != GRO_Type.GRA_GrassField
+					&& f.RenderObject.Type != GRO_Type.PRO_TextureProjector
 					&& f.RenderObject.Type != GRO_Type.Unknown) {
 						throw new Exception($"{f.Key}: Expected GEO, got {f.RenderObject.Type}");
 					}
