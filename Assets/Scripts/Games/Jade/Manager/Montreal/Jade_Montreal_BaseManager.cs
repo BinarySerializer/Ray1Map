@@ -184,6 +184,19 @@ namespace Ray1Map
 			str.ToString().CopyToClipboard();
 		}
 
+		public static async UniTask<FLA_FlashPackages> LoadFlashPackages(SerializerObject s) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+				Jade_Reference<FLA_FlashPackages> flashPacks = new Jade_Reference<FLA_FlashPackages>(s.Context, new Jade_Key(s.Context, 0xFC000008));
+				flashPacks.Resolve();
+
+				LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+				await Loader.LoadLoop(s);
+
+				return flashPacks.Value;
+			}
+			return null;
+		}
+
 		public static async UniTask LoadTextures_Montreal(SerializerObject s, WOR_World w) {
 			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!Loader.IsBinaryData) return;

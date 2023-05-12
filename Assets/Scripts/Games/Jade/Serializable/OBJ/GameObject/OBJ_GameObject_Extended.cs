@@ -46,7 +46,9 @@ namespace Ray1Map.Jade {
 			Group = s.SerializeObject<Jade_Reference<GRP_Grp>>(Group, name: nameof(Group));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Group)) Group?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) || GameObject.Version < 0x19)) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)
+				&& (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS) || GameObject.Version < 0x19)
+				&& (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Fox) || GameObject.Version < 0x19)) {
 				LODai = s.Serialize<float>(LODai, name: nameof(LODai));
 				DistCut = s.Serialize<float>(DistCut, name: nameof(DistCut));
 			}

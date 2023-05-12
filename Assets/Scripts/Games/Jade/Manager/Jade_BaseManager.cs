@@ -73,6 +73,15 @@ namespace Ray1Map {
 					new GameAction("Export sound (Gear BF)", false, true, (input, output) => new Jade_GameActions_ExportGearBF(this).ExportGearBF(settings, SoundGearBFPath, output, "wav"))
 				}).ToArray();
 			}
+			if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Export Flash packages", false, true, (input, output) => new Jade_GameActions_ExportFlash(this).ExportFlashPackages(settings, output))
+				}).ToArray();
+			} else if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Export Flash (binarized)", false, true, (input, output) => new Jade_GameActions_ExportFlash(this).ExportFlashBinarized(settings, output))
+				}).ToArray();
+			}
 			return actions;
 		}
 

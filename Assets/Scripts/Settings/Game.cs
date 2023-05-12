@@ -130,6 +130,8 @@
         Jade_Avatar,
         Jade_RRRTVParty,
         Jade_JustDance,
+        Jade_Naruto1RiseOfANinja,
+        Jade_Naruto2TheBrokenBond,
 
         // GEN
 

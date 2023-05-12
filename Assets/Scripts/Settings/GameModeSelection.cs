@@ -961,6 +961,9 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_JustDance, Game.Jade_JustDance, "Just Dance (Wii)", typeof(Jade_JustDance_Wii_Manager), Platform.Wii)]
 		JustDanceWii,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Naruto1RiseOfANinja, Game.Jade_Naruto1RiseOfANinja, "Naruto: Rise of a Ninja (Xbox 360)", typeof(Jade_NarutoRiseOfANinja_X360_Manager), Platform.Xbox360)]
+        Naruto1RiseOfANinjaXbox360,
+
 		#endregion
 
 		#region GEN

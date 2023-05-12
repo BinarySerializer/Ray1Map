@@ -7,6 +7,7 @@
 		Cone = 4,
 		Triangles = 5,
 		Plan = 6,
-		Unknown7 = 7
+		Unknown7 = 7,
+		Unknown8 = 8 // Beowulf exclusive
 	}
 }

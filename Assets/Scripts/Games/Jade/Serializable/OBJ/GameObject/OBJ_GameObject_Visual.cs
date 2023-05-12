@@ -43,6 +43,7 @@ namespace Ray1Map.Jade {
 		public GEO_GaoVisu_PC VisuPC { get; set; }
 
 		public Jade_TextureReference LightmapTexture { get; set; }
+		public byte Fox_V22_Byte { get; set; }
 
 		// Montpellier
 		public sbyte Padding_Montpellier { get; set; } // Seem to be flags of some sort
@@ -85,6 +86,9 @@ namespace Ray1Map.Jade {
 				DisplayOrder = s.Serialize<sbyte>(DisplayOrder, name: nameof(DisplayOrder));
 				UnknownFlags = s.Serialize<Unknown>(UnknownFlags, name: nameof(UnknownFlags));
 				Padding = s.SerializeArray<sbyte>(Padding, 2, name: nameof(Padding));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Fox) && Version >= 22) {
+					Fox_V22_Byte = s.Serialize<byte>(Fox_V22_Byte, name: nameof(Fox_V22_Byte));
+				}
 				VertexColorsCount = s.Serialize<uint>(VertexColorsCount, name: nameof(VertexColorsCount));
 				VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
 
@@ -101,7 +105,7 @@ namespace Ray1Map.Jade {
 					hasLocalFog = !UnknownFlags.HasFlag(Unknown.NoLocalFog);
 				}
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) || Version < 15) {
+				if ((!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Fox)) || Version < 15) {
 					if (hasEditorData && !Loader.IsBinaryData) {
 						MontrealHasEditorData = s.Serialize<uint>(MontrealHasEditorData, name: nameof(MontrealHasEditorData));
 						if (MontrealHasEditorData == 1 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)) {
@@ -129,6 +133,8 @@ namespace Ray1Map.Jade {
 				if (hasLocalFog) {
 					LocalFog = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(LocalFog, name: nameof(LocalFog))?.Resolve();
 				}
+				// TODO: Jade_Fox: Read additional game object here, then entire function
+
 				if (Version >= 4 && Version < 7) {
 					V4_Short = s.Serialize<short>(V4_Short, name: nameof(V4_Short));
 				}
@@ -168,7 +174,9 @@ namespace Ray1Map.Jade {
 							break;
 					}
 				}
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP) && Version >= 15) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CPP)
+					&& !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Fox)
+					&& Version >= 15) {
 					LightmapTexture = s.SerializeObject<Jade_TextureReference>(LightmapTexture, name: nameof(LightmapTexture))?.Resolve();
 				}
 
