@@ -149,7 +149,7 @@ namespace Ray1Map.Rayman1
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
-                        s.DoEncoded(new PC_SaveEncoder(), () => s.SerializeObject<PC_SaveFile>(default, name: "SaveFile"));
+                        s.DoEncoded(new PC_SaveEncoder(), () => s.SerializeObject<SaveSlot>(default, name: "SaveFile"));
                     });
                 }
             }
