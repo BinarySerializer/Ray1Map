@@ -189,7 +189,7 @@ namespace Ray1Map.Rayman1
 
                 // Add the localization
                 if (general != null)
-                    localization.Add(new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray()));
+                    localization.Add(new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.String.Value).ToArray()));
 
                 // Add the event localizations (allfix + 6 worlds)
                 for (int i = 0; i < 7; i++)

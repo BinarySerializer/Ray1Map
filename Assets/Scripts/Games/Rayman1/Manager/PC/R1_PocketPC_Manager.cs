@@ -152,7 +152,7 @@ namespace Ray1Map.Rayman1
 
             s.DoAt(context.GetRequiredFile(path).StartPointer, () =>
             {
-                s.DoXOR(xor, () =>
+                s.DoProcessed(new Xor8Processor(xor), () =>
                 {
                     // Read the data
                     pcx = s.SerializeObject<PCX>(default, name: $"VIGNET");
@@ -200,7 +200,7 @@ namespace Ray1Map.Rayman1
 
                     s.DoAt(file.StartPointer, () =>
                     {
-                        s.DoXOR(entries[i].XORKey, () =>
+                        s.DoProcessed(new Xor8Processor(entries[i].XORKey), () =>
                         {
                             // Read the data
                             var pcx = s.SerializeObject<PCX>(default, name: $"PCX[{i}]");

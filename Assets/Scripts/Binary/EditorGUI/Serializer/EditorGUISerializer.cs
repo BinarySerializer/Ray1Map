@@ -85,18 +85,38 @@ namespace BinarySerializer.Unity.Editor {
 			action();
 		}
 
-		public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false, string filename = null)
+        public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false, string filename = null)
 		{
 			return null;
 		}
 
 		public override void EndEncoded(Pointer endPointer) { }
 
-		#endregion
+        #endregion
 
-		#region Positioning
+        #region Processing
 
-		public override void Goto(Pointer offset) { }
+        public override void BeginProcessed(BinaryProcessor processor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndProcessed(BinaryProcessor processor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override T GetProcessor<T>() 
+            where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Positioning
+
+        public override void Goto(Pointer offset) { }
         public override void Align(int alignBytes = 4, Pointer baseOffset = null, bool? logIfNotNull = null) { }
 
         public override void DoAt(Pointer offset, Action action)
@@ -106,12 +126,6 @@ namespace BinarySerializer.Unity.Editor {
 
 			DoFoldout(offset.ToString(), action);
 		}
-
-		#endregion
-
-		#region Checksum
-
-		public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) => default;
 
 		#endregion
 
@@ -258,7 +272,12 @@ namespace BinarySerializer.Unity.Editor {
 			return EditorGUILayout.TextField(name, obj);
 		}
 
-		#endregion
+        public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) where T : default
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
 		#region Array Serialization
 
@@ -335,7 +354,12 @@ namespace BinarySerializer.Unity.Editor {
 			return obj;
 		}
 
-		public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null)
+        public override T[] SerializeIntoArray<T>(T[] obj, long count, SerializeInto<T> serializeFunc, string name = null) where T : default
+        {
+            throw new NotImplementedException();
+        }
+
+        public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null)
 		{
 			return SerializeArray<T>(obj, obj.Length, name: name);
 		}

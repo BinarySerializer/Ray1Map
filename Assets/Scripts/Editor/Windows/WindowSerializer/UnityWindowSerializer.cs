@@ -30,11 +30,28 @@ public class UnityWindowSerializer : SerializerObject
     public override bool HasCurrentPointer => false;
     public override BinaryFile CurrentBinaryFile => null;
     public override long CurrentFileOffset => 0;
+
     public override void Goto(Pointer offset) { }
     public override void Align(int alignBytes = 4, Pointer baseOffset = null, bool? logIfNotNull = null) { }
 
     public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {
         action();
+    }
+
+    public override void BeginProcessed(BinaryProcessor processor)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void EndProcessed(BinaryProcessor processor)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override T GetProcessor<T>() 
+        where T : class
+    {
+        throw new NotImplementedException();
     }
 
     public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) => null;
@@ -144,8 +161,6 @@ public class UnityWindowSerializer : SerializerObject
         return Window.EditorField(String.Empty, obj, rect: rect);
     }
 
-    public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) => default;
-
     public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
     {
         CurrentName.Add(name);
@@ -247,6 +262,11 @@ public class UnityWindowSerializer : SerializerObject
         return Window.EditorField(String.Empty, obj, rect: rect);
     }
 
+    public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) where T : default
+    {
+        throw new NotImplementedException();
+    }
+
     public override string[] SerializeStringArray(string[] obj, long count, long? length = null, Encoding encoding = null, string name = null)
     {
         if (obj == null) obj = new string[count];
@@ -255,6 +275,11 @@ public class UnityWindowSerializer : SerializerObject
             SerializeString(obj[i], name: $"{name}[{i}]");
 
         return obj;
+    }
+
+    public override T[] SerializeIntoArray<T>(T[] obj, long count, SerializeInto<T> serializeFunc, string name = null) where T : default
+    {
+        throw new NotImplementedException();
     }
 
     public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) => obj;

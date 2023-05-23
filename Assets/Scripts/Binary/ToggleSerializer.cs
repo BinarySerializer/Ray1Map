@@ -74,6 +74,26 @@ namespace Ray1Map
             SwitchSerializer(Deserializer);
             CurrentSerializer.DoEncoded(encoder, action, endianness: endianness, allowLocalPointers: allowLocalPointers, filename: filename);
         }
+
+        public override void BeginProcessed(BinaryProcessor processor)
+        {
+            SwitchSerializer(Deserializer);
+            CurrentSerializer.BeginProcessed(processor);
+        }
+
+        public override void EndProcessed(BinaryProcessor processor)
+        {
+            SwitchSerializer(Deserializer);
+            CurrentSerializer.EndProcessed(processor);
+        }
+
+        public override T GetProcessor<T>() 
+            where T : class
+        {
+            SwitchSerializer(Deserializer);
+            return CurrentSerializer.GetProcessor<T>();
+        }
+
         public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {
             throw new NotSupportedException("BeginEncoded and EndEncoded are not supported in ToggleSerializer");
         }
@@ -83,10 +103,6 @@ namespace Ray1Map
 
         public override void DoEndian(Endian endianness, Action action) {
             CurrentSerializer.DoEndian(endianness, action);
-        }
-        public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
-            SwitchSerializer(Deserializer);
-            return CurrentSerializer.SerializeChecksum(calculatedChecksum, name);
         }
         public override Pointer SerializePointer(Pointer obj, PointerSize size = PointerSize.Pointer32, Pointer anchor = null, bool allowInvalid = false, long? nullValue = null, string name = null) {
             UpdateCurrentSerializer(name);
@@ -169,6 +185,12 @@ namespace Ray1Map
 
             return obj;
         }
+
+        public override T[] SerializeIntoArray<T>(T[] obj, long count, SerializeInto<T> serializeFunc, string name = null) where T : default
+        {
+            throw new NotImplementedException();
+        }
+
         public override T[] SerializeArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, Func<T> getLastObjFunc = null, string name = null)
         {
             for (int i = 0; i < obj.Length; i++)
@@ -233,6 +255,12 @@ namespace Ray1Map
         public override string SerializeString(string obj, long? length = null, Encoding encoding = null, string name = null) {
             UpdateCurrentSerializer(name);
             return CurrentSerializer.SerializeString(obj, length, encoding, name);
+        }
+
+        public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) 
+            where T : default
+        {
+            throw new NotImplementedException();
         }
 
         public override string[] SerializeStringArray(string[] obj, long count, long? length = null, Encoding encoding = null, string name = null) {

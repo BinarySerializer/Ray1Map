@@ -87,10 +87,10 @@ namespace Ray1Map.Jade {
 
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;
-				if (s.GetXOR() != null) {
-					s.DoXOR(null, () => {
-						hasName = s.Serialize<uint>(default, "NameCheck") != 0;
-					});
+				if (s.GetProcessor<XorProcessor>() is { } xorProcessor) {
+                    xorProcessor.DoInactive(() => {
+                        hasName = s.Serialize<uint>(default, "NameCheck") != 0;
+                    });
 					s.Goto(s.CurrentPointer - 4);
 				} else {
 					hasName = true;

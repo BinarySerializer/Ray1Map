@@ -872,7 +872,7 @@ namespace Ray1Map.Rayman1
 
                     // Get the bytes
                     var s = context.Deserializer;
-                    s.DoXOR(soundArchiveEntry.XORKey, () =>
+                    s.DoProcessed(new Xor8Processor(soundArchiveEntry.XORKey), () =>
                     {
                         var soundEntryBytes = s.DoAt(soundArchive.Offset + soundArchiveEntry.FileOffset + entry.FileOffset, () => s.SerializeArray<byte>(default, entry.FileSize));
 
@@ -1285,7 +1285,6 @@ namespace Ray1Map.Rayman1
 
                 mapData = new PC_MapData
                 {
-                    MapBlockChecksum = 0,
                     Width = width,
                     Height = height,
                     Tiles = Enumerable.Repeat(new BinarySerializer.Ray1.Block(), width * height).ToArray()

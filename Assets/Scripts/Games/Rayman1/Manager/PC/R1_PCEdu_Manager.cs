@@ -136,7 +136,7 @@ namespace Ray1Map.Rayman1
             var general = LoadArchiveFile<PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.GENERAL);
 
             // Add the localization
-            localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+            localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.String.Value).ToArray());
 
             // Read the MOT data
             var mot = LoadArchiveFile<PC_MOTFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.MOT);
