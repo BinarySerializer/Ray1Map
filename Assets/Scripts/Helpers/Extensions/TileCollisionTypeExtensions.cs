@@ -93,7 +93,7 @@ namespace Ray1Map
                 R2_TileCollisionType.Hill_Slight_Right_1 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1,
                 R2_TileCollisionType.Hill_Slight_Right_2 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2,
                 R2_TileCollisionType.Hill_Steep_Right => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
-                R2_TileCollisionType.ReactionaryEnemy => Unity_MapCollisionTypeGraphic.Reactionary,
+                R2_TileCollisionType.Direction_Reverse => Unity_MapCollisionTypeGraphic.Reactionary,
                 R2_TileCollisionType.ReactionaryUnk => Unity_MapCollisionTypeGraphic.Reactionary,
                 R2_TileCollisionType.ValidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Valid,
                 R2_TileCollisionType.InvalidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Invalid,

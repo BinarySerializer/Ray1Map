@@ -372,11 +372,11 @@ namespace Ray1Map.Rayman1
 
                 Debug.Log("Increasing memory allocation...");
                 // Increase the memory allocated for each version.
-                foreach (var verMemInfo in versionFile.VersionMemoryInfos) {
-                    if (verMemInfo.TailleMainMemWorld < newMemAlloc)
-                        verMemInfo.TailleMainMemWorld = newMemAlloc;
-                    if (verMemInfo.TailleMainMemSprite < newMemAlloc)
-                        verMemInfo.TailleMainMemSprite = newMemAlloc;
+                foreach (var verMemInfo in versionFile.MemorySizes) {
+                    if (verMemInfo.World < newMemAlloc)
+                        verMemInfo.World = newMemAlloc;
+                    if (verMemInfo.Sprite < newMemAlloc)
+                        verMemInfo.Sprite = newMemAlloc;
                 }
 
                 Debug.Log("Saving version file...");
