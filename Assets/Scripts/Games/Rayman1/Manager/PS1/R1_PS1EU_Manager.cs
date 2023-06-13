@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using Cysharp.Threading.Tasks;
 
 namespace Ray1Map.Rayman1
@@ -9,7 +10,7 @@ namespace Ray1Map.Rayman1
     {
         public override string ExeFilePath => "SLES_000.49";
         public override uint? ExeBaseAddress => 0x80123000 - 0x800;
-        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_EU;
+        protected override ExecutableConfig GetExecutableConfig => ExecutableConfig.PS1_EU;
 
         public string GetLanguageFilePath(string langCode) => GetDataPath() + $"IMA/CRD/RAY{langCode}.TXT";
 

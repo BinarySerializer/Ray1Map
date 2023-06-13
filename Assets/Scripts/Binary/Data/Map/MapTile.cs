@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using System;
+using BinarySerializer.Ray1;
 using Ray1Map.GBARRR;
 
 namespace Ray1Map
@@ -33,7 +34,7 @@ namespace Ray1Map
         #region Game Properties
 
         public byte PC_Unk1 { get; set; }
-        public BinarySerializer.Ray1.Block.PC_TransparencyMode PC_TransparencyMode { get; set; }
+        public BinarySerializer.Ray1.Block.BlockRenderMode PC_TransparencyMode { get; set; }
         public byte PC_Unk2 { get; set; }
 
         public byte PaletteIndex { get; set; }
@@ -106,8 +107,6 @@ namespace Ray1Map
             Unknown_46 = 46, // Crash 1 only - used for section where you crawl under some solid tiles, such as Temple of Doom
         }
 
-        public bool SNES_Is8PxTile { get; set; } // True for normal 8x8 tiles, otherwise a 16x16 tile which consists of 4 8x8 tiles
-
         #endregion
 
         /// <summary>
@@ -130,7 +129,7 @@ namespace Ray1Map
                 TileMapX = 0;
                 CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
-                PC_TransparencyMode = s.Serialize<BinarySerializer.Ray1.Block.PC_TransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
+                PC_TransparencyMode = s.Serialize<BinarySerializer.Ray1.Block.BlockRenderMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
                 PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
@@ -160,32 +159,6 @@ namespace Ray1Map
                     TileMapY = b.SerializeBits<ushort>(TileMapY, 12, name: nameof(TileMapY));
                     CollisionType = b.SerializeBits<ushort>(CollisionType, 4, name: nameof(CollisionType));
                 });
-
-                TileMapX = 0;
-            }
-            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.SNES)
-            {
-                if (!SNES_Is8PxTile)
-                {
-                    s.DoBits<ushort>(b =>
-                    {
-                        TileMapY = b.SerializeBits<ushort>(TileMapY, 10, name: nameof(TileMapY));
-                        HorizontalFlip = b.SerializeBits<bool>(HorizontalFlip, 1, name: nameof(HorizontalFlip));
-                        VerticalFlip = b.SerializeBits<bool>(VerticalFlip, 1, name: nameof(VerticalFlip));
-                        CollisionType = b.SerializeBits<ushort>(CollisionType, 4, name: nameof(CollisionType));
-                    });
-                }
-                else
-                {
-                    s.DoBits<ushort>(b =>
-                    {
-                        TileMapY = b.SerializeBits<ushort>(TileMapY, 10, name: nameof(TileMapY));
-                        PaletteIndex = b.SerializeBits<byte>(PaletteIndex, 3, name: nameof(PaletteIndex));
-                        Priority = b.SerializeBits<bool>(Priority, 1, name: nameof(Priority));
-                        HorizontalFlip = b.SerializeBits<bool>(HorizontalFlip, 1, name: nameof(HorizontalFlip));
-                        VerticalFlip = b.SerializeBits<bool>(VerticalFlip, 1, name: nameof(VerticalFlip));
-                    });
-                }
 
                 TileMapX = 0;
             }
@@ -444,35 +417,37 @@ namespace Ray1Map
         {
             return new BinarySerializer.Ray1.Block
             {
-                TileMapX = TileMapX,
-                TileMapY = TileMapY,
-                BlockType = CollisionType,
+                TileX = TileMapX,
+                TileY = TileMapY,
+                BlockType = (BlockType)CollisionType,
                 FlipX = HorizontalFlip,
                 FlipY = VerticalFlip,
-                PC_Byte_03 = PC_Unk1,
-                PC_RuntimeTransparencyMode = PC_TransparencyMode,
-                PC_Byte_05 = PC_Unk2,
-                PaletteIndex = PaletteIndex,
-                Priority = Priority,
-                Pre_SNES_Is8PxTile = SNES_Is8PxTile
+                RenderMode = PC_TransparencyMode,
             };
         }
 
-        public static MapTile FromR1MapTile(BinarySerializer.Ray1.Block block)
+        public static MapTile FromR1MapTile(BinarySerializer.Ray1.Block block, bool isR2 = false)
         {
             return new MapTile
             {
-                TileMapX = block.TileMapX,
-                TileMapY = block.TileMapY,
-                CollisionType = block.BlockType,
+                TileMapX = block.TileX,
+                TileMapY = block.TileY,
+                CollisionType = isR2 ? (ushort)block.R2_BlockType : (ushort)block.BlockType,
                 HorizontalFlip = block.FlipX,
                 VerticalFlip = block.FlipY,
-                PC_Unk1 = block.PC_Byte_03,
-                PC_TransparencyMode = block.PC_RuntimeTransparencyMode,
-                PC_Unk2 = block.PC_Byte_05,
-                PaletteIndex = block.PaletteIndex,
-                Priority = block.Priority,
-                SNES_Is8PxTile = block.Pre_SNES_Is8PxTile
+                PC_TransparencyMode = block.RenderMode,
+            };
+        }
+
+        public static MapTile FromSnesMapTile(BinarySerializer.Nintendo.SNES.MapTile tile)
+        {
+            return new MapTile
+            {
+                TileMapX = (ushort)tile.TileIndex,
+                PaletteIndex = tile.PaletteIndex,
+                Priority = tile.Priority,
+                HorizontalFlip = tile.FlipX,
+                VerticalFlip = tile.FlipY,
             };
         }
     }

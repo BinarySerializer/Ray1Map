@@ -441,8 +441,13 @@ namespace Ray1Map.KlonoaHeroes
                         tileY: 0);
 
                     // Modify all tiles where this is used
-                    foreach (BinarySerializer.Nintendo.GBA.MapTile t in mapTiles.Where(x => x.TileIndex == tileIndex && x.PaletteIndex == p))
-                        t.TileIndex = (ushort)(tilesCount + additionalTiles.Count);
+                    for (int i = 0; i < mapTiles.Length; i++)
+                    {
+                        BinarySerializer.Nintendo.GBA.MapTile t = mapTiles[i];
+                        
+                        if (t.TileIndex == tileIndex && t.PaletteIndex == p)
+                            mapTiles[i] = new BinarySerializer.Nintendo.GBA.MapTile((ushort)(tilesCount + additionalTiles.Count), t.FlipX, t.FlipY, t.PaletteIndex);
+                    }
 
                     // Add to additional tiles list
                     additionalTiles.Add(tileTex);

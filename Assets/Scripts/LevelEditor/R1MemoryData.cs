@@ -1,6 +1,8 @@
 ﻿using System;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
+using BinarySerializer.Ray1.PS1;
 using Ray1Map.Rayman1;
 using UnityEngine;
 
@@ -12,7 +14,7 @@ namespace Ray1Map
         public Pointer RayEventOffset { get; set; }
 
         public Pointer TileArrayOffset { get; set; }
-        public PC_BigMap BigMap { get; set; }
+        public BigMap BigMap { get; set; }
         
         public void Update(SerializerObject s)
         {
@@ -26,7 +28,7 @@ namespace Ray1Map
                 RayEventOffset = gameMemoryOffset + 0x16F650;
 
                 TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
-                BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
+                BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<BigMap>(BigMap, name: nameof(BigMap)));
             }
 
             // Rayman Designer (PC)
@@ -67,7 +69,7 @@ namespace Ray1Map
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 var manager = (R1_PS1BaseXXXManager)s.GetR1Settings().GetGameManager;
-                var lvl = FileFactory.Read<PS1_LevelPack>(LevelEditorData.MainContext, manager.GetLevelFilePath(s.GetR1Settings()));
+                var lvl = FileFactory.Read<LevelPack>(LevelEditorData.MainContext, manager.GetLevelFilePath(s.GetR1Settings()));
                 EventArrayOffset = gameMemoryOffset + lvl.LevelData.ObjectsPointer.AbsoluteOffset;
 
                 // US
@@ -90,7 +92,7 @@ namespace Ray1Map
                     ? ((R1_PS1JPDemoVol3_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()) 
                     : ((R1_PS1JPDemoVol6_Manager)s.GetR1Settings().GetGameManager).GetMapFilePath(s.GetR1Settings()));
 
-                var lvl = FileFactory.Read<PS1_LevelData>(LevelEditorData.MainContext, lvlPath);
+                var lvl = FileFactory.Read<LevelData>(LevelEditorData.MainContext, lvlPath);
                 var map = FileFactory.Read<MapData>(LevelEditorData.MainContext, mapPath);
 
                 EventArrayOffset = gameMemoryOffset + lvl.ObjectsPointer.AbsoluteOffset;
@@ -108,7 +110,7 @@ namespace Ray1Map
             {
                 var manager = (R1_PS1R2_Manager)s.GetR1Settings().GetGameManager;
 
-                EventArrayOffset = gameMemoryOffset + FileFactory.Read<R2_LevDataFile>(LevelEditorData.MainContext, manager.GetLevelDataPath(s.GetR1Settings())).LoadedObjectsPointer.AbsoluteOffset;
+                EventArrayOffset = gameMemoryOffset + FileFactory.Read<R2_LevelData>(LevelEditorData.MainContext, manager.GetLevelDataPath(s.GetR1Settings())).Level.ObjectsPointer.AbsoluteOffset;
                 RayEventOffset = gameMemoryOffset + 0x80178df0;
 
                 // TODO: Find tile offsets

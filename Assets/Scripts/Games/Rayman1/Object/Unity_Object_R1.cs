@@ -39,7 +39,7 @@ namespace Ray1Map.Rayman1
                 if (ObjManager.UsesPointers)
                     EventData.ETAPointer = ObjManager.ETA[ETAIndex.Value].PrimaryPointer;
                 else
-                    EventData.PC_ETAIndex = (uint)ETAIndex.Value;
+                    EventData.PCPacked_ETAIndex = (uint)ETAIndex.Value;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Ray1Map.Rayman1
 
         public int DESIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.DESLookup.TryGetItem(EventData.SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_SpritesIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.DESLookup.TryGetItem(EventData.SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PCPacked_SpritesIndex);
             set {
                 if (value != DESIndex) {
                     OverrideAnimIndex = null;
@@ -70,7 +70,7 @@ namespace Ray1Map.Rayman1
                     }
                     else
                     {
-                        EventData.PC_SpritesIndex = EventData.PC_AnimationsIndex = EventData.PC_ImageBufferIndex = (uint)value;
+                        EventData.PCPacked_SpritesIndex = EventData.PCPacked_AnimationsIndex = EventData.PCPacked_ImageBufferIndex = (uint)value;
                     }
                 }
             }
@@ -78,7 +78,7 @@ namespace Ray1Map.Rayman1
 
         public int ETAIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.ETALookup.TryGetItem(EventData.ETAPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_ETAIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.ETALookup.TryGetItem(EventData.ETAPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PCPacked_ETAIndex);
             set {
                 if (value != ETAIndex) {
                     EventData.MainEtat = EventData.InitialMainEtat = 0;
@@ -88,7 +88,7 @@ namespace Ray1Map.Rayman1
                     if (ObjManager.UsesPointers)
                         EventData.ETAPointer = ObjManager.ETA[value].PrimaryPointer;
                     else
-                        EventData.PC_ETAIndex = (uint)value;
+                        EventData.PCPacked_ETAIndex = (uint)value;
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace Ray1Map.Rayman1
 
         public override bool IsActive => EventData.IsActive && EventData.IsAlive;
 
-        public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(ObjTypeFlags.NoLink) ?? false) && WorldInfo == null && EventData.Type != ObjType.TYPE_RAYMAN;
+        public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].NoLink ?? false) && WorldInfo == null && EventData.Type != ObjType.TYPE_RAYMAN;
         public override bool CanBeLinked => WorldInfo != null;
 
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
@@ -166,10 +166,10 @@ namespace Ray1Map.Rayman1
                 yield break;
 
             // Make sure the current state and type supports collision
-            if (CurrentState == null || (!CurrentState.RayCollision && !CurrentState.FistCollision) || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.NoCollision)))
+            if (CurrentState == null || (!CurrentState.RayCollision && !CurrentState.FistCollision) || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).NoCollision))
                 yield break;
 
-            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.HurtsRayman) && CurrentState.RayCollision == true;
+            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HitRay && CurrentState.RayCollision == true;
 
             // Attempt to set the collision type
             var colType = hurtsRay 
@@ -374,7 +374,7 @@ namespace Ray1Map.Rayman1
             var zdc = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type);
 
             if (zdc != null)
-                EventData.TypeZDC = new ZDCEntry()
+                EventData.TypeZDC = new ZDCReference()
                 {
                     Count = zdc.Count,
                     Index = zdc.Index

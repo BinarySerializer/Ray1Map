@@ -100,14 +100,14 @@ namespace Ray1Map.GBAIsometric
                     int groupLength = (TileGroupWidth / Constants.TileSize) * (TileGroupHeight / Constants.TileSize);
 
                     for (int i = 0; i < TileGroups.Length; i++)
-                        TileGroups[i] = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA.MapTile>(TileGroups[i], groupLength, x => x.Pre_IsAffine = !Is16Bit, name: $"{nameof(TileGroups)}[{i}]");
+                        TileGroups[i] = s.SerializeIntoArray<BinarySerializer.Nintendo.GBA.MapTile>(TileGroups[i], groupLength, Is16Bit ? BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Regular : BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Affine, name: $"{nameof(TileGroups)}[{i}]");
 
                     GroupMap = s.SerializeArray<ushort>(GroupMap, (Width * Height) / groupLength, name: nameof(GroupMap));
                 }
                 else
                 {
-                    TileMap = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA.MapTile>(TileMap, Width * Height, 
-                        x => x.Pre_IsAffine = !Is16Bit && Bits_00_00 == 0, name: nameof(TileMap));
+                    TileMap = s.SerializeIntoArray<BinarySerializer.Nintendo.GBA.MapTile>(TileMap, Width * Height,
+                        Is16Bit || Bits_00_00 != 0 ? BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Regular : BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Affine, name: nameof(TileMap));
                 }
             });
         }

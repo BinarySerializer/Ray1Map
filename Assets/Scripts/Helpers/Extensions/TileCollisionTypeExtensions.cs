@@ -68,35 +68,35 @@ namespace Ray1Map
             };
         }
 
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R2_TileCollisionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R2_BlockType collisionType)
         {
             return collisionType switch
             {
-                R2_TileCollisionType.None => Unity_MapCollisionTypeGraphic.None,
-                R2_TileCollisionType.Direction_Left => Unity_MapCollisionTypeGraphic.Direction_Left,
-                R2_TileCollisionType.Direction_Right => Unity_MapCollisionTypeGraphic.Direction_Right,
-                R2_TileCollisionType.Direction_Up => Unity_MapCollisionTypeGraphic.Direction_Up,
-                R2_TileCollisionType.Direction_Down => Unity_MapCollisionTypeGraphic.Direction_Down,
-                R2_TileCollisionType.Direction_UpLeft => Unity_MapCollisionTypeGraphic.Direction_UpLeft,
-                R2_TileCollisionType.Direction_UpRight => Unity_MapCollisionTypeGraphic.Direction_UpRight,
-                R2_TileCollisionType.Direction_DownLeft => Unity_MapCollisionTypeGraphic.Direction_DownLeft,
-                R2_TileCollisionType.Direction_DownRight => Unity_MapCollisionTypeGraphic.Direction_DownRight,
-                R2_TileCollisionType.Unknown_11 => Unity_MapCollisionTypeGraphic.Reactionary,
-                R2_TileCollisionType.Unknown_14 => Unity_MapCollisionTypeGraphic.Reactionary,
-                R2_TileCollisionType.Cliff => Unity_MapCollisionTypeGraphic.Cliff,
-                R2_TileCollisionType.Water => Unity_MapCollisionTypeGraphic.Water,
-                R2_TileCollisionType.Solid => Unity_MapCollisionTypeGraphic.Solid,
-                R2_TileCollisionType.Passthrough => Unity_MapCollisionTypeGraphic.Passthrough,
-                R2_TileCollisionType.Hill_Slight_Left_1 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1,
-                R2_TileCollisionType.Hill_Slight_Left_2 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2,
-                R2_TileCollisionType.Hill_Steep_Left => Unity_MapCollisionTypeGraphic.Hill_Steep_Left,
-                R2_TileCollisionType.Hill_Slight_Right_1 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1,
-                R2_TileCollisionType.Hill_Slight_Right_2 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2,
-                R2_TileCollisionType.Hill_Steep_Right => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
-                R2_TileCollisionType.Direction_Reverse => Unity_MapCollisionTypeGraphic.Reactionary,
-                R2_TileCollisionType.ReactionaryUnk => Unity_MapCollisionTypeGraphic.Reactionary,
-                R2_TileCollisionType.ValidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Valid,
-                R2_TileCollisionType.InvalidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Invalid,
+                R2_BlockType.None => Unity_MapCollisionTypeGraphic.None,
+                R2_BlockType.ChangeDirection_Left => Unity_MapCollisionTypeGraphic.Direction_Left,
+                R2_BlockType.ChangeDirection_Right => Unity_MapCollisionTypeGraphic.Direction_Right,
+                R2_BlockType.ChangeDirection_Up => Unity_MapCollisionTypeGraphic.Direction_Up,
+                R2_BlockType.ChangeDirection_Down => Unity_MapCollisionTypeGraphic.Direction_Down,
+                R2_BlockType.ChangeDirection_UpLeft => Unity_MapCollisionTypeGraphic.Direction_UpLeft,
+                R2_BlockType.ChangeDirection_UpRight => Unity_MapCollisionTypeGraphic.Direction_UpRight,
+                R2_BlockType.ChangeDirection_DownLeft => Unity_MapCollisionTypeGraphic.Direction_DownLeft,
+                R2_BlockType.ChangeDirection_DownRight => Unity_MapCollisionTypeGraphic.Direction_DownRight,
+                R2_BlockType.Unknown_11 => Unity_MapCollisionTypeGraphic.Reactionary,
+                R2_BlockType.Unknown_14 => Unity_MapCollisionTypeGraphic.Reactionary,
+                R2_BlockType.Cliff => Unity_MapCollisionTypeGraphic.Cliff,
+                R2_BlockType.Water => Unity_MapCollisionTypeGraphic.Water,
+                R2_BlockType.Solid => Unity_MapCollisionTypeGraphic.Solid,
+                R2_BlockType.Passthrough => Unity_MapCollisionTypeGraphic.Passthrough,
+                R2_BlockType.Solid_Right1_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1,
+                R2_BlockType.Solid_Right2_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2,
+                R2_BlockType.Solid_Right_45 => Unity_MapCollisionTypeGraphic.Hill_Steep_Left,
+                R2_BlockType.Solid_Left2_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1,
+                R2_BlockType.Solid_Left1_30 => Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2,
+                R2_BlockType.Solid_Left_45 => Unity_MapCollisionTypeGraphic.Hill_Steep_Right,
+                R2_BlockType.ChangeDirection_Reverse => Unity_MapCollisionTypeGraphic.Reactionary,
+                R2_BlockType.ChangeDirection_Counter => Unity_MapCollisionTypeGraphic.Reactionary,
+                R2_BlockType.Canon_ValidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Valid,
+                R2_BlockType.Canon_InvalidTarget => Unity_MapCollisionTypeGraphic.CannonTarget_Invalid,
                 _ => Unity_MapCollisionTypeGraphic.Unknown0
             };
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
@@ -235,11 +236,11 @@ namespace Ray1Map.Rayman1
                 {
                     // Read the allfix file
                     await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-                    var allfix = FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings()));
+                    var allfix = FileFactory.Read<AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings()));
 
                     // Read the BigRay file
                     await LoadExtraFile(context, GetBigRayFilePath(context.GetR1Settings()), false);
-                    var br = FileFactory.Read<PS1_BigRayPack>(context, GetBigRayFilePath(context.GetR1Settings()));
+                    var br = FileFactory.Read<BigRayPack>(context, GetBigRayFilePath(context.GetR1Settings()));
 
                     Add(spritePals, allfix.Palette1);
                     Add(spritePals, allfix.Palette2);
@@ -252,7 +253,7 @@ namespace Ray1Map.Rayman1
 
                     // Read the world file
                     await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                    var wld = FileFactory.Read<PS1_WorldPack>(context, GetWorldFilePath(context.GetR1Settings()));
+                    var wld = FileFactory.Read<WorldPack>(context, GetWorldFilePath(context.GetR1Settings()));
 
                     Add(spritePals, wld.Palette1);
                     Add(spritePals, wld.Palette2);
@@ -293,9 +294,9 @@ namespace Ray1Map.Rayman1
                         await LoadFilesAsync(context);
                         await LoadAsync(context);
 
-                        PS1_Executable exe = LoadEXE(context);
+                        Executable exe = LoadEXE(context);
                         byte bgIndex = exe.PS1_LevelBackgroundIndexTable[settings.World - 1][settings.Level - 1];
-                        int fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
+                        int fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, FileType.fnd_file);
 
                         if (fndStartIndex == -1)
                             continue;
@@ -307,7 +308,7 @@ namespace Ray1Map.Rayman1
 
                         exportedFiles.Add(bgFilePath);
 
-                        PS1_FondPack bg = FileFactory.Read<PS1_FondPack>(context, bgFilePath);
+                        FondPack bg = FileFactory.Read<FondPack>(context, bgFilePath);
 
                         if (bg.SpriteData == null)
                             continue;
@@ -324,7 +325,7 @@ namespace Ray1Map.Rayman1
                             vram.AddPalette(bg.SpriteData.Palettes[i].Palette, rect);
                         }
 
-                        var levelPack = FileFactory.Read<PS1_LevelPack>(context, GetLevelFilePath(settings));
+                        var levelPack = FileFactory.Read<LevelPack>(context, GetLevelFilePath(settings));
 
                         for (int i = 0; i < bg.SpriteData.SpritesCount; i++)
                         {
@@ -357,13 +358,13 @@ namespace Ray1Map.Rayman1
 
                     // Read the allfix & font files for the menu
                     await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()), false);
-                    var fix = FileFactory.Read<PS1_AllfixPack>(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()));
+                    var fix = FileFactory.Read<AllfixPack>(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()));
                     await LoadExtraFile(menuContext, GetFontFilePath(menuContext.GetR1Settings()), false);
 
                     // Correct font palette
                     if (settings.EngineVersion == EngineVersion.R1_PS1_JP)
                     {
-                        foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
+                        foreach (Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
                             foreach (Sprite imgDescr in font.Sprites)
                             {
@@ -373,7 +374,7 @@ namespace Ray1Map.Rayman1
                     }
                     else
                     {
-                        foreach (PS1_Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
+                        foreach (Alpha font in new[] { fix.AllfixData.Alpha, fix.AllfixData.Alpha2 })
                         {
                             foreach (Sprite imgDescr in font.Sprites)
                             {
@@ -384,10 +385,10 @@ namespace Ray1Map.Rayman1
 
                     // Read the BigRay file
                     await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings()), false);
-                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayPack>(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings())) : null;
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<BigRayPack>(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings())) : null;
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, new PS1_Alpha[]
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, new Alpha[]
                     {
                         fix.AllfixData.Alpha,
                         fix.AllfixData.Alpha2,
@@ -412,7 +413,7 @@ namespace Ray1Map.Rayman1
                     return null;
 
                 var bgIndex = exe.PS1_LevelBackgroundIndexTable[context.GetR1Settings().World - 1][context.GetR1Settings().Level - 1];
-                var fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
+                var fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, FileType.fnd_file);
 
                 if (fndStartIndex == -1)
                     return null;
@@ -421,22 +422,22 @@ namespace Ray1Map.Rayman1
 
                 await LoadExtraFile(context, bgFilePath, true);
 
-                var bg = FileFactory.Read<PS1_FondPack>(context, bgFilePath);
+                var bg = FileFactory.Read<FondPack>(context, bgFilePath);
 
                 return bg.Fond.ToTexture(context);
             }
             else
             {
-                string bgFilePath = exe.PS1_FileTable[exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.img_file) + 2].ProcessedFilePath;
+                string bgFilePath = exe.PS1_FileTable[exe.GetFileTypeIndex(GetExecutableConfig, FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
-                return FileFactory.Read<PS1_Fond>(context, bgFilePath).ToTexture(context);
+                return FileFactory.Read<Fond>(context, bgFilePath).ToTexture(context);
             }
         }
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<PS1_AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings())).AllfixData;
+            var allfix = FileFactory.Read<AllfixPack>(context, GetAllfixFilePath(context.GetR1Settings())).AllfixData;
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {

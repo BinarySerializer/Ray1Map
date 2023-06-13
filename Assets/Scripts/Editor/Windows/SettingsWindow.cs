@@ -329,11 +329,6 @@ public class SettingsWindow : UnityWindow
                         lvl.PS1_VRAM.ExportToFile(outputFile);
                 }
 
-                if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
-                    if (EditorButton("Copy event flag info"))
-                        r1.GetEventFlagsDebugInfo().CopyToClipboard();
-                }
-                
                 if (LevelEditorData.MainContext.HasSettings<Ray1Settings>()) 
                 {
                     if (EditorButton("Export map"))

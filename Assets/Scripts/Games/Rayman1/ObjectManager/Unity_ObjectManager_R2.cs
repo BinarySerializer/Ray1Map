@@ -2,6 +2,7 @@
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -9,7 +10,7 @@ namespace Ray1Map.Rayman1
 {
     public class Unity_ObjectManager_R2 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, UnityEngine.Sprite[] sprites, Sprite[] imageDescriptors, R2_LevDataFile levData) : base(context)
+        public Unity_ObjectManager_R2(Context context, short[] linkTable, AnimGroup[] animGroups, UnityEngine.Sprite[] sprites, Sprite[] imageDescriptors, R2_LevelData levData) : base(context)
         {
             LinkTable = linkTable;
             AnimGroups = animGroups;
@@ -25,13 +26,13 @@ namespace Ray1Map.Rayman1
         public Dictionary<long, int> AnimGroupsLookup { get; } = new Dictionary<long, int>();
         public UnityEngine.Sprite[] Sprites { get; }
         public Sprite[] ImageDescriptors { get; }
-        public R2_LevDataFile LevData { get; }
+        public R2_LevelData LevData { get; }
 
-        public ushort[] LinkTable { get; }
+        public short[] LinkTable { get; }
 
-        public override int InitLinkGroups(IList<Unity_SpriteObject> objects) => InitR1LinkGroups(objects, LinkTable);
+        public override int InitLinkGroups(IList<Unity_SpriteObject> objects) => InitR1LinkGroups(objects, LinkTable.Select(x => (ushort)x).ToArray());
 
-        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.ObjType == R2_ObjType.RaymanPosition);
+        public override Unity_SpriteObject GetMainObject(IList<Unity_SpriteObject> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.Type == R2_ObjType.TYPE_RAY_POS);
 
         public override string[] LegacyDESNames => AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
@@ -57,20 +58,11 @@ namespace Ray1Map.Rayman1
                 s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
                 s.Goto(currentOffset);
                 ed.EventData.Init(s.CurrentPointer);
-                ed.EventData.Pre_IsSerializingFromMemory = true;
-
-                try
-                {
-                    ed.EventData.Serialize(s);
-                }
-                finally
-                {
-                    ed.EventData.Pre_IsSerializingFromMemory = false;
-                }
+                ed.EventData.Serialize(s);
 
                 if (s is BinarySerializer.BinarySerializer)
                 {
-                    Debug.Log($"Edited event {ed.EventData.Index}");
+                    Debug.Log($"Edited event {ed.EventData.Id}");
                     madeEdits = true;
                 }
 
@@ -82,7 +74,7 @@ namespace Ray1Map.Rayman1
             if (GameMemoryData.EventArrayOffset != null)
             {
                 currentOffset = GameMemoryData.EventArrayOffset;
-                foreach (var ed in lvl.EventData.OfType<Unity_Object_R2>().Take(LevData.LoadedObjectsCount))
+                foreach (var ed in lvl.EventData.OfType<Unity_Object_R2>().Take(LevData.Level.ObjectsCount))
                     SerializeEvent(ed, gameMemoryContext);
             }
 

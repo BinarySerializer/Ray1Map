@@ -281,13 +281,13 @@ public class WebCommunicator : MonoBehaviour {
 					break;
 
 				case Unity_Object_R2 r2obj:
-					webObj.R1_Type = (ushort)r2obj.EventData.ObjType;
+					webObj.R1_Type = (ushort)r2obj.EventData.Type;
 					webObj.R2_MapLayer = r2obj.EventData.InitialMapLayer.ToString();
-					webObj.R1_Etat = r2obj.EventData.Etat;
+					webObj.R1_Etat = r2obj.EventData.MainEtat;
 					webObj.R1_SubEtat = r2obj.EventData.SubEtat;
-					webObj.R1_OffsetBX = r2obj.EventData.CollisionData?.OffsetBX;
-					webObj.R1_OffsetBY = r2obj.EventData.CollisionData?.OffsetBY;
-					webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
+					webObj.R1_OffsetBX = r2obj.EventData.Character?.OffsetBX;
+					webObj.R1_OffsetBY = r2obj.EventData.Character?.OffsetBY;
+					webObj.R1_OffsetHY = r2obj.EventData.Character?.OffsetHY;
 					webObj.R1_HitPoints = r2obj.EventData.HitPoints;
 					webObj.R1_DisplayPrio = r2obj.EventData.DisplayPrio;
 

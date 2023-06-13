@@ -5,6 +5,7 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -101,19 +102,19 @@ namespace Ray1Map.Rayman1
         public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_EDUDES[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
         public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_EDUETA[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
 
-        public override byte[] GetTypeZDCBytes => PC_ZDCTables.EduPC_Type_ZDC;
-        public override byte[] GetZDCTableBytes => PC_ZDCTables.EduPC_ZDCTable;
-        public override byte[] GetEventFlagsBytes => PC_ObjTypeFlagTables.EduPC_Flags;
+        public override byte[] GetTypeZDCBytes => ZDCTables.EduPC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => ZDCTables.EduPC_ZDCTable;
+        public override byte[] GetEventFlagsBytes => ObjTypeFlagTables.EduPC_Flags;
 
         public override WorldInfo[] GetWorldMapInfos(Context context)
         {
-            var wld = LoadArchiveFile<PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01);
-            return wld.Levels.Take(wld.LevelsCount + 1).Where(x => x.XPosition != 0 && x.YPosition != 0).ToArray();
+            var wld = LoadArchiveFile<WorldMapScript>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01);
+            return wld.WorldMap.MapDefine.Take(wld.WorldMap.PelletsCount + 1).Where(x => x.XPosition != 0 && x.YPosition != 0).ToArray();
 
         }
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax) =>
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.FNDIndex])?.ToTexture(true));
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, WorldFile world, LevelFile level, bool parallax) =>
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.PcxFileNames[level.LevelDefine.Fnd])?.ToTexture(true));
 
         protected override UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
@@ -121,28 +122,28 @@ namespace Ray1Map.Rayman1
             var localization = new KeyValuePair<string, string[]>[3];
 
             // Read the text data
-            var loc = LoadArchiveFile<PC_LocFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.TEXT);
+            var loc = LoadArchiveFile<TextScript>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.TEXT);
 
             // Save the localized name
-            var locName = loc.LanguageNames[loc.LanguageUtilized];
+            var locName = loc.LanguageNames[loc.LanguageUsed];
 
             if (String.IsNullOrWhiteSpace(locName))
                 locName = context.GetR1Settings().EduVolume;
 
             // Add the localization
-            localization[0] = new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+            localization[0] = new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.PCPacked_TextDefine);
 
             // Read the general data
-            var general = LoadArchiveFile<PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.GENERAL);
+            var general = LoadArchiveFile<GeneralScript>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.GENERAL);
 
             // Add the localization
-            localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.String.Value).ToArray());
+            localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.Text).ToArray());
 
             // Read the MOT data
-            var mot = LoadArchiveFile<PC_MOTFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.MOT);
+            var mot = LoadArchiveFile<WordsScript>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.MOT);
 
             // Add the localization
-            localization[2] = new KeyValuePair<string, string[]>($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
+            localization[2] = new KeyValuePair<string, string[]>($"MOT ({locName})", mot.Words);
 
             return UniTask.FromResult<KeyValuePair<string, string[]>[]>(localization);
         }
@@ -163,7 +164,7 @@ namespace Ray1Map.Rayman1
 
         public override UniTask<PCX> GetWorldMapVigAsync(Context context)
         {
-            var worldVig = LoadArchiveFile<PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+            var worldVig = LoadArchiveFile<WorldMapScript>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01).WorldMap.Background;
 
             return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), worldVig));
         }

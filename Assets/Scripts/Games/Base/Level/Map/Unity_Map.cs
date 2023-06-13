@@ -35,7 +35,7 @@ namespace Ray1Map
         /// <summary>
         /// The transparency mode for the tiles in the tileset on PC
         /// </summary>
-        public Block.PC_TransparencyMode[] TileSetTransparencyModes { get; set; }
+        public Block.BlockRenderMode[] TileSetTransparencyModes { get; set; }
 
         /// <summary>
         /// Tile texture offset table for PC

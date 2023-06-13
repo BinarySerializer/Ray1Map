@@ -814,7 +814,7 @@ namespace Ray1Map.GBAIsometric
 
                     // Replace map
                     s.Goto(jpRom.PortraitTileMaps[i]);
-                    s.SerializeObject<ObjectArray<BinarySerializer.Nintendo.GBA.MapTile>>(euRom.PortraitTileMaps[i]);
+                    s.SerializeIntoArray<BinarySerializer.Nintendo.GBA.MapTile>(euRom.PortraitTileMaps[i].Value, euRom.PortraitTileMaps[i].Value.Length, BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Regular);
 
                     // Replace tile set
                     if (euRom.PortraitTileSetLengths[i] == jpRom.PortraitTileSetLengths[i])

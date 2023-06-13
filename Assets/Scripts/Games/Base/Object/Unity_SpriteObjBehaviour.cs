@@ -766,7 +766,7 @@ namespace Ray1Map
                 }
                 else if (ObjData is Unity_Object_R2 r2bj)
                 {
-                    var hy = -(r2bj.EventData.CollisionData?.OffsetHY ?? 0);
+                    var hy = -(r2bj.EventData.Character?.OffsetHY ?? 0);
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy / (float)LevelEditorData.Level.PixelsPerUnit);
                 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Sprite = UnityEngine.Sprite;
 
@@ -15,28 +16,28 @@ namespace Ray1Map.Rayman1
             // Set properties
             EventData = eventData;
             ObjManager = objManager;
-            TypeInfo = EventData.ObjType.GetAttribute<ObjTypeInfoAttribute>();
+            TypeInfo = EventData.Type.GetAttribute<ObjTypeInfoAttribute>();
 
             // Set editor states
-            EventData.InitialEtat = EventData.Etat;
+            EventData.InitialMainEtat = EventData.MainEtat;
             EventData.InitialSubEtat = EventData.SubEtat;
             EventData.InitialHitPoints = EventData.HitPoints;
             EventData.InitialDisplayPrio = EventData.DisplayPrio;
             EventData.InitialXPosition = EventData.XPosition;
             EventData.InitialYPosition = EventData.YPosition;
-            EventData.RuntimeCurrentAnimIndex = 0;
+            EventData.AnimationIndex = 0;
             EventData.MapLayer = EventData.InitialMapLayer; // MapLayer is None in the files
 
-            if (EventData.ObjType == R2_ObjType.Ting)
-                EventData.RuntimeCurrentAnimFrame = (byte)(EventData.HitPoints - 1);
+            if (EventData.Type == R2_ObjType.TYPE_WIZ)
+                EventData.AnimationFrame = (byte)(EventData.HitPoints - 1);
         }
 
         public R2_ObjData EventData { get; }
 
         public Unity_ObjectManager_R2 ObjManager { get; }
 
-        public ObjState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
-        public ObjState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
+        public ObjState CurrentState => GetState(EventData.MainEtat, EventData.SubEtat);
+        public ObjState InitialState => GetState(EventData.InitialMainEtat, EventData.InitialSubEtat);
         public ObjState LinkedState => GetState(CurrentState?.NextMainEtat ?? -1, CurrentState?.NextSubEtat ?? -1);
 
         protected ObjState GetState(int etat, int subEtat) => AnimGroup?.ETA?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
@@ -45,13 +46,13 @@ namespace Ray1Map.Rayman1
 
         public int AnimGroupIndex
         {
-            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimDataPointer?.AbsoluteOffset ?? 0, -1);
+            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimSetPointer?.AbsoluteOffset ?? 0, -1);
             set {
-                if (value != AnimGroupIndex && EventData.AnimDataPointer != null) {
-                    EventData.Etat = EventData.InitialEtat = 0;
+                if (value != AnimGroupIndex && EventData.AnimSetPointer != null) {
+                    EventData.MainEtat = EventData.InitialMainEtat = 0;
                     EventData.SubEtat = EventData.InitialSubEtat = 0;
                     OverrideAnimIndex = null;
-                    EventData.AnimDataPointer = ObjManager.AnimGroups[value].Pointer;
+                    EventData.AnimSetPointer = ObjManager.AnimGroups[value].Pointer;
                 }
             }
         }
@@ -77,18 +78,18 @@ namespace Ray1Map.Rayman1
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => (AnimGroup?.Animations?.Any() != true && EventData.ObjType != R2_ObjType.Invalid) || EventData.DisplayPrio == 0;
+        public override bool IsEditor => (AnimGroup?.Animations?.Any() != true && EventData.Type != R2_ObjType.TYPE_INVALID) || EventData.DisplayPrio == 0;
         public override Unity_ObjectType Type
         {
             get
             {
-                switch (EventData.ObjType)
+                switch (EventData.Type)
                 {
-                    case R2_ObjType.Gendoor:
-                    case R2_ObjType.Trigger:
+                    case R2_ObjType.TYPE_GENERATING_DOOR:
+                    case R2_ObjType.TYPE_TRIGGER:
                         return Unity_ObjectType.Trigger;
 
-                    case R2_ObjType.RaymanPosition:
+                    case R2_ObjType.TYPE_RAY_POS:
                         return Unity_ObjectType.Waypoint;
 
                     default:
@@ -97,36 +98,36 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public override bool IsActive => !Settings.LoadFromMemory || (EventData.ObjType != R2_ObjType.Invalid && (EventData.RuntimeFlags1.HasFlag(R2_ObjData.PS1_R2Demo_ObjRuntimeFlags1.SwitchedOn)));
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.Type != R2_ObjType.TYPE_INVALID && EventData.IsActive);
         public override bool CanBeLinkedToGroup => true;
-        public override bool CanBeLinked => EventData.ParamsGendoor != null || EventData.ParamsTrigger != null;
+        public override bool CanBeLinked => EventData.UserData_Gendoor != null || EventData.UserData_Trigger != null;
 
         public override IEnumerable<int> Links
         {
             get
             {
-                if (EventData.ParamsGendoor != null)
-                    foreach (var l in EventData.ParamsGendoor.LinkedObjects)
+                if (EventData.UserData_Gendoor != null)
+                    foreach (var l in EventData.UserData_Gendoor.LinkedObjects)
                         yield return l;
 
-                if (EventData.ParamsTrigger != null)
-                    foreach (var l in EventData.ParamsTrigger.LinkedObjects)
+                if (EventData.UserData_Trigger != null)
+                    foreach (var l in EventData.UserData_Trigger.LinkedObjects)
                         yield return l;
             }
         }
 
-        public override string PrimaryName => $"TYPE_{(ushort)EventData.ObjType}";
-        public override string SecondaryName => $"{EventData.ObjType}";
+        public override string PrimaryName => $"TYPE_{(ushort)EventData.Type}";
+        public override string SecondaryName => $"{EventData.Type}";
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.DisplayPrio * 512));
 
         public override int? MapLayer => EventData.MapLayer == R2_ObjData.ObjMapLayer.Back ? 2: 3;
 
         public override float Scale => EventData.MapLayer == R2_ObjData.ObjMapLayer.Back ? 0.5f : 1;
-        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlipX : EventData.Flags.HasFlag(R2_ObjData.PS1_R2Demo_ObjFlags.FlippedHorizontally);
+        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.FlipX : EventData.InitialFlipX;
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {
-            var zdcEntry = EventData.CollisionData?.ZDC;
+            var zdcEntry = EventData.Character?.ZDC;
 
             if (zdcEntry == null)
                 yield break;
@@ -141,17 +142,17 @@ namespace Ray1Map.Rayman1
                 if (zdc == null)
                     continue;
 
-                if (zdc.R2_ZDC_Flags != 0 && (zdc.R2_ZDC_Flags & EventData.ZDCFlags) == 0) 
+                if (zdc.R2_Flags != 0 && (zdc.R2_Flags & EventData.GendoorExtGroup) == 0) 
                     continue;
 
-                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R2_ObjCollision.ObjFlags.HurtsRayman) == true && 
+                var hurtsRay = EventData.Character?.Flags.HitRay == true && 
                                CurrentState?.RayCollision == true && 
-                               zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Rayman) == true;
+                               zdcTriggerFlags?.HasFlag(R2_LevelData.ZDC_TriggerFlags.Rayman) == true;
 
                 // Attempt to set the collision type
                 var colType = hurtsRay 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
-                    : zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Poing_0) == true || zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Poing_1) == true
+                    : zdcTriggerFlags?.HasFlag(R2_LevelData.ZDC_TriggerFlags.Poing_0) == true || zdcTriggerFlags?.HasFlag(R2_LevelData.ZDC_TriggerFlags.Poing_1) == true
                         ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
                         : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
@@ -209,14 +210,14 @@ namespace Ray1Map.Rayman1
         public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
-            get => Mathf.Clamp(EventData.RuntimeCurrentAnimFrame, 0, CurrentAnimation?.Frames.Length - 1 ?? 0);
-            set => EventData.RuntimeCurrentAnimFrame = (byte)value;
+            get => Mathf.Clamp(EventData.AnimationFrame, 0, CurrentAnimation?.Frames.Length - 1 ?? 0);
+            set => EventData.AnimationFrame = (byte)value;
         }
 
         public override int? AnimationIndex
         {
-            get => EventData.RuntimeCurrentAnimIndex;
-            set => EventData.RuntimeCurrentAnimIndex = (byte)(value ?? 0);
+            get => EventData.AnimationIndex;
+            set => EventData.AnimationIndex = (byte)(value ?? 0);
         }
 
         public override int AnimSpeed => CurrentState?.AnimationSpeed ?? 0;
@@ -224,7 +225,7 @@ namespace Ray1Map.Rayman1
         public override int? GetAnimIndex => OverrideAnimIndex ?? CurrentState?.AnimationIndex;
         protected override int GetSpriteID => AnimGroupIndex;
         public override IList<Sprite> Sprites => ObjManager.Sprites;
-        public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
+        public override Vector2 Pivot => new Vector2(EventData.Character?.OffsetBX ?? 0, -EventData.Character?.OffsetBY ?? 0);
 
         protected HashSet<ObjState> EncounteredStates { get; } = new HashSet<ObjState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
         protected ObjState PrevInitialState { get; set; }
@@ -259,11 +260,11 @@ namespace Ray1Map.Rayman1
                 else
                 {
                     // Update state values to the linked one
-                    EventData.Etat = state.NextMainEtat;
+                    EventData.MainEtat = state.NextMainEtat;
                     EventData.SubEtat = state.NextSubEtat;
 
                     // For always objects the game sets the last state in the chain to link to -1 to indicate that the object should now be hidden again, but to avoid the object now displaying in the editor we reset it here
-                    if (EventData.Etat == 0xFF || EventData.SubEtat == 0xFF)
+                    if (EventData.MainEtat == 0xFF || EventData.SubEtat == 0xFF)
                         ResetState();
                 }
             }
@@ -272,7 +273,7 @@ namespace Ray1Map.Rayman1
         protected void ResetState()
         {
             // Reset the state
-            EventData.Etat = EventData.InitialEtat;
+            EventData.MainEtat = EventData.InitialMainEtat;
             EventData.SubEtat = EventData.InitialSubEtat;
 
             // Clear encountered states
@@ -290,8 +291,8 @@ namespace Ray1Map.Rayman1
 
             public override ushort Type
             {
-                get => (ushort)Obj.EventData.ObjType;
-                set => Obj.EventData.ObjType = (R2_ObjType)value;
+                get => (ushort)Obj.EventData.Type;
+                set => Obj.EventData.Type = (R2_ObjType)value;
             }
 
             public override int DES
@@ -308,8 +309,8 @@ namespace Ray1Map.Rayman1
 
             public override byte Etat
             {
-                get => Obj.EventData.Etat;
-                set => Obj.EventData.Etat = Obj.EventData.InitialEtat = value;
+                get => Obj.EventData.MainEtat;
+                set => Obj.EventData.MainEtat = Obj.EventData.InitialMainEtat = value;
             }
 
             public override byte SubEtat
@@ -319,35 +320,35 @@ namespace Ray1Map.Rayman1
             }
 
             public override int EtatLength => Obj.AnimGroup?.ETA?.Length ?? 0;
-            public override int SubEtatLength => Obj.AnimGroup?.ETA.ElementAtOrDefault(Obj.EventData.Etat)?.Length ?? 0;
+            public override int SubEtatLength => Obj.AnimGroup?.ETA.ElementAtOrDefault(Obj.EventData.MainEtat)?.Length ?? 0;
 
             public override byte OffsetBX
             {
-                get => Obj.EventData.CollisionData?.OffsetBX ?? 0;
+                get => Obj.EventData.Character?.OffsetBX ?? 0;
                 set
                 {
-                    if (Obj.EventData.CollisionData != null)
-                        Obj.EventData.CollisionData.OffsetBX = value;
+                    if (Obj.EventData.Character != null)
+                        Obj.EventData.Character.OffsetBX = value;
                 }
             }
 
             public override byte OffsetBY
             {
-                get => Obj.EventData.CollisionData?.OffsetBY ?? 0;
+                get => Obj.EventData.Character?.OffsetBY ?? 0;
                 set
                 {
-                    if (Obj.EventData.CollisionData != null)
-                        Obj.EventData.CollisionData.OffsetBY = value;
+                    if (Obj.EventData.Character != null)
+                        Obj.EventData.Character.OffsetBY = value;
                 }
             }
 
             public override byte OffsetHY
             {
-                get => Obj.EventData.CollisionData?.OffsetHY ?? 0;
+                get => Obj.EventData.Character?.OffsetHY ?? 0;
                 set
                 {
-                    if (Obj.EventData.CollisionData != null)
-                        Obj.EventData.CollisionData.OffsetHY = value;
+                    if (Obj.EventData.Character != null)
+                        Obj.EventData.Character.OffsetHY = value;
                 }
             }
 
@@ -399,7 +400,7 @@ namespace Ray1Map.Rayman1
             public override void Apply(Unity_Object obj) {
                 if (IsState) {
                     var r2obj = obj as Unity_Object_R2;
-                    r2obj.EventData.Etat = r2obj.EventData.InitialEtat = Etat;
+                    r2obj.EventData.MainEtat = r2obj.EventData.InitialMainEtat = Etat;
                     r2obj.EventData.SubEtat = r2obj.EventData.InitialSubEtat = SubEtat;
                     obj.OverrideAnimIndex = null;
                 } else {
@@ -412,7 +413,7 @@ namespace Ray1Map.Rayman1
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == ((Unity_Object_R2)obj).EventData.InitialEtat
+                        && Etat == ((Unity_Object_R2)obj).EventData.InitialMainEtat
                         && SubEtat == ((Unity_Object_R2)obj).EventData.InitialSubEtat;
             }
         }

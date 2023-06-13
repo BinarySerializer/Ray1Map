@@ -31,18 +31,19 @@ namespace BinarySerializer.Unity.Editor {
 
 		#region Public Properties
 
-		public override bool FullSerialize => false;
+        public override bool FullSerialize => false;
 		public override long CurrentLength => 0;
         public override bool HasCurrentPointer => false;
         public override BinaryFile CurrentBinaryFile => null;
 		public override long CurrentFileOffset => 0;
 		public override long CurrentAbsoluteOffset => 0;
+        public override bool UsesSerializeNames => true;
 
-		#endregion
+        #endregion
 
-		#region Private Editor Helpers
+        #region Private Editor Helpers
 
-		private void DoFoldout(string name, Action action)
+        private void DoFoldout(string name, Action action)
 		{
 			CurrentName.Push(name);
 
@@ -272,6 +273,12 @@ namespace BinarySerializer.Unity.Editor {
 			return EditorGUILayout.TextField(name, obj);
 		}
 
+        public override string SerializeLengthPrefixedString<T>(string obj, Encoding encoding = null, string name = null)
+        {
+            name ??= DefaultName;
+            return EditorGUILayout.TextField(name, obj);
+        }
+
         public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) where T : default
         {
             throw new NotImplementedException();
@@ -444,11 +451,30 @@ namespace BinarySerializer.Unity.Editor {
 			return obj;
 		}
 
-		#endregion
+        public override string[] SerializeLengthPrefixedStringArray<T>(string[] obj, long count, Encoding encoding = null,
+            string name = null)
+        {
+            name ??= DefaultName;
 
-		#region Other Serialization
+            if (obj == null)
+                obj = new string[count];
+            else if (count != obj.Length)
+                Array.Resize(ref obj, (int)count);
 
-		public override void DoEndian(Endian endianness, Action action)
+            DoFoldout($"{name}[{obj.Length}]", () =>
+            {
+                for (int i = 0; i < obj.Length; i++)
+                    SerializeLengthPrefixedString<T>(obj[i], name: $"{name}[{i}]");
+            });
+
+            return obj;
+        }
+
+        #endregion
+
+        #region Other Serialization
+
+        public override void DoEndian(Endian endianness, Action action)
 		{
 			action();
 		}

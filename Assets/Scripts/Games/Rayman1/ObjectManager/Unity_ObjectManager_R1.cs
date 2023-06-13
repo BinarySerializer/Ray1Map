@@ -11,7 +11,7 @@ namespace Ray1Map.Rayman1
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<ObjState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, ZDCEntry[] typeZDC = null, ZDCData[] zdcData = null, ObjTypeFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false, Dictionary<WldObjType, ObjData> eventTemplates = null) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<ObjState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, ZDCReference[] typeZDC = null, ZDCBox[] zdcData = null, ObjTypeFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false, Dictionary<WldObjType, ObjData> eventTemplates = null) : base(context)
         {
             // Set properties
             DES = des;
@@ -58,8 +58,8 @@ namespace Ray1Map.Rayman1
 
         public bool UsesPointers { get; }
 
-        public ZDCEntry[] TypeZDC { get; }
-        public ZDCData[] ZDCData { get; }
+        public ZDCReference[] TypeZDC { get; }
+        public ZDCBox[] ZDCData { get; }
         public ObjTypeFlags[] EventFlags { get; }
         public bool HasDefinedDesEtaNames { get; }
 
@@ -254,7 +254,7 @@ namespace Ray1Map.Rayman1
             var miniRayDESIndex = miniRay?.DESIndex;
 
             if (miniRayDESIndex == null && EventTemplates.ContainsKey(WldObjType.RayLittle))
-                miniRayDESIndex = UsesPointers ? DESLookup.TryGetItem(EventTemplates[WldObjType.RayLittle].SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventTemplates[WldObjType.RayLittle].PC_SpritesIndex;
+                miniRayDESIndex = UsesPointers ? DESLookup.TryGetItem(EventTemplates[WldObjType.RayLittle].SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventTemplates[WldObjType.RayLittle].PCPacked_SpritesIndex;
 
             if (miniRayDESIndex != null)
             {
@@ -363,10 +363,10 @@ namespace Ray1Map.Rayman1
                     e.AnimationsPointer = mapObj.AnimationsPointer;
                     e.ETAPointer = mapObj.ETAPointer;
 
-                    e.PC_SpritesIndex = mapObj.PC_SpritesIndex;
-                    e.PC_ImageBufferIndex = mapObj.PC_ImageBufferIndex;
-                    e.PC_AnimationsIndex = mapObj.PC_AnimationsIndex;
-                    e.PC_ETAIndex = mapObj.PC_ETAIndex;
+                    e.PCPacked_SpritesIndex = mapObj.PCPacked_SpritesIndex;
+                    e.PCPacked_ImageBufferIndex = mapObj.PCPacked_ImageBufferIndex;
+                    e.PCPacked_AnimationsIndex = mapObj.PCPacked_AnimationsIndex;
+                    e.PCPacked_ETAIndex = mapObj.PCPacked_ETAIndex;
                 }
             }
         }
@@ -386,26 +386,6 @@ namespace Ray1Map.Rayman1
 
         public override string[] LegacyDESNames => DES.Select(x => x.DisplayName).ToArray();
         public override string[] LegacyETANames => ETA.Select(x => x.DisplayName).ToArray();
-
-        public string GetEventFlagsDebugInfo()
-        {
-            if (EventFlags == null)
-                return String.Empty;
-
-            var str = new StringBuilder();
-
-            for (int i = 0; i < EventFlags.Length; i++)
-            {
-                var type = (ObjType)i;
-                var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
-
-                var line = $"{Convert.ToString((int)EventFlags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
-
-                str.AppendLine($"{line,-75} - {EventFlags[i]}");
-            }
-
-            return str.ToString();
-        }
 
         // Global data (for memory loading)
         public R1MemoryData GameMemoryData { get; } = new R1MemoryData();
@@ -433,7 +413,9 @@ namespace Ray1Map.Rayman1
                 s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
                 s.Goto(currentOffset);
                 ed.EventData.Init(s.CurrentPointer);
-                ed.EventData.Pre_IsSerializingFromMemory = true;
+                Ray1Settings settings = s.GetRequiredSettings<Ray1Settings>();
+                bool isLoadingPackedPCData = settings.IsLoadingPackedPCData;
+                settings.IsLoadingPackedPCData = false;
 
                 try
                 {
@@ -441,7 +423,7 @@ namespace Ray1Map.Rayman1
                 }
                 finally
                 {
-                    ed.EventData.Pre_IsSerializingFromMemory = false;
+                    settings.IsLoadingPackedPCData = isLoadingPackedPCData;
                 }
 
                 if (s is BinarySerializer.BinarySerializer)
@@ -789,7 +771,7 @@ namespace Ray1Map.Rayman1
                 s.DoAt(Pointers.TryGetItem(nameof(Poing)), () => Poing = s.SerializeObject<Poing>(Poing, name: nameof(Poing)));
                 s.DoAt(Pointers.TryGetItem(nameof(StatusBar)), () => StatusBar = s.SerializeObject<StatusBar>(StatusBar, name: nameof(StatusBar)));
                 s.DoAt(Pointers.TryGetItem(nameof(ActiveObjCount)), () => ActiveObjCount = s.Serialize<short>(ActiveObjCount, name: nameof(ActiveObjCount)));
-                s.DoAt(Pointers.TryGetItem(nameof(RayEventFlags)), () => RayEventFlags = s.Serialize<RayEvts>(RayEventFlags, name: nameof(RayEventFlags)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayEventFlags)), () => RayEventFlags = s.SerializeObject<RayEvts>(RayEventFlags, name: nameof(RayEventFlags)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumLevelChoice)), () => NumLevelChoice = s.Serialize<short>(NumLevelChoice, name: nameof(NumLevelChoice)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumWorldChoice)), () => NumWorldChoice = s.Serialize<short>(NumWorldChoice, name: nameof(NumWorldChoice)));
                 s.DoAt(Pointers.TryGetItem(nameof(RayMode)), () => RayMode = s.Serialize<RayMode>(RayMode, name: nameof(RayMode)));

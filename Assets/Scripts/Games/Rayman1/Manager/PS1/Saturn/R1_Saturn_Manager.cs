@@ -5,6 +5,7 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
@@ -26,7 +27,7 @@ namespace Ray1Map.Rayman1
         protected override MemoryMappedPS1File.InvalidPointerMode InvalidPointerMode => MemoryMappedPS1File.InvalidPointerMode.Allow;
 
         public uint BaseAddress => 0x00200000;
-        protected override PS1_ExecutableConfig GetExecutableConfig => null;
+        protected override ExecutableConfig GetExecutableConfig => null;
 
         public override Endian Endianness => Endian.Big;
 
@@ -249,7 +250,7 @@ namespace Ray1Map.Rayman1
             ushort paletteOffset;
 
             var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
-            var isFont = context.GetStoredObject<PS1_Alpha[]>("Font")?.SelectMany(x => x.Sprites).Contains(img) == true;
+            var isFont = context.GetStoredObject<Alpha[]>("Font")?.SelectMany(x => x.Sprites).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.Depth == SpriteDepth.BPP_8) {
@@ -320,7 +321,7 @@ namespace Ray1Map.Rayman1
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
 
-            PS1_LevelData objBlock = null;
+            LevelData objBlock = null;
             MapData mapData;
 
             if (context.GetR1Settings().R1_World != World.Menu)
@@ -353,7 +354,7 @@ namespace Ray1Map.Rayman1
 
                 if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelFilePath)))
                     // Read the event block
-                    objBlock = FileFactory.Read<PS1_LevelData>(context, levelFilePath);
+                    objBlock = FileFactory.Read<LevelData>(context, levelFilePath);
             }
             else
             {
@@ -519,7 +520,7 @@ namespace Ray1Map.Rayman1
                 {
                     // Load allfix
                     await LoadFile(menuContext, GetAllfixFilePath(), BaseAddress);
-                    var fix = FileFactory.Read<PS1_AllfixData>(menuContext, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+                    var fix = FileFactory.Read<AllfixData>(menuContext, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
@@ -532,10 +533,10 @@ namespace Ray1Map.Rayman1
                     // Read the BigRay file
                     await LoadFile(bigRayContext, GetBigRayFilePath(), 0x00280000);
                     await LoadFile(bigRayContext, GetBigRayImageFilePath());
-                    var br = FileFactory.Read<PS1_BigRayData>(bigRayContext, GetBigRayFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+                    var br = FileFactory.Read<BigRayData>(bigRayContext, GetBigRayFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, new PS1_Alpha[]
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, new Alpha[]
                     {
                         fix.Alpha,
                         fix.Alpha2,
@@ -552,7 +553,7 @@ namespace Ray1Map.Rayman1
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<PS1_AllfixData>(context, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
+            var allfix = FileFactory.Read<AllfixData>(context, GetAllfixFilePath(), onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {

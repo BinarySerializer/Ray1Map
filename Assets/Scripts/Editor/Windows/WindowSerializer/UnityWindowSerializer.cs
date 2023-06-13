@@ -21,6 +21,7 @@ public class UnityWindowSerializer : SerializerObject
     public UnityWindow Window { get; }
     public HashSet<string> ForceWrite { get; }
     public Dictionary<string, bool> Foldouts { get; }
+    public override bool UsesSerializeNames => true;
     public override bool FullSerialize => false;
     private bool tempFlag = false;
     public List<string> CurrentName { get; }
@@ -262,6 +263,11 @@ public class UnityWindowSerializer : SerializerObject
         return Window.EditorField(String.Empty, obj, rect: rect);
     }
 
+    public override string SerializeLengthPrefixedString<T>(string obj, Encoding encoding = null, string name = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) where T : default
     {
         throw new NotImplementedException();
@@ -275,6 +281,12 @@ public class UnityWindowSerializer : SerializerObject
             SerializeString(obj[i], name: $"{name}[{i}]");
 
         return obj;
+    }
+
+    public override string[] SerializeLengthPrefixedStringArray<T>(string[] obj, long count, Encoding encoding = null,
+        string name = null)
+    {
+        throw new NotImplementedException();
     }
 
     public override T[] SerializeIntoArray<T>(T[] obj, long count, SerializeInto<T> serializeFunc, string name = null) where T : default

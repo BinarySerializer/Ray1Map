@@ -11,7 +11,7 @@ namespace Ray1Map.GBAIsometric
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Tiles = s.SerializeObjectArray<BinarySerializer.Nintendo.GBA.MapTile>(Tiles, 4 * Pre_TilesCount, name: nameof(Tiles));
+            Tiles = s.SerializeIntoArray<BinarySerializer.Nintendo.GBA.MapTile>(Tiles, 4 * Pre_TilesCount, BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Regular, name: nameof(Tiles));
         }
     }
 }

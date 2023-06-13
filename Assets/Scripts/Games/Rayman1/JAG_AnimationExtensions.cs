@@ -1,11 +1,12 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Ray1;
 using BinarySerializer.Ray1.Jaguar;
 
 namespace Ray1Map.Rayman1
 {
     public static class JAG_AnimationExtensions
     {
-        public static Unity_ObjAnimation ToCommonAnimation(this JAG_Animation anim, JAG_MultiSprite multiSprite)
+        public static Unity_ObjAnimation ToCommonAnimation(this Animation anim, JAG_MultiSprite multiSprite)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation

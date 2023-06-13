@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
 using Cysharp.Threading.Tasks;
 using Ray1Map.Rayman1;
 
@@ -31,22 +32,22 @@ namespace Ray1Map
             var outputObjManager = (Unity_ObjectManager_R1)outData.ObjManager;
 
             // Load a dummy PC level as a base
-            var outLev = FileFactory.Read<PC_LevFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
+            var outLev = FileFactory.Read<LevelFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
 
             // TODO: Set background data
 
             // Set map data
-            outLev.MapData.Width = inputMap.Width;
-            outLev.MapData.Height = inputMap.Height;
+            outLev.Map.Width = inputMap.Width;
+            outLev.Map.Height = inputMap.Height;
             //outLev.MapData.ColorPalettes = new RGB666Color[][]
             //{
             //    FileFactory.Read<PCX>(mapperManager.GetPCXFilePath(inputSettings), inputContext).VGAPalette.Select(x => new RGB666Color(x.Red, x.Green, x.Blue)).ToArray()
             //};
 
             // Set tiles while keeping track of the size changes
-            var prevTileSize = outLev.MapData.Tiles.Length * 6;
-            outLev.MapData.Tiles = inputMap.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray();
-            var newTileSize = outLev.MapData.Tiles.Length * 6;
+            var prevTileSize = outLev.Map.Tiles.Length * 6;
+            outLev.Map.Tiles = inputMap.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray();
+            var newTileSize = outLev.Map.Tiles.Length * 6;
 
             // Update pointers
             outLev.ObjDataBlockPointer += newTileSize - prevTileSize;
@@ -56,8 +57,8 @@ namespace Ray1Map
             //outLev.TileTextureData = null;
 
             // Get the file tables
-            var outputDesNames = FileFactory.Read<PC_WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).DESFileNames;
-            var outputEtaNames = FileFactory.Read<PC_WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).ETAFileNames;
+            var outputDesNames = FileFactory.Read<WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).DESFileNames;
+            var outputEtaNames = FileFactory.Read<WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).ETAFileNames;
 
             // Set event data
             outLev.ObjData.ObjCount = (ushort)inputLev.EventData.Count;
@@ -70,10 +71,10 @@ namespace Ray1Map
                 var newEtaIndex = (uint)outputEtaNames.FindItemIndex(y => y == inputObjManager.ETA[x.ETAIndex].Name);
 
                 // Set DES and ETA indexes
-                e.PC_SpritesIndex = newDesIndex;
-                e.PC_ImageBufferIndex = newDesIndex;
-                e.PC_AnimationsIndex = newDesIndex;
-                e.PC_ETAIndex = newEtaIndex;
+                e.PCPacked_SpritesIndex = newDesIndex;
+                e.PCPacked_ImageBufferIndex = newDesIndex;
+                e.PCPacked_AnimationsIndex = newDesIndex;
+                e.PCPacked_ETAIndex = newEtaIndex;
 
                 // Set image and animation descriptor counts
                 e.SpritesCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Graphics.Sprites.Count;
@@ -107,7 +108,7 @@ namespace Ray1Map
 
             // TODO: Get data from .ini file
             // Set profile define data
-            outLev.ProfileDefine = new PC_ProfileDefine
+            outLev.ProfileDefine = new ProfileDefine
             {
                 LevelName = "Test Export",
                 LevelAuthor = "RayCarrot",
@@ -121,7 +122,7 @@ namespace Ray1Map
             };
 
             // Write the changes to the file
-            FileFactory.Write<PC_LevFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
+            FileFactory.Write<LevelFile>(outputContext, rdManager.GetLevelFilePath(outputSettings));
         }
     }
 }

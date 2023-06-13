@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.Ray1.PC;
 using UnityEngine;
 
 namespace Ray1Map.Rayman1
@@ -129,9 +130,9 @@ namespace Ray1Map.Rayman1
             };
         }
 
-        public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax)
+        public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, WorldFile world, LevelFile level, bool parallax)
         {
-            return (await LoadPCXAsync(context, world.Plan0NumPcx[parallax ? level.ScrollDiffFNDIndex : level.FNDIndex])).ToTexture(true);
+            return (await LoadPCXAsync(context, world.PcxFileIndexes[parallax ? level.ScrollDiffFNDIndex : level.FNDIndex])).ToTexture(true);
         }
 
         public override async UniTask<PCX> GetWorldMapVigAsync(Context context)
@@ -162,13 +163,13 @@ namespace Ray1Map.Rayman1
             return pcx;
         }
 
-        protected PC_FileArchiveEntry[] LoadVignetteHeader(Context context)
+        protected FileArchiveEntry[] LoadVignetteHeader(Context context)
         {
             var s = context.Deserializer;
 
             const string key = "VIGNET_Header";
 
-            byte[] headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetRequiredSettings<Ray1Settings>(), "VIGNET.DAT");
+            byte[] headerBytes = ArchiveHeaderTables.GetHeader(context.GetRequiredSettings<Ray1Settings>(), "VIGNET.DAT");
             int headerLength = headerBytes.Length / 12;
 
             if (!context.FileExists(key))
@@ -179,7 +180,7 @@ namespace Ray1Map.Rayman1
 
             BinaryFile file = context.GetRequiredFile(key);
 
-            return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<PC_FileArchiveEntry>(default, headerLength, name: "Entries"));
+            return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<FileArchiveEntry>(default, headerLength, name: "Entries"));
         }
 
         public override void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
@@ -187,7 +188,7 @@ namespace Ray1Map.Rayman1
             // Create a new context
             using (var context = new Ray1MapContext(settings))
             {
-                PC_FileArchiveEntry[] entries = LoadVignetteHeader(context);
+                FileArchiveEntry[] entries = LoadVignetteHeader(context);
                 var s = context.Deserializer;
 
                 // Extract every .pcx file

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer.Ray1.PC;
 using UnityEngine;
 
 namespace Ray1Map
@@ -89,8 +90,8 @@ namespace Ray1Map
 
                         context.AddFile(new LinearFile(context, specialPath));
 
-                        var wldMap = m.LoadArchiveFile<PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
-                        PC_LocFile text = forceNoNames ? null : m.LoadArchiveFile<PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
+                        var wldMap = m.LoadArchiveFile<WorldMapScript>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
+                        TextScript text = forceNoNames ? null : m.LoadArchiveFile<TextScript>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
 
                         var worlds = v.Worlds;
 
@@ -127,38 +128,39 @@ namespace Ray1Map
 
                         string getLevelName(int world, int level)
                         {
-                            foreach (var lvl in wldMap.Levels.Take(wldMap.LevelsCount))
+                            foreach (var lvl in wldMap.WorldMap.MapDefine.Take(wldMap.WorldMap.PelletsCount))
                             {
                                 sbyte currentWorld = -1;
                                 var levelIndex = 0;
                                 var groupIndex = 1;
 
-                                for (int i = 0; i < lvl.MapEntries.Length; i++)
-                                {
-                                    var entry = lvl.MapEntries[i];
+                                // TODO: Fix. The world index system is wrong, it's all the same world. The group is the difficulty.
+                                //for (int i = 0; i < lvl.LevelLinks.Length; i++)
+                                //{
+                                //    var entry = lvl.LevelLinks[i];
 
-                                    if (entry.Level == -1)
-                                    {
-                                        levelIndex = 0;
-                                        groupIndex++;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        levelIndex++;
-                                    }
+                                //    if (entry.Level == -1)
+                                //    {
+                                //        levelIndex = 0;
+                                //        groupIndex++;
+                                //        continue;
+                                //    }
+                                //    else
+                                //    {
+                                //        levelIndex++;
+                                //    }
 
-                                    if (entry.World != -1)
-                                        currentWorld = entry.World;
+                                //    if (entry.World != -1)
+                                //        currentWorld = entry.World;
 
-                                    if (currentWorld == world && entry.Level == level)
-                                    {
-                                        if (text == null || text.TextDefine.Length <= lvl.LevelName)
-                                            return $"{(World)world} {level}";
+                                //    if (currentWorld == world && entry.Level == level)
+                                //    {
+                                //        if (text == null || text.PCPacked_TextDefine.Length <= lvl.LevelName)
+                                //            return $"{(World)world} {level}";
 
-                                        return $"{text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex}";
-                                    }
-                                }
+                                //        return $"{text.PCPacked_TextDefine[lvl.LevelName].Trim('/')} {groupIndex}-{levelIndex}";
+                                //    }
+                                //}
                             }
 
                             return $"{(World)world} {level}";

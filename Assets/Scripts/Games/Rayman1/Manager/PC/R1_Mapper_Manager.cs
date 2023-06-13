@@ -7,6 +7,7 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
 using UnityEngine;
 
 namespace Ray1Map.Rayman1
@@ -95,7 +96,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading map data";
             await Controller.WaitIfNecessary();
 
-            var mapData = FileFactory.Read<Mapper_MapData>(context, mapPath);
+            var mapData = FileFactory.Read<UniversalMap>(context, mapPath);
 
             Controller.DetailedState = $"Loading event data";
             await Controller.WaitIfNecessary();
@@ -116,7 +117,7 @@ namespace Ray1Map.Rayman1
             var eventDesigns = await LoadSpritesAsync(context, vgaPalette);
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
+            var worldData = FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             var maps = new Unity_Map[]
             {
@@ -133,7 +134,7 @@ namespace Ray1Map.Rayman1
                     MapTiles = mapData.Tiles.Select(x => new Unity_Tile(new MapTile()
                     {
                         TileMapY = x.TileIndex,
-                        CollisionType = x.BlockType
+                        CollisionType = (ushort)x.BlockType
                     })).ToArray(),
                 }
             };
@@ -170,7 +171,7 @@ namespace Ray1Map.Rayman1
             var objManager = new Unity_ObjectManager_R1(
                 context: context, 
                 des: eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), 
-                eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
+                eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.ObjectStates, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
                 linkTable: linkTable, 
                 usesPointers: false,
                 hasDefinedDesEtaNames: true);

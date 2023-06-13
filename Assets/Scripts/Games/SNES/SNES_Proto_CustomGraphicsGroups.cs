@@ -28,9 +28,9 @@ namespace Ray1Map.SNES
             // Start index 17
         };
 
-        public static JAG_Animation[] Enemy_Animations => new JAG_Animation[] {
+        public static Animation[] Enemy_Animations => new Animation[] {
             // Enemy normal
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 3,
                 FramesCount = 8, // 4 frames, pingponged
                 Layers = new AnimationLayer[][] {
@@ -77,7 +77,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Enemy surprised / stinger
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 4,
                 FramesCount = 9,
                 Layers = new AnimationLayer[][] {
@@ -138,7 +138,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Enemy vertical
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 3,
                 FramesCount = 6,
                 Layers = new AnimationLayer[][] {
@@ -175,7 +175,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Enemy vertical slope
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 2,
                 FramesCount = 6,
                 Layers = new AnimationLayer[][] {
@@ -241,9 +241,9 @@ namespace Ray1Map.SNES
             new SNES_Sprite() { Palette = 2, Priority = 2, TileIndex = 0xC6, FlipX = true, FlipY = true },
         };
 
-        public static JAG_Animation[] Orb_Animations => new JAG_Animation[] {
+        public static Animation[] Orb_Animations => new Animation[] {
             // Orb normal
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 5,
                 FramesCount = 24,
                 Layers = new AnimationLayer[][] {
@@ -418,7 +418,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Orb collected
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 5,
                 FramesCount = 10,
                 Layers = new AnimationLayer[][] {
@@ -552,9 +552,9 @@ namespace Ray1Map.SNES
 
         };
 
-        public static JAG_Animation[] Effect_Animations => new JAG_Animation[] {
+        public static Animation[] Effect_Animations => new Animation[] {
             // Effect PAF
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 5,
                 FramesCount = 10,
                 Layers = new AnimationLayer[][] {
@@ -632,7 +632,7 @@ namespace Ray1Map.SNES
             },
 
             // Effect large
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 4,
                 FramesCount = 1,
                 Layers = new AnimationLayer[][] {
@@ -645,7 +645,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Effect growing
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 4,
                 FramesCount = 8,
                 Layers = new AnimationLayer[][] {
@@ -719,9 +719,9 @@ namespace Ray1Map.SNES
 
         };
 
-        public static JAG_Animation[] Fist_Animations => new JAG_Animation[] {
+        public static Animation[] Fist_Animations => new Animation[] {
             // Fist normal
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 4,
                 FramesCount = 1,
                 Layers = new AnimationLayer[][] {
@@ -734,7 +734,7 @@ namespace Ray1Map.SNES
                 }.SelectMany(ls => ls).ToArray()
             },
             // Fist gold
-            new JAG_Animation() {
+            new Animation() {
                 LayersCount = 4,
                 FramesCount = 1,
                 Layers = new AnimationLayer[][] {

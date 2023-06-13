@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using Cysharp.Threading.Tasks;
 
 namespace Ray1Map.Rayman1
@@ -17,7 +18,7 @@ namespace Ray1Map.Rayman1
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
         public override string GetWorldFolderPath(World world) => String.Empty;
-        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_EUDemo;
+        protected override ExecutableConfig GetExecutableConfig => ExecutableConfig.PS1_EUDemo;
 
         public string GetLanguageFilePath(string langCode) => $"IMA/RAY{langCode}.TXT";
 

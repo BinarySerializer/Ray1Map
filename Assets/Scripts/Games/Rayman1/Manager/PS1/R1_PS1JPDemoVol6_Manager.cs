@@ -1,14 +1,13 @@
-﻿using BinarySerializer;
-using BinarySerializer.Ray1;
-using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using BinarySerializer.PS1;
+using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Animation = BinarySerializer.Ray1.Animation;
-using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace Ray1Map.Rayman1
 {
@@ -75,7 +74,7 @@ namespace Ray1Map.Rayman1
 
         public override string ExeFilePath => "RAY_GAME.EXE";
         public override uint? ExeBaseAddress => 0x80150000 - 0x800;
-        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_JPDemoVol6;
+        protected override ExecutableConfig GetExecutableConfig => ExecutableConfig.PS1_JPDemoVol6;
 
         /// <summary>
         /// Gets the tile set to use
@@ -130,7 +129,7 @@ namespace Ray1Map.Rayman1
 
             // Read the files
             var map = FileFactory.Read<MapData>(context, mapPath);
-            var level = FileFactory.Read<PS1_LevelData>(context, levelPath);
+            var level = FileFactory.Read<LevelData>(context, levelPath);
 
             // Load the level
             return await LoadAsync(context, map, level.Objects, level.ObjectLinkingTable.Select(x => (ushort)x).ToArray());
@@ -222,10 +221,10 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<PS1_LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
+                var level = FileFactory.Read<LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
 
                 // Export
-                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_Alpha[]
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new Alpha[]
                 {
                     level.Alpha
                 }, new ObjData[]
@@ -237,7 +236,7 @@ namespace Ray1Map.Rayman1
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<PS1_LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
+            var level = FileFactory.Read<LevelData>(context, GetLevelFilePath(context.GetR1Settings()));
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
@@ -251,7 +250,7 @@ namespace Ray1Map.Rayman1
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<PS1_Fond>(context, bgFilePath);
+            var bg = FileFactory.Read<Fond>(context, bgFilePath);
 
             return bg.ToTexture(context);
         }

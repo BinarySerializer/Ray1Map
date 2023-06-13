@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using BinarySerializer.PS1;
+using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Animation = BinarySerializer.Ray1.Animation;
 using Sprite = BinarySerializer.Ray1.Sprite;
@@ -206,7 +207,7 @@ namespace Ray1Map.Rayman1
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The level</returns>
-        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, PS1_BackgroundData bg = null)
+        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, BackgroundData bg = null)
         {
             Unity_TileSet tileSet = GetTileSet(context);
 
@@ -727,7 +728,7 @@ namespace Ray1Map.Rayman1
                     else if (fileInfo.FileType == VignetteFileType.VignettePack)
                     {
                         // Read the data
-                        var multiData = FileFactory.Read<PS1_VignettePack>(context, fileInfo.FilePath);
+                        var multiData = FileFactory.Read<VignettePack>(context, fileInfo.FilePath);
 
                         // Get the textures
                         for (int i = 0; i < multiData.ImageBlocks.Length; i++)
@@ -752,13 +753,13 @@ namespace Ray1Map.Rayman1
                     }
                     else
                     {
-                        PS1_Fond imageBlock;
+                        Fond imageBlock;
 
                         // Get the block
                         if (fileInfo.FileType == VignetteFileType.FondPack)
-                            imageBlock = FileFactory.Read<PS1_FondPack>(context, fileInfo.FilePath).Fond;
+                            imageBlock = FileFactory.Read<FondPack>(context, fileInfo.FilePath).Fond;
                         else
-                            imageBlock = FileFactory.Read<PS1_Fond>(context, fileInfo.FilePath);
+                            imageBlock = FileFactory.Read<Fond>(context, fileInfo.FilePath);
 
                         // Create the texture
                         textures.Add(imageBlock.ToTexture(context));
@@ -805,7 +806,7 @@ namespace Ray1Map.Rayman1
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 
-        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_Alpha[] fontData, ObjData[] fixEvents, PS1_BigRayData bigRay)
+        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, Alpha[] fontData, ObjData[] fixEvents, BigRayData bigRay)
         {
             // Fill the v-ram for each context
             FillVRAM(menuContext, PS1VramHelpers.VRAMMode.Menu);
@@ -1008,9 +1009,9 @@ namespace Ray1Map.Rayman1
             })) ?? new ETA[0]);
         }
 
-        public PS1_Executable LoadEXE(Context context) => FileFactory.Read<PS1_Executable>(context, ExeFilePath, onPreSerialize: (s, o) => o.Pre_PS1_Config = GetExecutableConfig);
+        public Executable LoadEXE(Context context) => FileFactory.Read<Executable>(context, ExeFilePath, onPreSerialize: (s, o) => o.Pre_PS1_Config = GetExecutableConfig);
 
-        protected abstract PS1_ExecutableConfig GetExecutableConfig { get; }
+        protected abstract ExecutableConfig GetExecutableConfig { get; }
 
         #endregion
 

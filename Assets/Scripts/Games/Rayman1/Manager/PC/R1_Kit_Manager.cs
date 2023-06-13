@@ -6,6 +6,7 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -77,7 +78,7 @@ namespace Ray1Map.Rayman1
         public string GetDESFileName(Context context, int desIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
+            var worldData = FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             // Get file names
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -95,7 +96,7 @@ namespace Ray1Map.Rayman1
         public string GetETAFileName(Context context, int etaIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
+            var worldData = FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
             // Get file names
             var etaNames = worldData.ETAFileNames ?? new string[0];
@@ -131,22 +132,22 @@ namespace Ray1Map.Rayman1
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings())).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override byte[] GetTypeZDCBytes => PC_ZDCTables.KitPC_Type_ZDC;
-        public override byte[] GetZDCTableBytes => PC_ZDCTables.KitPC_ZDCTable;
-        public override byte[] GetEventFlagsBytes => PC_ObjTypeFlagTables.KitPC_Flags;
+        public override byte[] GetTypeZDCBytes => ZDCTables.KitPC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => ZDCTables.KitPC_ZDCTable;
+        public override byte[] GetEventFlagsBytes => ObjTypeFlagTables.KitPC_Flags;
 
         public override WorldInfo[] GetWorldMapInfos(Context context)
         {
-            var wld = LoadArchiveFile<PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01);
-            return wld.Levels.Take(wld.LevelsCount).ToArray();
+            var wld = LoadArchiveFile<WorldMapScript>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01);
+            return wld.WorldMap.MapDefine.Take(wld.WorldMap.PelletsCount).ToArray();
         }
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax) => 
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.FNDIndex])?.ToTexture(true));
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, WorldFile world, LevelFile level, bool parallax) => 
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.PcxFileNames[level.LevelDefine.Fnd])?.ToTexture(true));
 
         /// <summary>
         /// Gets the available game actions
@@ -169,27 +170,27 @@ namespace Ray1Map.Rayman1
             var localization = new List<KeyValuePair<string, string[]>>();
 
             // Enumerate each language
-            foreach (var lang in LoadArchiveFile<PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
+            foreach (var lang in LoadArchiveFile<VersionScript>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
             {
                 // Read the text data
-                var loc = LoadArchiveFile<PC_LocFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.TEXT);
+                var loc = LoadArchiveFile<TextScript>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.TEXT);
 
                 // Save the localized name
-                var locName = loc?.LanguageNames[loc.LanguageUtilized];
+                var locName = loc?.LanguageNames[loc.LanguageUsed];
 
                 if (String.IsNullOrWhiteSpace(locName))
                     locName = lang;
 
                 // Add the localization
                 if (loc != null)
-                    localization.Add(new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray()));
+                    localization.Add(new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.PCPacked_TextDefine));
 
                 // Read the general data
-                var general = LoadArchiveFile<PC_GeneralFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
+                var general = LoadArchiveFile<GeneralScript>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
 
                 // Add the localization
                 if (general != null)
-                    localization.Add(new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.String.Value).ToArray()));
+                    localization.Add(new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.Credits.Select(x => x.Text).ToArray()));
 
                 // Add the event localizations (allfix + 6 worlds)
                 for (int i = 0; i < 7; i++)
@@ -204,13 +205,13 @@ namespace Ray1Map.Rayman1
                         continue;
 
                     // Read the file
-                    var evLoc = FileFactory.Read<Mapper_EventLocFile>(context, evLocPath);
+                    var evLoc = FileFactory.Read<EventNames>(context, evLocPath);
 
                     // Add the localization
                     if (FileSystem.mode == FileSystem.Mode.Web) {
-                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"<key>{x.LocKey}</key><name>{x.Name}</name><description>{x.Description}</description>").ToArray()));
+                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"<key>{x.Name}</key><name>{x.DisplayName}</name><description>{x.DisplayDescription}</description>").ToArray()));
                     } else {
-                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray()));
+                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.Name}: {x.DisplayName} - {x.DisplayDescription}").ToArray()));
                     }
                 }
             }
@@ -229,13 +230,13 @@ namespace Ray1Map.Rayman1
             await AddFile(context, GetCommonArchiveFilePath());
             
             // Special
-            foreach (var version in LoadArchiveFile<PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
+            foreach (var version in LoadArchiveFile<VersionScript>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
                 await AddFile(context, GetSpecialArchiveFilePath(version));
         }
 
         public override UniTask<PCX> GetWorldMapVigAsync(Context context)
         {
-            var worldVig = LoadArchiveFile<PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+            var worldVig = LoadArchiveFile<WorldMapScript>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMap.Background;
 
             return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), worldVig));
         }
@@ -288,8 +289,8 @@ namespace Ray1Map.Rayman1
                         await otherGame.LoadFilesAsync(otherContext);
 
                         // Load our WLD file and the other game's.
-                        var wld = FileFactory.Read<PC_WorldFile>(context, wldPath);
-                        var otherWld = FileFactory.Read<PC_WorldFile>(otherContext, otherGame.GetWorldFilePath(otherContext.GetR1Settings()));
+                        var wld = FileFactory.Read<WorldFile>(context, wldPath);
+                        var otherWld = FileFactory.Read<WorldFile>(otherContext, otherGame.GetWorldFilePath(otherContext.GetR1Settings()));
 
                         // Get the list of existing ETA and DES files so we know what's missing.
                         var desNames = wld.DESFileNames.ToArray();
@@ -349,7 +350,7 @@ namespace Ray1Map.Rayman1
                         wld.Eta = newEtaItems.ToArray();
 
                         // Save the WLD
-                        FileFactory.Write<PC_WorldFile>(context, wldPath);
+                        FileFactory.Write<WorldFile>(context, wldPath);
                     }
                 }
             }
@@ -366,9 +367,9 @@ namespace Ray1Map.Rayman1
                 await LoadFilesAsync(context);
 
                 Debug.Log("Opening version file...");
-                var commonDat = FileFactory.Read<PC_FileArchive>(context, GetCommonArchiveFilePath());
+                var commonDat = FileFactory.Read<FileArchive>(context, GetCommonArchiveFilePath());
                 var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
-                var versionFile = commonDat.ReadFile<PC_VersionFile>(context, versionFileName);
+                var versionFile = commonDat.ReadFile<VersionScript>(context, versionFileName);
 
                 Debug.Log("Increasing memory allocation...");
                 // Increase the memory allocated for each version.
@@ -382,7 +383,7 @@ namespace Ray1Map.Rayman1
                 Debug.Log("Saving version file...");
                 // Reserialize and save out the updated archive.
                 commonDat.RepackArchive(context, new Dictionary<string, Action<SerializerObject>> {
-                                {versionFileName, x => x.SerializeObject<PC_VersionFile>(versionFile, name: versionFileName)}
+                                {versionFileName, x => x.SerializeObject<VersionScript>(versionFile, name: versionFileName)}
                                 });
                 Debug.Log("Version file saved.");
             }

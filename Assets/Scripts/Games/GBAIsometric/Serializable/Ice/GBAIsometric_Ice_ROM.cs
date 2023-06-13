@@ -34,7 +34,7 @@ namespace Ray1Map.GBAIsometric
 
         // Portraits
         public Pointer<Palette>[] PortraitPalettes { get; set; }
-        public Pointer<ObjectArray<BinarySerializer.Nintendo.GBA.MapTile>>[] PortraitTileMaps { get; set; }
+        public Pointer<BinarySerializer.Nintendo.GBA.MapTile[]>[] PortraitTileMaps { get; set; }
         public ushort[] PortraitTileSetLengths { get; set; }
         public Pointer<Array<byte>>[] PortraitTileSets { get; set; }
 
@@ -172,9 +172,9 @@ namespace Ray1Map.GBAIsometric
                 ?.ResolveObject(s);
             });
 
-            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileMaps], () => {
-                PortraitTileMaps = s.SerializePointerArray<ObjectArray<BinarySerializer.Nintendo.GBA.MapTile>>(PortraitTileMaps, count, name: nameof(PortraitTileMaps))
-                ?.ResolveObject(s, onPreSerialize: (x, _) => x.Pre_Length = 4 * 4);
+            s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileMaps], () =>
+            {
+                PortraitTileMaps = s.SerializePointerArray<BinarySerializer.Nintendo.GBA.MapTile[]>(PortraitTileMaps, count, name: nameof(PortraitTileMaps))?.ResolveIntoArray(s, 4 * 4, BinarySerializer.Nintendo.GBA.MapTile.SerializeInto_Regular);
             });
 
             s.DoAt(pointerTable[Spyro_DefinedPointer.Ice_PortraitTileSetLengths], () =>

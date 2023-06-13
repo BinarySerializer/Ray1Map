@@ -6,8 +6,11 @@ using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PC;
+using BinarySerializer.Ray1.PC.PS1EDU;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Animation = BinarySerializer.Ray1.Animation;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace Ray1Map.Rayman1
@@ -204,9 +207,9 @@ namespace Ray1Map.Rayman1
                             {
                                 string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
 
-                                PS1EDU_TEX texFile = null;
+                                TEX texFile = null;
 
-                                s.DoAt(grx.BaseOffset + grxFile.FileOffset, () => texFile = s.SerializeObject<PS1EDU_TEX>(default, name: nameof(texFile)));
+                                s.DoAt(grx.BaseOffset + grxFile.FileOffset, () => texFile = s.SerializeObject<TEX>(default, name: nameof(texFile)));
 
                                 Texture2D[] tex = GetSpriteTextures(texFile, 
                                     // Use BigRay palette for BigRay sprites
@@ -225,18 +228,18 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public async UniTask<PS1EDU_GRX> LoadGRXAsync(Context context, string grxFilePath)
+        public async UniTask<GRX> LoadGRXAsync(Context context, string grxFilePath)
         {
             var s = context.Deserializer;
             s.Goto(context.GetRequiredFile(grxFilePath).StartPointer);
 
-            var grx = new PS1EDU_GRX();
+            var grx = new GRX();
             await grx.SerializeHeaderAsync(s);
 
             return grx;
         }
 
-        public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<PS1EDU_GRX> grx, string fileName, string name)
+        public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<GRX> grx, string fileName, string name)
             where T : BinarySerializable, new()
         {
             // Get the file
@@ -272,12 +275,12 @@ namespace Ray1Map.Rayman1
             await Controller.WaitIfNecessary();
 
             // Load the world files
-            var allfix = FileFactory.Read<PS1EDU_WorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
-            var level = FileFactory.Read<PS1EDU_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
+            var allfix = FileFactory.Read<NewWorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.Pre_FileType = NewWorldFile.Type.Allfix);
+            var world = FileFactory.Read<NewWorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.Pre_FileType = NewWorldFile.Type.World);
+            var level = FileFactory.Read<NewLevelFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             // Load the .grx bundles
-            var grx = new List<PS1EDU_GRX>();
+            var grx = new List<GRX>();
 
             foreach (var grxFile in context.MemoryMap.Files.Where(x => x.FilePath.Contains(".GRX")).Select(x => x.FilePath))
                 grx.Add(await LoadGRXAsync(context, grxFile));
@@ -285,8 +288,8 @@ namespace Ray1Map.Rayman1
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            PS1EDU_TEX levelTex = await LoadGRXFileAsync<PS1EDU_TEX>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".TEX", "LevelTex");
-            ushort[] levelIndices = (await LoadGRXFileAsync<PS1EDU_GSP>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".GSP", "LevelIndices"))?.Indices;
+            TEX levelTex = await LoadGRXFileAsync<TEX>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".TEX", "LevelTex");
+            ushort[] levelIndices = (await LoadGRXFileAsync<GSP>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".GSP", "LevelIndices"))?.Indices;
 
             if (levelTex == null || levelIndices == null)
                 return new Unity_ObjectManager_R1.DESData[0];
@@ -294,8 +297,8 @@ namespace Ray1Map.Rayman1
             Unity_ObjectManager_R1.DESData[] des = new Unity_ObjectManager_R1.DESData[allfix.DESCount + world.DESCount];
             Sprite[][] imageDescriptors = new Sprite[allfix.DESCount + world.DESCount][];
             for (int i = 0; i < des.Length; i++) {
-                PS1EDU_DESTemplate d = null;
-                PS1EDU_Animation[] anims = null;
+                DESTemplate d = null;
+                Animation[] anims = null;
                 if (i < allfix.DESCount) {
                     d = allfix.DESData[i];
                     anims = allfix.Animations[i];
@@ -312,7 +315,7 @@ namespace Ray1Map.Rayman1
                 des[i] = new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics
                 {
                     Sprites = new UnityEngine.Sprite[d.SpritesCount * (isMultiColored ? 6 : 1)].ToList(),
-                    Animations = anims.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers, x.LayersPerFrame, x.FrameCount)).ToList()
+                    Animations = anims.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers, x.LayersCount, x.FramesCount)).ToList()
                 }, imageDescriptors[i]);
             }
 
@@ -325,7 +328,7 @@ namespace Ray1Map.Rayman1
             foreach (ObjData e in level.Objects)
             {
                 // Get event DES index
-                var desIndex = (int)e.PC_SpritesIndex;
+                var desIndex = (int)e.PCPacked_SpritesIndex;
 
                 if (loadedDES.Contains(desIndex))
                 {
@@ -388,7 +391,7 @@ namespace Ray1Map.Rayman1
                             p = newPal;
                         }
 
-                        if (!imageDescriptors[e.PC_SpritesIndex][i].IsDummySprite())
+                        if (!imageDescriptors[e.PCPacked_SpritesIndex][i].IsDummySprite())
                             des[desIndex].Graphics.Sprites[color * e.SpritesCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
 
                         localGspIndex++;
@@ -408,7 +411,7 @@ namespace Ray1Map.Rayman1
         /// <param name="tex">The .tex file data</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprites</returns>
-        public IEnumerable<Texture2D> GetSpriteTextures(PS1EDU_TEX tex, IList<BaseColor> palette = null)
+        public IEnumerable<Texture2D> GetSpriteTextures(TEX tex, IList<BaseColor> palette = null)
         {
             // Parse the sprites from the texture pages
             for (int i = 0; i < tex.Descriptors.Length; i++)
@@ -423,7 +426,7 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public Texture2D GetSpriteTexture(PS1EDU_TEX tex, PS1EDU_TEXDescriptor d, IList<BaseColor> p)
+        public Texture2D GetSpriteTexture(TEX tex, TEXDescriptor d, IList<BaseColor> p)
         {
             // Create the texture
             Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
@@ -480,7 +483,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading map data";
 
             // Load the level
-            var levelData = FileFactory.Read<PS1EDU_LevFile>(context, GetLevelFilePath(context.GetR1Settings()));
+            var levelData = FileFactory.Read<NewLevelFile>(context, GetLevelFilePath(context.GetR1Settings()));
 
             await Controller.WaitIfNecessary();
 
@@ -492,7 +495,7 @@ namespace Ray1Map.Rayman1
 
             var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, desNameTable?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
-            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.States, i, etaNameTable?.ElementAtOrDefault(i))).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.ObjectStates, i, etaNameTable?.ElementAtOrDefault(i))).ToArray();
 
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(
@@ -531,9 +534,9 @@ namespace Ray1Map.Rayman1
             // Load Rayman
             var rayman = new Unity_Object_R1(ObjData.CreateRayman(context, levelData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
-            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var world = FileFactory.Read<NewWorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.Pre_FileType = NewWorldFile.Type.World);
 
-            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.FNDIndex])?.ToTexture(true);
+            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefine.Fnd])?.ToTexture(true);
 
             Unity_Level level = new Unity_Level()
             {
@@ -576,7 +579,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Unity_TileSet[] ReadTileSets(PS1EDU_LevFile levData)
+        public Unity_TileSet[] ReadTileSets(NewLevelFile levData)
         {
             // Create the output array
             var output = new Unity_TileSet[levData.ColorPalettes.Length];
@@ -596,16 +599,16 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The event states</returns>
-        public override IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
+        public override IEnumerable<States> GetCurrentEventStates(Context context)
         {
             // Load the world files
-            var allfix = FileFactory.Read<PS1EDU_WorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<PS1EDU_WorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var allfix = FileFactory.Read<NewWorldFile>(context, GetAllfixFilePath(context.GetR1Settings()), (ss, o) => o.Pre_FileType = NewWorldFile.Type.Allfix);
+            var world = FileFactory.Read<NewWorldFile>(context, GetWorldFilePath(context.GetR1Settings()), (ss, o) => o.Pre_FileType = NewWorldFile.Type.World);
 
             // Return the ETA
-            return allfix.ETA.Concat(world.ETA).Select(x => new PC_ETA()
+            return allfix.ETA.Concat(world.ETA).Select(x => new States()
             {
-                States = x
+                ObjectStates = x
             });
         }
 

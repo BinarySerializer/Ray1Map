@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 
 namespace Ray1Map.Rayman1
 {
@@ -7,7 +8,7 @@ namespace Ray1Map.Rayman1
     {
         public override string ExeFilePath => "SLUS-000.05";
         public override uint? ExeBaseAddress => 0x80125000 - 0x800;
-        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_US;
+        protected override ExecutableConfig GetExecutableConfig => ExecutableConfig.PS1_US;
 
         public override void AddContextPointers(Context context)
         {

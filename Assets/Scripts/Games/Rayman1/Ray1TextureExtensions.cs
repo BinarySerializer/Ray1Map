@@ -1,13 +1,14 @@
 ﻿using System;
 using BinarySerializer;
 using BinarySerializer.Ray1;
+using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 
 namespace Ray1Map.Rayman1
 {
     public static class Ray1TextureExtensions
     {
-        public static Texture2D ToTexture(this PS1_Fond vig, Context context)
+        public static Texture2D ToTexture(this Fond vig, Context context)
         {
             // Create the texture
             var tex = TextureHelpers.CreateTexture2D(vig.Width, vig.Height);

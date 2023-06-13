@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer.PS1;
+using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -191,9 +192,9 @@ namespace Ray1Map.Rayman1
             baseAddress -= 94; // FIX.DTA header size
             Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).File);
 
-            R2_AllfixFooter footer = null;
+            R2_AllfixData footer = null;
 
-            context.Deserializer.DoAt(fixDTAHeader, () => footer = context.Deserializer.SerializeObject<R2_AllfixFooter>(null, name: "AllfixFooter"));
+            context.Deserializer.DoAt(fixDTAHeader, () => footer = context.Deserializer.SerializeObject<R2_AllfixData>(null, name: "AllfixFooter"));
             await LoadFile(context, fixGRPPath, 0);
             await LoadFile(context, sprPLSPath, 0);
             baseAddress += await LoadFile(context, levelSPRPath, baseAddress);
@@ -212,7 +213,7 @@ namespace Ray1Map.Rayman1
             Controller.DetailedState = $"Loading level data";
 
             // Read the level data
-            var lvlData = FileFactory.Read<R2_LevDataFile>(context, levelDTAPath);
+            var lvlData = FileFactory.Read<R2_LevelData>(context, levelDTAPath);
 
             // Read the map blocks
             var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(context, GetSubMapPath(x))).ToArray();
@@ -230,33 +231,33 @@ namespace Ray1Map.Rayman1
 
             var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(context, levelSPRPath, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
 
-            var imgDescriptors = lvlData.FixSprites.Concat(lvlImgDescriptors).ToArray();
+            var imgDescriptors = lvlData.Level.FixSprites.Concat(lvlImgDescriptors).ToArray();
 
             // Get every sprite
             var globalDesigns = imgDescriptors.Select(img => GetSpriteTexture(context, null, img)).Select(tex => tex == null ? null : tex.CreateSprite()).ToArray();
 
             // Get the events
-            var events = lvlData.Objects.Concat(lvlData.AlwaysObjects).ToArray();
+            var events = lvlData.Level.R2_Objects.Concat(lvlData.Level.AlwaysObjects).ToArray();
 
             Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 
             // Get the animation groups
-            var r2AnimGroups = events.Select(x => x.AnimData).Append(footer.RaymanAnimData).Where(x => x != null).Distinct().ToArray();
+            var r2AnimGroups = events.Select(x => x.AnimSet).Append(footer.RaymanAnimSet).Where(x => x != null).Distinct().ToArray();
             Unity_ObjectManager_R2.AnimGroup[] animGroups = new Unity_ObjectManager_R2.AnimGroup[r2AnimGroups.Length];
             for (int i = 0; i < animGroups.Length; i++) {
                 animGroups[i] = await getGroupAsync(r2AnimGroups[i]);
                 await Controller.WaitIfNecessary();
             }
 
-            async UniTask<Unity_ObjectManager_R2.AnimGroup> getGroupAsync(R2_AnimationData animGroup) 
+            async UniTask<Unity_ObjectManager_R2.AnimGroup> getGroupAsync(AnimationSet animGroup) 
             {
                 await UniTask.CompletedTask;
 
                 // Add DES and ETA
                 return new Unity_ObjectManager_R2.AnimGroup(
                     pointer: animGroup?.Offset, eta: animGroup?.ETA.States ?? new ObjState[0][], 
-                    animations: animGroup?.Animations?.Select(x => AnimationHelpers.ToCommonAnimation(x.Layers.SelectMany(l => l).ToArray(), x.LayersPerFrame, x.FramesCount)).ToArray(), 
+                    animations: animGroup?.Animations?.Select(x => AnimationHelpers.ToCommonAnimation(x.R2_Layers.Select(x => x.Value).SelectMany(l => l).ToArray(), x.LayersCount, x.FramesCount)).ToArray(), 
                     filePath: animGroup?.AnimationsPointer?.File.FilePath);
             }
 
@@ -277,7 +278,7 @@ namespace Ray1Map.Rayman1
                 // Add the event
                 commonEvents.Add(new Unity_Object_R2(e, objManager)
                 {
-                    IsAlwaysEvent = lvlData.AlwaysObjects.Contains(e)
+                    IsAlwaysEvent = lvlData.Level.AlwaysObjects.Contains(e)
                 });
             }
 
@@ -303,9 +304,9 @@ namespace Ray1Map.Rayman1
                 Maps = levelMaps, 
                 ObjManager = objManager, 
                 EventData = commonEvents,
-                Rayman = new Unity_Object_R2(R2_ObjData.GetRayman(events.FirstOrDefault(x => x.ObjType == R2_ObjType.RaymanPosition), footer), objManager),
-                GetCollisionTypeNameFunc = x => ((R2_TileCollisionType)x).ToString(),
-                GetCollisionTypeGraphicFunc = x => ((R2_TileCollisionType)x).GetCollisionTypeGraphic(),
+                Rayman = new Unity_Object_R2(R2_ObjData.GetRayman(events.FirstOrDefault(x => x.Type == R2_ObjType.TYPE_RAY_POS), footer), objManager),
+                GetCollisionTypeNameFunc = x => ((R2_BlockType)x).ToString(),
+                GetCollisionTypeGraphicFunc = x => ((R2_BlockType)x).GetCollisionTypeGraphic(),
             };
 
             await Controller.WaitIfNecessary();
@@ -319,7 +320,7 @@ namespace Ray1Map.Rayman1
                 level.Maps[i].TileSet[0] = tileSet;
 
                 // Set the tiles
-                level.Maps[i].MapTiles = maps[i].Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray();
+                level.Maps[i].MapTiles = maps[i].Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x, isR2: true))).ToArray();
             }
 
             // Return the level
@@ -349,7 +350,7 @@ namespace Ray1Map.Rayman1
         }
 
         public override UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotSupportedException("Rayman 2 does not have menu sprites");
-        protected override PS1_ExecutableConfig GetExecutableConfig => null;
+        protected override ExecutableConfig GetExecutableConfig => null;
 
         /// <summary>
         /// Exports every animation frame from the game

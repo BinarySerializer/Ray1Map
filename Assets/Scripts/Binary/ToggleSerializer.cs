@@ -56,6 +56,8 @@ namespace Ray1Map
 
         public override long CurrentFileOffset => CurrentSerializer.CurrentFileOffset;
 
+        public override bool UsesSerializeNames => CurrentSerializer.UsesSerializeNames;
+
         public override SerializerDefaults Defaults {
             get => CurrentSerializer.Defaults;
             set {
@@ -186,6 +188,12 @@ namespace Ray1Map
             return obj;
         }
 
+        public override string[] SerializeLengthPrefixedStringArray<T>(string[] obj, long count, Encoding encoding = null,
+            string name = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public override T[] SerializeIntoArray<T>(T[] obj, long count, SerializeInto<T> serializeFunc, string name = null) where T : default
         {
             throw new NotImplementedException();
@@ -255,6 +263,11 @@ namespace Ray1Map
         public override string SerializeString(string obj, long? length = null, Encoding encoding = null, string name = null) {
             UpdateCurrentSerializer(name);
             return CurrentSerializer.SerializeString(obj, length, encoding, name);
+        }
+
+        public override string SerializeLengthPrefixedString<T>(string obj, Encoding encoding = null, string name = null)
+        {
+            throw new NotImplementedException();
         }
 
         public override T SerializeInto<T>(T obj, SerializeInto<T> serializeFunc, string name = null) 

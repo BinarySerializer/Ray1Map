@@ -239,8 +239,13 @@ namespace Ray1Map.SNES
                     },
                     MapTiles = rom.BG3_Tiles.Select(x =>
                     {
-                        x.TileMapY = (ushort)(x.PaletteIndex * tileSet_8000.SNES_BaseLength + x.TileMapY);
-                        return new Unity_Tile(MapTile.FromR1MapTile(x));
+                        x = new BinarySerializer.Nintendo.SNES.MapTile(
+                            tileIndex: (ushort)(x.PaletteIndex * tileSet_8000.SNES_BaseLength + x.TileIndex),
+                            paletteIndex: x.PaletteIndex,
+                            priority: x.Priority,
+                            flipX: x.FlipX,
+                            flipY: x.FlipY);
+                        return new Unity_Tile(MapTile.FromSnesMapTile(x));
                     }).ToArray(),
                 },
                 // Map (no priority)
@@ -294,8 +299,13 @@ namespace Ray1Map.SNES
                     },
                     MapTiles = rom.BG2_Tiles.Select(x =>
                     {
-                        x.TileMapY = (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileMapY);
-                        return new Unity_Tile(MapTile.FromR1MapTile(x));
+                        x = new BinarySerializer.Nintendo.SNES.MapTile(
+                            tileIndex: (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileIndex),
+                            paletteIndex: x.PaletteIndex,
+                            priority: x.Priority,
+                            flipX: x.FlipX,
+                            flipY: x.FlipY);
+                        return new Unity_Tile(MapTile.FromSnesMapTile(x));
                     }).ToArray(),
                     Layer = Unity_Map.MapLayer.Front,
                 },
@@ -440,7 +450,7 @@ namespace Ray1Map.SNES
             return sprites;
         }
 
-        public MapTile[] LoadMap(MapData map, BinarySerializer.Ray1.Block[] tiles8)
+        public MapTile[] LoadMap(MapData map, BinarySerializer.Nintendo.SNES.MapTile[] tiles8)
         {
             var output = new MapTile[map.Width * 2 * map.Height * 2];
 
@@ -453,16 +463,16 @@ namespace Ray1Map.SNES
 
                     var mapTile = map.Blocks[y * map.Width + x];
 
-                    setTileAt(actualX, actualY, 0, 0, tiles8[mapTile.TileMapY * 4 + 0]);
-                    setTileAt(actualX, actualY, 1, 0, tiles8[mapTile.TileMapY * 4 + 1]);
-                    setTileAt(actualX, actualY, 0, 1, tiles8[mapTile.TileMapY * 4 + 2]);
-                    setTileAt(actualX, actualY, 1, 1, tiles8[mapTile.TileMapY * 4 + 3]);
+                    setTileAt(actualX, actualY, 0, 0, tiles8[mapTile.TileIndex * 4 + 0]);
+                    setTileAt(actualX, actualY, 1, 0, tiles8[mapTile.TileIndex * 4 + 1]);
+                    setTileAt(actualX, actualY, 0, 1, tiles8[mapTile.TileIndex * 4 + 2]);
+                    setTileAt(actualX, actualY, 1, 1, tiles8[mapTile.TileIndex * 4 + 3]);
 
-                    void setTileAt(int baseX, int baseY, int offX, int offY, BinarySerializer.Ray1.Block tile)
+                    void setTileAt(int baseX, int baseY, int offX, int offY, BinarySerializer.Nintendo.SNES.MapTile tile)
                     {
                         var newTile = new MapTile()
                         {
-                            TileMapY = tile.TileMapY,
+                            TileMapY = (ushort)tile.TileIndex,
                             Priority = tile.Priority,
                             PaletteIndex = tile.PaletteIndex,
                             HorizontalFlip = tile.FlipX,
