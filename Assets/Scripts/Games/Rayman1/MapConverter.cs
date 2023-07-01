@@ -37,21 +37,21 @@ namespace Ray1Map
             // TODO: Set background data
 
             // Set map data
-            outLev.Map.Width = inputMap.Width;
-            outLev.Map.Height = inputMap.Height;
+            outLev.MapInfo.Width = inputMap.Width;
+            outLev.MapInfo.Height = inputMap.Height;
             //outLev.MapData.ColorPalettes = new RGB666Color[][]
             //{
             //    FileFactory.Read<PCX>(mapperManager.GetPCXFilePath(inputSettings), inputContext).VGAPalette.Select(x => new RGB666Color(x.Red, x.Green, x.Blue)).ToArray()
             //};
 
             // Set tiles while keeping track of the size changes
-            var prevTileSize = outLev.Map.Tiles.Length * 6;
-            outLev.Map.Tiles = inputMap.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray();
-            var newTileSize = outLev.Map.Tiles.Length * 6;
+            var prevTileSize = outLev.MapInfo.Blocks.Length * 6;
+            outLev.MapInfo.Blocks = inputMap.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray();
+            var newTileSize = outLev.MapInfo.Blocks.Length * 6;
 
             // Update pointers
-            outLev.ObjDataBlockPointer += newTileSize - prevTileSize;
-            outLev.TextureBlockPointer += newTileSize - prevTileSize;
+            outLev.ObjectsPointer += newTileSize - prevTileSize;
+            outLev.NormalBlockTexturesPointer += newTileSize - prevTileSize;
 
             // TODO: Set tileset from .pcx file
             //outLev.TileTextureData = null;
@@ -61,7 +61,7 @@ namespace Ray1Map
             var outputEtaNames = FileFactory.Read<WorldFile>(outputContext, rdManager.GetWorldFilePath(outputSettings)).ETAFileNames;
 
             // Set event data
-            outLev.ObjData.ObjCount = (ushort)inputLev.EventData.Count;
+            outLev.ObjData.ObjectsCount = (ushort)inputLev.EventData.Count;
             outLev.ObjData.ObjLinkingTable = inputObjManager.LinkTable;
             outLev.ObjData.Objects = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
             {
@@ -91,17 +91,15 @@ namespace Ray1Map
 
                 // Remove commands which only contain the invalid command
                 if (cmds.Commands.Commands.Length == 1)
-                    cmds = new ObjCommandCompiler.CompiledObjCommandData(new CommandCollection()
+                    cmds = new ObjCommandCompiler.CompiledObjCommandData(new ObjCommands()
                     {
                         Commands = new Command[0]
                     }, new ushort[0]);
 
                 // Create a command object
-                return new PC_CommandCollection
+                return new ObjCommandsData
                 {
-                    CommandLength = (ushort)cmds.Commands.Commands.Select(y => y.Length).Sum(),
                     Commands = cmds.Commands,
-                    LabelOffsetCount = (ushort)cmds.LabelOffsets.Length,
                     LabelOffsetTable = cmds.LabelOffsets
                 };
             }).ToArray();

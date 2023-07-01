@@ -227,7 +227,7 @@ namespace Ray1Map.Rayman1
                         },
 
                         LabelOffsets = new ushort[0],
-                        Commands = CommandCollection.FromBytes(def.EventCommands, () => new Ray1MapContext(context.GetR1Settings())),
+                        Commands = ObjCommands.FromBytes(def.EventCommands, () => new Ray1MapContext(context.GetR1Settings())),
                     };
 
                     ed.FollowEnabled = def.FollowEnabled > 0;

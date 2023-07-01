@@ -195,17 +195,17 @@ namespace Ray1Map.Rayman1
             var e = AvailableEvents[index];
 
             // Get the commands and label offsets
-            CommandCollection cmds = null;
+            ObjCommands cmds = null;
             ushort[] labelOffsets = null;
 
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = ObjCommandCompiler.Decompile(new ObjCommandCompiler.CompiledObjCommandData(CommandCollection.FromBytes(e.Commands, () => new Ray1MapContext(Context.GetR1Settings())), e.LabelOffsets), e.Commands);
+                cmds = ObjCommandCompiler.Decompile(new ObjCommandCompiler.CompiledObjCommandData(ObjCommands.FromBytes(e.Commands, () => new Ray1MapContext(Context.GetR1Settings())), e.LabelOffsets), e.Commands);
             }
             else if (e.Commands.Any())
             {
-                cmds = CommandCollection.FromBytes(e.Commands, () => new Ray1MapContext(Context.GetR1Settings()));
+                cmds = ObjCommands.FromBytes(e.Commands, () => new Ray1MapContext(Context.GetR1Settings()));
                 labelOffsets = e.LabelOffsets.Any() ? e.LabelOffsets : null;
             }
 

@@ -449,7 +449,7 @@ namespace Ray1Map.Rayman1
                     continue;
 
                 // Get the texture
-                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.Map.ColorPalettes.First(), processedImageData);
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.MapInfo.Palettes.First(), processedImageData);
 
                 // Set the texture
                 output[i] = tex;
@@ -1057,7 +1057,7 @@ namespace Ray1Map.Rayman1
                         var lvlData = FileFactory.Read<LevelFile>(context, path);
 
                         // Add the palettes
-                        foreach (var mapPal in lvlData.Map.ColorPalettes)
+                        foreach (var mapPal in lvlData.MapInfo.Palettes)
                             if (!pal.Any(x => x.SequenceEqual(mapPal)))
                                 pal.Add(mapPal);
                     }
@@ -1248,10 +1248,10 @@ namespace Ray1Map.Rayman1
         {
             Controller.DetailedState = $"Loading map data";
 
-            LevelMap mapData;
+            MapInfo mapData;
             LevelObjects objData;
             BaseColor[][] palettes;
-            TileTextureBlock tileTextureData = null;
+            NormalBlockTextures tileTextureData = null;
             Texture2D bg;
             Texture2D bg2;
             WorldInfo[] worldInfos = null;
@@ -1264,10 +1264,10 @@ namespace Ray1Map.Rayman1
                 // Read the world data
                 var worldData = FileFactory.Read<WorldFile>(context, GetWorldFilePath(context.GetR1Settings()));
 
-                mapData = levelData.Map;
+                mapData = levelData.MapInfo;
                 objData = levelData.ObjData;
-                palettes = mapData.ColorPalettes;
-                tileTextureData = levelData.TileTextureData;
+                palettes = mapData.Palettes;
+                tileTextureData = levelData.NormalBlockTextures;
 
                 // Load background vignette textures
                 bg = await LoadBackgroundVignetteAsync(context, worldData, levelData, false);
@@ -1285,11 +1285,11 @@ namespace Ray1Map.Rayman1
                 var width = (ushort)(vig.ImageWidth / Settings.CellSize);
                 var height = (ushort)(vig.ImageHeight / Settings.CellSize);
 
-                mapData = new LevelMap()
+                mapData = new MapInfo()
                 {
                     Width = width,
                     Height = height,
-                    Tiles = Enumerable.Repeat(new Block(), width * height).ToArray()
+                    Blocks = Enumerable.Repeat(new Block(), width * height).ToArray()
                 };
 
                 // Set event data
@@ -1366,9 +1366,9 @@ namespace Ray1Map.Rayman1
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[palettes.Length],
-                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
+                    MapTiles = mapData.Blocks.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
 
-                    TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
+                    TileSetTransparencyModes = tileTextureData?.NormalBlockTexturesOffsetTable.Select(x => tileTextureData.OpaqueTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
                     {
                         if (x == null)
                             return Block.BlockRenderMode.FullyTransparent;
@@ -1381,7 +1381,7 @@ namespace Ray1Map.Rayman1
 
                         return Block.BlockRenderMode.Transparent;
                     }).ToArray(),
-                    PCTileOffsetTable = tileTextureData?.TexturesOffsetTable
+                    PCTileOffsetTable = tileTextureData?.NormalBlockTexturesOffsetTable
                 }
             };
 
@@ -1462,25 +1462,25 @@ namespace Ray1Map.Rayman1
             // Create the output array
             var output = new Unity_TileSet[]
             {
-                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length])
+                new Unity_TileSet(new Unity_TileTexture[levData.NormalBlockTextures.NormalBlockTexturesOffsetTable.Length]),
+                new Unity_TileSet(new Unity_TileTexture[levData.NormalBlockTextures.NormalBlockTexturesOffsetTable.Length]),
+                new Unity_TileSet(new Unity_TileTexture[levData.NormalBlockTextures.NormalBlockTexturesOffsetTable.Length])
             };
 
             // Keep track of the tile index
             int index = 0;
 
             // Get all tile textures
-            var allTex = levData.TileTextureData.NonTransparentTextures.Concat(levData.TileTextureData.TransparentTextures).ToArray();
+            var allTex = levData.NormalBlockTextures.OpaqueTextures.Concat(levData.NormalBlockTextures.TransparentTextures).ToArray();
 
             // Enumerate every texture
-            foreach (var offset in levData.TileTextureData.TexturesOffsetTable)
+            foreach (var offset in levData.NormalBlockTextures.NormalBlockTexturesOffsetTable)
             {
                 // Find matching tile texture
                 var tileTex = allTex.FirstOrDefault(x => x.Offset == offset);
 
                 // Enumerate every palette
-                for (int i = 0; i < levData.Map.ColorPalettes.Length; i++)
+                for (int i = 0; i < levData.MapInfo.Palettes.Length; i++)
                 {
                     // Create the texture to use for the tile
                     var tileTexture = TextureHelpers.CreateTexture2D(Settings.CellSize, Settings.CellSize);
@@ -1497,13 +1497,13 @@ namespace Ray1Map.Rayman1
                             var cellIndex = Settings.CellSize * y + x;
 
                             // Get the color from the current palette (or default to fully transparent if a valid tile texture was not found or it has the transparency flag)
-                            var c = tileTex == null || index == 0 ? new Color(0, 0, 0, 0) : levData.Map.ColorPalettes[i][255 - tileTex.ImgData[cellIndex]].GetColor();
+                            var c = tileTex == null || index == 0 ? new Color(0, 0, 0, 0) : levData.MapInfo.Palettes[i][255 - tileTex.ImgData[cellIndex]].GetColor();
 
                             if (tileTex != null && tileTex.ImgData[cellIndex] != 242)
                                 allRed = false;
 
                             // If the texture is transparent, add the alpha channel
-                            if (tileTex is TransparentTileTexture tt)
+                            if (tileTex is TransparentBlockTexture tt)
                                 c.a = (float)tt.Alpha[cellIndex] / Byte.MaxValue;
 
                             // Set the pixel
@@ -1549,10 +1549,10 @@ namespace Ray1Map.Rayman1
             var lvlData = context.GetMainFileObject<LevelFile>(lvlPath);
 
             // Update the tiles
-            for (int y = 0; y < lvlData.Map.Height; y++) {
-                for (int x = 0; x < lvlData.Map.Width; x++) {
+            for (int y = 0; y < lvlData.MapInfo.Height; y++) {
+                for (int x = 0; x < lvlData.MapInfo.Width; x++) {
                     // Set the tiles
-                    lvlData.Map.Tiles[y * lvlData.Map.Width + x] = level.Maps[0].MapTiles[y * lvlData.Map.Width + x].Data.ToR1MapTile();
+                    lvlData.MapInfo.Blocks[y * lvlData.MapInfo.Width + x] = level.Maps[0].MapTiles[y * lvlData.MapInfo.Width + x].Data.ToR1MapTile();
                 }
             }
 
@@ -1561,7 +1561,7 @@ namespace Ray1Map.Rayman1
 
             // Temporary event lists
             var events = new List<ObjData>();
-            var eventCommands = new List<PC_CommandCollection>();
+            var eventCommands = new List<ObjCommandsData>();
 
             // Read the world data
             foreach (var e in level.EventData.Cast<Unity_Object_R1>())
@@ -1577,24 +1577,22 @@ namespace Ray1Map.Rayman1
                 // Add the event
                 events.Add(r1Event);
 
-                var cmds = e.EventData.Commands ?? new CommandCollection()
+                var cmds = e.EventData.Commands ?? new ObjCommands()
                 {
                     Commands = new Command[0]
                 };
                 var labelOffsets = e.EventData.LabelOffsets ?? new ushort[0];
 
                 // Add the event commands
-                eventCommands.Add(new PC_CommandCollection()
+                eventCommands.Add(new ObjCommandsData()
                 {
-                    CommandLength = (ushort)(cmds.Commands.Select(x => x.Length).Sum()),
                     Commands = cmds,
-                    LabelOffsetCount = (ushort)labelOffsets.Length,
                     LabelOffsetTable = labelOffsets
                 });
             }
 
             // Update event values
-            lvlData.ObjData.ObjCount = (ushort)events.Count;
+            lvlData.ObjData.ObjectsCount = (ushort)events.Count;
             lvlData.ObjData.Objects = events.ToArray();
             lvlData.ObjData.ObjCommands = eventCommands.ToArray();
 
@@ -1671,6 +1669,9 @@ namespace Ray1Map.Rayman1
 
         public async UniTask AddFile(Context context, string filePath, bool isBigFile = false, Endian endianness = Endian.Little)
         {
+            if (context.FileExists(filePath))
+                return;
+
             if (isBigFile)
                 await FileSystem.PrepareBigFile(context.GetAbsoluteFilePath(filePath), 8);
             else
