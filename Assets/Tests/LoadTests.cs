@@ -1253,6 +1253,9 @@ public class Jade_PoP_WW
     public IEnumerator PrinceOfPersiaWarriorWithinIOS() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOS);
 
 	[UnityTest]
+	public IEnumerator PrinceOfPersiaWarriorWithinIOSHD() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOSHD);
+
+	[UnityTest]
 	public IEnumerator PrinceOfPersiaWarriorWithinIOSDemo() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOSDemo);
 
 	[UnityTest]
