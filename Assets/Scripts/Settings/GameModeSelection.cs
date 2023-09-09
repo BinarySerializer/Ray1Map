@@ -885,7 +885,13 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (iOS)", typeof(Jade_PoP_WW_iOS_Manager), Platform.iOS)]
         PrinceOfPersiaWarriorWithinIOS,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS3)", typeof(Jade_PoP_WW_PS3_Manager), Platform.PS3)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (iOS - Demo)", typeof(Jade_PoP_WW_iOS_Demo_Manager), Platform.iOS)]
+		PrinceOfPersiaWarriorWithinIOSDemo,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (iOS 3G OS4 - Demo)", typeof(Jade_PoP_WW_iOS_3GOS4_Demo_Manager), Platform.iOS)]
+		PrinceOfPersiaWarriorWithinIOS3GOS4Demo,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS3)", typeof(Jade_PoP_WW_PS3_Manager), Platform.PS3)]
         PrinceOfPersiaWarriorWithinPS3,
 
 

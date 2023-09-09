@@ -127,6 +127,8 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPSP:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinXbox:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinIOS:
+				case GameModeSelection.PrinceOfPersiaWarriorWithinIOSDemo:
+				case GameModeSelection.PrinceOfPersiaWarriorWithinIOS3GOS4Demo:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinGC:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPS3:
 
