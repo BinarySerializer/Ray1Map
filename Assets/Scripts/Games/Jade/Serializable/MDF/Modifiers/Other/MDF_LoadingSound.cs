@@ -14,79 +14,63 @@ namespace Ray1Map.Jade
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
         public Jade_Reference<SND_Wave> Wave { get; set; }
 
-        public uint BGE_Flags { get; set; }
+        public MDF_LoadingSoundState State { get; set; }
 
-        public float BGE_Float_3 { get; set; }
-        public float BGE_Float_4 { get; set; }
-        public float BGE_Float_5 { get; set; }
-        public float BGE_Float_6 { get; set; }
+        public float HighVolume { get; set; }
+        public float LowVolume { get; set; }
+        public float FadeInDuration { get; set; }
+        public float FadeOutDuration { get; set; }
 
-        public uint BGE_UInt_8 { get; set; }
-        public uint BGE_UInt_9 { get; set; }
-        public uint BGE_UInt_10 { get; set; }
-        public uint BGE_UInt_11 { get; set; }
-        public uint BGE_UInt_12 { get; set; }
-        public uint BGE_UInt_13 { get; set; }
-        public uint BGE_UInt_14 { get; set; }
+        public int Family { get; set; }
+        public uint Frequency { get; set; }
+        public int Pan { get; set; }
+		public uint SndExtFlags { get; set; }
+        public int SoundInstance { get; set; }
 
-        public float BGE_Float_16 { get; set; }
-        public float BGE_Float_17 { get; set; }
-        public float BGE_Float_18 { get; set; }
-        public float BGE_Float_19 { get; set; }
-        public float BGE_Float_20 { get; set; }
-        public float BGE_Float_21 { get; set; }
-        public float BGE_Float_22 { get; set; }
-        public float BGE_Float_23 { get; set; }
-        public uint BGE_UInt_24 { get; set; }
-        public float BGE_Float_25 { get; set; }
-        public float BGE_Float_26 { get; set; }
-        public float BGE_Float_27 { get; set; }
-        public float BGE_Float_28 { get; set; }
-        public float BGE_Float_29 { get; set; }
-        public float BGE_Float_30 { get; set; }
+		public float[] Near { get; set; }
+		public float[] Far { get; set; }
+		public float DeltaFar { get; set; }
+        public int SoundTrack { get; set; }
+		public float[] MiddleBlend { get; set; }
+		public float FarCoeff { get; set; }
+		public float MiddleCoeff { get; set; }
+		public float MinPan { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
-                BGE_Flags = s.Serialize<uint>(BGE_Flags, name: nameof(BGE_Flags));
+				Version = s.Serialize<uint>(Version, name: nameof(Version));
 
-                if (BGE_Flags == 0x100) {
-                    Version = s.Serialize<uint>(Version, name: nameof(Version));
-                    Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+				if (Version == 256) {
+                    State = s.Serialize<MDF_LoadingSoundState>(State, name: nameof(State));
                     SoundKey = s.SerializeObject<Jade_Key>(SoundKey, name: nameof(SoundKey));
 
-                    BGE_Float_3 = s.Serialize<float>(BGE_Float_3, name: nameof(BGE_Float_3));
-                    BGE_Float_4 = s.Serialize<float>(BGE_Float_4, name: nameof(BGE_Float_4));
-                    BGE_Float_5 = s.Serialize<float>(BGE_Float_5, name: nameof(BGE_Float_5));
-                    BGE_Float_6 = s.Serialize<float>(BGE_Float_6, name: nameof(BGE_Float_6));
+                    HighVolume = s.Serialize<float>(HighVolume, name: nameof(HighVolume));
+                    LowVolume = s.Serialize<float>(LowVolume, name: nameof(LowVolume));
+                    FadeInDuration = s.Serialize<float>(FadeInDuration, name: nameof(FadeInDuration));
+                    FadeOutDuration = s.Serialize<float>(FadeOutDuration, name: nameof(FadeOutDuration));
 
-                    BGE_UInt_8 = s.Serialize<uint>(BGE_UInt_8, name: nameof(BGE_UInt_8));
-                    BGE_UInt_9 = s.Serialize<uint>(BGE_UInt_9, name: nameof(BGE_UInt_9));
-                    BGE_UInt_10 = s.Serialize<uint>(BGE_UInt_10, name: nameof(BGE_UInt_10));
-                    BGE_UInt_11 = s.Serialize<uint>(BGE_UInt_11, name: nameof(BGE_UInt_11));
-                    BGE_UInt_12 = s.Serialize<uint>(BGE_UInt_12, name: nameof(BGE_UInt_12));
-                    BGE_UInt_13 = s.Serialize<uint>(BGE_UInt_13, name: nameof(BGE_UInt_13));
-                    BGE_UInt_14 = s.Serialize<uint>(BGE_UInt_14, name: nameof(BGE_UInt_14));
+                    Family = s.Serialize<int>(Family, name: nameof(Family));
+                    Frequency = s.Serialize<uint>(Frequency, name: nameof(Frequency));
+                    Pan = s.Serialize<int>(Pan, name: nameof(Pan));
+					SoundFlags = s.Serialize<SND_SModifier.SoundRef.SoundFlags>(SoundFlags, name: nameof(SoundFlags));
+					SndExtFlags = s.Serialize<uint>(SndExtFlags, name: nameof(SndExtFlags));
+					SoundIndex = s.Serialize<int>(SoundIndex, name: nameof(SoundIndex));
+					SoundInstance = s.Serialize<int>(SoundInstance, name: nameof(SoundInstance));
 
-                    BGE_Float_16 = s.Serialize<float>(BGE_Float_16, name: nameof(BGE_Float_16));
-                    BGE_Float_17 = s.Serialize<float>(BGE_Float_17, name: nameof(BGE_Float_17));
-                    BGE_Float_18 = s.Serialize<float>(BGE_Float_18, name: nameof(BGE_Float_18));
-                    BGE_Float_19 = s.Serialize<float>(BGE_Float_19, name: nameof(BGE_Float_19));
-                    BGE_Float_20 = s.Serialize<float>(BGE_Float_20, name: nameof(BGE_Float_20));
-                    BGE_Float_21 = s.Serialize<float>(BGE_Float_21, name: nameof(BGE_Float_21));
-                    BGE_Float_22 = s.Serialize<float>(BGE_Float_22, name: nameof(BGE_Float_22));
-                    BGE_Float_23 = s.Serialize<float>(BGE_Float_23, name: nameof(BGE_Float_23));
+					Near = s.SerializeArray<float>(Near, 3, name: nameof(Near));
+					Far = s.SerializeArray<float>(Far, 3, name: nameof(Far));
+					DeltaFar = s.Serialize<float>(DeltaFar, name: nameof(DeltaFar));
+					LoadingDistance = s.Serialize<float>(LoadingDistance, name: nameof(LoadingDistance));
 
-                    BGE_UInt_24 = s.Serialize<uint>(BGE_UInt_24, name: nameof(BGE_UInt_24));
-                    BGE_Float_25 = s.Serialize<float>(BGE_Float_25, name: nameof(BGE_Float_25));
-                    BGE_Float_26 = s.Serialize<float>(BGE_Float_26, name: nameof(BGE_Float_26));
-                    BGE_Float_27 = s.Serialize<float>(BGE_Float_27, name: nameof(BGE_Float_27));
-                    BGE_Float_28 = s.Serialize<float>(BGE_Float_28, name: nameof(BGE_Float_28));
-                    BGE_Float_29 = s.Serialize<float>(BGE_Float_29, name: nameof(BGE_Float_29));
-                    BGE_Float_30 = s.Serialize<float>(BGE_Float_30, name: nameof(BGE_Float_30));
+                    SoundTrack = s.Serialize<int>(SoundTrack, name: nameof(SoundTrack));
+					MiddleBlend = s.SerializeArray<float>(MiddleBlend, 3, name: nameof(MiddleBlend));
+					FarCoeff = s.Serialize<float>(FarCoeff, name: nameof(FarCoeff));
+					MiddleCoeff = s.Serialize<float>(MiddleCoeff, name: nameof(MiddleCoeff));
+					MinPan = s.Serialize<float>(MinPan, name: nameof(MinPan));
 
-                    if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 0x100, name: nameof(Reserved));
+					if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 0x100, name: nameof(Reserved));
                 }
             } else {
                 Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -107,6 +91,14 @@ namespace Ray1Map.Jade
                     SModifier?.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.HasUserCounter);
                 }
             }
+        }
+
+        public enum MDF_LoadingSoundState : uint {
+            None = 0,
+			WaitingForLoading = 1,
+			WaitingForPlaying = 2,
+			Playing = 3,
+			Disabled = 0xFFFFFFFE
         }
     }
 }
