@@ -43,7 +43,8 @@ namespace Ray1Map.Jade
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
 
 				if (Version == 256) {
-                    State = s.Serialize<MDF_LoadingSoundState>(State, name: nameof(State));
+					Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+					State = s.Serialize<MDF_LoadingSoundState>(State, name: nameof(State));
                     SoundKey = s.SerializeObject<Jade_Key>(SoundKey, name: nameof(SoundKey));
 
                     HighVolume = s.Serialize<float>(HighVolume, name: nameof(HighVolume));
