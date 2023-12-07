@@ -833,7 +833,10 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2)", typeof(Jade_PoP_SoT_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2 - Demo 2003/07/23)", typeof(Jade_PoP_SoT_PS2_20030723_Manager), Platform.PS2)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2 - Demo 2003/07/10)", typeof(Jade_PoP_SoT_PS2_20030723_Manager), Platform.PS2)]
+		PrinceOfPersiaTheSandsOfTimePS2_20030710, // Earlier version of PrinceOfPersiaTheSandsOfTimePS2_20030723. Same levels, so same manager
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2 - Demo 2003/07/23)", typeof(Jade_PoP_SoT_PS2_20030723_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2_20030723,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030819, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_20030819_Manager), Platform.PS2)]
@@ -845,10 +848,13 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PC)", typeof(Jade_PoP_SoT_PC_Manager), Platform.PC)]
         PrinceOfPersiaTheSandsOfTimePC,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PC - Limited Demo)", typeof(Jade_PoP_SoT_PC_LimitedDemo_Manager), Platform.PC)]
-        PrinceOfPersiaTheSandsOfTimePCLimitedDemo,
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PC - Demo 2003/12/17)", typeof(Jade_PoP_SoT_PC_20031217_Manager), Platform.PC)]
+		PrinceOfPersiaTheSandsOfTimePC_20031217, // OEM Demo
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (Xbox)", typeof(Jade_PoP_SoT_Xbox_Manager), Platform.Xbox)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PC - Demo 2004/02/27)", typeof(Jade_PoP_SoT_PC_20040227_Manager), Platform.PC)]
+		PrinceOfPersiaTheSandsOfTimePC_20040227, // Limited Demo
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (Xbox)", typeof(Jade_PoP_SoT_Xbox_Manager), Platform.Xbox)]
         PrinceOfPersiaTheSandsOfTimeXbox,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (Xbox - Demo 2003/07/23)", typeof(Jade_PoP_SoT_Xbox_20030723_Manager), Platform.Xbox)]

@@ -107,13 +107,15 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.RaymanRavingRabbids2PC:
 					links = new AI_Links_RRR2_Wii();
 					break;
-				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030710:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030723:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox_20030723:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeGC:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC:
-				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC_20031217:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC_20040227:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS3:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
