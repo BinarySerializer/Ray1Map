@@ -1186,7 +1186,10 @@ public class Jade_Montreal
 
 public class Jade_PoP_SoT_20030723
 {
-    [UnityTest]
+	[UnityTest]
+	public IEnumerator PrinceOfPersiaTheSandsOfTimePS2_20030710() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030710);
+
+	[UnityTest]
     public IEnumerator PrinceOfPersiaTheSandsOfTimePS2_20030723() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030723);
 
     [UnityTest]
@@ -1212,8 +1215,11 @@ public class Jade_PoP_SoT
     [UnityTest]
     public IEnumerator PrinceOfPersiaTheSandsOfTimePC() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePC);
 
-    [UnityTest]
-    public IEnumerator PrinceOfPersiaTheSandsOfTimePCLimitedDemo() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo);
+	[UnityTest]
+	public IEnumerator PrinceOfPersiaTheSandsOfTimePC_20031217() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePC_20031217);
+
+	[UnityTest]
+    public IEnumerator PrinceOfPersiaTheSandsOfTimePC_20040227() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimePC_20040227);
 
     [UnityTest]
     public IEnumerator PrinceOfPersiaTheSandsOfTimeXbox() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox);
@@ -1252,7 +1258,16 @@ public class Jade_PoP_WW
     [UnityTest]
     public IEnumerator PrinceOfPersiaWarriorWithinIOS() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOS);
 
-    [UnityTest]
+	[UnityTest]
+	public IEnumerator PrinceOfPersiaWarriorWithinIOSHD() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOSHD);
+
+	[UnityTest]
+	public IEnumerator PrinceOfPersiaWarriorWithinIOSDemo() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOSDemo);
+
+	[UnityTest]
+	public IEnumerator PrinceOfPersiaWarriorWithinIOS3GOS4Demo() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinIOS3GOS4Demo);
+
+	[UnityTest]
     public IEnumerator PrinceOfPersiaWarriorWithinPS3() => LoadTests.Load(GameModeSelection.PrinceOfPersiaWarriorWithinPS3);
 
 }

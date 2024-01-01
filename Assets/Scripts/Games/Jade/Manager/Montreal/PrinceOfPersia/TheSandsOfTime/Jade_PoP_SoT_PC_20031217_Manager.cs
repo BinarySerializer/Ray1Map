@@ -1,6 +1,6 @@
 ﻿namespace Ray1Map
 {
-    public class Jade_PoP_SoT_PC_LimitedDemo_Manager : Jade_PoP_SoT_PC_Manager
+    public class Jade_PoP_SoT_PC_20031217_Manager : Jade_PoP_SoT_PC_Manager // OEM Demo
     {
 		public override LevelInfo[] LevelInfos => new LevelInfo[] {
             new LevelInfo(0x2200B589, "ROOT/Bin", "0103_Colonnes_wow_ff02b589.bin", worldName: "WOW", mapName: "0103_Colonnes", type: LevelInfo.FileType.WOW),

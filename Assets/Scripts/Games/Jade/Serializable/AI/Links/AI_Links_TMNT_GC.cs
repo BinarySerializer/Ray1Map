@@ -1,5 +1,5 @@
 ﻿namespace Ray1Map.Jade {
-	public class AI_Links_TMNT_GC : AI_Links_PoP_SoT_PS2_Proto {
+	public class AI_Links_TMNT_GC : AI_Links_PoP_WW_iOS_HD {
 
 		protected override void InitTypes() {
 			#region Types
