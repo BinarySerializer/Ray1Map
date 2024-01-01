@@ -207,6 +207,9 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina the Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_NintendoE3ApprovalProto, Game.GBA_Rayman3, "Rayman 3 (GBA - Nintendo E3 Approval Prototype)", typeof(GBA_R3_Manager))]
+        Rayman3GBProto_NintendoE3Approval,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]
         Rayman3GBAEU,
 

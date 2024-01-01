@@ -37,7 +37,7 @@ namespace Ray1Map.GBA
         {
             if (!s.GetR1Settings().GBA_IsMilan)
             {
-                if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_Sabrina)
+                if (s.GetR1Settings().EngineVersion is not (EngineVersion.GBA_Sabrina or EngineVersion.GBA_R3_NintendoE3ApprovalProto))
                     ID = s.Serialize<ushort>(ID, name: nameof(ID));
 
                 Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
@@ -72,7 +72,7 @@ namespace Ray1Map.GBA
             if (!s.GetR1Settings().GBA_IsMilan)
                 TileSet = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
                 {
-                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_Sabrina)
+                    if (s.GetR1Settings().EngineVersion is EngineVersion.GBA_Sabrina or EngineVersion.GBA_R3_NintendoE3ApprovalProto)
                         x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
                 }, name: nameof(TileSet)));
             else

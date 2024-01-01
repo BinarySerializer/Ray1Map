@@ -47,6 +47,7 @@ namespace Ray1Map
 
         GBA_BatmanVengeance,                 // 2001
         GBA_Sabrina,                         // 2002
+        GBA_R3_NintendoE3ApprovalProto,      // 2002
         GBA_R3_Proto,                        // 2003
         GBA_R3,                              // 2003
         GBA_R3_NGage,                        // 2003
