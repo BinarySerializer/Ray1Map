@@ -13,7 +13,8 @@ namespace Ray1Map.GBA
         public override int[] MenuLevels => new int[] { 0 };
         public override ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
 
-		public override int[] AdditionalSprites4bpp => new int[0];
+        public override int[] AdditionalActorModels => new[] { 1, 2, 3 };
+        public override int[] AdditionalSprites4bpp => new int[0];
 		public override int[] AdditionalSprites8bpp => new int[0];
 	}
 }
