@@ -32,6 +32,11 @@ namespace Ray1Map
 						[GBA.DefinedPointer.UiOffsetTable] = 0x08156318,
 					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+				case GameModeSelection.Rayman3GBA_20020308_PreAlphaB:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x0815ADD0,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
 				case GameModeSelection.Rayman3GBA_20020418_NintendoE3Approval:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
                         [GBA.DefinedPointer.UiOffsetTable] = 0x0815056c,

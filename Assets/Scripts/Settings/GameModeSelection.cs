@@ -213,6 +213,9 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Pre-Alpha - 2002/03/01)", typeof(GBA_R3_20020301_PreAlpha_Manager))]
 		Rayman3GBA_20020301_PreAlpha,
 
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Pre-Alpha (B) - 2002/03/08)", typeof(GBA_R3_20020308_PreAlphaB_Manager))]
+		Rayman3GBA_20020308_PreAlphaB,
+
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020418_NintendoE3Approval, Game.GBA_Rayman3, "Rayman 3 (GBA - Nintendo E3 Approval - 2002/04/18)", typeof(GBA_R3_20020418_NintendoE3Approval_Manager))]
 		Rayman3GBA_20020418_NintendoE3Approval,
 
