@@ -231,6 +231,9 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - La Ronde - 2002/07/19)", typeof(GBA_R3_20020719_LaRonde_Manager))]
 		Rayman3GBA_20020719_LaRonde,
 
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - ECTS - 2002/08/09)", typeof(GBA_R3_Manager))]
+		Rayman3GBA_20020809_ECTS,
+
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]
         Rayman3GBAEU,
 
