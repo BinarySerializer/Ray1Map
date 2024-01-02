@@ -7,7 +7,7 @@ namespace Ray1Map.GBA
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 7),
+            Enumerable.Range(0, 10),
         };
 
         public override ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
