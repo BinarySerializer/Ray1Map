@@ -62,6 +62,8 @@ namespace Ray1Map.GBA
         public abstract int[] AdditionalSprites4bpp { get; }
         public abstract int[] AdditionalSprites8bpp { get; }
 
+        protected virtual GBA_Scene CreateSceneForMenuLevel(Context context, GBA_Data dataBlock) => null;
+
         public virtual ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
 
         public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -673,7 +675,7 @@ namespace Ray1Map.GBA
                 }
                 else
                 {
-                    scene = null;
+                    scene = CreateSceneForMenuLevel(context, dataBlock);
                     playField = dataBlock.MenuLevelPlayfield;
                 }
             }
