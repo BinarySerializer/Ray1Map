@@ -37,7 +37,7 @@ namespace Ray1Map.GBA
         {
             if (settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
                 return AlwaysActors.Concat(NormalActors).Concat(Captors).Concat(Waypoints).Concat(UnkActors);
-            else if (settings.EngineVersion <= EngineVersion.GBA_R3_20020418_NintendoE3Approval)
+            else if (settings.EngineVersion <= EngineVersion.GBA_R3_20020513_E3GameCube)
                 return MainActors.Concat(NormalActors).Concat(AlwaysActors).Concat(Captors);
             else
                 return AlwaysActors.Concat(NormalActors).Concat(Captors);
@@ -84,7 +84,7 @@ namespace Ray1Map.GBA
                 Waypoints = s.SerializeObjectArray<GBA_Actor>(Waypoints, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Waypoint, name: nameof(Waypoints));
                 UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, ActorsCount4, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
             }
-            else if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020418_NintendoE3Approval)
+            else if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020513_E3GameCube)
             {
                 MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.MainActor, name: nameof(MainActors));
                 NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));

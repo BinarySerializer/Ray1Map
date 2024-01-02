@@ -27,7 +27,8 @@ namespace Ray1Map.GBA
                 TileSetLength = s.Serialize<ushort>(TileSetLength, name: nameof(TileSetLength));
             } else {
                 TileSetLength = s.Serialize<ushort>(TileSetLength, name: nameof(TileSetLength));
-                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020418_NintendoE3Approval ||
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020513_E3GameCube || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020418_NintendoE3Approval ||
                     s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020301_PreAlpha ||
                     s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020118_DemoRLE) {
                     UnknownTileSet1 = s.Serialize<byte>(UnknownTileSet1, name: nameof(UnknownTileSet1));

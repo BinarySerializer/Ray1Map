@@ -26,7 +26,7 @@ namespace Ray1Map.GBA
             Length = s.Serialize<byte>(Length, name: nameof(Length));
             ActorIndicesCount = s.Serialize<byte>(ActorIndicesCount, name: nameof(ActorIndicesCount));
 
-            if (Length == 0 && (s.GetR1Settings().EngineVersion is (EngineVersion.GBA_R3_20020418_NintendoE3Approval or EngineVersion.GBA_R3_20020301_PreAlpha)))
+            if (Length == 0 && (s.GetR1Settings().EngineVersion is (EngineVersion.GBA_R3_20020513_E3GameCube or EngineVersion.GBA_R3_20020418_NintendoE3Approval or EngineVersion.GBA_R3_20020301_PreAlpha)))
             {
                 ActorIndicesCount = 0;
                 CaptorIndicesCount = 0;

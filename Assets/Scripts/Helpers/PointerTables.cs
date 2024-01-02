@@ -24,7 +24,7 @@ namespace Ray1Map
             {
                 case GameModeSelection.Rayman3GBA_20020118_DemoRLE:
 					return new Dictionary<GBA.DefinedPointer, uint>() {
-						[GBA.DefinedPointer.UiOffsetTable] = 0x081646dc,
+						[GBA.DefinedPointer.UiOffsetTable] = 0x081646DC,
 					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
 				case GameModeSelection.Rayman3GBA_20020301_PreAlpha:
@@ -44,10 +44,20 @@ namespace Ray1Map
 
 				case GameModeSelection.Rayman3GBA_20020418_NintendoE3Approval:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
-                        [GBA.DefinedPointer.UiOffsetTable] = 0x0815056c,
+                        [GBA.DefinedPointer.UiOffsetTable] = 0x0815056C,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.Rayman3GBAEU:
+				case GameModeSelection.Rayman3GBA_20020513_E3GameCube:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x081A305C,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.Rayman3GBA_20020516_E3:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x0818AD90,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.Rayman3GBAEU:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
                         [GBA.DefinedPointer.UiOffsetTable] = 0x0829BEEC,
                         [GBA.DefinedPointer.LevelInfo] = 0x080D4080,

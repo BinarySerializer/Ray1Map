@@ -50,7 +50,8 @@ namespace Ray1Map
 		GBA_R3_20020118_DemoRLE,             // 2002
 		GBA_R3_20020301_PreAlpha,            // 2002
 		GBA_R3_20020418_NintendoE3Approval,  // 2002
-        GBA_R3_Proto,                        // 2003
+		GBA_R3_20020513_E3GameCube,          // 2002
+		GBA_R3_Proto,                        // 2003
         GBA_R3,                              // 2003
         GBA_R3_NGage,                        // 2003
         GBA_SplinterCell,                    // 2003 - released before R3, but more developed engine

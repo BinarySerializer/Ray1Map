@@ -39,7 +39,8 @@ namespace Ray1Map.GBA
             {
                 if (s.GetR1Settings().EngineVersion is not 
                     (EngineVersion.GBA_Sabrina or
-                    EngineVersion.GBA_R3_20020418_NintendoE3Approval or
+                    EngineVersion.GBA_R3_20020513_E3GameCube or
+					EngineVersion.GBA_R3_20020418_NintendoE3Approval or
                     EngineVersion.GBA_R3_20020301_PreAlpha or
                     EngineVersion.GBA_R3_20020118_DemoRLE))
                     ID = s.Serialize<ushort>(ID, name: nameof(ID));
@@ -80,7 +81,9 @@ namespace Ray1Map.GBA
                 TileSet = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
                 {
                     if (s.GetR1Settings().EngineVersion is EngineVersion.GBA_Sabrina or
-                    EngineVersion.GBA_R3_20020418_NintendoE3Approval or EngineVersion.GBA_R3_20020301_PreAlpha)
+                    EngineVersion.GBA_R3_20020513_E3GameCube or
+					EngineVersion.GBA_R3_20020418_NintendoE3Approval or
+                    EngineVersion.GBA_R3_20020301_PreAlpha)
                         x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
                 }, name: nameof(TileSet)));
             else
