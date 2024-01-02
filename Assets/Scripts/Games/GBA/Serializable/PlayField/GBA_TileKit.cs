@@ -27,6 +27,8 @@ namespace Ray1Map.GBA
 
         public Milan_CompressionType CompressionType { get; set; }
 
+        public bool Pre_IsMode7 { get; set; }
+
         #region Parsed
         public GBA_Palette[] Palettes { get; set; }
         public GBA_AnimatedTileKitManager AnimatedTileKitManager { get; set; }
@@ -68,7 +70,8 @@ namespace Ray1Map.GBA
                     IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
 
                     // TODO: Nintendo E3 level 12 crashes here
-                    if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020301_PreAlpha)
+                    if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020301_PreAlpha 
+                        || (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020418_NintendoE3Approval && Pre_IsMode7))
                     {
                         PaletteCount = 1;
                         PaletteIndices = s.SerializeArray<byte>(PaletteIndices, 1, name: nameof(PaletteIndices));

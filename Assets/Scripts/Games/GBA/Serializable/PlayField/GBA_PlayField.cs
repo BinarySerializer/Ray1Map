@@ -261,7 +261,7 @@ namespace Ray1Map.GBA
                 for (int i = 0; i < TileKitCount; i++)
                 {
                     TileKits[i] = s.DoAt(OffsetTable.GetPointer(Index_TileKit + i),
-                        () => s.SerializeObject<GBA_TileKit>(TileKits[i], name: $"{nameof(TileKits)}[{i}]"));
+                        () => s.SerializeObject<GBA_TileKit>(TileKits[i], onPreSerialize: t => t.Pre_IsMode7 = StructType == Type.PlayFieldMode7, name: $"{nameof(TileKits)}[{i}]"));
                 }
 
                 // This game has no BGTileTable
