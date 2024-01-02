@@ -22,7 +22,17 @@ namespace Ray1Map
         {
             switch (context.GetR1Settings().GameModeSelection)
             {
-                case GameModeSelection.Rayman3GBProto_NintendoE3Approval:
+                case GameModeSelection.Rayman3GBA_20020118_DemoRLE:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x081646dc,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.Rayman3GBA_20020301_PreAlpha:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x08156318,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.Rayman3GBA_20020418_NintendoE3Approval:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
                         [GBA.DefinedPointer.UiOffsetTable] = 0x0815056c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

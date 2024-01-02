@@ -38,7 +38,12 @@ namespace Ray1Map.GBA
         public const ushort BOX_FLAG = 0x3c00;
 
         public override void SerializeImpl(SerializerObject s) {
-            Attr0 = s.Serialize<ushort>(Attr0, name: nameof(Attr0));
+            bool isR3Proto = (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020418_NintendoE3Approval ||
+				s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020301_PreAlpha ||
+				s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020118_DemoRLE);
+
+
+			Attr0 = s.Serialize<ushort>(Attr0, name: nameof(Attr0));
 
             // Parse
             if ((Attr0 & BOX_FLAG) == 0x800) ChannelType = Type.Unknown8; // TODO: Attr1 is sound index here
@@ -53,14 +58,13 @@ namespace Ray1Map.GBA
                     ChannelType = Type.Null;
                     return;
                 }
-                // Attr0
-                YPosition = (short)BitHelpers.ExtractBits(Attr0, 8, 0);
-                /*if (s.GetR1Settings().Game == Game.GBA_Rayman3) {
-                    if (YPosition >= 96) YPosition -= 256; // Hack. Since usually more of the top sprite is visible, this is more likely.
-                } else {
-                    if (YPosition >= 128) YPosition -= 256;
-                }*/
-                if (YPosition >= 128) YPosition -= 256; // TODO: Use SignedNumberRepresentation.TwosComplement
+				// Attr0
+				YPosition = (short)BitHelpers.ExtractBits(Attr0, 8, 0);
+				if (isR3Proto) {
+					if (YPosition > 128) YPosition = (short)(128 - YPosition);
+				} else {
+                    if (YPosition >= 128) YPosition -= 256; // TODO: Use SignedNumberRepresentation.TwosComplement
+                }
                 TransformMode = (AffineObjectMode)BitHelpers.ExtractBits(Attr0, 2, 8);
 
                 // TODO: RenderMode and Color don't exist here
@@ -71,9 +75,13 @@ namespace Ray1Map.GBA
                 SpriteShape = (Shape)BitHelpers.ExtractBits(Attr0, 2, 14);
 
                 // Attr1
-                XPosition = (short)BitHelpers.ExtractBits(Attr1, 9, 0);
                 bool bit9 = false, bit10 = false, bit11 = false;
-                if (XPosition >= 256) XPosition -= 512;
+				XPosition = (short)BitHelpers.ExtractBits(Attr1, 9, 0);
+				if (isR3Proto) {
+                    if (XPosition > 256) XPosition = (short)(256 - XPosition);
+				} else {
+                    if (XPosition >= 256) XPosition -= 512;
+                }
                 if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
                     AffineMatrixIndex = BitHelpers.ExtractBits(Attr1, 5, 9);
                 } else {
@@ -129,31 +137,7 @@ namespace Ray1Map.GBA
                 if (bit10) s.Log("BIT10");
                 if (bit11) s.Log("BIT11");
 
-                // Calculate size
-                XSize = 1;
-                YSize = 1;
-                switch (SpriteShape) {
-                    case Shape.Square:
-                        XSize = 1 << SpriteSize;
-                        YSize = XSize;
-                        break;
-                    case Shape.Wide:
-                        switch (SpriteSize) {
-                            case 0: XSize = 2; YSize = 1; break;
-                            case 1: XSize = 4; YSize = 1; break;
-                            case 2: XSize = 4; YSize = 2; break;
-                            case 3: XSize = 8; YSize = 4; break;
-                        }
-                        break;
-                    case Shape.Tall:
-                        switch (SpriteSize) {
-                            case 0: XSize = 1; YSize = 2; break;
-                            case 1: XSize = 1; YSize = 4; break;
-                            case 2: XSize = 2; YSize = 4; break;
-                            case 3: XSize = 4; YSize = 8; break;
-                        }
-                        break;
-                }
+                CalculateSpriteSize();
             } else if(ChannelType == Type.Unknown8) {
                 Unknown8 = s.Serialize<int>(Unknown8, name: nameof(Unknown8));
             } else if (ChannelType == Type.UnknownC) {
@@ -193,6 +177,34 @@ namespace Ray1Map.GBA
             Unknown8,
             UnknownC
         }
+
+        protected void CalculateSpriteSize() {
+			// Calculate size
+			XSize = 1;
+			YSize = 1;
+			switch (SpriteShape) {
+				case Shape.Square:
+					XSize = 1 << SpriteSize;
+					YSize = XSize;
+					break;
+				case Shape.Wide:
+					switch (SpriteSize) {
+						case 0: XSize = 2; YSize = 1; break;
+						case 1: XSize = 4; YSize = 1; break;
+						case 2: XSize = 4; YSize = 2; break;
+						case 3: XSize = 8; YSize = 4; break;
+					}
+					break;
+				case Shape.Tall:
+					switch (SpriteSize) {
+						case 0: XSize = 1; YSize = 2; break;
+						case 1: XSize = 1; YSize = 4; break;
+						case 2: XSize = 2; YSize = 4; break;
+						case 3: XSize = 4; YSize = 8; break;
+					}
+					break;
+			}
+		}
 
         public float GetRotation(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {

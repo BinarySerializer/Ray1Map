@@ -12,12 +12,12 @@ namespace Ray1Map.GBA
     public class GBA_TileKit : GBA_BaseBlock {
         public ushort TileSet4bppSize { get; set; }
         public ushort TileSet8bppSize { get; set; }
-        public byte Byte_04 { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
         public byte Index_AnimatedTileKitManager { get; set; }
         public byte PaletteCount { get; set; }
-        public byte Byte_07 { get; set; }
+		public byte Byte_06 { get; set; }
+		public byte Byte_07 { get; set; }
 
-        public byte[] PaletteIndices { get; set; }
+		public byte[] PaletteIndices { get; set; }
         public byte[] TileSet4bpp { get; set; }
         public byte[] TileSet8bpp { get; set; }
 
@@ -53,13 +53,21 @@ namespace Ray1Map.GBA
                     TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
                 }
             } else {
-                TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
-                TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
-                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
-                Index_AnimatedTileKitManager = s.Serialize<byte>(Index_AnimatedTileKitManager, name: nameof(Index_AnimatedTileKitManager)); // Can be 0xFF which means this block doesn't exist
-                PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
-                Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
-                PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
+				TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
+				TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
+				IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+
+				if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020301_PreAlpha) {
+                    PaletteCount = 1;
+                    PaletteIndices = s.SerializeArray<byte>(PaletteIndices, 1, name: nameof(PaletteIndices));
+					Index_AnimatedTileKitManager = s.Serialize<byte>(Index_AnimatedTileKitManager, name: nameof(Index_AnimatedTileKitManager)); // Can be 0xFF which means this block doesn't exist
+					Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+				} else {
+                    Index_AnimatedTileKitManager = s.Serialize<byte>(Index_AnimatedTileKitManager, name: nameof(Index_AnimatedTileKitManager)); // Can be 0xFF which means this block doesn't exist
+                    PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
+                    Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+                    PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
+                }
 
                 CompressionType = IsCompressed && s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_NGage ? Milan_CompressionType.LZSS : Milan_CompressionType.None;
             }

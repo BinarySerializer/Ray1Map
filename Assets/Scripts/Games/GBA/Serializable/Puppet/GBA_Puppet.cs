@@ -37,7 +37,10 @@ namespace Ray1Map.GBA
         {
             if (!s.GetR1Settings().GBA_IsMilan)
             {
-                if (s.GetR1Settings().EngineVersion is not (EngineVersion.GBA_Sabrina or EngineVersion.GBA_R3_NintendoE3ApprovalProto))
+                if (s.GetR1Settings().EngineVersion is not 
+                    (EngineVersion.GBA_Sabrina or
+                    EngineVersion.GBA_R3_20020418_NintendoE3Approval or
+                    EngineVersion.GBA_R3_20020301_PreAlpha))
                     ID = s.Serialize<ushort>(ID, name: nameof(ID));
 
                 Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
@@ -48,7 +51,9 @@ namespace Ray1Map.GBA
 
                 Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04)); // Byte_04 & 0xF == palette count
                 AnimationsCount = s.Serialize<byte>((byte)AnimationsCount, name: nameof(AnimationsCount));
-                Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06)); // This multiplied by 2 is some length
+                if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_20020301_PreAlpha) {
+                    Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06)); // This multiplied by 2 is some length
+                }
 
                 AnimationIndexTable = s.SerializeArray<byte>(AnimationIndexTable?.Select(x => (byte)x).ToArray(), AnimationsCount, name: nameof(AnimationIndexTable)).Select(x => (ushort)x).ToArray();
             }
@@ -72,7 +77,8 @@ namespace Ray1Map.GBA
             if (!s.GetR1Settings().GBA_IsMilan)
                 TileSet = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
                 {
-                    if (s.GetR1Settings().EngineVersion is EngineVersion.GBA_Sabrina or EngineVersion.GBA_R3_NintendoE3ApprovalProto)
+                    if (s.GetR1Settings().EngineVersion is EngineVersion.GBA_Sabrina or
+                    EngineVersion.GBA_R3_20020418_NintendoE3Approval or EngineVersion.GBA_R3_20020301_PreAlpha)
                         x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
                 }, name: nameof(TileSet)));
             else
