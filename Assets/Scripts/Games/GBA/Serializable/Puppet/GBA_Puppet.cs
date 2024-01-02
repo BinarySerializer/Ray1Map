@@ -40,7 +40,8 @@ namespace Ray1Map.GBA
                 if (s.GetR1Settings().EngineVersion is not 
                     (EngineVersion.GBA_Sabrina or
                     EngineVersion.GBA_R3_20020418_NintendoE3Approval or
-                    EngineVersion.GBA_R3_20020301_PreAlpha))
+                    EngineVersion.GBA_R3_20020301_PreAlpha or
+                    EngineVersion.GBA_R3_20020118_DemoRLE))
                     ID = s.Serialize<ushort>(ID, name: nameof(ID));
 
                 Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
@@ -51,7 +52,8 @@ namespace Ray1Map.GBA
 
                 Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04)); // Byte_04 & 0xF == palette count
                 AnimationsCount = s.Serialize<byte>((byte)AnimationsCount, name: nameof(AnimationsCount));
-                if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_20020301_PreAlpha) {
+                if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_20020301_PreAlpha && 
+                    s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_20020118_DemoRLE) {
                     Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06)); // This multiplied by 2 is some length
                 }
 

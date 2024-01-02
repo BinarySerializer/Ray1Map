@@ -58,8 +58,11 @@ namespace Ray1Map.GBA
         public abstract int[] MenuLevels { get; }
         public abstract int DLCLevelCount { get; }
         public virtual bool HasR3SinglePakLevel => false;
+        public virtual int[] AdditionalActorModels => Array.Empty<int>();
         public abstract int[] AdditionalSprites4bpp { get; }
         public abstract int[] AdditionalSprites8bpp { get; }
+
+        protected virtual GBA_Scene CreateSceneForMenuLevel(Context context, GBA_Data dataBlock) => null;
 
         public virtual ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
 
@@ -258,6 +261,13 @@ namespace Ray1Map.GBA
 
                 // Load the data block
                 data = LoadDataBlock(context);
+
+                foreach (var menuSprite in AdditionalActorModels)
+                {
+                    var s = context.Deserializer;
+                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_ActorModel>(default).Puppet), false, menuSprite);
+                }
+                await Controller.WaitIfNecessary();
 
                 // Enumerate every menu sprite group
                 foreach (var menuSprite in AdditionalSprites4bpp)
@@ -665,7 +675,7 @@ namespace Ray1Map.GBA
                 }
                 else
                 {
-                    scene = null;
+                    scene = CreateSceneForMenuLevel(context, dataBlock);
                     playField = dataBlock.MenuLevelPlayfield;
                 }
             }
