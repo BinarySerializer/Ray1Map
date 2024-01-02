@@ -127,7 +127,11 @@ namespace Ray1Map.GBA
                         ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
 
                     if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_R3_20020301_PreAlpha) {
-						LayerTable = s.SerializeArray<byte>(LayerTable, 5, name: nameof(LayerTable));
+                        if (StructType == Type.PlayFieldMode7) {
+							LayerTable = s.SerializeArray<byte>(LayerTable, 6, name: nameof(LayerTable));
+						} else {
+                            LayerTable = s.SerializeArray<byte>(LayerTable, 5, name: nameof(LayerTable));
+                        }
 					} else {
                         LayerTable = s.SerializeArray<byte>(LayerTable, 6, name: nameof(LayerTable));
                     }
