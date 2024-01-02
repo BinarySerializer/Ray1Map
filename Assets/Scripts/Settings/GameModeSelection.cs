@@ -207,13 +207,13 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina the Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,
 
-		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020118_DemoRLE, Game.GBA_Rayman3, "Rayman 3 (GBA - Demo RLE - 2002/01/18)", typeof(GBA_R3_PreAlpha_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020118_DemoRLE, Game.GBA_Rayman3, "Rayman 3 (GBA - Demo RLE - 2002/01/18)", typeof(GBA_R3_20020118_DemoRLE_Manager))]
 		Rayman3GBA_20020118_DemoRLE,
 
-		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Pre-Alpha - 2002/03/01)", typeof(GBA_R3_PreAlpha_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Pre-Alpha - 2002/03/01)", typeof(GBA_R3_20020301_PreAlpha_Manager))]
 		Rayman3GBA_20020301_PreAlpha,
 
-		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020418_NintendoE3Approval, Game.GBA_Rayman3, "Rayman 3 (GBA - Nintendo E3 Approval - 2002/04/18)", typeof(GBA_R3_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020418_NintendoE3Approval, Game.GBA_Rayman3, "Rayman 3 (GBA - Nintendo E3 Approval - 2002/04/18)", typeof(GBA_R3_20020418_NintendoE3Approval_Manager))]
 		Rayman3GBA_20020418_NintendoE3Approval,
 
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]

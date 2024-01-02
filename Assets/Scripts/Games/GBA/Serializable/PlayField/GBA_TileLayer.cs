@@ -41,6 +41,7 @@ namespace Ray1Map.GBA
         public byte TileKitIndex { get; set; }
 
         public GBA_ColorMode ColorMode { get; set; }
+        public byte UnknownPrototypeValue { get; set; }
 
         public byte Mode7_10 { get; set; }
         public byte Mode7_11 { get; set; }
@@ -256,7 +257,16 @@ namespace Ray1Map.GBA
                         AlphaBlending_Coeff = s.Serialize<sbyte>(AlphaBlending_Coeff, name: nameof(AlphaBlending_Coeff));
 
                         UsesTileKitDirectly = s.Serialize<bool>(UsesTileKitDirectly, name: nameof(UsesTileKitDirectly));
-                        ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
+
+                        if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020118_DemoRLE)
+                        {
+                            UnknownPrototypeValue = s.Serialize<byte>(UnknownPrototypeValue, name: nameof(UnknownPrototypeValue));
+                            ColorMode = GBA_ColorMode.Color8bpp;
+                        }
+                        else
+                        {
+                            ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
+                        }
                         TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
                         Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
                         break;

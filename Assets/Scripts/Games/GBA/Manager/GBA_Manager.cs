@@ -841,52 +841,82 @@ namespace Ray1Map.GBA
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
                             MapTile newt = x.CloneObj();
-                            if (map.ColorMode == GBA_ColorMode.Color8bpp) {
-                                if (x.IsFirstBlock) {
-                                    //Controller.print(i + " - " + index);
-                                    //relativeIndex = index;
-                                } else {
-                                    if (index > 0) {
-                                        if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile) {
-                                            index += 256;
-                                        } else {
-                                            index += 384; // 3 * 128, 24 * 16?
+                            if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020118_DemoRLE)
+                            {
+                                if (index > 0)
+                                    newt.TileMapY = tbl.Indices8bpp[index - 1];
+                            }
+                            else
+                            {
+                                if (map.ColorMode == GBA_ColorMode.Color8bpp)
+                                {
+                                    if (x.IsFirstBlock)
+                                    {
+                                        //Controller.print(i + " - " + index);
+                                        //relativeIndex = index;
+                                    }
+                                    else
+                                    {
+                                        if (index > 0)
+                                        {
+                                            if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile)
+                                            {
+                                                index += 256;
+                                            }
+                                            else
+                                            {
+                                                index += 384; // 3 * 128, 24 * 16?
+                                            }
+                                            index -= 1;
+                                            //index += relativeIndex; // 383; // seems hardcoded
                                         }
+                                        else
+                                        {
+                                            index = -1;
+                                        }
+                                    }
+                                    if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile)
+                                    {
                                         index -= 1;
-                                        //index += relativeIndex; // 383; // seems hardcoded
-                                    } else {
-                                        index = -1;
+                                    }
+                                    if (index < 0 || index >= tbl.IndicesCount8bpp)
+                                    {
+                                        //Controller.print(map.LayerID + " - " + index);
+                                        newt.TileMapY = 0;
+                                    }
+                                    else
+                                    {
+                                        newt.TileMapY = tbl.Indices8bpp[index];
                                     }
                                 }
-                                if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile) {
-                                    index -= 1;
-                                }
-                                if (index < 0 || index >= tbl.IndicesCount8bpp) {
-                                    //Controller.print(map.LayerID + " - " + index);
-                                    newt.TileMapY = 0;
-                                } else {
-                                    newt.TileMapY = tbl.Indices8bpp[index];
-                                }
-                            } else {
-                                index -= 2;
-                                if (context.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia
-                                //&& context.GetR1Settings().EngineVersion < EngineVersion.GBA_StarWarsTrilogy
-                                && playField.BGTileTable != null
-                                && playField.BGTileTable.IndicesCount8bpp > 383) {
-                                    int numTiles = playField.BGTileTable.IndicesCount8bpp % 384;
-                                    index -= numTiles * 2;
-                                }
-                                if (map.TileKitIndex == 1 && playField.BGTileTable != null) {
-                                    index -= playField.BGTileTable.IndicesCount4bpp;
-                                }
-                                if (index < 0 || index >= tbl.IndicesCount4bpp) {
-                                    //Controller.print(map.LayerID + " - " + index);
-                                    newt.TileMapY = 0;
-                                } else {
-                                    //Controller.print(index);
-                                    newt.TileMapY = tbl.Indices4bpp[index];
+                                else
+                                {
+                                    index -= 2;
+                                    if (context.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia
+                                    //&& context.GetR1Settings().EngineVersion < EngineVersion.GBA_StarWarsTrilogy
+                                    && playField.BGTileTable != null
+                                    && playField.BGTileTable.IndicesCount8bpp > 383)
+                                    {
+                                        int numTiles = playField.BGTileTable.IndicesCount8bpp % 384;
+                                        index -= numTiles * 2;
+                                    }
+                                    if (map.TileKitIndex == 1 && playField.BGTileTable != null)
+                                    {
+                                        index -= playField.BGTileTable.IndicesCount4bpp;
+                                    }
+                                    if (index < 0 || index >= tbl.IndicesCount4bpp)
+                                    {
+                                        //Controller.print(map.LayerID + " - " + index);
+                                        newt.TileMapY = 0;
+                                    }
+                                    else
+                                    {
+                                        //Controller.print(index);
+                                        newt.TileMapY = tbl.Indices4bpp[index];
+                                    }
                                 }
                             }
+
                             return newt;
                         }).ToArray();
                     }

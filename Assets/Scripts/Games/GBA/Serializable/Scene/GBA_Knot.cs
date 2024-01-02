@@ -1,4 +1,5 @@
-﻿using BinarySerializer;
+﻿using System;
+using BinarySerializer;
 
 namespace Ray1Map.GBA
 {
@@ -24,6 +25,17 @@ namespace Ray1Map.GBA
         {
             Length = s.Serialize<byte>(Length, name: nameof(Length));
             ActorIndicesCount = s.Serialize<byte>(ActorIndicesCount, name: nameof(ActorIndicesCount));
+
+            if (Length == 0 && s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_20020418_NintendoE3Approval)
+            {
+                ActorIndicesCount = 0;
+                CaptorIndicesCount = 0;
+                ActorIndices = Array.Empty<byte>();
+                CaptorIndices = Array.Empty<byte>();
+                RemainingData = Array.Empty<ushort>();
+                return;
+            }
+
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Batman_02 = s.Serialize<byte>(Batman_02, name: nameof(Batman_02));
                 Batman_03 = s.Serialize<byte>(Batman_03, name: nameof(Batman_03));
