@@ -274,7 +274,12 @@ namespace Ray1Map
                         [GBA.DefinedPointer.UiOffsetTable] = 0x08262518,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.BatmanRiseOfSinTzuGBAUS:
+				case GameModeSelection.CrouchingTigerHiddenDragonGBAPrototype:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x0808C29C,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.BatmanRiseOfSinTzuGBAUS:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
                         [GBA.DefinedPointer.UiOffsetTable] = 0x08207930,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

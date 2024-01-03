@@ -177,7 +177,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_CrouchingTiger, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - US Beta)", typeof(GBA_CrouchingTigerBeta_Manager))]
         CrouchingTigerHiddenDragonGBAUSBeta,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_RainbowSixRogueSpear_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_CrouchingTigerPrototype, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - Prototype)", typeof(GBA_CrouchingTigerProto_Manager))]
+		CrouchingTigerHiddenDragonGBAPrototype,
+
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_RainbowSixRogueSpear_Manager))]
         TomClancysRainbowSixRogueSpearEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - US)", typeof(GBA_RainbowSixRogueSpear_Manager))]

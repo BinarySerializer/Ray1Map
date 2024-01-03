@@ -38,6 +38,7 @@ namespace Ray1Map
         // GBA
 
         GBA_DonaldDuck,                      // 2001 (Shanghai)
+        GBA_CrouchingTigerPrototype,         // 2002 (Shanghai)
         GBA_CrouchingTiger,                  // 2003 (Shanghai)
         GBA_R3_MadTrax,                      // 2003 (Shanghai)
                                              
