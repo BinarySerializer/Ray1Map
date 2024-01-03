@@ -344,7 +344,12 @@ namespace Ray1Map
                         [GBA.DefinedPointer.UiOffsetTable] = 0x08045e54,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                default:
+				case GameModeSelection.TomClancysRainbowSixRogueSpearPrototype:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x08097934,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				default:
                     return null;
             }
         }

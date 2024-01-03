@@ -177,13 +177,16 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_CrouchingTiger, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - US Beta)", typeof(GBA_CrouchingTigerBeta_Manager))]
         CrouchingTigerHiddenDragonGBAUSBeta,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_TomClancy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_RainbowSixRogueSpear_Manager))]
         TomClancysRainbowSixRogueSpearEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - US)", typeof(GBA_TomClancy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - US)", typeof(GBA_RainbowSixRogueSpear_Manager))]
         TomClancysRainbowSixRogueSpearUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_TheMummy_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - Prototype)", typeof(GBA_RainbowSixRogueSpear_Prototype_Manager))]
+		TomClancysRainbowSixRogueSpearPrototype,
+
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_TheMummy_Manager))]
         TheMummyEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - US)", typeof(GBA_TheMummy_Manager))]

@@ -5,7 +5,7 @@ using BinarySerializer;
 
 namespace Ray1Map.GBA
 {
-    public class GBA_TomClancy_Manager : GBA_Milan_Manager
+    public class GBA_RainbowSixRogueSpear_Manager : GBA_Milan_Manager
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
