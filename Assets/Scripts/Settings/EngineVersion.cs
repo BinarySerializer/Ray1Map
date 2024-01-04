@@ -43,6 +43,7 @@ namespace Ray1Map
         GBA_R3_MadTrax,                      // 2003 (Shanghai)
                                              
         GBA_TomClancysRainbowSixRogueSpear,  // 2002 (Milan)
+        GBA_TheSumOfAllFears,                // 2002 (Milan)
         GBA_TheMummy,                        // 2002 (Milan)
         GBA_TombRaiderTheProphecy,           // 2002 (Milan)
 

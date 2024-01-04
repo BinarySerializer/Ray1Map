@@ -87,7 +87,7 @@ namespace Ray1Map.GBA
                     Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
                     Milan_Links = s.SerializeObjectArray<Milan_ActorLink>(Milan_Links, Milan_LinksCount, name: nameof(Milan_Links));
 
-                    UnkData1 = s.SerializeArray<byte>(UnkData1, s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear ? 8 : 12, name: nameof(UnkData1));
+                    UnkData1 = s.SerializeArray<byte>(UnkData1, s.GetR1Settings().EngineVersion is (EngineVersion.GBA_TomClancysRainbowSixRogueSpear or EngineVersion.GBA_TheSumOfAllFears) ? 8 : 12, name: nameof(UnkData1));
 
                     DialogCount = s.Serialize<ushort>(DialogCount, name: nameof(DialogCount));
                     DialogTable = s.SerializeArray<short>(DialogTable, DialogCount, name: nameof(DialogTable));

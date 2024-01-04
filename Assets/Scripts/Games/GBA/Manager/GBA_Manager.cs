@@ -1402,7 +1402,7 @@ namespace Ray1Map.GBA
                     pal = playField.TilePalette;
                 else if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     pal = data.MadTraxPalette;
-                else if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                else if (context.GetR1Settings().EngineVersion is (EngineVersion.GBA_TomClancysRainbowSixRogueSpear or EngineVersion.GBA_TheSumOfAllFears))
                     pal = data.Milan_SceneList.Scene.TomClancy_TilePalette;
                 else if (context.GetR1Settings().GBA_IsMilan)
                     pal = map.TileKit.Palettes[0];

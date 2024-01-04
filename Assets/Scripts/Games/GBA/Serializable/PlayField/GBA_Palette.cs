@@ -17,7 +17,9 @@ namespace Ray1Map.GBA {
 
         public override void SerializeBlock(SerializerObject s) 
         {
-            if (s.GetR1Settings().GBA_IsMilan && s.GetR1Settings().EngineVersion != EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+            if (s.GetR1Settings().GBA_IsMilan
+                && s.GetR1Settings().EngineVersion != EngineVersion.GBA_TomClancysRainbowSixRogueSpear
+                && s.GetR1Settings().EngineVersion != EngineVersion.GBA_TheSumOfAllFears)
             {
                 // Copied from function at 0x080087e4 in The Mummy (US)
 

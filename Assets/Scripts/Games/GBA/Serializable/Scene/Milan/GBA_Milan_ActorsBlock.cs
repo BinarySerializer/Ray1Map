@@ -17,8 +17,12 @@ namespace Ray1Map.GBA
             s.Goto(ShanghaiOffsetTable.GetPointer(0));
             ActorsCount = s.Serialize<uint>(ActorsCount, name: nameof(ActorsCount));
 
-            s.Goto(ShanghaiOffsetTable.GetPointer(1));
-            Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ActorsCount, x => x.Type = IsCaptor ? GBA_Actor.ActorType.Captor : GBA_Actor.ActorType.Actor, name: nameof(Actors));
+            if (ShanghaiOffsetTable.Length > 1) {
+                s.Goto(ShanghaiOffsetTable.GetPointer(1));
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ActorsCount, x => x.Type = IsCaptor ? GBA_Actor.ActorType.Captor : GBA_Actor.ActorType.Actor, name: nameof(Actors));
+            } else {
+                Actors = new GBA_Actor[0];
+            }
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -37,6 +41,6 @@ namespace Ray1Map.GBA
                 a.ActorModel = ActorModels[a.Index_ActorModel];
         }
 
-        public override long GetShanghaiOffsetTableLength => 2;
+        public override long GetShanghaiOffsetTableLength => BlockSize == 8 ? 1 : 2;
     }
 }

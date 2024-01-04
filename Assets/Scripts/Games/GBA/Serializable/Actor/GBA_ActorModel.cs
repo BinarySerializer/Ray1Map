@@ -26,7 +26,7 @@ namespace Ray1Map.GBA
         {
             get
             {
-                if (Context.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                if (Context.GetR1Settings().EngineVersion is (EngineVersion.GBA_TomClancysRainbowSixRogueSpear or EngineVersion.GBA_TheSumOfAllFears))
                     return TomClancy_Puppets.Blocks;
 
                 if (Context.GetR1Settings().GBA_IsMilan)
@@ -83,7 +83,7 @@ namespace Ray1Map.GBA
             }
             else if (s.GetR1Settings().GBA_IsMilan)
             {
-                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                if (s.GetR1Settings().EngineVersion is (EngineVersion.GBA_TomClancysRainbowSixRogueSpear or EngineVersion.GBA_TheSumOfAllFears))
                 {
                     TomClancy_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_BatmanVengeance_Puppet>>(TomClancy_Puppets, name: nameof(TomClancy_Puppets)));
                 }

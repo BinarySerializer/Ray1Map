@@ -26,7 +26,8 @@ namespace Ray1Map.GBA
 
             PlayField = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
-            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear
+                || s.GetR1Settings().EngineVersion == EngineVersion.GBA_TheSumOfAllFears)
             {
                 TomClancy_TilePalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_TilePalette, name: nameof(TomClancy_TilePalette)));
                 TomClancy_ObjPalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_ObjPalette, name: nameof(TomClancy_ObjPalette)));

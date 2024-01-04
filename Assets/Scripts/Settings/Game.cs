@@ -26,6 +26,7 @@
         GBA_DonaldDuckAdvance,
         GBA_CrouchingTigerHiddenDragon,
 
+        GBA_TheSumOfAllFears,
         GBA_TheMummy,
         GBA_TombRaiderTheProphecy,
         GBA_TomClancysRainbowSixRogueSpear,

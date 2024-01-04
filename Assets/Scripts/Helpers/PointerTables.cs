@@ -324,7 +324,13 @@ namespace Ray1Map
                         [GBA.DefinedPointer.UiOffsetTable] = 0x081824D8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.TheMummyEU:
+				case GameModeSelection.TheSumOfAllFearsEU:
+				case GameModeSelection.TheSumOfAllFearsUS:
+					return new Dictionary<GBA.DefinedPointer, uint>() {
+						[GBA.DefinedPointer.UiOffsetTable] = 0x0804A844,
+					}.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+				case GameModeSelection.TheMummyEU:
                 case GameModeSelection.TheMummyUS:
                     return new Dictionary<GBA.DefinedPointer, uint>() {
                         [GBA.DefinedPointer.UiOffsetTable] = 0x080601b8,

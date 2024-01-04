@@ -189,6 +189,12 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - Prototype)", typeof(GBA_RainbowSixRogueSpear_Prototype_Manager))]
 		TomClancysRainbowSixRogueSpearPrototype,
 
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheSumOfAllFears, Game.GBA_TheSumOfAllFears, "The Sum Of All Fears (GBA - EU)", typeof(GBA_TheSumOfAllFears_Manager))]
+		TheSumOfAllFearsEU,
+
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheSumOfAllFears, Game.GBA_TheSumOfAllFears, "The Sum Of All Fears (GBA - US)", typeof(GBA_TheSumOfAllFears_Manager))]
+		TheSumOfAllFearsUS,
+
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_TheMummy_Manager))]
         TheMummyEU,
 
