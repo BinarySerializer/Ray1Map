@@ -12,6 +12,8 @@ namespace Ray1Map.GBA
 {
     public abstract class GBA_Manager : BaseGameManager
     {
+        private const string RomFilePath = "ROM.gba";
+
         public int CellSize { get; set; } = 8;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings)
@@ -49,7 +51,7 @@ namespace Ray1Map.GBA
             return LevelType.Game;
         }
 
-        public virtual string GetROMFilePath(Context context) => $"ROM.gba";
+        public virtual string GetROMFilePath(Context context) => RomFilePath;
         public virtual string GetGameCubeManifestFilePath => $"gba.nfo";
 
         public virtual long ActorTypeTableLength => 0;
@@ -74,10 +76,144 @@ namespace Ray1Map.GBA
             new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output, false)),
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpritesAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
+            new GameAction("Export All Bitmaps", false, true, (input, output) => ExtractAllBitmaps(settings.GameDirectory + RomFilePath, output)),
+            new GameAction("Export All Bitmaps From ROMs In Folder", true, true, (input, output) => ExtractAllBitmapsFromROMsInFolder(input, output)),
         };
 
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
         public abstract UniTask ExtractVignetteAsync(GameSettings settings, string outputDir);
+
+        public void ExtractAllBitmaps(string inputFile, string outputDir)
+        {
+            Directory.CreateDirectory(outputDir);
+
+            byte[] rom = File.ReadAllBytes(inputFile);
+            using MemoryStream stream = new(rom);
+            BinarySerializer.Nintendo.GBA.LZSSEncoder encoder = new();
+            int bitmapIndex = 0;
+
+            for (int i = 0; i < rom.Length - 4; i += 4)
+            {
+                // TODO: Early protos have cutscenes with larger sizes.
+                // Bitmaps are compressed
+                if (rom[i + 0] == 0x10 && rom[i + 1] == 0x00)
+                {
+                    try
+                    {
+                        // Make sure decompressed size is reasonable
+                        uint decompSize = BitConverter.ToUInt32(rom, i) >> 8; 
+                        if (decompSize is < 10000 or > 400000)
+                            continue;
+
+                        int width;
+                        int height;
+
+                        switch (decompSize)
+                        {
+                            case 0x9600:
+                                width = 240;
+                                height = 160;
+                                break;
+
+                            case 0x5A00:
+                                width = 192;
+                                height = 120;
+                                break;
+
+                            default:
+                                Debug.LogWarning($"Unknown size: {decompSize}");
+                                throw new Exception();
+                        }
+
+                        byte[] decodedBitmap = new byte[decompSize];
+                        using MemoryStream decodedStream = new(decodedBitmap);
+
+                        // We found what appears to be a compressed bitmap! Try to decompress it.
+                        stream.Position = i;
+                        encoder.DecodeStream(stream, decodedStream);
+
+                        // Verify the length
+                        if (decodedStream.Length != decodedBitmap.Length)
+                            continue;
+
+                        // We have a bitmap now. Time to find the palette. It's always 8 bytes after the bitmap pointer.
+                        uint bitmapPointer = (uint)(Constants.Address_ROM + i);
+                        byte[] bitmapPointerBytes = BitConverter.GetBytes(bitmapPointer);
+                        uint palPointer = 0;
+                        for (int j = 0; j < rom.Length - 12; j += 4)
+                        {
+                            if (rom[j + 0] == bitmapPointerBytes[0] &&
+                                rom[j + 1] == bitmapPointerBytes[1] &&
+                                rom[j + 2] == bitmapPointerBytes[2] &&
+                                rom[j + 3] == bitmapPointerBytes[3])
+                            {
+                                // Get the palette pointer
+                                palPointer = BitConverter.ToUInt32(rom, j + 8) - Constants.Address_ROM;
+
+                                // Make sure it's valid
+                                if (palPointer > 0 && palPointer < rom.Length)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (palPointer == 0)
+                        {
+                            Debug.LogWarning($"Couldn't find palette for bitmap at 0x{bitmapPointer:X8}");
+                            continue;
+                        }
+
+                        // Read the palette
+                        RGB555Color[] pal = new RGB555Color[256];
+                        for (int j = 0; j < pal.Length; j++)
+                        {
+                            pal[j] = new RGB555Color(BitConverter.ToUInt16(rom, (int)(palPointer + j * 2)));
+                        }
+
+                        // Create a texture
+                        var tex = TextureHelpers.CreateTexture2D(width, height);
+
+                        // Set pixels
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                var c = pal[decodedBitmap[y * tex.width + x]].GetColor();
+
+                                // Remove transparency
+                                c.a = 1;
+
+                                // Set pixel and reverse height
+                                tex.SetPixel(x, tex.height - y - 1, c);
+                            }
+                        }
+
+                        tex.Apply();
+
+                        // Export
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{bitmapIndex}_0x{bitmapPointer:X8}.png"), tex.EncodeToPNG());
+                        bitmapIndex++;
+                    }
+                    catch
+                    {
+                        // Ignore and continue
+                    }
+                }
+            }
+        }
+
+        public void ExtractAllBitmapsFromROMsInFolder(string inputDir, string outputDir)
+        {
+            foreach (string romFile in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories))
+            {
+                if (romFile.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase) ||
+                    romFile.EndsWith(".gba", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ExtractAllBitmaps(romFile, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(romFile)));
+                }
+            }
+        }
 
         public async UniTask ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
         {
