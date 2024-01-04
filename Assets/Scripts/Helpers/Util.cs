@@ -671,5 +671,27 @@ namespace Ray1Map
         }
         public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath, int frameRate = 60, Vector2Int[] frameOffsets = null) =>
             ExportAnimAsGif(frames, Enumerable.Repeat(speed, frames.Count).ToArray(), center, trim, filePath, frameRate, frameOffsets);
-    }
+
+		public static Dictionary<Pointer, List<int>> FindPointers(SerializerObject s, Pointer basePtr) {
+			long len = s.CurrentLength - 4;
+			float lenFloat = len;
+			int curPtr = 0;
+
+			// Find all pointers in the ROM and attempt to find the GAX structs from those
+			var pointers = new Dictionary<Pointer, List<int>>();
+
+			while (curPtr < len) {
+				Pointer p = s.DoAt(basePtr + curPtr, () => s.SerializePointer(default, allowInvalid: true));
+
+				if (p != null) {
+					if (!pointers.ContainsKey(p)) pointers[p] = new List<int>();
+					pointers[p].Add(curPtr);
+				}
+
+				curPtr += 4;
+			}
+
+			return pointers;
+		}
+	}
 }

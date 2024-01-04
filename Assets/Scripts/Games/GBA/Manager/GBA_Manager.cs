@@ -78,7 +78,8 @@ namespace Ray1Map.GBA
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
             new GameAction("Export All Bitmaps", false, true, (input, output) => ExtractAllBitmaps(settings.GameDirectory + RomFilePath, output)),
             new GameAction("Export All Bitmaps From ROMs In Folder", true, true, (input, output) => ExtractAllBitmapsFromROMsInFolder(input, output)),
-        };
+			new GameAction("Scan ROM for offset table address", true, false, (input, _) => FindOffsetTableForROMsInFolder(input)),
+		};
 
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
         public abstract UniTask ExtractVignetteAsync(GameSettings settings, string outputDir);
@@ -213,9 +214,77 @@ namespace Ray1Map.GBA
                     ExtractAllBitmaps(romFile, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(romFile)));
                 }
             }
-        }
+		}
 
-        public async UniTask ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
+		public void FindOffsetTableForROMsInFolder(string inputDir) {
+			foreach (string romFile in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories)) {
+				if (romFile.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase) ||
+					romFile.EndsWith(".gba", StringComparison.InvariantCultureIgnoreCase)) {
+                    var offsetTableOffsets = ScanFileForOffsetTable(romFile);
+					Debug.Log($"Possible offset table offsets: ");
+					foreach (var o in offsetTableOffsets) {
+						Debug.Log($"{o.Key} - Count: {o.Value.OffsetsCount}");
+					}
+				}
+			}
+		}
+
+        public Dictionary<Pointer, GBA_OffsetTable> ScanFileForOffsetTable(string inputFile) {
+			var basePath = Path.GetDirectoryName(inputFile);
+			var filename = Path.GetFileName(inputFile);
+
+			var settings = new GameSettings(GameModeSelection.Rayman3GBAUS, basePath, 1, 1);
+			using Context context = new Ray1MapContext(basePath, settings);
+
+			context.AddFile(new MemoryMappedFile(context, filename, 0x08000000, BinarySerializer.Endian.Little));
+			Pointer basePtr = context.FilePointer(filename);
+			BinaryDeserializer s = context.Deserializer;
+			s.Goto(basePtr);
+
+			// Scan ROM for pointers
+			Dictionary<Pointer, List<int>> pointers = Util.FindPointers(s, basePtr);
+
+			Dictionary<Pointer, GBA_OffsetTable> OffsetTableOffsets = new Dictionary<Pointer, GBA_OffsetTable>();
+
+			// Scan pointers for offset table
+			foreach (Pointer p in pointers.Keys) {
+				s.DoAt(p, () => {
+					context.Cache.Structs.Clear();
+					context.MemoryMap.ClearPointers();
+
+					try {
+						uint OffsetsCount = 0;
+						OffsetsCount = s.Serialize<uint>(OffsetsCount, name: nameof(OffsetsCount));
+						if (OffsetsCount <= 0 || OffsetsCount >= 512)
+							throw new Exception("Bad offsets count");
+						uint FirstOffset = 0;
+						FirstOffset = s.Serialize<uint>(FirstOffset, name: nameof(FirstOffset));
+						if (FirstOffset != OffsetsCount + 2)
+							throw new Exception("Bad first offset");
+						s.Goto(p);
+
+						GBA_OffsetTable OffsetTable = null;
+						OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+						if (OffsetTable.OffsetsCount <= 0 || OffsetTable.OffsetsCount >= 1024)
+							throw new Exception("Bad offsets count");
+						if (OffsetTable.Offsets[0] != OffsetTable.OffsetsCount + 2)
+							throw new Exception("Bad first offset");
+						for (int i = 1; i < OffsetTable.OffsetsCount; i++) {
+							if (OffsetTable.Offsets[i] < OffsetTable.Offsets[i - 1]) {
+								throw new Exception("Bad offset");
+							}
+						}
+						OffsetTableOffsets[p] = OffsetTable;
+					} catch {
+					}
+
+				});
+			}
+
+            return OffsetTableOffsets;
+		}
+
+		public async UniTask ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
         {
             // Create a context
             using (var context = new Ray1MapContext(settings))
