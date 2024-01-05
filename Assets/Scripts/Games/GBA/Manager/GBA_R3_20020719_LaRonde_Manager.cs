@@ -7,12 +7,12 @@ namespace Ray1Map.GBA
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
 		{
-			Enumerable.Range(0, 8), // World 1
-            Enumerable.Range(8, 9), // World 2
-            Enumerable.Range(17, 13), // World 3
-            Enumerable.Range(30, 10), // World 4
-            Enumerable.Range(40, 8), // Bonus
-            Enumerable.Range(48, 6), // Ly
+			Enumerable.Range(0, 9), // World 1
+            Enumerable.Range(9, 11), // World 2
+            Enumerable.Range(20, 12), // World 3
+            Enumerable.Range(32, 11), // World 4
+            Enumerable.Range(43, 11), // Bonus
+            //Enumerable.Range(48, 6), // Ly
             //Enumerable.Range(54, 5), // World
             //Enumerable.Range(59, 6), // Multiplayer
         };
