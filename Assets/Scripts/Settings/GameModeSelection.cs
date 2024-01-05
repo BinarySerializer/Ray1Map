@@ -228,7 +228,7 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Pre-Alpha (B) - 2002/03/08)", typeof(GBA_R3_20020308_PreAlphaB_Manager))]
 		Rayman3GBA_20020308_PreAlphaB,
 
-		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Focus Group - 2002/03/18)", typeof(GBA_R3_20020308_PreAlphaB_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020301_PreAlpha, Game.GBA_Rayman3, "Rayman 3 (GBA - Focus Group - 2002/03/18)", typeof(GBA_R3_20020318_FocusGroup_Manager))]
 		Rayman3GBA_20020318_FocusGroup,
 
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_20020418_NintendoE3Approval, Game.GBA_Rayman3, "Rayman 3 (GBA - Nintendo E3 Approval - 2002/04/18)", typeof(GBA_R3_20020418_NintendoE3Approval_Manager))]
@@ -243,7 +243,7 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - La Ronde - 2002/07/19)", typeof(GBA_R3_20020719_LaRonde_Manager))]
 		Rayman3GBA_20020719_LaRonde,
 
-		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - ECTS - 2002/08/09)", typeof(GBA_R3_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - ECTS - 2002/08/09)", typeof(GBA_R3_20020809_ECTS_Manager))]
 		Rayman3GBA_20020809_ECTS,
 
 		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]

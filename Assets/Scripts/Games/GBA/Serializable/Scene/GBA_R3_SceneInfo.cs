@@ -40,14 +40,33 @@ namespace Ray1Map.GBA
             Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
             LumCount = s.Serialize<byte>(LumCount, name: nameof(LumCount));
             CageCount = s.Serialize<byte>(CageCount, name: nameof(CageCount));
-            Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
-            Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
+
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_Proto)
+            {
+                Ushort_0A = s.Serialize<byte>((byte)Ushort_0A, name: nameof(Ushort_0A));
+                Uint_0C = s.Serialize<byte>((byte)Uint_0C, name: nameof(Uint_0C));
+            }
+            else
+            {
+                Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
+                Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
+            }
+
             LoadFunctionPointer = s.SerializePointer(LoadFunctionPointer, name: nameof(LoadFunctionPointer));
             NextLevelIndex = s.Serialize<byte>(NextLevelIndex, name: nameof(NextLevelIndex));
             Byte_15 = s.Serialize<byte>(Byte_15, name: nameof(Byte_15));
-            LevelIndex = s.Serialize<ushort>(LevelIndex, name: nameof(LevelIndex));
-            Ushort_18 = s.Serialize<ushort>(Ushort_18, name: nameof(Ushort_18));
-            s.SerializePadding(2, logIfNotNull: true);
+
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_Proto)
+            {
+                LevelIndex = s.Serialize<byte>((byte)LevelIndex, name: nameof(LevelIndex));
+                Ushort_18 = s.Serialize<byte>((byte)Ushort_18, name: nameof(Ushort_18));
+            }
+            else
+            {
+                LevelIndex = s.Serialize<ushort>(LevelIndex, name: nameof(LevelIndex));
+                Ushort_18 = s.Serialize<ushort>(Ushort_18, name: nameof(Ushort_18));
+                s.SerializePadding(2, logIfNotNull: true);
+            }
         }
     }
 }

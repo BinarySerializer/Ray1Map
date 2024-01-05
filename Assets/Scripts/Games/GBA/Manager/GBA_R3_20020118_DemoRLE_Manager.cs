@@ -7,12 +7,11 @@ namespace Ray1Map.GBA
 {
     public class GBA_R3_20020118_DemoRLE_Manager : GBA_R3_Manager
     {
-        public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
-        {
-            Enumerable.Range(0, 0), // No levels
-        };
+        public override IEnumerable<int>[] WorldLevels => Array.Empty<IEnumerable<int>>();
 
+        public override int DLCLevelCount => 0;
         public override int[] MenuLevels => new int[] { 0 };
+        public override bool HasR3SinglePakLevel => false;
         public override ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
 
         public override int[] AdditionalActorModels => new[] { 1, 2, 3 };

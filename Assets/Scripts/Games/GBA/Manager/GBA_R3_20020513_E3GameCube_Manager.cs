@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ray1Map.GBA
@@ -10,9 +11,12 @@ namespace Ray1Map.GBA
             Enumerable.Range(0, 16)
         };
 
+        public override int DLCLevelCount => 0;
+        public override int[] MenuLevels => new int[] { 19 };
+        public override bool HasR3SinglePakLevel => false;
         public override ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
 
-		public override int[] AdditionalSprites4bpp => new int[0];
+        public override int[] AdditionalSprites4bpp => new int[] { 17, 18, 20, 21 };
 		public override int[] AdditionalSprites8bpp => new int[0];
 	}
 }
