@@ -30,8 +30,9 @@ namespace Ray1Map.GBA
                 {
                     new GBA_Actor
                     {
-                        XPos = 100,
-                        YPos = 100,
+                        XPos = 80,
+                        YPos = 130,
+                        ActionIndex = 0,
                         Link_0 = 0xFF,
                         Link_1 = 0xFF,
                         Link_2 = 0xFF,
@@ -39,7 +40,7 @@ namespace Ray1Map.GBA
                         Type = GBA_Actor.ActorType.MainActor,
                         ActorModel = s.DoAt(dataBlock.UiOffsetTable.GetPointer(1), () => s.SerializeObject<GBA_ActorModel>(default)),
                         CaptorData = null
-                    }
+                    },
                 },
                 NormalActors = Array.Empty<GBA_Actor>(),
                 AlwaysActors = Array.Empty<GBA_Actor>(),
