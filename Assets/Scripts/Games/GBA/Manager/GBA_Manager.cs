@@ -97,14 +97,16 @@ namespace Ray1Map.GBA
             {
                 // TODO: Early protos have cutscenes with larger sizes.
                 // Bitmaps are compressed
-                if (rom[i + 0] == 0x10 && rom[i + 1] == 0x00)
+                if (rom[i + 0] == 0x10 && rom[i + 3] == 0x00)
                 {
                     try
                     {
                         // Make sure decompressed size is reasonable
                         uint decompSize = BitConverter.ToUInt32(rom, i) >> 8; 
-                        if (decompSize is < 10000 or > 400000)
+                        if (decompSize is < 10_000 or > Constants.ScreenWidth * Constants.ScreenHeight)
                             continue;
+
+                        uint bitmapPointer = (uint)(Constants.Address_ROM + i);
 
                         int width;
                         int height;
@@ -114,16 +116,26 @@ namespace Ray1Map.GBA
                             case 0x9600:
                                 width = 240;
                                 height = 160;
+                                Debug.Log($"Found at 0x{bitmapPointer:X8} with size {width} x {height}");
+                                break;
+
+                            case 0x67E8:
+                                width = 200;
+                                height = 133;
+                                Debug.Log($"Found at 0x{bitmapPointer:X8} with size {width} x {height}");
                                 break;
 
                             case 0x5A00:
                                 width = 192;
                                 height = 120;
+                                Debug.Log($"Found at 0x{bitmapPointer:X8} with size {width} x {height}");
                                 break;
 
                             default:
                                 Debug.LogWarning($"Unknown size: {decompSize}");
-                                throw new Exception();
+                                width = 100;
+                                height = 100;
+                                break;
                         }
 
                         byte[] decodedBitmap = new byte[decompSize];
@@ -138,7 +150,6 @@ namespace Ray1Map.GBA
                             continue;
 
                         // We have a bitmap now. Time to find the palette. It's always 8 bytes after the bitmap pointer.
-                        uint bitmapPointer = (uint)(Constants.Address_ROM + i);
                         byte[] bitmapPointerBytes = BitConverter.GetBytes(bitmapPointer);
                         uint palPointer = 0;
                         for (int j = 0; j < rom.Length - 12; j += 4)
