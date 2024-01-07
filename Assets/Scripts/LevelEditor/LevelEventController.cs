@@ -192,6 +192,87 @@ namespace Ray1Map
                         captor.IsEnabled = false;
                 }
             }
+            // Custom for prototype versions to avoid accidentally breaking something due to differences
+            else if (settings.Game == Game.GBA_Rayman3 &&
+                     settings.GameModeSelection is 
+                         GameModeSelection.Rayman3GBA_20020301_PreAlpha or 
+                         GameModeSelection.Rayman3GBA_20020308_PreAlphaB or 
+                         GameModeSelection.Rayman3GBA_20020318_FocusGroup or
+                         GameModeSelection.Rayman3GBA_20020418_NintendoE3Approval or
+                         GameModeSelection.Rayman3GBA_20020513_E3GameCube or
+                         GameModeSelection.Rayman3GBA_20020516_E3 or
+                         GameModeSelection.Rayman3GBA_20020719_LaRonde or
+                         GameModeSelection.Rayman3GBA_20020809_ECTS)
+            {
+                // Handle layers manually
+
+                var hideObj = new GBA_R3_ActorID[]
+                {
+                    GBA_R3_ActorID.FloatingBarrelSplash,
+                    GBA_R3_ActorID.PlumSplash,
+                    GBA_R3_ActorID.Effect_Sparkles,
+                    GBA_R3_ActorID.CaptureFlag_Flag,
+                }.Select(x => (byte)x).ToArray();
+                var stateModifications = new List<Tuple<GBA_R3_ActorID, byte, byte>>()
+                {
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.FloatingBarrel, 7, 2),
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.Plum, 3, 5),
+                };
+
+                if (settings.GameModeSelection is GameModeSelection.Rayman3GBA_20020719_LaRonde or GameModeSelection.Rayman3GBA_20020809_ECTS)
+                {
+                    stateModifications.Add(new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.Cage, 7, 6));
+                }
+
+                var removeLinksTypes = new GBA_R3_ActorID[]
+                {
+                    GBA_R3_ActorID.Keg,
+                    GBA_R3_ActorID.Boss_Machine,
+                    GBA_R3_ActorID.Rayman_WaterSki,
+                    GBA_R3_ActorID.Platform_Falling2,
+                    GBA_R3_ActorID.Bridge_Falling,
+                    GBA_R3_ActorID.Climbable_Falling,
+                    GBA_R3_ActorID.RedShell,
+                }.Select(x => (byte)x).ToArray();
+
+                // Enumerate every object
+                foreach (var obj in objects)
+                {
+                    // Force update object
+                    obj.ForceUpdate();
+
+                    var gbaObj = (Unity_Object_GBA)obj.ObjData;
+
+                    // Hide
+                    if ((obj.ObjData.IsAlways && gbaObj.XPosition == 0 && gbaObj.YPosition == 0) || hideObj.Contains(gbaObj.Actor.ActorID))
+                        obj.IsEnabled = false;
+
+                    // Modify animation
+                    var mod = stateModifications.FirstOrDefault(x => (byte)x.Item1 == gbaObj.Actor.ActorID && x.Item2 == gbaObj.Actor.ActionIndex);
+
+                    if (mod != null)
+                        gbaObj.OverrideAnimIndex = mod.Item3;
+
+                    // Move object into view
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Pirate_Red && gbaObj.YPosition <= 87)
+                        gbaObj.YPosition = 87;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Pirate_Silver && gbaObj.YPosition <= 87)
+                        gbaObj.YPosition = 87;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Keg && gbaObj.YPosition <= 32)
+                        gbaObj.YPosition = 32;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.ChasingBoulder && gbaObj.YPosition <= 62)
+                        gbaObj.YPosition = 62;
+
+                    // Remove links
+                    if (removeLinksTypes.Contains(gbaObj.Actor.ActorID))
+                    {
+                        gbaObj.Actor.Link_0 = 0xFF;
+                        gbaObj.Actor.Link_1 = 0xFF;
+                        gbaObj.Actor.Link_2 = 0xFF;
+                        gbaObj.Actor.Link_3 = 0xFF;
+                    }
+                }
+            }
             else if (settings.Game == Game.GBA_Rayman3)
             {
                 var layerOverrides = new Dictionary<int, bool[]>()
