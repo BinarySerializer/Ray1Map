@@ -24,5 +24,26 @@ namespace Ray1Map.GBA
 
         public override int[] AdditionalSprites4bpp => new int[] { 70, 71, 72, 73, 74, 75, 76, 78, 79, 80, 81 };
         public override int[] AdditionalSprites8bpp => new int[0];
+
+        public override int[] LocalizationGroupLengths => new int[]
+        {
+            6,
+            1,
+            9,
+            4,
+            4,
+            4,
+            2,
+            3
+        };
+        public override string[] Languages => new string[]
+        {
+            "English",
+            "French",
+            "Spanish",
+            "German",
+            "Italian",
+            "Dutch",
+        };
     }
 }
