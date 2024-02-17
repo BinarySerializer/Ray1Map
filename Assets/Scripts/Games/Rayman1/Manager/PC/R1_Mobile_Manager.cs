@@ -42,7 +42,10 @@ namespace Ray1Map.Rayman1
         public override GameAction[] GetGameActions(GameSettings settings)
         {
             // Append action
-            return base.GetGameActions(settings).Append(new GameAction("Decrypt Files", true, false, (input, output) => DecryptFiles(input))).ToArray();
+            return base.GetGameActions(settings)
+                .Append(new GameAction("Decrypt Files", true, false, (input, output) => DecryptFiles(input)))
+				.Append(new GameAction("Encrypt Files", true, true, (input, output) => EncryptFiles(input, output)))
+				.ToArray();
         }
 
         /// <summary>
@@ -80,13 +83,43 @@ namespace Ray1Map.Rayman1
             }
 
             return decrypted;
-        }
+		}
 
-        /// <summary>
-        /// Decrypts all encrypted files
-        /// </summary>
-        /// <param name="basePath">The directory to look for the encrypted files in</param>
-        public void DecryptFiles(string basePath)
+		/// <summary>
+		/// Encrypts a file name
+		/// </summary>
+		/// <param name="fileName">The file name</param>
+		/// <returns>The encrypted name</returns>
+		public string EncryptFileName(string fileName) {
+			string decrypted = "";
+
+			const string key = "UBICOSMOS";
+
+			int keyIndex = 0;
+
+			foreach (int c in fileName) {
+				int k = key[keyIndex];
+				if (c >= 'a' && c <= 'z') {
+					int nc = (c + k - 6) % 26;
+					decrypted += (char)(int)(nc + (int)'a');
+					keyIndex = (keyIndex + 1) % key.Length;
+				} else if (c >= 'A' && c <= 'Z') {
+					int nc = (c + k + 26) % 26;
+					decrypted += (char)(int)(nc + (int)'A');
+					keyIndex = (keyIndex + 1) % key.Length;
+				} else {
+					decrypted += (char)c;
+				}
+			}
+
+			return decrypted;
+		}
+
+		/// <summary>
+		/// Decrypts all encrypted files
+		/// </summary>
+		/// <param name="basePath">The directory to look for the encrypted files in</param>
+		public void DecryptFiles(string basePath)
         {
             // Enumerate every encrypted file
             foreach (string filePath in Directory.EnumerateFiles(basePath, "*.spd*", SearchOption.AllDirectories))
@@ -171,14 +204,84 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        /// <summary>
-        /// Gets a binary file to add to the context
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="filePath">The file path</param>
-        /// <param name="endianness">The endianness to use</param>
-        /// <returns>The binary file</returns>
-        protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearFile(context, filePath, endianness);
+
+
+		/// <summary>
+		/// Decrypts all encrypted files
+		/// </summary>
+		/// <param name="referencePath">The directory to look for the encrypted files in,
+        /// to use as reference for which files should be encrypted/compressed</param>
+		/// <param name="basePath">The directory to look for the decrypted files in</param>
+		public void EncryptFiles(string referencePath, string basePath) {
+            basePath = basePath.Replace("\\", "/");
+            if(!basePath.EndsWith("/")) basePath += "/";
+			// Enumerate every file
+			foreach (string filePath in Directory.EnumerateFiles(basePath, "*.*", SearchOption.AllDirectories)) {
+				string relativePath = filePath.Substring(basePath.Length);
+                var directory = Path.GetDirectoryName(filePath);
+                var relativeDirectory = directory.Length > basePath.Length ? directory.Substring(basePath.Length) : "";
+				string filename = Path.GetFileName(filePath);
+
+				bool CheckReference(string filename) => File.Exists(Path.Combine(referencePath, relativeDirectory, filename));
+
+                if(CheckReference(filename)) continue; // File is unencrypted
+
+                byte[] data = File.ReadAllBytes(filePath);
+
+				// Decrypt the file name without the .spd extension
+				string encFilename = EncryptFileName(filename) + ".spd";
+				string comprFilename = EncryptFileName($"{filename}.compressed") + ".spd";
+                string outFilename = encFilename;
+
+                if (CheckReference(comprFilename)) {
+                    // Compress data first
+                    outFilename = comprFilename;
+
+                    byte[] output = data.Length > 0 ? LZ4.LZ4Codec.EncodeHC(data, 0, data.Length) : new byte[0];
+
+                    using (MemoryStream ms = new MemoryStream()) {
+                        using (Writer writer = new Writer(ms)) {
+                            writer.Write((uint)data.Length); // Decompressed size
+                            writer.Write((uint)1); // Compression algorithm id
+                            writer.Write(output);
+                        }
+                        data = ms.ToArray();
+                    }
+                } else if (!CheckReference(encFilename)) {
+                    throw new System.Exception($"Can't find match for file {relativePath}: {comprFilename} - {encFilename}\n{Path.Combine(referencePath, relativeDirectory, filename)}");
+                }
+                if (data.Length > 0) {
+					using (Rijndael r = Rijndael.Create()) {
+						r.Key = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3, 2, 1, 10 };
+						r.IV = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+						using (MemoryStream ms = new MemoryStream()) {
+							using (CryptoStream cs = new CryptoStream(ms, r.CreateEncryptor(), CryptoStreamMode.Write))
+								cs.Write(data, 0, data.Length);
+
+							data = ms.ToArray();
+						}
+					}
+				}
+
+				// Get the output file path
+				string outputFilePath = directory + "/" + outFilename;
+				Util.ByteArrayToFile(outputFilePath, data);
+
+				// Delete the original file
+				File.Delete(filePath);
+			}
+		}
+
+
+		/// <summary>
+		/// Gets a binary file to add to the context
+		/// </summary>
+		/// <param name="context">The context</param>
+		/// <param name="filePath">The file path</param>
+		/// <param name="endianness">The endianness to use</param>
+		/// <returns>The binary file</returns>
+		protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearFile(context, filePath, endianness);
 
         protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
