@@ -52,6 +52,9 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.RaymanRavingRabbidsPCPrototype:
 					links = new AI_Links_RRR_Wii();
 					break;
+				case GameModeSelection.RaymanRavingRabbidsPS2_20061013:
+					links = new AI_Links_RRR_PS2_20061013();
+					break;
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
 				case GameModeSelection.RaymanRavingRabbidsXbox360_20070213:
 					links = new AI_Links_RRR_Xbox360();

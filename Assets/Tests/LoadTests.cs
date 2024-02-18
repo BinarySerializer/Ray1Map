@@ -1119,6 +1119,9 @@ public class Jade_RRR
 	[UnityTest]
     public IEnumerator RaymanRavingRabbidsPS2() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsPS2);
 
+	[UnityTest]
+	public IEnumerator RaymanRavingRabbidsPS2_20061013() => LoadTests.Load(GameModeSelection.RaymanRavingRabbidsPS2_20061013);
+
 }
 
 public class Jade_Phoenix

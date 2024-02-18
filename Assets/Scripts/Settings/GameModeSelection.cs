@@ -826,7 +826,10 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
         RaymanRavingRabbidsPS2,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez, Game.Jade_Horsez, "Horsez (PS2)", typeof(Jade_Horsez_PS2_Manager), Platform.PS2)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2 - 2006/10/13)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
+		RaymanRavingRabbidsPS2_20061013,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez, Game.Jade_Horsez, "Horsez (PS2)", typeof(Jade_Horsez_PS2_Manager), Platform.PS2)]
         HorsezPS2,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PS2)", typeof(Jade_Horsez2_PS2_Manager), Platform.PS2)]
