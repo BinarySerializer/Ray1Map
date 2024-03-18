@@ -958,7 +958,10 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PS2)", typeof(Jade_PoP_T2T_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaTheTwoThronesPS2,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PSP)", typeof(Jade_PoP_T2T_PSP_Manager), Platform.PSP)]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T_20051002, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PS2 - Prototype 2005/09/30)", typeof(Jade_PoP_T2T_PS2_20050930_Manager), Platform.PS2)]
+		PrinceOfPersiaTheTwoThronesPS2_20050930,
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PSP)", typeof(Jade_PoP_T2T_PSP_Manager), Platform.PSP)]
         PrinceOfPersiaTheTwoThronesPSP,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox)", typeof(Jade_PoP_T2T_Xbox_Manager), Platform.Xbox)]

@@ -1279,6 +1279,9 @@ public class Jade_PoP_T2T_20051002
 {
     [UnityTest]
     public IEnumerator PrinceOfPersiaTheTwoThronesXbox_20051002() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheTwoThronesXbox_20051002);
+	
+    [UnityTest]
+	public IEnumerator PrinceOfPersiaTheTwoThronesPS2_20050930() => LoadTests.Load(GameModeSelection.PrinceOfPersiaTheTwoThronesPS2_20050930);
 
 }
 

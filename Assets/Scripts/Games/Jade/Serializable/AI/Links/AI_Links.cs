@@ -144,6 +144,7 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesGC:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesWii:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS2:
+				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS2_20050930:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPSP:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox_20051002:
