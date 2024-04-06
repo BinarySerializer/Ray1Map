@@ -14,6 +14,7 @@ namespace Ray1Map
         {
             ProcessFileName = processFileName;
             stream = null;
+            IgnoreCacheOnRead = true;
         }
 
         private ProcessMemoryStream stream;
@@ -133,6 +134,5 @@ namespace Ray1Map
 
         public override bool IsMemoryMapped => false; // TODO: We might want to change this to allow pointers to work from other data?
         public override bool SavePointersToMemoryMap => false;
-        public override bool IgnoreCacheOnRead => true;
     }
 }
