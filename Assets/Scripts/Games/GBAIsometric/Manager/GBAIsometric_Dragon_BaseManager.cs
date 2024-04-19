@@ -425,12 +425,12 @@ namespace Ray1Map.GBAIsometric
                         {
                             if (!cachedPalettes.ContainsKey(x))
                             {
-                                var newPal = (RGBA5551Color[])commonPal.Clone();
+                                var newPal = (SerializableColor[])commonPal.Clone();
                                 var pal = rom.Spyro2_AnimSetPalettes[i][animIndex];
 
                                 for (int j = 0; j < 256; j++)
                                 {
-                                    if (pal[j].ColorValue != 0)
+                                    if (pal[j] != SerializableColor.Clear)
                                         newPal[j] = pal[j];
                                 }
 
@@ -567,7 +567,7 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
+        public Unity_TileSet LoadTileSet(SerializableColor[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
 

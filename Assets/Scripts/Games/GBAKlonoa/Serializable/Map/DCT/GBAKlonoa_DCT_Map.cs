@@ -11,7 +11,7 @@ namespace Ray1Map.GBAKlonoa
 
         // Serialized from pointers
         public GBAKlonoa_DCT_MapLayer[] MapLayers { get; set; }
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -26,7 +26,7 @@ namespace Ray1Map.GBAKlonoa
             for (int i = 0; i < MapLayerPointers.Length; i++)
                 s.DoAt(MapLayerPointers[i], () => MapLayers[i] = s.SerializeObject<GBAKlonoa_DCT_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
 
-            s.DoAt(PalettePointer, () => s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () => Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, s.CurrentLength / 2, name: nameof(Palette))));
+            s.DoAt(PalettePointer, () => s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () => Palette = s.SerializeIntoArray<SerializableColor>(Palette, s.CurrentLength / 2, BitwiseColor.RGBA5551, name: nameof(Palette))));
         }
     }
 }

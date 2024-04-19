@@ -9,7 +9,7 @@ namespace Ray1Map.GBA
     {
         public ushort Length { get; set; }
         public ushort PalOffset { get; set; }
-        public BaseColor[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -24,15 +24,15 @@ namespace Ray1Map.GBA
                 if (s.GetR1Settings().GBA_IsShanghai)
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
-                Palette = s.SerializeObjectArray<RGBA5551Color>((RGBA5551Color[])Palette, Length, name: nameof(Palette));
+                Palette = s.SerializeIntoArray<SerializableColor>(Palette, Length, BitwiseColor.RGBA5551, name: nameof(Palette));
             } 
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) 
             {
-                Palette = s.SerializeObjectArray<BGRA4441Color>((BGRA4441Color[])Palette, BlockSize / 2, name: nameof(Palette));
+                Palette = s.SerializeIntoArray<SerializableColor>(Palette, BlockSize / 2, BitwiseColor.BGRA4441, name: nameof(Palette));
             }
             else 
             {
-                Palette = s.SerializeObjectArray<RGBA5551Color>((RGBA5551Color[])Palette, BlockSize / 2, name: nameof(Palette));
+                Palette = s.SerializeIntoArray<SerializableColor>(Palette, BlockSize / 2, BitwiseColor.RGBA5551, name: nameof(Palette));
             }
         }
 

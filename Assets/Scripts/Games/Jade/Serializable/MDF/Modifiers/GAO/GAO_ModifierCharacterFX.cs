@@ -346,13 +346,13 @@ namespace Ray1Map.Jade {
 				public float ContrastFactor { get; set; }
 				public float BrightnessFactor { get; set; }
 				public Jade_Vector ColorVector { get; set; }
-				public Jade_Color Color { get; set; }
+				public SerializableColor Color { get; set; }
 				public float BirthTime { get; set; }
 				public float LifeTime { get; set; }
 				public float DeathTime { get; set; }
 
 				public Jade_Vector MonochromaticColorVector { get; set; }
-				public Jade_Color MonochromaticColor { get; set; }
+				public SerializableColor MonochromaticColor { get; set; }
 				public float ColorBalance_Intensity { get; set; }
 				public float ColorBalance_Spectre { get; set; }
 
@@ -363,7 +363,7 @@ namespace Ray1Map.Jade {
 					if (Manager.CharacterFX.Version == 14) {
 						ColorVector = s.SerializeObject<Jade_Vector>(ColorVector, name: nameof(ColorVector));
 					} else if (Manager.CharacterFX.Version > 14) {
-						Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+						Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 					}
 					BirthTime = s.Serialize<float>(BirthTime, name: nameof(BirthTime));
 					LifeTime = s.Serialize<float>(LifeTime, name: nameof(LifeTime));
@@ -371,7 +371,7 @@ namespace Ray1Map.Jade {
 
 					if (Manager.CharacterFX.Version >= 17) {
 						if (Manager.CharacterFX.Version >= 29) {
-							MonochromaticColor = s.SerializeObject<Jade_Color>(MonochromaticColor, name: nameof(MonochromaticColor));
+							MonochromaticColor = s.SerializeInto<SerializableColor>(MonochromaticColor, BitwiseColor.RGBA8888, name: nameof(MonochromaticColor));
 						} else {
 							MonochromaticColorVector = s.SerializeObject<Jade_Vector>(MonochromaticColorVector, name: nameof(MonochromaticColorVector));
 						}

@@ -178,7 +178,7 @@ namespace Ray1Map.Jade {
 		#region Helpers
 
 		public static float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
-		public static Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha = false) => new Jade_Color(
+		public static SerializableColor ProcessColor(BaseColor color, bool multiplyAlpha = false) => new SerializableColor(
 			ProcessColorValue(color.Red), ProcessColorValue(color.Green), ProcessColorValue(color.Blue), multiplyAlpha ? ProcessColorValue(color.Alpha) : color.Alpha);
 
 		#endregion
@@ -201,7 +201,7 @@ namespace Ray1Map.Jade {
 				uint verticesCount = (uint)VertexData.Points.Max(p => p.Ponderations[0].Index) + 1;
 				GeometricObject.Vertices = new Jade_Vector[verticesCount];
 				GeometricObject.Normals = new Jade_Vector[verticesCount];
-				if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors = new Jade_Color[verticesCount];
+				if (GeometricObject.Montreal_HasColors == 1) GeometricObject.Colors = new SerializableColor[verticesCount];
 
 				foreach (var point in VertexData.Points) {
 					GeometricObject.Vertices[point.OriginalVertexIndex] = point.Vertex;

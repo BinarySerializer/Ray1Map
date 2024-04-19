@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.Nintendo.GBA;
 
 
 namespace Ray1Map.GBAVV
@@ -28,7 +27,7 @@ namespace Ray1Map.GBAVV
         // Serialized from pointers
         public GBAVV_Mode7_TileFrames TileSetFrames { get; set; }
         public GBAVV_Mode7_Background Crash1_Background { get; set; }
-        public RGBA5551Color[] ObjPalette { get; set; }
+        public SerializableColor[] ObjPalette { get; set; }
         public GBAVV_Mode7_ObjData ObjData { get; set; }
         public GBAVV_Mode7_AnimSet[] AnimSets { get; set; }
         public GBAVV_Mode7_AnimSet[] SpongeBob_SpecialAnimSets { get; set; } // HUD
@@ -36,7 +35,7 @@ namespace Ray1Map.GBAVV
 
         public GBAVV_Mode7_AnimSet AnimSet_Chase { get; set; } // Bear in Crash 1, Shark in Crash 2
 
-        public RGBA5551Color[] Crash1_PolarDeathPalette { get; set; }
+        public SerializableColor[] Crash1_PolarDeathPalette { get; set; }
 
         public IEnumerable<GBAVV_Mode7_AnimSet> GetAllAnimSets => AnimSets.Concat(SpongeBob_SpecialAnimSets ?? new GBAVV_Mode7_AnimSet[0]).Append(AnimSet_Chase).Where(x => x != null);
 
@@ -109,7 +108,7 @@ namespace Ray1Map.GBAVV
                     () => Crash1_Background = s.SerializeObject<GBAVV_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
             });
 
-            ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
+            ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeIntoArray<SerializableColor>(ObjPalette, 256, BitwiseColor.RGBA5551, name: nameof(ObjPalette)));
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Mode7_ObjData>(ObjData, name: nameof(ObjData)));
 
             if (LevelType == 0 && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
@@ -130,7 +129,7 @@ namespace Ray1Map.GBAVV
                 SpecialFrames = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
-                Crash1_PolarDeathPalette = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeObjectArray<RGBA5551Color>(Crash1_PolarDeathPalette, 16, name: nameof(Crash1_PolarDeathPalette)));
+                Crash1_PolarDeathPalette = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeIntoArray<SerializableColor>(Crash1_PolarDeathPalette, 16, BitwiseColor.RGBA5551, name: nameof(Crash1_PolarDeathPalette)));
         }
 
         public void SerializeAnimations(SerializerObject s, IEnumerable<GBAVV_Mode7_AnimSet> animSets)

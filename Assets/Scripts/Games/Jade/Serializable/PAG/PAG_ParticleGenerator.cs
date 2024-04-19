@@ -1,9 +1,9 @@
-﻿using BinarySerializer;
-using BinarySerializer.Klonoa.DTP;
-using System;
+﻿using System;
+using BinarySerializer;
 
-namespace Ray1Map.Jade {
-	public class PAG_ParticleGenerator : BinarySerializable {
+namespace Ray1Map.Jade
+{
+    public class PAG_ParticleGenerator : BinarySerializable {
         public uint ObjectVersion { get; set; }
 
         public int InstancesNbMaxP { get; set; }
@@ -52,7 +52,7 @@ namespace Ray1Map.Jade {
         public float SinXFactor { get; set; }
         public float SinYFactor { get; set; }
         public float DistConstraint { get; set; }
-        public Jade_Color Color { get; set; }
+        public SerializableColor Color { get; set; }
 
         public byte Byte_270 { get; set; }
 
@@ -91,13 +91,13 @@ namespace Ray1Map.Jade {
         public float SizeSpeedScaleX { get; set; }
         public float SizeSpeedScaleY { get; set; }
         public float FeatherMovementSpeedMin { get; set; }
-        public Jade_Color BirthColor { get; set; }
-        public Jade_Color ColorEndLife { get; set; }
-        public Jade_Color DeathColor { get; set; }
-        public Jade_Color BirthColor2 { get; set; }
-        public Jade_Color Color2 { get; set; }
-        public Jade_Color ColorEndLife2 { get; set; }
-        public Jade_Color DeathColor2 { get; set; }
+        public SerializableColor BirthColor { get; set; }
+        public SerializableColor ColorEndLife { get; set; }
+        public SerializableColor DeathColor { get; set; }
+        public SerializableColor BirthColor2 { get; set; }
+        public SerializableColor Color2 { get; set; }
+        public SerializableColor ColorEndLife2 { get; set; }
+        public SerializableColor DeathColor2 { get; set; }
         public byte FramesCountX { get; set; }
         public byte FramesCountY { get; set; }
         public byte AnimTicksCountPerAnimFrame { get; set; }
@@ -308,12 +308,12 @@ namespace Ray1Map.Jade {
                 SizeDeathFactor = s.Serialize<float>(SizeDeathFactor, name: nameof(SizeDeathFactor));
 
                 if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 11) {
-					BirthColor = s.SerializeObject<Jade_Color>(BirthColor, name: nameof(BirthColor));
-                    Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
-                    ColorEndLife = s.SerializeObject<Jade_Color>(ColorEndLife, name: nameof(ColorEndLife));
-                    DeathColor = s.SerializeObject<Jade_Color>(DeathColor, name: nameof(DeathColor));
+					BirthColor = s.SerializeInto<SerializableColor>(BirthColor, BitwiseColor.RGBA8888, name: nameof(BirthColor));
+                    Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
+                    ColorEndLife = s.SerializeInto<SerializableColor>(ColorEndLife, BitwiseColor.RGBA8888, name: nameof(ColorEndLife));
+                    DeathColor = s.SerializeInto<SerializableColor>(DeathColor, BitwiseColor.RGBA8888, name: nameof(DeathColor));
                 } else {
-                    Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+                    Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
                 }
 
                 ZMin = s.Serialize<float>(ZMin, name: nameof(ZMin));
@@ -444,16 +444,16 @@ namespace Ray1Map.Jade {
                 }
                 SizeDeathFactor = s.Serialize<float>(SizeDeathFactor, name: nameof(SizeDeathFactor));
 
-                BirthColor = s.SerializeObject<Jade_Color>(BirthColor, name: nameof(BirthColor));
-                Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
-                ColorEndLife = s.SerializeObject<Jade_Color>(ColorEndLife, name: nameof(ColorEndLife));
-                DeathColor = s.SerializeObject<Jade_Color>(DeathColor, name: nameof(DeathColor));
+                BirthColor = s.SerializeInto<SerializableColor>(BirthColor, BitwiseColor.RGBA8888, name: nameof(BirthColor));
+                Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
+                ColorEndLife = s.SerializeInto<SerializableColor>(ColorEndLife, BitwiseColor.RGBA8888, name: nameof(ColorEndLife));
+                DeathColor = s.SerializeInto<SerializableColor>(DeathColor, BitwiseColor.RGBA8888, name: nameof(DeathColor));
 
                 if ((MoreFlags & 0x200000) != 0) {
-                    BirthColor2 = s.SerializeObject<Jade_Color>(BirthColor2, name: nameof(BirthColor2));
-                    Color2 = s.SerializeObject<Jade_Color>(Color2, name: nameof(Color2));
-                    ColorEndLife2 = s.SerializeObject<Jade_Color>(ColorEndLife2, name: nameof(ColorEndLife2));
-                    DeathColor2 = s.SerializeObject<Jade_Color>(DeathColor2, name: nameof(DeathColor2));
+                    BirthColor2 = s.SerializeInto<SerializableColor>(BirthColor2, BitwiseColor.RGBA8888, name: nameof(BirthColor2));
+                    Color2 = s.SerializeInto<SerializableColor>(Color2, BitwiseColor.RGBA8888, name: nameof(Color2));
+                    ColorEndLife2 = s.SerializeInto<SerializableColor>(ColorEndLife2, BitwiseColor.RGBA8888, name: nameof(ColorEndLife2));
+                    DeathColor2 = s.SerializeInto<SerializableColor>(DeathColor2, BitwiseColor.RGBA8888, name: nameof(DeathColor2));
                 }
 
                 ZMin = s.Serialize<float>(ZMin, name: nameof(ZMin));

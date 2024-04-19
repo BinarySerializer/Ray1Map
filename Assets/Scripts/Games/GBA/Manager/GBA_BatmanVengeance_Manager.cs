@@ -43,7 +43,7 @@ namespace Ray1Map.GBA
 
             // Add sprites for each palette
             if (tileSet.Is8Bit) {
-                var pal_8 = Util.ConvertGBAPalette((RGBA5551Color[])pal);
+                var pal_8 = Util.ConvertGBAPalette(pal);
                 var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_8, Util.TileEncoding.Linear_8bpp, CellSize, false, flipTileY: true);
 
                 // Extract every sprite
@@ -54,7 +54,7 @@ namespace Ray1Map.GBA
                 }
             }
             else {
-                var pal_8 = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
+                var pal_8 = Util.ConvertAndSplitGBAPalette(pal);
 
                 for (int palIndex = 0; palIndex < numPalettes; palIndex++)
                 {
@@ -192,6 +192,6 @@ namespace Ray1Map.GBA
             return des;
         }
 
-        protected virtual BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => puppet.Palette.Palette;
+        protected virtual SerializableColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => puppet.Palette.Palette;
     }
 }

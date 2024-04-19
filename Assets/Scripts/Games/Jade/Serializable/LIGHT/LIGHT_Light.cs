@@ -6,10 +6,10 @@ namespace Ray1Map.Jade {
 	public class LIGHT_Light : GRO_GraphicRenderObject {
 		public LightType Type { get; set; }
 		public LightFlags Flags { get; set; }
-		public Jade_Color Color { get; set; }
+		public SerializableColor Color { get; set; }
 		public LIGHT_XenonData1 XenonData1 { get; set; }
 		public uint UInt_Editor_00 { get; set; }
-		public Jade_Color SpecularColor { get; set; }
+		public SerializableColor SpecularColor { get; set; }
 		public float Near { get; set; }
 		public float Far { get; set; }
 		public float LittleAlpha { get; set; }
@@ -41,13 +41,13 @@ namespace Ray1Map.Jade {
 				});
 			}
 			s.Log("{0} - {1}", Type, Flags);
-			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+			Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Type, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
 			}
 			if (!Loader.IsBinaryData && ObjectVersion >= 5)
 				UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
-			if (ObjectVersion >= 10) SpecularColor = s.SerializeObject<Jade_Color>(SpecularColor, name: nameof(SpecularColor));
+			if (ObjectVersion >= 10) SpecularColor = s.SerializeInto<SerializableColor>(SpecularColor, BitwiseColor.RGBA8888, name: nameof(SpecularColor));
 			Near = s.Serialize<float>(Near, name: nameof(Near));
 			Far = s.Serialize<float>(Far, name: nameof(Far));
 			LittleAlpha = s.Serialize<float>(LittleAlpha, name: nameof(LittleAlpha));

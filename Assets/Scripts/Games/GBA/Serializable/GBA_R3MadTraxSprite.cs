@@ -11,7 +11,7 @@ namespace Ray1Map
         public int AssembleWidth { get; set; }
         public int AssembleHeight { get; set; }
 
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
         public byte[] TileData { get; set; }
 
         public Texture2D ToTexture2D()
@@ -56,7 +56,7 @@ namespace Ray1Map
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette));
+            Palette = s.SerializeIntoArray<SerializableColor>(Palette, 16, BitwiseColor.RGBA5551, name: nameof(Palette));
             TileData = s.SerializeArray<byte>(TileData, Width * Height * AssembleWidth * AssembleHeight * 0x20, name: nameof(TileData));
         }
     }

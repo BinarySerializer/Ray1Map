@@ -374,7 +374,7 @@ namespace Ray1Map.GBAVV
         }
 
         // Tileset
-        public Unity_TileSet LoadGenericTileSet(byte[] tileSet, RGBA5551Color[] pal, int palIndex)
+        public Unity_TileSet LoadGenericTileSet(byte[] tileSet, SerializableColor[] pal, int palIndex)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
@@ -382,7 +382,7 @@ namespace Ray1Map.GBAVV
 
             return new Unity_TileSet(tex, CellSize);
         }
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, int levelTheme, MapTile[] mapTiles_4, GBAVV_NitroKart_TileAnimations nitroKartTileAnimations = null, GBAVV_Generic_PaletteShifts paletteShifts = null)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, SerializableColor[] pal, bool is8bit, EngineVersion engineVersion, int levelTheme, MapTile[] mapTiles_4, GBAVV_NitroKart_TileAnimations nitroKartTileAnimations = null, GBAVV_Generic_PaletteShifts paletteShifts = null)
         {
             Texture2D tex;
             var additionalTiles = new List<Texture2D>();
@@ -500,7 +500,7 @@ namespace Ray1Map.GBAVV
             }
 
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
-            RGBA5551Color[][] animatedPalettes = null;
+            SerializableColor[][] animatedPalettes = null;
             HashSet<byte> modifiedPaletteIndices = null;
             float animSpeed = 0;
             bool isReversed = false;
@@ -752,18 +752,18 @@ namespace Ray1Map.GBAVV
                 AnimatedTiles = tileAnimations.Count == 0 ? null : tileAnimations.ToArray()
             };
         }
-        public RGBA5551Color[][] GetAnimatedPalettes(byte[][] paletteAnimations, RGBA5551Color[] palette)
+        public SerializableColor[][] GetAnimatedPalettes(byte[][] paletteAnimations, SerializableColor[] palette)
         {
             // Get the lowest common multiple
             var length = paletteAnimations.Length == 1 ? paletteAnimations[0].Length : Util.LCM(paletteAnimations.Select(y => y.Length).ToArray());
 
-            var output = new RGBA5551Color[length - 1][];
+            var output = new SerializableColor[length - 1][];
 
             // Shift colors and create new palettes for every frame
             for (int i = 0; i < length - 1; i++)
             {
                 int frame = i + 1;
-                var newPal = new RGBA5551Color[palette.Length];
+                var newPal = new SerializableColor[palette.Length];
 
                 // Set to original palette
                 for (int j = 0; j < newPal.Length; j++)

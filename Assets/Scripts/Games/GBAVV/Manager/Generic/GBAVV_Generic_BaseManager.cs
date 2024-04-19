@@ -640,7 +640,7 @@ namespace Ray1Map.GBAVV
         public virtual int Mode7LevelsCount => 0;
 
         // Mode7 tileset
-        public Unity_TileSet LoadMode7FramesTileSet(GBAVV_Mode7_TileFrames tileFrames, RGBA5551Color[] pal, bool prependTransparent)
+        public Unity_TileSet LoadMode7FramesTileSet(GBAVV_Mode7_TileFrames tileFrames, SerializableColor[] pal, bool prependTransparent)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
@@ -674,7 +674,7 @@ namespace Ray1Map.GBAVV
                 }).ToArray()
             };
         }
-        public Unity_TileSet LoadMode7FramesTileSet(MapTile[][] tileMaps, byte[][] tileSets, RGBA5551Color[] pal)
+        public Unity_TileSet LoadMode7FramesTileSet(MapTile[][] tileMaps, byte[][] tileSets, SerializableColor[] pal)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
@@ -745,7 +745,7 @@ namespace Ray1Map.GBAVV
         }
 
         // Mode7 animations
-        public Unity_ObjectManager_GBAVVMode7.AnimSet[] LoadMode7AnimSets(GBAVV_Mode7_LevelInfo level, RGBA5551Color[] tilePal)
+        public Unity_ObjectManager_GBAVVMode7.AnimSet[] LoadMode7AnimSets(GBAVV_Mode7_LevelInfo level, SerializableColor[] tilePal)
         {
             var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette.Concat(tilePal).ToArray());
 

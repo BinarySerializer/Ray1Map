@@ -538,7 +538,7 @@ namespace Ray1Map
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
 
-        public static Color[] ConvertGBAPalette(IEnumerable<BaseColor> palette, int? transparentIndex = 0) => palette.Select((x, i) => {
+        public static Color[] ConvertGBAPalette(IEnumerable<SerializableColor> palette, int? transparentIndex = 0) => palette.Select((x, i) => {
             Color c = x.GetColor();
             if (!transparentIndex.HasValue || i != transparentIndex.Value) {
                 c.a = 1f;
@@ -547,12 +547,12 @@ namespace Ray1Map
             }
             return c;
         }).ToArray();
-        public static Color[][] ConvertAndSplitGBAPalette(BaseColor[] palette, bool firstTransparent = true)
+        public static Color[][] ConvertAndSplitGBAPalette(SerializableColor[] palette, bool firstTransparent = true)
             => palette
             .Split(palette.Length / 16, 16)
             .Select(p => ConvertGBAPalette(p, transparentIndex: firstTransparent ? (int?)0 : null))
             .ToArray();
-        public static Color[][] ConvertAndSplitGBCPalette(RGBA5551Color[] palette, int? transparentIndex = 0)
+        public static Color[][] ConvertAndSplitGBCPalette(SerializableColor[] palette, int? transparentIndex = 0)
             => palette
             .Split(palette.Length / 4, 4)
             .Select(p => ConvertGBAPalette(p, transparentIndex: transparentIndex))

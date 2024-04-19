@@ -65,7 +65,7 @@ namespace Ray1Map.GEN
                 public uint Length { get; set; }
                 public byte[] SectionData { get; set; }
                 public GEN_RLX RLX { get; set; }
-                public BaseColor[] Palette { get; set; }
+                public SerializableColor[] Palette { get; set; }
 
                 public override void SerializeImpl(SerializerObject s) {
                     SectionType = s.Serialize<Type>(SectionType, name: nameof(SectionType));
@@ -76,7 +76,7 @@ namespace Ray1Map.GEN
                                 RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
                                 break;
                             case Type.Palette_8:
-                                Palette = s.SerializeObjectArray<RGB888Color>((RGB888Color[])Palette, Math.Min(Length / 3, 256), name: nameof(Palette));
+                                Palette = s.SerializeIntoArray<SerializableColor>(Palette, Math.Min(Length / 3, 256), BytewiseColor.RGB888, name: nameof(Palette));
                                 break;
                             case Type.RLX_BackgroundPart:
                                 RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
@@ -84,7 +84,7 @@ namespace Ray1Map.GEN
                             case Type.Palette_15:
                             case Type.Palette_20:
                                 SectionData = s.SerializeArray<byte>(SectionData, 0x18, name: nameof(SectionData));
-                                Palette = s.SerializeObjectArray<RGBA8888Color>((RGBA8888Color[])Palette, Math.Min(Length / 4, 256), name: nameof(Palette));
+                                Palette = s.SerializeIntoArray<SerializableColor>(Palette, Math.Min(Length / 4, 256), BytewiseColor.RGBA8888, name: nameof(Palette));
                                 break;
                             default:
                                 SectionData = s.SerializeArray<byte>(SectionData, Length, name: nameof(SectionData));

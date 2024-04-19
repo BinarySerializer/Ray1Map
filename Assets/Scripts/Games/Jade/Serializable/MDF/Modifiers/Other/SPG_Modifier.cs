@@ -19,7 +19,7 @@ namespace Ray1Map.Jade {
 		public uint Flags { get; set; }
 		public float SpecialFogNear { get; set; }
 		public float SpecialFogFar { get; set; }
-		public Jade_Color SpecialFogColor { get; set; }
+		public SerializableColor SpecialFogColor { get; set; }
 
 		public float V8_Montreal_Float { get; set; }
 		public float V9_Montreal_Float0 { get; set; }
@@ -57,7 +57,7 @@ namespace Ray1Map.Jade {
 				if (Version >= 8) {
 					SpecialFogNear = s.Serialize<float>(SpecialFogNear, name: nameof(SpecialFogNear));
 					SpecialFogFar = s.Serialize<float>(SpecialFogFar, name: nameof(SpecialFogFar));
-					SpecialFogColor = s.SerializeObject<Jade_Color>(SpecialFogColor, name: nameof(SpecialFogColor));
+					SpecialFogColor = s.SerializeInto<SerializableColor>(SpecialFogColor, BitwiseColor.RGBA8888, name: nameof(SpecialFogColor));
 				}
 			} else {
 				if (Version >= 8) V8_Montreal_Float = s.Serialize<float>(V8_Montreal_Float, name: nameof(V8_Montreal_Float));

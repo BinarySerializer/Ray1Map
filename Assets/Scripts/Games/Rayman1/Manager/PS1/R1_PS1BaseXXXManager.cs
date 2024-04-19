@@ -217,10 +217,10 @@ namespace Ray1Map.Rayman1
 
         public async UniTask ExportPaletteImageAsync(GameSettings settings, string outputPath)
         {
-            var spritePals = new List<RGBA5551Color[]>();
-            var tilePals = new List<RGBA5551Color[]>();
+            var spritePals = new List<SerializableColor[]>();
+            var tilePals = new List<SerializableColor[]>();
 
-            void Add(ICollection<RGBA5551Color[]> pals, Clut pal)
+            void Add(ICollection<SerializableColor[]> pals, Clut pal)
             {
                 if (pal != null && !pals.Any(x => x.SequenceEqual(pal.Palette)))
                     pals.Add(pal.Palette);

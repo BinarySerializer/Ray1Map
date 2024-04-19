@@ -16,7 +16,7 @@ namespace Ray1Map.GBAKlonoa
         public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
         public const string CompressedWorldObjTileBlockName = "CompressedWorldObjTileBlock";
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4, GBAKlonoa_ObjectGraphics[] mapGraphics = null)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, SerializableColor[] pal, bool is8bit, MapTile[] mapTiles_4, GBAKlonoa_ObjectGraphics[] mapGraphics = null)
         {
             Texture2D tex;
             var additionalTiles = new List<Texture2D>();

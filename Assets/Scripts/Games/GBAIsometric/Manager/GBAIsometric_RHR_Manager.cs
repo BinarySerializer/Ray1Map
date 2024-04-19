@@ -99,7 +99,7 @@ namespace Ray1Map.GBAIsometric
                 }
             }
         }
-        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary, RGBA5551Color[] palette)
+        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary, SerializableColor[] palette)
         {
             SerializerObject s = context.Deserializer;
 
@@ -170,7 +170,7 @@ namespace Ray1Map.GBAIsometric
             {
                 var palPos = spritePaletteOffsets[sprite.Name];
                 s.DoAt(new Pointer(palPos, sprite.Offset.File), () => {
-                    var cols = s.SerializeObjectArray<RGBA5551Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
+                    var cols = s.SerializeIntoArray<SerializableColor>(default, sprite.Is8Bit ? 256 : 16, BitwiseColor.RGBA5551, name: "Palette");
                     pal = Util.ConvertGBAPalette(cols);
                 });
             }
@@ -199,7 +199,7 @@ namespace Ray1Map.GBAIsometric
                 {
                     var palPos = spritePaletteOffsets[name];
                     s.DoAt(new Pointer(palPos, spriteSet.Offset.File), () => {
-                        var cols = s.SerializeObjectArray<RGBA5551Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
+                        var cols = s.SerializeIntoArray<SerializableColor>(default, spriteSet.Is8Bit ? 256 : 16, BitwiseColor.RGBA5551, name: "Palette");
                         pal = Util.ConvertGBAPalette(cols);
                     });
                 }

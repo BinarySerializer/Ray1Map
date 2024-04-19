@@ -200,8 +200,8 @@ namespace Ray1Map {
 							w.Name = ModWorldName;
 							w.Key = newKey();
 							ModWorld.Key = ModWorld.Value.Key;
-							w.AmbientColor = new Jade_Color(0);
-							w.BackgroundColor = new Jade_Color(0);
+							w.AmbientColor = SerializableColor.Clear;
+							w.BackgroundColor = SerializableColor.Clear;
 							//w.SerializedGameObjects.Clear();
 							var gol = w.GameObjects.Value;
 							if (gol != null) {

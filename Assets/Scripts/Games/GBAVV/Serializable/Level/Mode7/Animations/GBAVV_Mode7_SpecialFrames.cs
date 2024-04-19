@@ -6,14 +6,14 @@ namespace Ray1Map.GBAVV
     {
         public byte FramesCount { get; set; } // Set before serializing
 
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
         public ushort Width { get; set; }
         public ushort Height { get; set; }
         public Frame[] Frames { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette));
+            Palette = s.SerializeIntoArray<SerializableColor>(Palette, 256, BitwiseColor.RGBA5551, name: nameof(Palette));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
             Frames = s.SerializeObjectArray<Frame>(Frames, FramesCount, x => x.TileMapLength = Width * Height, name: nameof(Frames));

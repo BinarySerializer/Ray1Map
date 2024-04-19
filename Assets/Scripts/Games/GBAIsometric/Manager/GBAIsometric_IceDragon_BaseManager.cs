@@ -49,8 +49,8 @@ namespace Ray1Map.GBAIsometric
 
                 if (categorize && length == 512)
                 {
-                    RGBA5551Color[] pal = null;
-                    resources.DoAtResource(context, i, size => pal = s.SerializeObjectArray<RGBA5551Color>(default, 256, name: $"Pal[{i}]"));
+                    SerializableColor[] pal = null;
+                    resources.DoAtResource(context, i, size => pal = s.SerializeIntoArray<SerializableColor>(default, 256, BitwiseColor.RGBA5551, name: $"Pal[{i}]"));
 
                     PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{resources.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), pal, optionalWrap: 16);
                 }
@@ -230,7 +230,7 @@ namespace Ray1Map.GBAIsometric
             }
         }
 
-        public Unity_TileSet LoadTileSet(RGB555Color[] tilePal, byte[] tileSet) => 
+        public Unity_TileSet LoadTileSet(SerializableColor[] tilePal, byte[] tileSet) => 
             new Unity_TileSet(tileSet, Unity_Palette.SplitMultiple(tilePal, 16, true), Unity_TextureFormat.Indexed_4, Constants.TileSize);
 
         public async UniTask<Unity_Level> LoadCutsceneMapAsync(Context context, GBAIsometric_IceDragon_BaseROM rom)
@@ -241,7 +241,7 @@ namespace Ray1Map.GBAIsometric
             await Controller.WaitIfNecessary();
 
             byte[] fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
-            var cutsceneTileSet = new Unity_TileSet(fullTileSet, new Unity_Palette(cutsceneMap.Palette, true), Unity_TextureFormat.Indexed_8, Constants.TileSize);
+            var cutsceneTileSet = new Unity_TileSet(fullTileSet, new Unity_Palette(cutsceneMap.Palette.Colors, true), Unity_TextureFormat.Indexed_8, Constants.TileSize);
 
             Controller.DetailedState = $"Loading map";
             await Controller.WaitIfNecessary();

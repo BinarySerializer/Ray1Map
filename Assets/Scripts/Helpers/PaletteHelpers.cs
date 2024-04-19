@@ -39,7 +39,7 @@ namespace Ray1Map
         /// </summary>
         /// <param name="outputPath">The path to export to</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPalette(string outputPath, IList<BaseColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null, bool reverseY = false)
+        public static void ExportPalette(string outputPath, IList<SerializableColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null, bool reverseY = false)
         {
             int length = optionalLength ?? palette.Count;
             int wrap = optionalWrap ?? length;
@@ -75,19 +75,19 @@ namespace Ray1Map
             Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
         }
 
-        public static BaseColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null)
+        public static SerializableColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null)
         {
-            BaseColor[] pal = new BaseColor[length];
+            SerializableColor[] pal = new SerializableColor[length];
 
             wrap ??= length;
 
             if (firstTransparent)
-                pal[0] = BaseColor.Clear;
+                pal[0] = SerializableColor.Clear;
 
             for (int i = firstTransparent ? 1 : 0; i < length; i++)
             {
                 float val = (float)(i % wrap.Value) / (wrap.Value - 1);
-                pal[i] = new CustomColor(val, val, val);
+                pal[i] = new SerializableColor(val, val, val);
             }
 
             return pal;

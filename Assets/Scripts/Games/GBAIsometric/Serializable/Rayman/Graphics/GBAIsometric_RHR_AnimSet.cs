@@ -23,7 +23,7 @@ namespace Ray1Map.GBAIsometric
         public byte[] Bytes_28 { get; set; }
         public Pointer NamePointer { get; set; }
 
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
         public string Name { get; set; }
         public GBAIsometric_RHR_Animation[] Animations { get; set; }
         public GBAIsometric_RHR_AnimFrame[] Frames { get; set; }
@@ -31,12 +31,12 @@ namespace Ray1Map.GBAIsometric
         public ushort[] TileIndices { get; set; }
         public bool Is8Bit => BitHelpers.ExtractBits(Flags, 1, 1) == 1;
 
-        public RGBA5551Color[][] AlternativePalettes { get; set; }
-        public RGBA5551Color[][] GetAllPalettes
+        public SerializableColor[][] AlternativePalettes { get; set; }
+        public SerializableColor[][] GetAllPalettes
         {
             get
             {
-                var pal = new RGBA5551Color[][]
+                var pal = new SerializableColor[][]
                 {
                     Palette
                 };
@@ -68,7 +68,7 @@ namespace Ray1Map.GBAIsometric
             Bytes_28 = s.SerializeArray<byte>(Bytes_28, 8, name: nameof(Bytes_28));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 
-            Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, Is8Bit ? 256 : 16, name: nameof(Palette)));
+            Palette = s.DoAt(PalettePointer, () => s.SerializeIntoArray<SerializableColor>(Palette, Is8Bit ? 256 : 16, BitwiseColor.RGBA5551, name: nameof(Palette)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 
             Animations = s.DoAt(AnimationsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Animation>(Animations, AnimationCount, name: nameof(Animations)));
@@ -128,10 +128,10 @@ namespace Ray1Map.GBAIsometric
         public void SerializeAlternativePalettes(SerializerObject s, uint[] pointers)
         {
             if (AlternativePalettes == null)
-                AlternativePalettes = new RGBA5551Color[pointers.Length][];
+                AlternativePalettes = new SerializableColor[pointers.Length][];
 
             for (int i = 0; i < AlternativePalettes.Length; i++)
-                AlternativePalettes[i] = s.DoAt(new Pointer(pointers[i], Offset.File), () => s.SerializeObjectArray<RGBA5551Color>(AlternativePalettes[i], Is8Bit ? 256 : 16, name: $"{nameof(AlternativePalettes)}[{i}]"));
+                AlternativePalettes[i] = s.DoAt(new Pointer(pointers[i], Offset.File), () => s.SerializeIntoArray<SerializableColor>(AlternativePalettes[i], Is8Bit ? 256 : 16, BitwiseColor.RGBA5551, name: $"{nameof(AlternativePalettes)}[{i}]"));
 
             //PaletteHelpers.ExportPalette(Path.Combine(s.Context.BasePath, $"{Name}.png"), Palette.Concat(AlternativePalettes.SelectMany(x => x)).ToArray(), optionalWrap: Is8Bit ? 256 : 16);
         }

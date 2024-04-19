@@ -8,9 +8,9 @@ namespace Ray1Map.Jade {
 		public float YSize { get; set; }
 		public float ZSize { get; set; }
 
-		public Jade_Color Colors1 { get; set; }
-		public Jade_Color Colors2 { get; set; }
-		public Jade_Color Colors3 { get; set; }
+		public SerializableColor Colors1 { get; set; }
+		public SerializableColor Colors2 { get; set; }
+		public SerializableColor Colors3 { get; set; }
 		public float TimePhase1 { get; set; }
 		public float TimePhase2 { get; set; }
 		public float SpeedMin { get; set; }
@@ -51,9 +51,9 @@ namespace Ray1Map.Jade {
 				ZSize = s.Serialize<float>(ZSize, name: nameof(ZSize));
 			}
 			if (Version >= 1) {
-				Colors1 = s.SerializeObject<Jade_Color>(Colors1, name: nameof(Colors1));
-				Colors2 = s.SerializeObject<Jade_Color>(Colors2, name: nameof(Colors2));
-				Colors3 = s.SerializeObject<Jade_Color>(Colors3, name: nameof(Colors3));
+				Colors1 = s.SerializeInto<SerializableColor>(Colors1, BitwiseColor.RGBA8888, name: nameof(Colors1));
+				Colors2 = s.SerializeInto<SerializableColor>(Colors2, BitwiseColor.RGBA8888, name: nameof(Colors2));
+				Colors3 = s.SerializeInto<SerializableColor>(Colors3, BitwiseColor.RGBA8888, name: nameof(Colors3));
 				TimePhase1 = s.Serialize<float>(TimePhase1, name: nameof(TimePhase1));
 				TimePhase2 = s.Serialize<float>(TimePhase2, name: nameof(TimePhase2));
 				SpeedMin = s.Serialize<float>(SpeedMin, name: nameof(SpeedMin));

@@ -502,7 +502,7 @@ namespace Ray1Map.SNES
             return output;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, SNES_AnimatedTileEntry[] animatedTiles = null, bool shadow = false)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, SerializableColor[] palette, bool is2bpp, bool flipX, SNES_AnimatedTileEntry[] animatedTiles = null, bool shadow = false)
         {
             var pal = is2bpp ? Util.ConvertAndSplitGBCPalette(palette) : Util.ConvertAndSplitGBAPalette(palette);
 

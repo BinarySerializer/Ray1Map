@@ -26,15 +26,15 @@ namespace Ray1Map.Jade {
 		}
 
 		public class ColorBurn : BinarySerializable {
-			public Jade_Color Color { get; set; }
+			public SerializableColor Color { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+				Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 			}
 		}
 		public class Highlight : BinarySerializable {
-			public Jade_Color Color { get; set; }
+			public SerializableColor Color { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+				Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 			}
 		}
 		public class BlackWhite : BinarySerializable {
@@ -83,20 +83,20 @@ namespace Ray1Map.Jade {
 			}
 		}
 		public class Colorize : BinarySerializable {
-			public Jade_Color Color { get; set; }
+			public SerializableColor Color { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+				Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 			}
 		}
 		public class Overlay : BinarySerializable {
 			public bool Pre_HasColor2 { get; set; }
 
-			public Jade_Color Color1 { get; set; }
-			public Jade_Color Color2 { get; set; }
+			public SerializableColor Color1 { get; set; }
+			public SerializableColor Color2 { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				Color1 = s.SerializeObject<Jade_Color>(Color1, name: nameof(Color1));
+				Color1 = s.SerializeInto<SerializableColor>(Color1, BitwiseColor.RGBA8888, name: nameof(Color1));
 				if (Pre_HasColor2) {
-					Color2 = s.SerializeObject<Jade_Color>(Color2, name: nameof(Color2));
+					Color2 = s.SerializeInto<SerializableColor>(Color2, BitwiseColor.RGBA8888, name: nameof(Color2));
 				} else Color2 = Color1;
 			}
 		}

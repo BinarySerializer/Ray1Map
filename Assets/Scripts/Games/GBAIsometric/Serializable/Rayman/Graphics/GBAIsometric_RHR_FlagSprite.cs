@@ -10,8 +10,8 @@ namespace Ray1Map.GBAIsometric
         public Pointer PalettePointer1 { get; set; }
 
         public GBAIsometric_RHR_Sprite Sprite { get; set; }
-        public RGBA5551Color[] Palette0 { get; set; }
-        public RGBA5551Color[] Palette1 { get; set; }
+        public SerializableColor[] Palette0 { get; set; }
+        public SerializableColor[] Palette1 { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -21,8 +21,8 @@ namespace Ray1Map.GBAIsometric
             PalettePointer1 = s.SerializePointer(PalettePointer1, name: nameof(PalettePointer1));
 
             Sprite = s.DoAt(SpritePointer, () => s.SerializeObject<GBAIsometric_RHR_Sprite>(Sprite, name: nameof(Sprite)));
-            Palette0 = s.DoAt(PalettePointer0, () => s.SerializeObjectArray<RGBA5551Color>(Palette0, 16, name: nameof(Palette0)));
-            Palette1 = s.DoAt(PalettePointer1, () => s.SerializeObjectArray<RGBA5551Color>(Palette1, 16, name: nameof(Palette1)));
+            Palette0 = s.DoAt(PalettePointer0, () => s.SerializeIntoArray<SerializableColor>(Palette0, 16, BitwiseColor.RGBA5551, name: nameof(Palette0)));
+            Palette1 = s.DoAt(PalettePointer1, () => s.SerializeIntoArray<SerializableColor>(Palette1, 16, BitwiseColor.RGBA5551, name: nameof(Palette1)));
         }
     }
 }

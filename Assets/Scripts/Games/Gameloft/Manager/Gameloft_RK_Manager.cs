@@ -440,8 +440,8 @@ namespace Ray1Map.Gameloft
 					walls.triangles.Add(wallsVertexCount + offset + 1 + 0);
 				}
 
-				// Test colors
-				var bridgeCol = (i % 2 == 0) ? level.Color_dk_BridgeLight : level.Color_dj_BridgeDark;
+                // Test colors
+                SerializableColor bridgeCol = (i % 2 == 0) ? level.Color_dk_BridgeLight : level.Color_dj_BridgeDark;
 				var roadCol = isBridge ? (bridgeCol ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.white;
 				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);

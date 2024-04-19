@@ -11,7 +11,7 @@ namespace Ray1Map.Jade {
 		public uint NextShadowModifierPointer { get; set; }
 		public uint GameObjectPointer { get; set; }
 		public float ZAttenuationFactor { get; set; }
-		public Jade_Color ShadowColor { get; set; }
+		public SerializableColor ShadowColor { get; set; }
 		public float ZStart { get; set; }
 		public Jade_Vector Center { get; set; }
 		public float ZSizeFactor { get; set; }
@@ -55,7 +55,7 @@ namespace Ray1Map.Jade {
 					YSizeFactor = s.Serialize<float>(YSizeFactor, name: nameof(YSizeFactor));
 					TextureIndex = s.Serialize<uint>(TextureIndex, name: nameof(TextureIndex));
 					ZAttenuationFactor = s.Serialize<float>(ZAttenuationFactor, name: nameof(ZAttenuationFactor));
-					ShadowColor = s.SerializeObject<Jade_Color>(ShadowColor, name: nameof(ShadowColor));
+					ShadowColor = s.SerializeInto<SerializableColor>(ShadowColor, BitwiseColor.RGBA8888, name: nameof(ShadowColor));
 					ZStart = s.Serialize<float>(ZStart, name: nameof(ZStart));
 					Center = s.SerializeObject<Jade_Vector>(Center, name: nameof(Center));
 					ZSizeFactor = s.Serialize<float>(ZSizeFactor, name: nameof(ZSizeFactor));
@@ -71,7 +71,7 @@ namespace Ray1Map.Jade {
 				} else {
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
 						Flags_TFS = s.Serialize<uint>(Flags_TFS, name: nameof(Flags_TFS));
-						ShadowColor = s.SerializeObject<Jade_Color>(ShadowColor, name: nameof(ShadowColor));
+						ShadowColor = s.SerializeInto<SerializableColor>(ShadowColor, BitwiseColor.RGBA8888, name: nameof(ShadowColor));
 						if (Version >= 5) {
 							FadeInStart = s.Serialize<float>(FadeInStart, name: nameof(FadeInStart));
 							FadeInLength = s.Serialize<float>(FadeInLength, name: nameof(FadeInLength));
@@ -89,7 +89,7 @@ namespace Ray1Map.Jade {
 						Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 						Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture));
 						TextureIndex = s.Serialize<uint>(TextureIndex, name: nameof(TextureIndex));
-						ShadowColor = s.SerializeObject<Jade_Color>(ShadowColor, name: nameof(ShadowColor));
+						ShadowColor = s.SerializeInto<SerializableColor>(ShadowColor, BitwiseColor.RGBA8888, name: nameof(ShadowColor));
 						Center = s.SerializeObject<Jade_Vector>(Center, name: nameof(Center));
 						TVP_Float0 = s.Serialize<float>(TVP_Float0, name: nameof(TVP_Float0));
 						TVP_Float1 = s.Serialize<float>(TVP_Float1, name: nameof(TVP_Float1));
@@ -108,7 +108,7 @@ namespace Ray1Map.Jade {
 					GameObjectPointer = s.Serialize<uint>(GameObjectPointer, name: nameof(GameObjectPointer));
 				}
 				ZAttenuationFactor = s.Serialize<float>(ZAttenuationFactor, name: nameof(ZAttenuationFactor));
-				ShadowColor = s.SerializeObject<Jade_Color>(ShadowColor, name: nameof(ShadowColor));
+				ShadowColor = s.SerializeInto<SerializableColor>(ShadowColor, BitwiseColor.RGBA8888, name: nameof(ShadowColor));
 				ZStart = s.Serialize<float>(ZStart, name: nameof(ZStart));
 				Center = s.SerializeObject<Jade_Vector>(Center, name: nameof(Center));
 				ZSizeFactor = s.Serialize<float>(ZSizeFactor, name: nameof(ZSizeFactor));

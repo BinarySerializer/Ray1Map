@@ -14,7 +14,7 @@ namespace Ray1Map.GBAKlonoa
 
         // Maps
         public GBAKlonoa_DCT_Map[] Maps { get; set; }
-        public RGBA5551Color[] FixTilePalette { get; set; }
+        public SerializableColor[] FixTilePalette { get; set; }
         public GBAKlonoa_MapSectors[] MapSectors { get; set; }
         public Pointer[] MapGraphicsPointers { get; set; }
         public GBAKlonoa_ObjectGraphics[][] MapGraphics { get; set; }
@@ -98,7 +98,7 @@ namespace Ray1Map.GBAKlonoa
                     Maps[i] = s.SerializeObject<GBAKlonoa_DCT_Map>(Maps[i], x => x.Pre_SerializeData = i == globalLevelIndex, name: $"{nameof(Maps)}[{i}]");
             });
 
-            s.DoAt(new Pointer(0x083514e4, Offset.File), () => FixTilePalette = s.SerializeObjectArray<RGBA5551Color>(FixTilePalette, 0x20, name: nameof(FixTilePalette)));
+            s.DoAt(new Pointer(0x083514e4, Offset.File), () => FixTilePalette = s.SerializeIntoArray<SerializableColor>(FixTilePalette, 0x20, BitwiseColor.RGBA5551, name: nameof(FixTilePalette)));
 
             // Serialize map sectors
             s.DoAt(new Pointer(0x0810a480, Offset.File), () => MapSectors = s.SerializeObjectArray<GBAKlonoa_MapSectors>(MapSectors, normalLevelsCount, name: nameof(MapSectors)));

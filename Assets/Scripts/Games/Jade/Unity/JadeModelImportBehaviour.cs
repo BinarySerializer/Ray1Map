@@ -163,9 +163,9 @@ public class JadeModelImportBehaviour : MonoBehaviour {
                 mtt.Levels = new MAT_MTT_MultiTextureMaterial.MAT_MTT_Level[1];
                 mtt.Levels[0] = mttl;
             }
-            mtt.Ambiant = new Jade_Color(0.5f, 0.5f, 0.5f, 1f);
-            mtt.Diffuse = new Jade_Color(mat.color.r, mat.color.g, mat.color.b, mat.color.a);
-            mtt.Specular = new Jade_Color(0,0,0,0);
+            mtt.Ambiant = new SerializableColor(0.5f, 0.5f, 0.5f, 1f);
+            mtt.Diffuse = new SerializableColor(mat.color.r, mat.color.g, mat.color.b, mat.color.a);
+            mtt.Specular = new SerializableColor(0,0,0,0);
             mtt.Opacity = 1f;
 
             if(mttl == null) continue;
@@ -220,11 +220,11 @@ public class JadeModelImportBehaviour : MonoBehaviour {
             }
             pixels = newPixels;
         }*/
-        BaseColor[] pixelsBaseColor = null;
+        SerializableColor[] pixelsBaseColor = null;
         uint size = (uint)pixels.Length;
 
         texFile.Format = TEX_File.TexColorFormat.BPP_32;
-        pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGRA8888Color(c.r, c.g, c.b, c.a)).ToArray();
+        pixelsBaseColor = pixels.Select(c => new SerializableColor(c.r, c.g, c.b, c.a)).ToArray();
         size *= 4;
 
         texFile.Content_TGA = new TGA() {
@@ -247,7 +247,7 @@ public class JadeModelImportBehaviour : MonoBehaviour {
             + 18 // Tga header size
             + 32; // Jade header size
 
-        texFile.Color = new Jade_Color(1f,1f,1f,1f);
+        texFile.Color = new SerializableColor(1f,1f,1f,1f);
         return texFile;
     }
 }

@@ -1,14 +1,14 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
 
-namespace Ray1Map.Jade {
-	public class GAO_ModifierMotionBlur : MDF_Modifier {
+namespace Ray1Map.Jade
+{
+    public class GAO_ModifierMotionBlur : MDF_Modifier {
 		public uint Version { get; set; }
 		public uint Size { get; set; }
 		public float BlurLengthFactor { get; set; }
 		public float BlurAlphaFactor { get; set; }
 		public int UseForcedColor { get; set; }
-		public Jade_Color ForcedColor { get; set; }
+		public SerializableColor ForcedColor { get; set; }
 		public uint NumberMatrixUsed { get; set; }
 		public MotionBlurType Type { get; set; }
 
@@ -18,7 +18,7 @@ namespace Ray1Map.Jade {
 			BlurLengthFactor = s.Serialize<float>(BlurLengthFactor, name: nameof(BlurLengthFactor));
 			BlurAlphaFactor = s.Serialize<float>(BlurAlphaFactor, name: nameof(BlurAlphaFactor));
 			UseForcedColor = s.Serialize<int>(UseForcedColor, name: nameof(UseForcedColor));
-			ForcedColor = s.SerializeObject<Jade_Color>(ForcedColor, name: nameof(ForcedColor));
+			ForcedColor = s.SerializeInto<SerializableColor>(ForcedColor, BitwiseColor.RGBA8888, name: nameof(ForcedColor));
 			if (Version >= 2) {
 				NumberMatrixUsed = s.Serialize<uint>(NumberMatrixUsed, name: nameof(NumberMatrixUsed));
 				Type = s.Serialize<MotionBlurType>(Type, name: nameof(Type));

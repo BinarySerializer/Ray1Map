@@ -21,7 +21,7 @@ namespace Ray1Map.Jade {
 		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
 		public Jade_Vector[] Normals { get; set; }
-		public Jade_Color[] Colors { get; set; }
+		public SerializableColor[] Colors { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
 		public uint StripFlag { get; set; }
@@ -181,7 +181,7 @@ namespace Ray1Map.Jade {
 					}
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
 						|| !Loader.IsBinaryData || Montreal_HasColors != 0) {
-						Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
+						Colors = s.SerializeIntoArray<SerializableColor>(Colors, ColorsCount, BitwiseColor.RGBA8888, name: nameof(Colors));
 					}
 					UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
 

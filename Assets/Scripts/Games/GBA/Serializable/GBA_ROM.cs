@@ -19,7 +19,7 @@ namespace Ray1Map
         // Rayman 3 Single Pak
         public GBA_OffsetTable R3SinglePak_OffsetTable { get; set; }
         public GBA_Puppet[] R3SinglePak_Puppets { get; set; }
-        public RGBA5551Color[] R3SinglePak_Palette { get; set; }
+        public SerializableColor[] R3SinglePak_Palette { get; set; }
         public byte[] R3SinglePak_TileSet { get; set; }
         public ushort[] R3SinglePak_TileMap { get; set; }
 
@@ -53,7 +53,7 @@ namespace Ray1Map
             if (lvlType == GBA_Manager.LevelType.R3SinglePak)
             {
                 R3SinglePak_OffsetTable = s.DoAt(pointerTable[DefinedPointer.R3SinglePak_OffsetTable], () => s.SerializeObject<GBA_OffsetTable>(R3SinglePak_OffsetTable, name: nameof(R3SinglePak_OffsetTable)));
-                R3SinglePak_Palette = s.DoAt(pointerTable[DefinedPointer.R3SinglePak_Palette], () => s.SerializeObjectArray<RGBA5551Color>(R3SinglePak_Palette, 256, name: nameof(R3SinglePak_Palette)));
+                R3SinglePak_Palette = s.DoAt(pointerTable[DefinedPointer.R3SinglePak_Palette], () => s.SerializeIntoArray<SerializableColor>(R3SinglePak_Palette, 256, BitwiseColor.RGBA5551, name: nameof(R3SinglePak_Palette)));
                 R3SinglePak_TileMap = s.DoAt(pointerTable[DefinedPointer.R3SinglePak_TileMap], () => s.SerializeArray<ushort>(R3SinglePak_TileMap, 0x400, name: nameof(R3SinglePak_TileMap)));
                 R3SinglePak_TileSet = s.DoAt(pointerTable[DefinedPointer.R3SinglePak_TileSet], () => s.SerializeArray<byte>(R3SinglePak_TileSet, (R3SinglePak_TileMap.Max() + 1) * 0x40, name: nameof(R3SinglePak_TileSet)));
 

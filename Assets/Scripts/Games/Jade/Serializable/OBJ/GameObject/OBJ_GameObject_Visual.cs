@@ -17,7 +17,7 @@ namespace Ray1Map.Jade {
 		public Unknown UnknownFlags { get; set; }
 		public sbyte[] Padding { get; set; }
 		public uint VertexColorsCount { get; set; }
-		public Jade_Color[] VertexColors { get; set; }
+		public SerializableColor[] VertexColors { get; set; }
 
 		public uint MontrealHasEditorData { get; set; }
 		public uint Montreal_EditorData_UInt { get; set; }
@@ -90,7 +90,7 @@ namespace Ray1Map.Jade {
 					Fox_V22_Byte = s.Serialize<byte>(Fox_V22_Byte, name: nameof(Fox_V22_Byte));
 				}
 				VertexColorsCount = s.Serialize<uint>(VertexColorsCount, name: nameof(VertexColorsCount));
-				VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
+				VertexColors = s.SerializeIntoArray<SerializableColor>(VertexColors, VertexColorsCount, BitwiseColor.RGBA8888, name: nameof(VertexColors));
 
 				bool hasEditorData = true;
 				bool hasLightMap = true;
@@ -195,7 +195,7 @@ namespace Ray1Map.Jade {
 				if (VertexColorsCount == (uint)Jade_Code.RLI) {
 					RLI = s.SerializeObject<Jade_Reference<OBJ_GameObjectRLI>>(RLI, name: nameof(RLI))?.Resolve();
 				} else {
-					VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
+					VertexColors = s.SerializeIntoArray<SerializableColor>(VertexColors, VertexColorsCount, BitwiseColor.RGBA8888, name: nameof(VertexColors));
 				}
 
 				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {

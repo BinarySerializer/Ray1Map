@@ -32,8 +32,8 @@ namespace Ray1Map.GBAIsometric
 
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
 
-        public RGBA5551Color[] Spyro2_CommonPalette { get; set; }
-        public RGBA5551Color[][][] Spyro2_AnimSetPalettes { get; set; }
+        public SerializableColor[] Spyro2_CommonPalette { get; set; }
+        public SerializableColor[][][] Spyro2_AnimSetPalettes { get; set; }
 
         public GBAIsometric_Spyro3_State_NPC[] States_Spyro3_NPC { get; set; }
         public GBAIsometric_Spyro3_State_DoorTypes[] States_Spyro3_DoorTypes { get; set; }
@@ -140,12 +140,12 @@ namespace Ray1Map.GBAIsometric
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
             {
                 GBAIsometric_IceDragon_ResourceRef.FromIndex(s, (ushort)(s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).
-                    DoAt(size => Spyro2_CommonPalette = s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
+                    DoAt(size => Spyro2_CommonPalette = s.SerializeIntoArray<SerializableColor>(Spyro2_CommonPalette, 256, BitwiseColor.RGBA5551, name: nameof(Spyro2_CommonPalette)));
 
                 var palInfo = s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? Spyro2_PalInfoUS : Spyro2_PalInfoEU;
 
                 if (Spyro2_AnimSetPalettes == null)
-                    Spyro2_AnimSetPalettes = new RGBA5551Color[palInfo.Length][][];
+                    Spyro2_AnimSetPalettes = new SerializableColor[palInfo.Length][][];
 
                 for (int i = 0; i < Spyro2_AnimSetPalettes.Length; i++)
                 {
@@ -154,12 +154,12 @@ namespace Ray1Map.GBAIsometric
                     if (p.BlockIndices != null)
                     {
                         if (Spyro2_AnimSetPalettes[i] == null)
-                            Spyro2_AnimSetPalettes[i] = new RGBA5551Color[p.BlockIndices.Length][];
+                            Spyro2_AnimSetPalettes[i] = new SerializableColor[p.BlockIndices.Length][];
 
                         for (int j = 0; j < p.BlockIndices.Length; j++)
                         {
                             GBAIsometric_IceDragon_ResourceRef.FromIndex(s, (ushort)p.BlockIndices[j]).
-                                DoAt(size => Spyro2_AnimSetPalettes[i][j] = s.SerializeObjectArray<RGBA5551Color>(Spyro2_AnimSetPalettes[i][j], size / 2, name: $"{nameof(Spyro2_AnimSetPalettes)}[{i}][{j}]"));
+                                DoAt(size => Spyro2_AnimSetPalettes[i][j] = s.SerializeIntoArray<SerializableColor>(Spyro2_AnimSetPalettes[i][j], size / 2, BitwiseColor.RGBA5551, name: $"{nameof(Spyro2_AnimSetPalettes)}[{i}][{j}]"));
                         }
                     }
                 }

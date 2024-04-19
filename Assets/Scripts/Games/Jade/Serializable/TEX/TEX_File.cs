@@ -64,7 +64,7 @@ namespace Ray1Map.Jade
         public TexColorFormat Format { get; set; } // Determines bits per pixel
         public ushort Width { get; set; }
         public ushort Height { get; set; }
-        public Jade_Color Color { get; set; }
+        public SerializableColor Color { get; set; }
         public Jade_Reference<STR_FontDescriptor> FontDesc { get; set; }
         public Jade_Code Code_14 { get; set; } = Jade_Code.CAD01234; // Usually CAD01234
         public Jade_Code Code_18 { get; set; } = Jade_Code.FF00FF; // Checked for 0xFF00FF
@@ -101,7 +101,7 @@ namespace Ray1Map.Jade
                 Format = s.Serialize<TexColorFormat>(Format, name: nameof(Format));
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
-                Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+                Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
                 FontDesc = s.SerializeObject<Jade_Reference<STR_FontDescriptor>>(FontDesc, name: nameof(FontDesc));
                 Code_14 = s.Serialize<Jade_Code>(Code_14, name: nameof(Code_14));
                 Code_18 = s.Serialize<Jade_Code>(Code_18, name: nameof(Code_18));
@@ -174,28 +174,6 @@ namespace Ray1Map.Jade
                             // Serialize the header first, then set a custom one for the TGA struct based on the Jade properties instead
                             Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.Pre_ForceNoColorMap = true, name: nameof(Content_TGA_Header));
                             
-                            if (Content_TGA != null
-                                && Content_TGA.Pre_ColorOrder != colorOrder
-                                && Content_TGA.RGBImageData != null) {
-                                // Serializing with different color order. Convert colors
-                                switch (Content_TGA.Header.BitsPerPixel) {
-                                    case 24:
-                                        if (colorOrder == TGA.RGBColorOrder.BGR) {
-                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new BGR888Color(c.Red, c.Green, c.Blue)).ToArray();
-                                        } else {
-                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new RGB888Color(c.Red, c.Green, c.Blue)).ToArray();
-                                        }
-                                        break;
-                                    case 32:
-                                        if (colorOrder == TGA.RGBColorOrder.BGR) {
-                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new BGRA8888Color(c.Red, c.Green, c.Blue, c.Alpha)).ToArray();
-                                        } else {
-                                            Content_TGA.RGBImageData = (BaseColor[])Content_TGA.RGBImageData.Select(c => new RGBA8888Color(c.Red, c.Green, c.Blue, c.Alpha)).ToArray();
-                                        }
-                                        break;
-                                }
-                            }
-
                             Content_TGA = s.SerializeObject<TGA>(Content_TGA, x =>
                             {
                                 x.Pre_ColorOrder = colorOrder;
@@ -324,17 +302,17 @@ namespace Ray1Map.Jade
                         }
                         pixels = newPixels;
                     }*/
-                    BaseColor[] pixelsBaseColor = null;
+                    BinarySerializer.SerializableColor[] pixelsBaseColor = null;
                     uint size = (uint)pixels.Length;
 
                     switch (Format) {
                         case TexColorFormat.BPP_24:
-                            pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGR888Color(c.r, c.g, c.b)).ToArray();
+                            pixelsBaseColor = pixels.Select(c => new BinarySerializer.SerializableColor(c.r, c.g, c.b)).ToArray();
                             size *= 3;
                             break;
                         case TexColorFormat.BPP_32:
                         default:
-                            pixelsBaseColor = (BaseColor[])pixels.Select(c => new BGRA8888Color(c.r, c.g, c.b, c.a)).ToArray();
+                            pixelsBaseColor = pixels.Select(c => new BinarySerializer.SerializableColor(c.r, c.g, c.b, c.a)).ToArray();
                             size *= 4;
                             break;
                     } 

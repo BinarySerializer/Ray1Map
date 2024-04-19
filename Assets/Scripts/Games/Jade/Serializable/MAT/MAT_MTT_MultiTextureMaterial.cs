@@ -4,10 +4,10 @@ using BinarySerializer;
 namespace Ray1Map.Jade {
 	// MAT_pst_CreateMultiTextureFromBuffer
 	public class MAT_MTT_MultiTextureMaterial : GRO_GraphicRenderObject {
-		public Jade_Color Ambiant { get; set; }
-		public Jade_Color Diffuse { get; set; }
-		public Jade_Color Specular { get; set; }
-		public Jade_Color RealSpecular { get; set; } // Color?
+		public SerializableColor Ambiant { get; set; } = SerializableColor.White;
+        public SerializableColor Diffuse { get; set; } = SerializableColor.White;
+        public SerializableColor Specular { get; set; } = SerializableColor.White;
+        public SerializableColor RealSpecular { get; set; } // Color?
 		public uint SpecularExp { get; set; } // Read as a float, but it's 0x80000000, ie negative zero
 		public float Opacity { get; set; }
 		public uint Flags { get; set; }
@@ -29,21 +29,21 @@ namespace Ray1Map.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) || !Loader.IsBinaryData) {
-				Ambiant = s.SerializeObject<Jade_Color>(Ambiant, name: nameof(Ambiant));
+				Ambiant = s.SerializeInto<SerializableColor>(Ambiant, BitwiseColor.RGBA8888, name: nameof(Ambiant));
 			}
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) || !Loader.IsBinaryData || 
 				(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty) && ObjectVersion >= 11)) {
-				Diffuse = s.SerializeObject<Jade_Color>(Diffuse, name: nameof(Diffuse));
+				Diffuse = s.SerializeInto<SerializableColor>(Diffuse, BitwiseColor.RGBA8888, name: nameof(Diffuse));
 			}
-			Specular = s.SerializeObject<Jade_Color>(Specular, name: nameof(Specular));
+			Specular = s.SerializeInto<SerializableColor>(Specular, BitwiseColor.RGBA8888, name: nameof(Specular));
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT)) {
 				SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 			} else {
 				if (ObjectVersion < 8) {
-					RealSpecular = new Jade_Color(0xFFFFFFFF);
+					RealSpecular = SerializableColor.White;
 					if (!Loader.IsBinaryData) SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 				} else {
-					RealSpecular = s.SerializeObject<Jade_Color>(RealSpecular, name: nameof(RealSpecular));
+					RealSpecular = s.SerializeInto<SerializableColor>(RealSpecular, BitwiseColor.RGBA8888, name: nameof(RealSpecular));
 					SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 				}
 			}

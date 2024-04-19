@@ -17,11 +17,11 @@ namespace Ray1Map.Gameloft
 		public byte aW { get; set; }
 		public byte BackgroundLayersCount { get; set; }
 		public byte bB { get; set; }
-		public RGB888Color Color_bC { get; set; }
-		public RGB888Color Color_bD_Road1 { get; set; }
-		public RGB888Color Color_bA { get; set; }
-		public RGB888Color Color_bE_Road2 { get; set; }
-		public RGB888Color Color_bF_Fog { get; set; }
+		public SerializableColor Color_bC { get; set; }
+		public SerializableColor Color_bD_Road1 { get; set; }
+		public SerializableColor Color_bA { get; set; }
+		public SerializableColor Color_bE_Road2 { get; set; }
+		public SerializableColor Color_bF_Fog { get; set; }
 		public short bG_FogAmount { get; set; }
 		public short aU_2 { get; set; }
 		public byte N { get; set; }
@@ -29,25 +29,25 @@ namespace Ray1Map.Gameloft
 		public bool bp { get; set; }
 		public short DefaultRoadWidth { get; set; }
 		public short bK { get; set; }
-		public RGB888Color Color_afterbK_0 { get; set; }
-		public RGB888Color Color_afterbK_1 { get; set; }
+		public SerializableColor Color_afterbK_0 { get; set; }
+		public SerializableColor Color_afterbK_1 { get; set; }
 		public byte bL { get; set; }
 		public byte LowResUnusedByteAfterbL { get; set; }
-		public RGB888Color Color_bH_Wall0 { get; set; }
-		public RGB888Color Color_bI_Wall1 { get; set; }
+		public SerializableColor Color_bH_Wall0 { get; set; }
+		public SerializableColor Color_bI_Wall1 { get; set; }
 		public byte byte_afterBI { get; set; }
 
-		public RGB888Color Color_dj_BridgeDark { get; set; }
-		public RGB888Color Color_dk_BridgeLight { get; set; }
+		public SerializableColor Color_dj_BridgeDark { get; set; }
+		public SerializableColor Color_dk_BridgeLight { get; set; }
 		public byte dl { get; set; }
 		public byte dm { get; set; }
 
 		// Lowres only?
-		public RGB888Color Color_dq { get; set; }
-		public RGB888Color Color_Tunnel_0 { get; set; }
-		public RGB888Color Color_ds { get; set; }
-		public RGB888Color Color_Tunnel_1 { get; set; }
-		public RGB888Color Color_Tunnel_Front { get; set; }
+		public SerializableColor Color_dq { get; set; }
+		public SerializableColor Color_Tunnel_0 { get; set; }
+		public SerializableColor Color_ds { get; set; }
+		public SerializableColor Color_Tunnel_1 { get; set; }
+		public SerializableColor Color_Tunnel_Front { get; set; }
 		public short Tunnel_Height { get; set; }
 		public short Tunnel_Height2 { get; set; }
 		public short Tunnel_WallThickness { get; set; }
@@ -96,11 +96,11 @@ namespace Ray1Map.Gameloft
 			aW = s.Serialize<byte>(aW, name: nameof(aW));
 			BackgroundLayersCount = s.Serialize<byte>(BackgroundLayersCount, name: nameof(BackgroundLayersCount));
 			bB = s.Serialize<byte>(bB, name: nameof(bB));
-			Color_bC = s.SerializeObject<RGB888Color>(Color_bC, name: nameof(Color_bC));
-			Color_bD_Road1 = s.SerializeObject<RGB888Color>(Color_bD_Road1, name: nameof(Color_bD_Road1));
-			Color_bA = s.SerializeObject<RGB888Color>(Color_bA, name: nameof(Color_bA));
-			Color_bE_Road2 = s.SerializeObject<RGB888Color>(Color_bE_Road2, name: nameof(Color_bE_Road2));
-			Color_bF_Fog = s.SerializeObject<RGB888Color>(Color_bF_Fog, name: nameof(Color_bF_Fog));
+			Color_bC = s.SerializeInto<SerializableColor>(Color_bC, BytewiseColor.RGB888, name: nameof(Color_bC));
+			Color_bD_Road1 = s.SerializeInto<SerializableColor>(Color_bD_Road1, BytewiseColor.RGB888, name: nameof(Color_bD_Road1));
+			Color_bA = s.SerializeInto<SerializableColor>(Color_bA, BytewiseColor.RGB888, name: nameof(Color_bA));
+			Color_bE_Road2 = s.SerializeInto<SerializableColor>(Color_bE_Road2, BytewiseColor.RGB888, name: nameof(Color_bE_Road2));
+			Color_bF_Fog = s.SerializeInto<SerializableColor>(Color_bF_Fog, BytewiseColor.RGB888, name: nameof(Color_bF_Fog));
 			bG_FogAmount = s.Serialize<short>(bG_FogAmount, name: nameof(bG_FogAmount));
 			aU_2 = s.Serialize<short>(aU_2, name: nameof(aU_2));
 			N = s.Serialize<byte>(N, name: nameof(N));
@@ -108,30 +108,30 @@ namespace Ray1Map.Gameloft
 			bp = s.Serialize<bool>(bp, name: nameof(bp));
 			DefaultRoadWidth = s.Serialize<short>(DefaultRoadWidth, name: nameof(DefaultRoadWidth));
 			bK = s.Serialize<short>(bK, name: nameof(bK));
-			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
-			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
+			Color_afterbK_0 = s.SerializeInto<SerializableColor>(Color_afterbK_0, BytewiseColor.RGB888, name: nameof(Color_afterbK_0));
+			Color_afterbK_1 = s.SerializeInto<SerializableColor>(Color_afterbK_1, BytewiseColor.RGB888, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
 			if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
 				LowResUnusedByteAfterbL = s.Serialize<byte>(LowResUnusedByteAfterbL, name: nameof(LowResUnusedByteAfterbL));
 			}
-			Color_bH_Wall0 = s.SerializeObject<RGB888Color>(Color_bH_Wall0, name: nameof(Color_bH_Wall0));
-			Color_bI_Wall1 = s.SerializeObject<RGB888Color>(Color_bI_Wall1, name: nameof(Color_bI_Wall1));
+			Color_bH_Wall0 = s.SerializeInto<SerializableColor>(Color_bH_Wall0, BytewiseColor.RGB888, name: nameof(Color_bH_Wall0));
+			Color_bI_Wall1 = s.SerializeInto<SerializableColor>(Color_bI_Wall1, BytewiseColor.RGB888, name: nameof(Color_bI_Wall1));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
 			if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128 &&
 				s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2 &&
 				s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
 				if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
-					Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
-					Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
+					Color_dj_BridgeDark = s.SerializeInto<SerializableColor>(Color_dj_BridgeDark, BytewiseColor.RGB888, name: nameof(Color_dj_BridgeDark));
+					Color_dk_BridgeLight = s.SerializeInto<SerializableColor>(Color_dk_BridgeLight, BytewiseColor.RGB888, name: nameof(Color_dk_BridgeLight));
 					dl = s.Serialize<byte>(dl, name: nameof(dl));
 					dm = s.Serialize<byte>(dm, name: nameof(dm));
 				}
 				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
-					Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
-					Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
-					Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
-					Color_Tunnel_1 = s.SerializeObject<RGB888Color>(Color_Tunnel_1, name: nameof(Color_Tunnel_1));
-					Color_Tunnel_Front = s.SerializeObject<RGB888Color>(Color_Tunnel_Front, name: nameof(Color_Tunnel_Front));
+					Color_dq = s.SerializeInto<SerializableColor>(Color_dq, BytewiseColor.RGB888, name: nameof(Color_dq));
+					Color_Tunnel_0 = s.SerializeInto<SerializableColor>(Color_Tunnel_0, BytewiseColor.RGB888, name: nameof(Color_Tunnel_0));
+					Color_ds = s.SerializeInto<SerializableColor>(Color_ds, BytewiseColor.RGB888, name: nameof(Color_ds));
+					Color_Tunnel_1 = s.SerializeInto<SerializableColor>(Color_Tunnel_1, BytewiseColor.RGB888, name: nameof(Color_Tunnel_1));
+					Color_Tunnel_Front = s.SerializeInto<SerializableColor>(Color_Tunnel_Front, BytewiseColor.RGB888, name: nameof(Color_Tunnel_Front));
 					Tunnel_Height = s.Serialize<short>(Tunnel_Height, name: nameof(Tunnel_Height));
 					Tunnel_Height2 = s.Serialize<short>(Tunnel_Height2, name: nameof(Tunnel_Height2));
 					Tunnel_WallThickness = s.Serialize<short>(Tunnel_WallThickness, name: nameof(Tunnel_WallThickness));
@@ -284,11 +284,11 @@ namespace Ray1Map.Gameloft
 			}
 			public class Key : BinarySerializable {
 				public short Position { get; set; } // 100 is top of screen, 80 is middle
-				public RGB888Color Color { get; set; }
+				public SerializableColor Color { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					Position = s.Serialize<short>(Position, name: nameof(Position));
-					Color = s.SerializeObject<RGB888Color>(Color, name: nameof(Color));
+					Color = s.SerializeInto<SerializableColor>(Color, BytewiseColor.RGB888, name: nameof(Color));
 				}
 			}
 		}
@@ -357,7 +357,7 @@ namespace Ray1Map.Gameloft
 				public CommandType Type { get; set; }
 				public short[] Shorts { get; set; }
 
-				public RGB888Color Color { get; set; }
+				public SerializableColor Color { get; set; }
 				public Position[] Positions { get; set; }
 				public AABB Rectangle { get; set; }
 				public Arc FillArc { get; set; }
@@ -366,7 +366,7 @@ namespace Ray1Map.Gameloft
 					Type = s.Serialize<CommandType>(Type, name: nameof(Type));
 					switch (Type) {
 						case CommandType.Color:
-							Color = s.SerializeObject<RGB888Color>(Color, name: nameof(Color));
+							Color = s.SerializeInto<SerializableColor>(Color, BytewiseColor.RGB888, name: nameof(Color));
 							break;
 						case CommandType.DrawRectangle:
 							Rectangle = s.SerializeObject<AABB>(Rectangle, name: nameof(Rectangle));
@@ -497,8 +497,8 @@ namespace Ray1Map.Gameloft
 
 			public short Width { get; set; }
 			public byte Byte4 { get; set; }
-			public RGB888Color ColorGround { get; set; }
-			public RGB888Color ColorAbyss { get; set; }
+			public SerializableColor ColorGround { get; set; }
+			public SerializableColor ColorAbyss { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
@@ -511,8 +511,8 @@ namespace Ray1Map.Gameloft
 				}
 				Width = s.Serialize<short>(Width, name: nameof(Width));
 				Byte4 = s.Serialize<byte>(Byte4, name: nameof(Byte4));
-				ColorGround = s.SerializeObject<RGB888Color>(ColorGround, name: nameof(ColorGround));
-				ColorAbyss = s.SerializeObject<RGB888Color>(ColorAbyss, name: nameof(ColorAbyss));
+				ColorGround = s.SerializeInto<SerializableColor>(ColorGround, BytewiseColor.RGB888, name: nameof(ColorGround));
+				ColorAbyss = s.SerializeInto<SerializableColor>(ColorAbyss, BytewiseColor.RGB888, name: nameof(ColorAbyss));
 			}
 
 			public class Entry : BinarySerializable {

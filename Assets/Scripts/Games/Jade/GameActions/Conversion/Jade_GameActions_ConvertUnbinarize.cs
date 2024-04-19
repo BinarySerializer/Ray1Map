@@ -875,7 +875,7 @@ namespace Ray1Map {
 
 									if (!context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && targetMode != GameModeSelection.RaymanRavingRabbidsPCPrototype) {
 										if (gao?.Base?.Visual?.VertexColors != null) {
-											gao.Base.Visual.VertexColors = gao.Base.Visual.VertexColors.Select(c => new Jade_Color(c.Blue, c.Green, c.Red, c.Alpha)).ToArray();
+											gao.Base.Visual.VertexColors = gao.Base.Visual.VertexColors.Select(c => new SerializableColor(c.Blue, c.Green, c.Red, c.Alpha)).ToArray();
 										}
 									}
 								}

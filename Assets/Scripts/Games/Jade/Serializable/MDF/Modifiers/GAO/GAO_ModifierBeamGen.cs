@@ -21,9 +21,9 @@ namespace Ray1Map.Jade {
 		public float Intensity { get; set; }
 		public float IntensityVariation { get; set; }
 		public float IntensityVariationSpeed { get; set; }
-		public Jade_Color BeamStartColor { get; set; }
-		public Jade_Color BeamEndColor { get; set; }
-		public Jade_Color FlareColor { get; set; }
+		public SerializableColor BeamStartColor { get; set; }
+		public SerializableColor BeamEndColor { get; set; }
+		public SerializableColor FlareColor { get; set; }
 
 		public int UseBeamCutting { get; set; } // a bool
 		public float BeamFOVX { get; set; }
@@ -70,9 +70,9 @@ namespace Ray1Map.Jade {
 				Intensity = s.Serialize<float>(Intensity, name: nameof(Intensity));
 				IntensityVariation = s.Serialize<float>(IntensityVariation, name: nameof(IntensityVariation));
 				IntensityVariationSpeed = s.Serialize<float>(IntensityVariationSpeed, name: nameof(IntensityVariationSpeed));
-				BeamStartColor = s.SerializeObject<Jade_Color>(BeamStartColor, name: nameof(BeamStartColor));
-				BeamEndColor = s.SerializeObject<Jade_Color>(BeamEndColor, name: nameof(BeamEndColor));
-				FlareColor = s.SerializeObject<Jade_Color>(FlareColor, name: nameof(FlareColor));
+				BeamStartColor = s.SerializeInto<SerializableColor>(BeamStartColor, BitwiseColor.RGBA8888, name: nameof(BeamStartColor));
+				BeamEndColor = s.SerializeInto<SerializableColor>(BeamEndColor, BitwiseColor.RGBA8888, name: nameof(BeamEndColor));
+				FlareColor = s.SerializeInto<SerializableColor>(FlareColor, BitwiseColor.RGBA8888, name: nameof(FlareColor));
 
 				if (Version >= 8) {
 					UseBeamCutting = s.Serialize<int>(UseBeamCutting, name: nameof(UseBeamCutting));

@@ -1,13 +1,13 @@
-﻿using BinarySerializer;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using BinarySerializer;
 
-namespace Ray1Map.Jade {
-	public class GEO_UniqueVertex : IEquatable<GEO_UniqueVertex> {
+namespace Ray1Map.Jade
+{
+    public class GEO_UniqueVertex : IEquatable<GEO_UniqueVertex> {
 		public Jade_Vector Vertex { get; set; }
 		public Jade_Vector Normal { get; set; }
-		public Jade_Color Color { get; set; }
+		public SerializableColor Color { get; set; }
 
 		public int[] Bones { get; set; }
 		public float[] Weights { get; set; }
@@ -51,13 +51,13 @@ namespace Ray1Map.Jade {
 		public bool Equals(GEO_UniqueVertex other) {
 			if (other == null)
 				return false;
-			if (other.Vertex != Vertex || other.Normal != Normal || !ColorsEqual(other.Color, Color) 
-				|| !ArraysEqual(other.Bones, Bones) || !ArraysEqual(other.Weights, Weights))
+			if (other.Vertex != Vertex || other.Normal != Normal || !other.Color.Equals(Color)
+                || !ArraysEqual(other.Bones, Bones) || !ArraysEqual(other.Weights, Weights))
 				return false;
 			return true;
 		}
 
-		public override int GetHashCode() => (Vertex, Normal, ((BaseColor)Color), Bones, Weights).GetHashCode();
+		public override int GetHashCode() => (Vertex, Normal, Color, Bones, Weights).GetHashCode();
 
 		public static bool operator ==(GEO_UniqueVertex term1, GEO_UniqueVertex term2) {
 			if ((object)term1 == null)

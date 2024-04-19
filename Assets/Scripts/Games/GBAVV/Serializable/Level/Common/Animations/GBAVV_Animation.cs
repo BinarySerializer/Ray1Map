@@ -25,7 +25,7 @@ namespace Ray1Map.GBAVV
 
         // Fusion & Nitro Kart (N-Gage)
         public GBAVV_AnimSet AnimSet { get; set; }
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
 
         // Helpers
         public int GetAnimSpeed => AnimSpeed + 1;
@@ -46,7 +46,7 @@ namespace Ray1Map.GBAVV
                 if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion)
                     AnimSet = s.DoAt(Fusion_AnimSetPointer, () => s.SerializeObject<GBAVV_AnimSet>(AnimSet, name: nameof(AnimSet)));
 
-                Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));
+                Palette = s.DoAt(PalettePointer, () => s.SerializeIntoArray<SerializableColor>(Palette, 16, BitwiseColor.RGBA5551, name: nameof(Palette)));
             }
             else
             {

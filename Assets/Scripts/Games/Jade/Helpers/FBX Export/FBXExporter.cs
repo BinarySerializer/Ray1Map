@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace Ray1Map.Jade {
@@ -626,7 +627,7 @@ namespace Ray1Map.Jade {
 
 				// ===== WRITE THE COLORS =====
 				bool hasColors = false;
-				Jade_Color[] colors = null;
+				SerializableColor[] colors = null;
 				var localColors = gao.Base?.Visual?.VertexColors ?? gao.Base?.Visual?.RLI?.Value?.VertexRLI;
 				bool hasLocalColors = localColors != null && localColors.Length == geo.Vertices.Length;
 				if (writeLocalVertexColors && hasLocalColors) {
@@ -1227,8 +1228,8 @@ namespace Ray1Map.Jade {
 				tempObjectSb.AppendLine("\t\tProperties70:  {");
 
 
-				// Colors
-				Jade_Color diffuse, ambient, specular;
+                // Colors
+                SerializableColor diffuse, ambient, specular;
 				Jade_TextureReference texture = null;
 				switch (mat.RenderObject.Value) {
 					case MAT_SIN_SingleMaterial sin:
@@ -1255,7 +1256,7 @@ namespace Ray1Map.Jade {
 						throw new Exception($"Unexpected RenderObject of type {mat.RenderObject.Value.GetType()} being parsed as material!");
 				}
 
-				void writeColor(string name, BinarySerializer.BaseColor color) {
+				void writeColor(string name, SerializableColor color) {
 
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}\", \"Vector3D\", \"Vector\", \"\",{color.Red},{color.Green},{color.Blue}");
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}Color\", \"Color\", \"\", \"A\",{color.Red},{color.Green},{color.Blue}");
@@ -1263,9 +1264,9 @@ namespace Ray1Map.Jade {
 					tempObjectSb.AppendLine($"\t\t\tP: \"{name}Factor\", \"Number\", \"\", \"A\",{color.Alpha}");
 				}
 
-				writeColor("Ambient", ambient ?? Jade_Color.White);
-				writeColor("Diffuse", diffuse ?? Jade_Color.White);
-				writeColor("Specular", specular ?? Jade_Color.White);
+				writeColor("Ambient", ambient);
+				writeColor("Diffuse", diffuse);
+				writeColor("Specular", specular);
 
 				// This is already 0 in the model, but Blender needs this to be 0 in the material too, otherwise the material becomes Metallic
 				tempObjectSb.AppendLine("\t\t\tP: \"ReflectionFactor\", \"Number\", \"\", \"A\",0");

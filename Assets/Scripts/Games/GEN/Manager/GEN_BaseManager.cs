@@ -22,7 +22,7 @@ namespace Ray1Map.GEN
 		};
         public async UniTask ConvertSprites(GameSettings settings, string outputDir, bool exportGif)
         {
-            Color[] ProcessPalette(BaseColor[] palette) {
+            Color[] ProcessPalette(SerializableColor[] palette) {
                 return palette.Select(p => {
                     Color c = p.GetColor();
                     c.a = 1f;
@@ -42,7 +42,7 @@ namespace Ray1Map.GEN
                 paletteFile = FileFactory.Read<GEN_Palette>(context, palettePath);
                 hasMainPal = true;
             }
-            BaseColor[] dibPalette = null;
+            SerializableColor[] dibPalette = null;
             if (!hasMainPal) {
                 foreach (var dibPath in Directory.EnumerateFiles(context.BasePath, "*.dib", SearchOption.AllDirectories).
                     Concat(Directory.EnumerateFiles(context.BasePath, "*.bmp", SearchOption.AllDirectories))) {
@@ -118,7 +118,7 @@ namespace Ray1Map.GEN
             foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories)) {
                 try {
                     string lookup = filePath.Substring(context.BasePath.Length).Replace("\\", "/").ToLower();
-                    BaseColor[] curDibPalette = null;
+                    SerializableColor[] curDibPalette = null;
                     if (backgroundsForSprite.ContainsKey(lookup)) {
                         curDibPalette = await LoadPalFromDIB(s, s.Context.GetAbsoluteFilePath(backgroundsForSprite[lookup]));
                     }
@@ -132,7 +132,7 @@ namespace Ray1Map.GEN
             foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories)) {
                 try {
                     string lookup = filePath.Substring(context.BasePath.Length).Replace("\\", "/").ToLower();
-                    BaseColor[] curDibPalette = null;
+                    SerializableColor[] curDibPalette = null;
                     if (backgroundsForSprite.ContainsKey(lookup)) {
                         curDibPalette = await LoadPalFromDIB(s, s.Context.GetAbsoluteFilePath(backgroundsForSprite[lookup]));
                     }
@@ -158,7 +158,7 @@ namespace Ray1Map.GEN
 
         public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 
-        async UniTask<BaseColor[]> LoadPalFromDIB(SerializerObject s, string filePath) {
+        async UniTask<SerializableColor[]> LoadPalFromDIB(SerializerObject s, string filePath) {
             string fileName = filePath.Substring(s.Context.BasePath.Length).Replace("\\", "/");
             BinaryFile file = null;
             if (!s.Context.FileExists(fileName)) {
@@ -166,12 +166,12 @@ namespace Ray1Map.GEN
             } else {
                 file = s.Context.GetRequiredFile(fileName);
             }
-            BGRA8888Color[] Palette = null;
-            return s.DoAt(file.StartPointer + 0x36, () => s.SerializeObjectArray<BGRA8888Color>(Palette, 256, name: nameof(Palette)));
+            SerializableColor[] Palette = null;
+            return s.DoAt(file.StartPointer + 0x36, () => s.SerializeIntoArray<SerializableColor>(Palette, 256, SerializableColor.BGRA8888, name: nameof(Palette)));
         }
-        async UniTask<BaseColor[]> FindDIBForPalette(SerializerObject s, string filePath) {
+        async UniTask<SerializableColor[]> FindDIBForPalette(SerializerObject s, string filePath) {
             string dir = Path.GetDirectoryName(filePath);
-            BaseColor[] curDibPalette = null;
+            SerializableColor[] curDibPalette = null;
             // Step 1: Try from specific file
             if (curDibPalette == null) {
                 string baseName = Path.GetFileNameWithoutExtension(filePath);
@@ -213,7 +213,7 @@ namespace Ray1Map.GEN
             }
             return curDibPalette;
         }
-        Color[] ProcessPalette(BaseColor[] palette) {
+        Color[] ProcessPalette(SerializableColor[] palette) {
             return palette.Select(p => {
                 Color c = p.GetColor();
                 c.a = 1f;
@@ -237,7 +237,7 @@ namespace Ray1Map.GEN
             if (!ubi.Frames.Any(f => f.SpriteData?.Sections.Any(sec => (sec.RLX?.Data?.Data?.Length ?? 0) > 0) ?? false)) return;
 
             if (searchForPalette) {
-                BaseColor[] curDibPalette = await FindDIBForPalette(s, filePath);
+                SerializableColor[] curDibPalette = await FindDIBForPalette(s, filePath);
                 if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
             }
 
@@ -349,7 +349,7 @@ namespace Ray1Map.GEN
 
 
             if (searchForPalette) {
-                BaseColor[] curDibPalette = await FindDIBForPalette(s, filePath);
+                SerializableColor[] curDibPalette = await FindDIBForPalette(s, filePath);
                 if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
             }
 

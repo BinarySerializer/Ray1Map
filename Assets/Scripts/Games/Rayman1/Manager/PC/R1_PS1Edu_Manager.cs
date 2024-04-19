@@ -353,7 +353,7 @@ namespace Ray1Map.Rayman1
                         ushort texIndex = levelIndices[localGspIndex];
                         var d = levelTex.Descriptors[texIndex];
 
-                        IList<BaseColor> p = null;
+                        IList<SerializableColor> p = null;
 
                         if (levelTex.Palettes.Length == levelTex.Descriptors.Length)
                             p = levelTex.Palettes[texIndex].Value;
@@ -370,7 +370,7 @@ namespace Ray1Map.Rayman1
                                 newPal[8] = p[color * 8];
 
                             p = newPal;*/
-                            List<BaseColor> newPal = new List<BaseColor>();
+                            List<SerializableColor> newPal = new List<SerializableColor>();
                             for (int c = 0; c < p.Count; c++) {
                                 if (c == 0) {
                                     newPal.Add(p[c]);
@@ -411,13 +411,13 @@ namespace Ray1Map.Rayman1
         /// <param name="tex">The .tex file data</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprites</returns>
-        public IEnumerable<Texture2D> GetSpriteTextures(TEX tex, IList<BaseColor> palette = null)
+        public IEnumerable<Texture2D> GetSpriteTextures(TEX tex, IList<SerializableColor> palette = null)
         {
             // Parse the sprites from the texture pages
             for (int i = 0; i < tex.Descriptors.Length; i++)
             {
                 var d = tex.Descriptors[i];
-                IList<BaseColor> p = palette;
+                IList<SerializableColor> p = palette;
 
                 if (p == null && tex.Palettes.Length == tex.Descriptors.Length)
                     p = tex.Palettes[i].Value;
@@ -426,7 +426,7 @@ namespace Ray1Map.Rayman1
             }
         }
 
-        public Texture2D GetSpriteTexture(TEX tex, TEXDescriptor d, IList<BaseColor> p)
+        public Texture2D GetSpriteTexture(TEX tex, TEXDescriptor d, IList<SerializableColor> p)
         {
             // Create the texture
             Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);

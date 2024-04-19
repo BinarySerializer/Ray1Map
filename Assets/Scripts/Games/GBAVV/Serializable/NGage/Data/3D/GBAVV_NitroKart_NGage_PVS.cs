@@ -35,7 +35,7 @@ namespace Ray1Map.GBAVV
         public GBAVV_NitroKart_NGage_Triangle[] Triangles { get; set; }
         public GBAVV_NitroKart_NGage_Vertex[] Vertices { get; set; }
         public GBAVV_NitroKart_NGage_Vertex[] V1_Data4 { get; set; }
-        public RGBA8888Color[] VertexColorsPalettes { get; set; }
+        public SerializableColor[] VertexColorsPalettes { get; set; }
         //public byte[] Data5 { get; set; }
         public byte[] V2_UnknownBytes { get; set; }
 
@@ -99,7 +99,7 @@ namespace Ray1Map.GBAVV
                 V1_Data4 = s.DoAt(V1_Data4Pointer, () => s.SerializeObjectArray<GBAVV_NitroKart_NGage_Vertex>(V1_Data4, V1_Data4Count + 1, name: nameof(V1_Data4)));
             }
             //Data5 = s.DoAt(Data5Pointer, () => s.SerializeArray<byte>(Data5, Data5Count * 0x40, name: nameof(Data5)));
-            VertexColorsPalettes = s.DoAt(VertexColorPalettesPointer, () => s.SerializeObjectArray<RGBA8888Color>(VertexColorsPalettes, 16 * VertexColorPalettesCount, name: nameof(VertexColorsPalettes)));
+            VertexColorsPalettes = s.DoAt(VertexColorPalettesPointer, () => s.SerializeIntoArray<SerializableColor>(VertexColorsPalettes, 16 * VertexColorPalettesCount, BytewiseColor.RGBA8888, name: nameof(VertexColorsPalettes)));
 
             s.Goto(Offset + s.CurrentLength);
         }

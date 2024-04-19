@@ -77,7 +77,7 @@ namespace Ray1Map.Jade {
 
 			if (restoreOriginalVertexIndices) {
 				uint verticesCount = (uint)geoPC.VertexData.Points.Max(p => p.Ponderations[0].Index) + 1;
-				visu.VertexColors = new Jade_Color[verticesCount];
+				visu.VertexColors = new SerializableColor[verticesCount];
 
 				for (int i = 0; i < geoPC.VertexData.Points.Length; i++) {
 					var point = geoPC.VertexData.Points[i];

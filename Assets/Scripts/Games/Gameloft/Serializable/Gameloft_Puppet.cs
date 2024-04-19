@@ -305,7 +305,7 @@ namespace Ray1Map.Gameloft
 			public int Height { get; set; }
 			public byte BitsPerPixel { get; set; }
 			public byte Unknown2 { get; set; }
-			public RGB888Color[] Palette { get; set; }
+			public SerializableColor[] Palette { get; set; }
 			public byte[] Data { get; set; }
 			public byte[] UnknownData { get; set; }
 
@@ -319,7 +319,7 @@ namespace Ray1Map.Gameloft
 						Unknown2 = (byte)b.SerializeBits<int>(Unknown2, 2, name: nameof(Unknown2));
 					});
 				});
-				Palette = s.SerializeObjectArray<RGB888Color>(Palette, PaletteLength + 1, name: nameof(Palette));
+				Palette = s.SerializeIntoArray<SerializableColor>(Palette, PaletteLength + 1, BytewiseColor.RGB888, name: nameof(Palette));
 				int bytesPerRow = (Width*BitsPerPixel+7)/8;
 				Data = s.SerializeArray<byte>(Data, (bytesPerRow+1) * (Height), name: nameof(Data));
 				UnknownData = s.SerializeArray<byte>(UnknownData, 16, name: nameof(UnknownData));

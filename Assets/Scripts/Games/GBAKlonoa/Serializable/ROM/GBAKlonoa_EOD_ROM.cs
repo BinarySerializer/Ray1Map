@@ -17,7 +17,7 @@ namespace Ray1Map.GBAKlonoa
         public GBAKlonoa_MapSectors[] MapSectors { get; set; }
         public GBAKlonoa_EOD_TileSets[] TileSets { get; set; }
         public Pointer[] MapPalettePointers { get; set; }
-        public RGBA5551Color[][] MapPalettes { get; set; }
+        public SerializableColor[][] MapPalettes { get; set; }
 
         // Objects
         public Pointer[] CompressedObjTileBlockPointers { get; set; }
@@ -90,12 +90,12 @@ namespace Ray1Map.GBAKlonoa
             // Serialize palettes
             s.DoAt(new Pointer(0x08188f5C, Offset.File), () => MapPalettePointers = s.SerializePointerArray(MapPalettePointers, levelsCount, name: nameof(MapPalettePointers)));
 
-            MapPalettes ??= new RGBA5551Color[MapPalettePointers.Length][];
+            MapPalettes ??= new SerializableColor[MapPalettePointers.Length][];
             s.DoAt(MapPalettePointers[globalLevelIndex], () =>
             {
                 s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                 {
-                    MapPalettes[globalLevelIndex] = s.SerializeObjectArray<RGBA5551Color>(MapPalettes[globalLevelIndex], 256, name: $"{nameof(MapPalettes)}[{globalLevelIndex}]");
+                    MapPalettes[globalLevelIndex] = s.SerializeIntoArray<SerializableColor>(MapPalettes[globalLevelIndex], 256, BitwiseColor.RGBA5551, name: $"{nameof(MapPalettes)}[{globalLevelIndex}]");
                 });
             });
 
@@ -270,7 +270,7 @@ namespace Ray1Map.GBAKlonoa
             };
         }
 
-        public BaseColor[] GetLevelObjPal(int levelIndex)
+        public SerializableColor[] GetLevelObjPal(int levelIndex)
         {
             var fix = new int[]
             {

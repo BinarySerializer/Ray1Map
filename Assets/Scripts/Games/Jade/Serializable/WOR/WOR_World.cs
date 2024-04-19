@@ -13,14 +13,14 @@ namespace Ray1Map.Jade {
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }
 		public uint TotalGameObjectsCount { get; set; }
-		public Jade_Color AmbientColor { get; set; } // a key?
+		public SerializableColor AmbientColor { get; set; } // a key?
 		public string Name { get; set; }
 		public uint UInt_AfterName { get; set; }
 		public Jade_Reference<DARE_InaudibleSector> InaudibleSector { get; set; }
 		public Jade_Matrix CameraPosSave { get; set; }
 		public float FieldOfVision { get; set; }
-		public Jade_Color BackgroundColor { get; set; }
-		public Jade_Color AmbientColor2 { get; set; }
+		public SerializableColor BackgroundColor { get; set; }
+		public SerializableColor AmbientColor2 { get; set; }
 		public uint UInt_Montreal_AfterBackgroundColor_V7 { get; set; }
 		public uint Editor_UInt_Montreal_AfterBackgroundColor_V4 { get; set; }
 		public uint Editor_UInt_Montreal_AfterBackgroundColor { get; set; }
@@ -61,7 +61,7 @@ namespace Ray1Map.Jade {
 			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
 			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
 				|| (Version >= 11 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS))) {
-				AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
+				AmbientColor = s.SerializeInto<SerializableColor>(AmbientColor, BitwiseColor.RGBA8888, name: nameof(AmbientColor));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_TFS)) {
 				WorldEnvironmentID = s.Serialize<uint>(WorldEnvironmentID, name: nameof(WorldEnvironmentID));
@@ -75,9 +75,9 @@ namespace Ray1Map.Jade {
 			}
 			CameraPosSave = s.SerializeObject<Jade_Matrix>(CameraPosSave, name: nameof(CameraPosSave));
 			FieldOfVision = s.Serialize<float>(FieldOfVision, name: nameof(FieldOfVision));
-			BackgroundColor = s.SerializeObject<Jade_Color>(BackgroundColor, name: nameof(BackgroundColor));
+			BackgroundColor = s.SerializeInto<SerializableColor>(BackgroundColor, BitwiseColor.RGBA8888, name: nameof(BackgroundColor));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
-				AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
+				AmbientColor2 = s.SerializeInto<SerializableColor>(AmbientColor2, BitwiseColor.RGBA8888, name: nameof(AmbientColor2));
 				if (Version >= 5 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 					UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 				}

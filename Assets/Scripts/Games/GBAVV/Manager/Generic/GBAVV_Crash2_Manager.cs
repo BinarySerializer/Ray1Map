@@ -278,7 +278,7 @@ namespace Ray1Map.GBAVV
         }
 
         // Isometric tileset
-        public Unity_TileSet LoadIsometricTileSet(GBAVV_Isometric_TileSet tileSet, RGBA5551Color[] tilePal)
+        public Unity_TileSet LoadIsometricTileSet(GBAVV_Isometric_TileSet tileSet, SerializableColor[] tilePal)
         {
             var pal = Util.ConvertGBAPalette(tilePal);
 

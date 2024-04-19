@@ -15,17 +15,17 @@ namespace Ray1Map.GBAVV
 
         // Mode7
         public GBAVV_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
-        public RGBA5551Color[] Mode7_TilePalette { get; set; }
-        public RGBA5551Color[] Mode7_Crash1_Type0_TilePalette_0F { get; set; }
+        public SerializableColor[] Mode7_TilePalette { get; set; }
+        public SerializableColor[] Mode7_Crash1_Type0_TilePalette_0F { get; set; }
         public byte[] Mode7_Crash2_Type0_BG1 { get; set; }
         public Pointer[] Mode7_Crash2_Type1_FlamesTileMapsPointers { get; set; }
         public MapTile[][] Mode7_Crash2_Type1_FlamesTileMaps { get; set; }
         public uint[] Mode7_Crash2_Type1_FlamesTileSetLengths { get; set; }
         public Pointer[] Mode7_Crash2_Type1_FlamesTileSetsPointers { get; set; }
         public byte[][] Mode7_Crash2_Type1_FlamesTileSets { get; set; }
-        public RGBA5551Color[] Mode7_GetTilePal(GBAVV_Mode7_LevelInfo levInfo)
+        public SerializableColor[] Mode7_GetTilePal(GBAVV_Mode7_LevelInfo levInfo)
         {
-            RGBA5551Color[] tilePal;
+            SerializableColor[] tilePal;
 
             if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                 tilePal = levInfo.TileSetFrames.Palette;
@@ -89,11 +89,11 @@ namespace Ray1Map.GBAVV
             {
                 DefinedPointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? DefinedPointer.Mode7_TilePalette_Type0 : DefinedPointer.Mode7_TilePalette_Type1_Flames;
 
-                Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, CurrentMode7LevelInfo.LevelType == 0 ? 256 : 16, name: nameof(Mode7_TilePalette)));
+                Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeIntoArray<SerializableColor>(Mode7_TilePalette, CurrentMode7LevelInfo.LevelType == 0 ? 256 : 16, BitwiseColor.RGBA5551, name: nameof(Mode7_TilePalette)));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && CurrentMode7LevelInfo.LevelType == 0)
             {
-                Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_Crash1_Type0_TilePalette_0F, 16, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
+                Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[DefinedPointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeIntoArray<SerializableColor>(Mode7_Crash1_Type0_TilePalette_0F, 16, BitwiseColor.RGBA5551, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
             }
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 0)

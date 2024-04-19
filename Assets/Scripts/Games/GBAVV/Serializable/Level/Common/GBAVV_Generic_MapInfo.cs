@@ -22,7 +22,7 @@ namespace Ray1Map.GBAVV
 
         // Serialized from pointers
 
-        public RGBA5551Color[] TilePalette2D { get; set; }
+        public SerializableColor[] TilePalette2D { get; set; }
         public GBAVV_Map2D_Data MapData2D { get; set; }
         public GBAVV_Generic_PaletteShifts SpongeBob_PaletteShifts { get; set; }
 
@@ -55,7 +55,7 @@ namespace Ray1Map.GBAVV
             if (!SerializeData)
                 return;
 
-            TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette2D, 256, name: nameof(TilePalette2D)));
+            TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeIntoArray<SerializableColor>(TilePalette2D, 256, BitwiseColor.RGBA5551, name: nameof(TilePalette2D)));
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBAVV_Map2D_Data>(MapData2D, name: nameof(MapData2D)));
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman && SpongeBob_PaletteShiftPointer != 0)

@@ -54,12 +54,12 @@ namespace Ray1Map.Jade {
 
 		public class Halo : BinarySerializable {
 			public float HaloSize { get; set; }
-			public Jade_Color Color { get; set; }
+			public SerializableColor Color { get; set; }
 			public float Distance { get; set; }
 			public uint TextureID { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				HaloSize = s.Serialize<float>(HaloSize, name: nameof(HaloSize));
-				Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+				Color = s.SerializeInto<SerializableColor>(Color, BitwiseColor.RGBA8888, name: nameof(Color));
 				Distance = s.Serialize<float>(Distance, name: nameof(Distance));
 				TextureID = s.Serialize<uint>(TextureID, name: nameof(TextureID));
 			}

@@ -14,7 +14,7 @@ namespace Ray1Map.Jade {
 
 		public GEO_CPP_CompressedVector[] Vertices { get; set; }
 		public GEO_CPP_CompressedVector[] Normals { get; set; }
-		public Jade_Color[] Colors { get; set; }
+		public SerializableColor[] Colors { get; set; }
 		public GEO_CPP_CompressedUV[] Tex0 { get; set; }
 		public GEO_CPP_CompressedUV[] Tex1 { get; set; }
 
@@ -37,7 +37,7 @@ namespace Ray1Map.Jade {
 
 			Vertices = s.SerializeObjectArray<GEO_CPP_CompressedVector>(Vertices, VerticesCount, onPreSerialize: v => v.Pre_Compression = Compression, name: nameof(Vertices));
 			Normals  = s.SerializeObjectArray<GEO_CPP_CompressedVector>(Normals,  NormalsCount,  onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : CompressionMode.HighCompression), name: nameof(Normals));
-			Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
+			Colors = s.SerializeIntoArray<SerializableColor>(Colors, ColorsCount, BitwiseColor.RGBA8888, name: nameof(Colors));
 			Tex0 = s.SerializeObjectArray<GEO_CPP_CompressedUV>(Tex0, Tex0Count, onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : CompressionMode.LowCompression), name: nameof(Tex0));
 			Tex1 = s.SerializeObjectArray<GEO_CPP_CompressedUV>(Tex1, Tex1Count, onPreSerialize: v => v.Pre_Compression = (Compression == CompressionMode.Uncompressed ? Compression : (isTVP ? CompressionMode.LowCompression : CompressionMode.HighCompression)), name: nameof(Tex1));
 		}

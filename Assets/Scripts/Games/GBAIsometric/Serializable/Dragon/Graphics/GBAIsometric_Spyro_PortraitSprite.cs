@@ -14,7 +14,7 @@ namespace Ray1Map.GBAIsometric
         // Parsed
         public GBAIsometric_IceDragon_SpriteMap Map { get; set; }
         public byte[] TileSet { get; set; }
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -27,7 +27,7 @@ namespace Ray1Map.GBAIsometric
 
             MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_IceDragon_SpriteMap>(Map, name: nameof(Map)));
             TileSetIndex.DoAt(size => TileSet = s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
-            PaletteIndex.DoAt(size => Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, size / 2, name: nameof(Palette)));
+            PaletteIndex.DoAt(size => Palette = s.SerializeIntoArray<SerializableColor>(Palette, size / 2, BitwiseColor.RGBA5551, name: nameof(Palette)));
         }
 
         public Texture2D ToTexture2D()

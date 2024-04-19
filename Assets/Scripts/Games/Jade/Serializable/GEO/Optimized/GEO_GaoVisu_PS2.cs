@@ -18,7 +18,7 @@ namespace Ray1Map.Jade {
 		#region Helpers
 
 		public static float ProcessColorValue(float color) => System.MathF.Min(1f, color * 2f);
-		public static Jade_Color ProcessColor(BaseColor color, bool multiplyAlpha) => new Jade_Color(
+		public static SerializableColor ProcessColor(SerializableColor color, bool multiplyAlpha) => new SerializableColor(
 			ProcessColorValue(color.Red), ProcessColorValue(color.Green), ProcessColorValue(color.Blue), multiplyAlpha ? ProcessColorValue(color.Alpha) : color.Alpha);
 
 		#endregion
@@ -31,7 +31,7 @@ namespace Ray1Map.Jade {
 			List<Jade_Vector> vertices = new List<Jade_Vector>();
 			List<Jade_Vector> normals = new List<Jade_Vector>();
 			List<GEO_GeometricObject.UV> uvs = new List<GEO_GeometricObject.UV>();
-			List<Jade_Color> colors = new List<Jade_Color>();
+			List<SerializableColor> colors = new List<SerializableColor>();
 			uint smoothingGroup = 0;
 			const float uvScale = 32f;
 
@@ -61,7 +61,7 @@ namespace Ray1Map.Jade {
 						List<Jade_Vector> currentVertices = new List<Jade_Vector>();
 						List<Jade_Vector> currentNormals = new List<Jade_Vector>();
 						List<GEO_GeometricObject.UV> currentUVs = new List<GEO_GeometricObject.UV>();
-						List<Jade_Color> currentColors = new List<Jade_Color>();
+						List<SerializableColor> currentColors = new List<SerializableColor>();
 						List<GEO_GeometricObjectElement.Triangle> currentTriangles = new List<GEO_GeometricObjectElement.Triangle>();
 
 						GE_PrimitiveType primitiveType = GE_PrimitiveType.Triangles;
@@ -249,7 +249,7 @@ namespace Ray1Map.Jade {
 			List<Jade_Vector> vertices = new List<Jade_Vector>();
 			List<Jade_Vector> normals = new List<Jade_Vector>();
 			List<GEO_GeometricObject.UV> uvs = new List<GEO_GeometricObject.UV>();
-			List<Jade_Color> colors = new List<Jade_Color>();
+			List<SerializableColor> colors = new List<SerializableColor>();
 			int elementsLength = System.Math.Max((obj.ElementData?.ElementDatas?.Length ?? 0), (Elements?.Length ?? 0));
 			List<GEO_GeometricObjectElement> elements = new List<GEO_GeometricObjectElement>();
 
@@ -380,7 +380,7 @@ namespace Ray1Map.Jade {
 					List<PS2_VU_Vertex> currentVertices = new List<PS2_VU_Vertex>();
 					List<Jade_Vector> currentNormals = new List<Jade_Vector>();
 					List<GEO_GeometricObject.UV> currentUVs = new List<GEO_GeometricObject.UV>();
-					List<Jade_Color> currentColors = new List<Jade_Color>();
+					List<SerializableColor> currentColors = new List<SerializableColor>();
 					List<GEO_GeometricObjectElement.Triangle> currentTriangles = new List<GEO_GeometricObjectElement.Triangle>();
 
 					bool addBackfaces = true;

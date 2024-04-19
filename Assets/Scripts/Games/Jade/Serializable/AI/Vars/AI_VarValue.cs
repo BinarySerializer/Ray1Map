@@ -1,10 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using BinarySerializer;
 
-namespace Ray1Map.Jade {
-	public class AI_VarValue : BinarySerializable {
+namespace Ray1Map.Jade
+{
+    public class AI_VarValue : BinarySerializable {
 		// Set in onPreSerialize
 		public AI_Var Var { get; set; }
 
@@ -19,7 +19,7 @@ namespace Ray1Map.Jade {
 		public Jade_Vector ValueVector { get; set; }
 		public Jade_Key ValueKey { get; set; }
 		public AI_VarValue[] ValueArray { get; set; }
-		public Jade_Color ValueColor { get; set; }
+		public SerializableColor ValueColor { get; set; }
 		public long ValueLong { get; set; }
 
 		public Jade_Key TextFile { get; set; }
@@ -91,7 +91,7 @@ namespace Ray1Map.Jade {
 						ValueInt = s.Serialize<int>(ValueInt, name: nameof(ValueInt));
 						break;
 					case AI_VarType.Color:
-						ValueColor = s.SerializeObject<Jade_Color>(ValueColor, name: nameof(ValueColor));
+						ValueColor = s.SerializeInto<SerializableColor>(ValueColor, BitwiseColor.RGBA8888, name: nameof(ValueColor));
 						break;
 					case AI_VarType.Long64:
 						ValueLong = s.Serialize<long>(ValueLong, name: nameof(ValueLong));

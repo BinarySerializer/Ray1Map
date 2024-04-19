@@ -20,8 +20,8 @@ namespace Ray1Map.GBAIsometric
 
         // Parsed
         public GBAIsometric_Spyro_MapLayer[] MapLayers { get; set; }
-        public RGBA5551Color[] TilePalette { get; set; }
-        public RGBA5551Color[] ObjPalette { get; set; }
+        public SerializableColor[] TilePalette { get; set; }
+        public SerializableColor[] ObjPalette { get; set; }
         public GBAIsometric_Spyro_Collision2DMapData Collision2D { get; set; }
         public GBAIsometric_Spyro_Collision3DMapData Collision3D { get; set; }
         //public GBAIsometric_Spyro_SpriteMap Index3Map { get; set; } // TODO: What is this?
@@ -62,8 +62,8 @@ namespace Ray1Map.GBAIsometric
                 for (int i = 0; i < MapLayers.Length; i++)
                     MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAIsometric_Spyro_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
 
-                TilePaletteIndex.DoAt(size => TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
-                ObjPaletteIndex.DoAt(size => ObjPalette = s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
+                TilePaletteIndex.DoAt(size => TilePalette = s.SerializeIntoArray<SerializableColor>(TilePalette, 256, BitwiseColor.RGBA5551, name: nameof(TilePalette)));
+                ObjPaletteIndex.DoAt(size => ObjPalette = s.SerializeIntoArray<SerializableColor>(ObjPalette, 256, BitwiseColor.RGBA5551, name: nameof(ObjPalette)));
                 Collision3DIndex?.DoAt(size => Collision3D = s.SerializeObject<GBAIsometric_Spyro_Collision3DMapData>(Collision3D, name: nameof(Collision3D)));
                 Collision2DIndex?.DoAt(size => Collision2D = s.SerializeObject<GBAIsometric_Spyro_Collision2DMapData>(Collision2D, name: nameof(Collision2D)));
                 //Index3Map = Index3?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Index3Map, name: nameof(Index3Map)));

@@ -1,6 +1,4 @@
 ﻿using BinarySerializer;
-using BinarySerializer.Nintendo.GBA;
-
 
 namespace Ray1Map.GBAVV
 {
@@ -16,7 +14,7 @@ namespace Ray1Map.GBAVV
 
         // Serialized from pointers
 
-        public RGBA5551Color[] TilePalette { get; set; }
+        public SerializableColor[] TilePalette { get; set; }
         public GBAVV_MapLayer[] MapLayers { get; set; }
         public GBAVV_Map2D_ObjData ObjData { get; set; }
         public GBAVV_TileSets TileSets { get; set; }
@@ -34,7 +32,7 @@ namespace Ray1Map.GBAVV
             if (!SerializeData)
                 return;
 
-            TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
+            TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeIntoArray<SerializableColor>(TilePalette, 256, BitwiseColor.RGBA5551, name: nameof(TilePalette)));
 
             if (MapLayers == null)
                 MapLayers = new GBAVV_MapLayer[MapLayerPointers.Length];

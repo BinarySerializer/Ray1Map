@@ -318,7 +318,7 @@ namespace Ray1Map.Rayman1
                 Animation[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<States> baseEta, string[] desFileNames, string[] etaFileNames, IList<BaseColor> palette = null)
+                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<States> baseEta, string[] desFileNames, string[] etaFileNames, IList<SerializableColor> palette = null)
                     where Wld : BaseWorldFile, new()
                 {
                     // Read the file
@@ -366,7 +366,7 @@ namespace Ray1Map.Rayman1
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The big ray palette</returns>
-        public virtual IList<BaseColor> GetBigRayPalette(Context context) => null;
+        public virtual IList<SerializableColor> GetBigRayPalette(Context context) => null;
 
         /// <summary>
         /// Exports all sprite textures from the world file to the specified output directory
@@ -377,7 +377,7 @@ namespace Ray1Map.Rayman1
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(Context context, BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<BaseColor> palette = null) {
+        public void ExportSpriteTextures(Context context, BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<SerializableColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -427,7 +427,7 @@ namespace Ray1Map.Rayman1
         /// <param name="desIndex">The DES index</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprite textures</returns>
-        public Texture2D[] GetSpriteTextures(List<LevelFile> levels, Design desItem, int desIndex, IList<BaseColor> palette = null)
+        public Texture2D[] GetSpriteTextures(List<LevelFile> levels, Design desItem, int desIndex, IList<SerializableColor> palette = null)
         {
             // Create the output array
             var output = new Texture2D[desItem.Sprites.Length];
@@ -472,7 +472,7 @@ namespace Ray1Map.Rayman1
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
         /// <param name="palette">Optional palette to use</param>
-        public async UniTask ExportAnimationFramesAsync(Context context, BaseWorldFile worldFile, string outputDir, int desOffset, States[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, Animation[] rayAnim, IList<BaseColor> palette = null)
+        public async UniTask ExportAnimationFramesAsync(Context context, BaseWorldFile worldFile, string outputDir, int desOffset, States[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, Animation[] rayAnim, IList<SerializableColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -697,7 +697,7 @@ namespace Ray1Map.Rayman1
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(Sprite s, IList<BaseColor> palette, byte[] processedImageData)
+        public Texture2D GetSpriteTexture(Sprite s, IList<SerializableColor> palette, byte[] processedImageData)
         {
             // Ignore dummy sprites
             if (s.IsDummySprite())
@@ -758,7 +758,7 @@ namespace Ray1Map.Rayman1
         /// <param name="palette">The palette to use</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public virtual Unity_ObjGraphics GetCommonDesign(Context context, Design des, IList<BaseColor> palette, int desIndex)
+        public virtual Unity_ObjGraphics GetCommonDesign(Context context, Design des, IList<SerializableColor> palette, int desIndex)
         {
             // Check if the DES is used for multi-colored events
             var isMultiColored = IsDESMultiColored(context, desIndex + 1, LevelEditorData.EventInfoData);
@@ -793,7 +793,7 @@ namespace Ray1Map.Rayman1
                     // Hack to get correct colors
                     var p = palette.Skip(i * 8 + 1).ToList();
 
-                    p.Insert(0, Color.black.GetColor());
+                    p.Insert(0, SerializableColor.Black);
 
                     if (i % 2 != 0)
                         p[8] = palette[i * 8];
@@ -1033,7 +1033,7 @@ namespace Ray1Map.Rayman1
         {
             using (var context = new Ray1MapContext(settings))
             {
-                var pal = new List<RGB666Color[]>();
+                var pal = new List<SerializableColor[]>();
 
                 // Enumerate every world
                 foreach (var world in GetLevels(settings).First().Worlds)
@@ -1165,7 +1165,7 @@ namespace Ray1Map.Rayman1
         /// <param name="context">The context</param>
         /// <param name="palette">The palette to use</param>
         /// <returns>The common event designs</returns>
-        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context, IList<BaseColor> palette)
+        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context, IList<SerializableColor> palette)
         {
             // Create the output list
             List<Unity_ObjectManager_R1.DESData> eventDesigns = new List<Unity_ObjectManager_R1.DESData>();
@@ -1177,7 +1177,7 @@ namespace Ray1Map.Rayman1
 
             await Controller.WaitIfNecessary();
 
-            IList<BaseColor> bigRayPalette;
+            IList<SerializableColor> bigRayPalette;
             Design[] des;
 
             if (context.GetR1Settings().R1_World != World.Menu)
@@ -1250,7 +1250,7 @@ namespace Ray1Map.Rayman1
 
             MapInfo mapData;
             LevelObjects objData;
-            BaseColor[][] palettes;
+            SerializableColor[][] palettes;
             NormalBlockTextures tileTextureData = null;
             Texture2D bg;
             Texture2D bg2;
@@ -1279,7 +1279,7 @@ namespace Ray1Map.Rayman1
                 var vig = await GetWorldMapVigAsync(context);
                 bg = vig.ToTexture(true);
                 bg2 = null;
-                palettes = new BaseColor[][] { vig.VGAPalette };
+                palettes = new SerializableColor[][] { vig.VGAPalette };
 
                 // Set empty map data
                 var width = (ushort)(vig.ImageWidth / Settings.CellSize);

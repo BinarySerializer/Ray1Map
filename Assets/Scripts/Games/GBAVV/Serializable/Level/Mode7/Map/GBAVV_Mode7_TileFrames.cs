@@ -9,7 +9,7 @@ namespace Ray1Map.GBAVV
         public uint TileSetFramesBlockLength { get; set; } // Set before serializing
         public bool HasPaletteIndices { get; set; } // Set before serializing
 
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
 
         public ushort Width { get; set; }
         public ushort Height { get; set; }
@@ -19,7 +19,7 @@ namespace Ray1Map.GBAVV
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
-                Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette));
+                Palette = s.SerializeIntoArray<SerializableColor>(Palette, 256, BitwiseColor.RGBA5551, name: nameof(Palette));
 
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));

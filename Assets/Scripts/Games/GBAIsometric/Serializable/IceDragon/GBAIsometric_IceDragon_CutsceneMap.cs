@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Nintendo.GBA;
 using UnityEngine;
 
 namespace Ray1Map.GBAIsometric
@@ -13,7 +14,7 @@ namespace Ray1Map.GBAIsometric
         // Parsed
         public byte[][] TileSets { get; set; }
         public GBAIsometric_IceDragon_SpriteMap Map { get; set; }
-        public RGB555Color[] Palette { get; set; }
+        public Palette256 Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -37,7 +38,7 @@ namespace Ray1Map.GBAIsometric
                 TileSetIndices[i].DoAt(size => TileSets[i] = s.SerializeArray<byte>(TileSets[i], size, name: $"{nameof(TileSets)}[{i}]"));
 
             MapIndex.DoAt(size => Map = s.SerializeObject<GBAIsometric_IceDragon_SpriteMap>(Map, name: nameof(Map)));
-            PaletteIndex.DoAt(size => Palette = s.SerializeObjectArray<RGB555Color>(Palette, 256, name: nameof(Palette)));
+            PaletteIndex.DoAt(size => Palette = s.SerializeObject<Palette256>(Palette, name: nameof(Palette)));
 
             s.Log("Min: {0}", Map.MapData.Where(x => x.TileMapY > 1).Min(x => x.TileMapY));
         }
@@ -48,7 +49,7 @@ namespace Ray1Map.GBAIsometric
             const int tileSize = cellSize * cellSize;
 
             var tex = TextureHelpers.CreateTexture2D(Map.Width * cellSize, Map.Height * cellSize);
-            var pal = Util.ConvertGBAPalette(Palette);
+            var pal = Util.ConvertGBAPalette(Palette.Colors);
 
             var fullTileSet = TileSets.SelectMany(x => x).ToArray();
 

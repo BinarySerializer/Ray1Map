@@ -19,7 +19,7 @@ namespace Ray1Map.GBAVV
 
         public Pointer[] FramesPointers { get; set; }
         public int FramesCount { get; set; }
-        public RGBA5551Color[] Palette { get; set; }
+        public SerializableColor[] Palette { get; set; }
         public byte[][] AnimFrames { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -103,7 +103,7 @@ namespace Ray1Map.GBAVV
             }
 
             if (PalettePointer != null)
-                Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));
+                Palette = s.DoAt(PalettePointer, () => s.SerializeIntoArray<SerializableColor>(Palette, 16, BitwiseColor.RGBA5551, name: nameof(Palette)));
 
             if (AnimFrames == null)
                 AnimFrames = new byte[FramesPointers.Length][];

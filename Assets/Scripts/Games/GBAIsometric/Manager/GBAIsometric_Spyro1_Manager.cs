@@ -907,8 +907,8 @@ namespace Ray1Map.GBAIsometric
                     remapOffset = s.CurrentPointer;
 
                     // Replace palette
-                    s.Goto(jpCutscene.Palette.First().Offset);
-                    s.SerializeObjectArray<RGB555Color>(euCutscene.Palette, euCutscene.Palette.Length);
+                    s.Goto(jpCutscene.Palette.Offset);
+                    s.SerializeObject<Palette256>(euCutscene.Palette);
                 }
             }
 

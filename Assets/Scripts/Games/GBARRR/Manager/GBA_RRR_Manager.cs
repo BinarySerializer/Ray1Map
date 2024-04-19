@@ -318,7 +318,7 @@ namespace Ray1Map.GBARRR
                     x.SpritePaletteIndex
                 }).ToArray();
 
-                BaseColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? PaletteHelpers.CreateDummyPalette(256, true, wrap: 16) : null;
+                SerializableColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? PaletteHelpers.CreateDummyPalette(256, true, wrap: 16) : null;
 
                 // Helper
                 void ExportConvertedMode7Block(string outPath, long length) {
@@ -347,7 +347,7 @@ namespace Ray1Map.GBARRR
                         s.Goto(blockOff);
                         if (length == 0x200) {
                             var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette");
-                            PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette.png"), p.Palette.Select(x => new CustomColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                            PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette.png"), p.Palette, optionalWrap: 16);
                             exported = true;
                             if (p != null) pal = p.Palette;
                         }
@@ -537,7 +537,7 @@ namespace Ray1Map.GBARRR
                             if (size == 0x200)
                             {
                                 var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
-                                PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}{append}.png"), p.Palette.Select(x => new CustomColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                                PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}{append}.png"), p.Palette, optionalWrap: 16);
                                 exported = true;
                                 if (p != null)
                                     pal = p.Palette;
@@ -638,7 +638,7 @@ namespace Ray1Map.GBARRR
                 var palette1 = s.DoAt(palette1Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
 
                 // Create merged palette
-                var newPalette = new RGBA5551Color[256];
+                var newPalette = new SerializableColor[256];
                 Array.Copy(palette2.Palette, newPalette, 0x100);
                 Array.Copy(palette1.Palette, newPalette, 0x80);
                 Array.Copy(palette0.Palette, newPalette, 0x10);
@@ -702,7 +702,7 @@ namespace Ray1Map.GBARRR
                 GBARRR_Palette palette2 = s.DoAt(pointerTable[DefinedPointer.Palette_GameOver2], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
 
                 // Create merged palette
-                var newPalette = new RGBA5551Color[256];
+                var newPalette = new SerializableColor[256];
                 Array.Copy(palette1.Palette, newPalette, 0x100);
                 Array.Copy(palette2.Palette, 0, newPalette, 0x10, 0x10);
                 //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"GameOver", $"Palette.png"), newPalette, optionalWrap: 16);
@@ -843,7 +843,7 @@ namespace Ray1Map.GBARRR
 
         }
 
-        public Texture2D[] Mode7_GetAnimSetFrames(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, IEnumerable<Mode7VRAMEntry> vram, bool isExport = false, bool loadMirroredFrames = false) {
+        public Texture2D[] Mode7_GetAnimSetFrames(GBARRR_Mode7AnimSet animSet, SerializableColor[] palette, IEnumerable<Mode7VRAMEntry> vram, bool isExport = false, bool loadMirroredFrames = false) {
             int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (animSet.Frames.Length > 0) {
@@ -1550,7 +1550,7 @@ namespace Ray1Map.GBARRR
             return map;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tilemap, bool is4bit, BaseColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
+        public Unity_TileSet LoadTileSet(byte[] tilemap, bool is4bit, SerializableColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
         {
             animtedTileInfos = animtedTileInfos ?? new AnimTileInfo[0];
             int block_size = is4bit ? 0x20 : 0x40;
@@ -1598,7 +1598,7 @@ namespace Ray1Map.GBARRR
                 currentBlockIndex += animTileInfo.PalCount;
             }
 
-            void fillTiles(BaseColor[] pal, int palOffset, int blockIndex)
+            void fillTiles(SerializableColor[] pal, int palOffset, int blockIndex)
             {
                 var tileIndex = 0;
 
@@ -3543,7 +3543,7 @@ namespace Ray1Map.GBARRR
             public ushort Height { get; }
         }
 
-        public AnimTileInfo[] GetBG0AnimTileInfo(int level, BaseColor[][] animtedPalettes)
+        public AnimTileInfo[] GetBG0AnimTileInfo(int level, SerializableColor[][] animtedPalettes)
         {
             switch (level)
             {
@@ -3557,7 +3557,7 @@ namespace Ray1Map.GBARRR
                     return null;
             }
         }
-        public AnimTileInfo[] GetFGAnimTileInfo(int level, BaseColor[][] animtedPalettes)
+        public AnimTileInfo[] GetFGAnimTileInfo(int level, SerializableColor[][] animtedPalettes)
         {
             switch (level)
             {
@@ -3595,7 +3595,7 @@ namespace Ray1Map.GBARRR
 
         public class AnimTileInfo
         {
-            public AnimTileInfo(BaseColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
+            public AnimTileInfo(SerializableColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
             {
                 AnimatedPalette = animatedPalette;
                 AnimSpeed = animSpeed;
@@ -3603,7 +3603,7 @@ namespace Ray1Map.GBARRR
                 PalCount = palCount;
             }
 
-            public BaseColor[] AnimatedPalette { get; }
+            public SerializableColor[] AnimatedPalette { get; }
             public int AnimSpeed { get; }
             public int TilePalIndex { get; }
             public int PalCount { get; }
@@ -3631,7 +3631,7 @@ namespace Ray1Map.GBARRR
 
         public class Mode7VRAMConfiguration {
             public Mode7VRAMEntry[] VRAM { get; set; }
-            public RGBA5551Color[] Palette { get; set; }
+            public SerializableColor[] Palette { get; set; }
         }
 
         public class Mode7Data {

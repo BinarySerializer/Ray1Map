@@ -41,7 +41,7 @@ namespace Ray1Map.GBAVV
         public GBAVV_Isometric_TileSet TileSet { get; set; }
         public MapTile[] MapTiles { get; set; }
         public GBAVV_TileMap[] MapLayers { get; set; }
-        public RGBA5551Color[] TilePalette { get; set; }
+        public SerializableColor[] TilePalette { get; set; }
         
         public ushort[] CollisionMap { get; set; }
         public GBAVV_Isometric_CollisionTile[] CollisionTiles { get; set; }
@@ -93,7 +93,7 @@ namespace Ray1Map.GBAVV
 
             var mapTilesLength = MapLayers.SelectMany(x => x.TileMapSections).SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
             MapTiles = s.DoAt(MapTilesPointer, () => s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.Is8Bpp = true, name: nameof(MapTiles)));
-            TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
+            TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeIntoArray<SerializableColor>(TilePalette, 256, BitwiseColor.RGBA5551, name: nameof(TilePalette)));
 
             CollisionMap = s.DoAt(CollisionMapPointer, () => s.SerializeArray<ushort>(CollisionMap, CollisionWidth * CollisionHeight, name: nameof(CollisionMap)));
             CollisionTiles = s.DoAt(CollisionTilesPointer, () => s.SerializeObjectArray<GBAVV_Isometric_CollisionTile>(CollisionTiles, CollisionMap.Max() + 1, name: nameof(CollisionTiles)));

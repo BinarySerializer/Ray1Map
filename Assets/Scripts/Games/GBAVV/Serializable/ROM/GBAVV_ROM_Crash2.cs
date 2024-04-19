@@ -21,24 +21,24 @@ namespace Ray1Map.GBAVV
         public GBAVV_Isometric_CharacterInfo[] Isometric_CharacterInfos { get; set; }
         public GBAVV_Isometric_CharacterIcon[] Isometric_CharacterIcons { get; set; }
         public GBAVV_Isometric_Animation[] Isometric_ObjAnimations { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_0 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_1 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_2 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_4 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_11 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_12 { get; set; }
-        public RGBA5551Color[] Isometric_ObjPalette_13 { get; set; }
-        public RGBA5551Color[] Isometric_GetObjPalette =>
+        public SerializableColor[] Isometric_ObjPalette_0 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_1 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_2 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_4 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_11 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_12 { get; set; }
+        public SerializableColor[] Isometric_ObjPalette_13 { get; set; }
+        public SerializableColor[] Isometric_GetObjPalette =>
             Isometric_ObjPalette_0.
                 Concat(Isometric_ObjPalette_1).
                 Concat(Isometric_ObjPalette_2).
-                Concat(Enumerable.Repeat(new RGBA5551Color(), 16 * 1)).
+                Concat(Enumerable.Repeat(new SerializableColor(), 16 * 1)).
                 Concat(Isometric_ObjPalette_4).
-                Concat(Enumerable.Repeat(new RGBA5551Color(), 16 * 6)).
+                Concat(Enumerable.Repeat(new SerializableColor(), 16 * 6)).
                 Concat(Isometric_ObjPalette_11).
                 Concat(Isometric_ObjPalette_12).
                 Concat(Isometric_ObjPalette_13).
-                Concat(Enumerable.Repeat(new RGBA5551Color(), 16 * 2)).
+                Concat(Enumerable.Repeat(new SerializableColor(), 16 * 2)).
                 ToArray();
         public GBAVV_Isometric_Animation[] Isometric_AdditionalAnimations { get; set; }
         public IEnumerable<GBAVV_Isometric_Animation> Isometric_GetAnimations => Isometric_ObjAnimations.Concat(Isometric_AdditionalAnimations);
@@ -89,13 +89,13 @@ namespace Ray1Map.GBAVV
             Isometric_CharacterIcons = s.DoAt(pointerTable[DefinedPointer.Isometric_CharacterIcons], () => s.SerializeObjectArray<GBAVV_Isometric_CharacterIcon>(Isometric_CharacterIcons, 11, name: nameof(Isometric_CharacterIcons)));
             Isometric_ObjAnimations = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjAnimations], () => s.SerializeObjectArray<GBAVV_Isometric_Animation>(Isometric_ObjAnimations, 22, name: nameof(Isometric_ObjAnimations)));
 
-            Isometric_ObjPalette_0 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_0], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_0, 16, name: nameof(Isometric_ObjPalette_0)));
-            Isometric_ObjPalette_1 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_1], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_1, 16, name: nameof(Isometric_ObjPalette_1)));
-            Isometric_ObjPalette_2 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_2], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_2, 16, name: nameof(Isometric_ObjPalette_2)));
-            Isometric_ObjPalette_4 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_4], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_4, 16, name: nameof(Isometric_ObjPalette_4)));
-            Isometric_ObjPalette_11 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_11], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_11, 16, name: nameof(Isometric_ObjPalette_11)));
-            Isometric_ObjPalette_12 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_12], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_12, 16, name: nameof(Isometric_ObjPalette_12)));
-            Isometric_ObjPalette_13 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_13], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_13, 16, name: nameof(Isometric_ObjPalette_13)));
+            Isometric_ObjPalette_0 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_0], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_0, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_0)));
+            Isometric_ObjPalette_1 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_1], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_1, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_1)));
+            Isometric_ObjPalette_2 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_2], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_2, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_2)));
+            Isometric_ObjPalette_4 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_4], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_4, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_4)));
+            Isometric_ObjPalette_11 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_11], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_11, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_11)));
+            Isometric_ObjPalette_12 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_12], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_12, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_12)));
+            Isometric_ObjPalette_13 = s.DoAt(pointerTable[DefinedPointer.Isometric_ObjPalette_13], () => s.SerializeIntoArray<SerializableColor>(Isometric_ObjPalette_13, 16, BitwiseColor.RGBA5551, name: nameof(Isometric_ObjPalette_13)));
 
             // These animations are all hard-coded from functions:
             Isometric_AdditionalAnimations = new GBAVV_Isometric_Animation[]

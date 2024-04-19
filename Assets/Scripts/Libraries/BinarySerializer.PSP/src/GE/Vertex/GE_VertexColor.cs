@@ -1,5 +1,3 @@
-using System;
-
 namespace BinarySerializer.PSP
 {
     /// <see href="http://hitmen.c02.at/files/yapspd/psp_doc/chap11.html#sec11.5.15">GE Vertex Type</see>
@@ -8,10 +6,7 @@ namespace BinarySerializer.PSP
         public Pointer Pre_AlignOffset { get; set; }
         public GE_ColorFormat Pre_Format { get; set; }
 
-        public RGB565Color Color565 { get; set; }
-        public RGBA4444Color Color4444 { get; set; }
-        public RGBA5551Color Color5551 { get; set; }
-        public RGBA8888Color Color8888 { get; set; }
+        public SerializableColor Color { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -24,33 +19,25 @@ namespace BinarySerializer.PSP
                     throw new BinarySerializableException(this, $"Invalid color format");
                 case GE_ColorFormat.BGR565:
                     s.Align(2, Pre_AlignOffset);
-                    Color565 = s.SerializeObject<RGB565Color>(Color565, name: nameof(Color565));
+                    Color = s.SerializeObject<RGB565Color>(Color, name: nameof(Color));
                     //s.SystemLogger?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
                 case GE_ColorFormat.ABGR5551:
                     s.Align(2, Pre_AlignOffset);
-                    Color5551 = s.SerializeObject<RGBA5551Color>(Color5551, name: nameof(Color5551));
+                    Color = s.SerializeObject<RGBA5551Color>(Color, name: nameof(Color));
                     //s.SystemLogger?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
                 case GE_ColorFormat.ABGR4444:
                     s.Align(2, Pre_AlignOffset);
-                    Color4444 = s.SerializeObject<RGBA4444Color>(Color4444, name: nameof(Color4444));
+                    Color = s.SerializeObject<RGBA4444Color>(Color, name: nameof(Color));
                     //s.SystemLogger?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
                 case GE_ColorFormat.ABGR8888:
                     s.Align(4, Pre_AlignOffset);
-                    Color8888 = s.SerializeObject<RGBA8888Color>(Color8888, name: nameof(Color8888));
+                    Color = s.SerializeInto<SerializableColor>(Color, BytewiseColor.RGBA8888, name: nameof(Color));
                     //s.SystemLogger?.LogWarning($"{Offset}: Check color format: {Pre_Format}");
                     break;
             }
         }
-
-        public BaseColor Color => Pre_Format switch {
-            GE_ColorFormat.BGR565 => Color565,
-            GE_ColorFormat.ABGR5551 => Color5551,
-            GE_ColorFormat.ABGR4444 => Color4444,
-            GE_ColorFormat.ABGR8888 => Color8888,
-            _ => null
-        };
     }
 }
