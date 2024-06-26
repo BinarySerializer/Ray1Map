@@ -33,5 +33,6 @@ namespace Ray1Map
         PS3,
         PSP,
         iOS,
+        Switch,
     }
 }

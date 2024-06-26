@@ -115,6 +115,11 @@ namespace Ray1Map.Jade {
 						configureAction(f); onPreSerialize?.Invoke(s, f);
 					}, name: nameof(Value));
 					break;
+				case Jade_FileType.FileType.SND_Bank:
+					Value = s.SerializeObject<SND_Bank>((SND_Bank)Value, onPreSerialize: f => {
+						configureAction(f); onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Value));
+					break;
 				case Jade_FileType.FileType.SND_Ambience:
 				case Jade_FileType.FileType.SND_Dialog:
 				case Jade_FileType.FileType.SND_LoadingSound:

@@ -1,5 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
+using System.Threading.Tasks;
 using BinarySerializer;
 
 namespace Ray1Map.Jade {
@@ -36,7 +36,7 @@ namespace Ray1Map.Jade {
 			});
 		}
 
-		public async UniTask SerializeFile(SerializerObject s, int crc, Action<uint> action) {
+		public async Task SerializeFile(SerializerObject s, int crc, Action<uint> action) {
 			var fileIndex = FileCRC32.FindItemIndex(f_crc => f_crc == crc);
 			if(fileIndex == -1) return;
 			var fileSize = FileSizes[fileIndex];

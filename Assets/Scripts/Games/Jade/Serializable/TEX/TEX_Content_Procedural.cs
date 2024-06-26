@@ -13,6 +13,7 @@ namespace Ray1Map.Jade
 
         public TEXPRO_Photo Photo { get; set; }
         public TEXPRO_Mpeg Mpeg { get; set; }
+        public TEXPRO_UbiEvent UbiEvent { get; set; }
 
         // Custom
         public int EditorSizeDifference => Photo != null && FileSize > 12 ? 4 : 0;
@@ -32,6 +33,9 @@ namespace Ray1Map.Jade
                 case TEXPRO_Type.Mpeg:
                     Mpeg = s.SerializeObject<TEXPRO_Mpeg>(Mpeg, onPreSerialize: m => m.FileSize = contentSize, name: nameof(Mpeg));
                     break;
+                case TEXPRO_Type.UbiEvent:
+                    UbiEvent = s.SerializeObject<TEXPRO_UbiEvent>(UbiEvent, onPreSerialize: m => m.FileSize = contentSize, name: nameof(UbiEvent));
+                    break;
             }
         }
 
@@ -41,7 +45,8 @@ namespace Ray1Map.Jade
             Fire = 2,
             Mpeg = 3,
             Photo = 4,
-            Plasma = 5
+            Plasma = 5,
+            UbiEvent = 6
         }
 	}
 }

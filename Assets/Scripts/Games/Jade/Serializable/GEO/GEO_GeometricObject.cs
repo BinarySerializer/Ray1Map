@@ -21,6 +21,7 @@ namespace Ray1Map.Jade {
 		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
 		public Jade_Vector[] Normals { get; set; }
+		public GEO_GeometricObject_MRM_ObjectAdditionalInfo MRM_ObjectAdditionalInfo { get; set; }
 		public Jade_Color[] Colors { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
@@ -177,7 +178,9 @@ namespace Ray1Map.Jade {
 						Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
 					}
 					if (MRM_ObjectAdditionalInfoPointer != 0) {
-						throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
+						MRM_ObjectAdditionalInfo = s.SerializeObject<GEO_GeometricObject_MRM_ObjectAdditionalInfo>(MRM_ObjectAdditionalInfo, onPreSerialize: m => {
+							m.GeometricObject = this;
+						}, name: nameof(MRM_ObjectAdditionalInfo));
 					}
 					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
 						|| !Loader.IsBinaryData || Montreal_HasColors != 0) {

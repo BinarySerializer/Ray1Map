@@ -67,6 +67,9 @@ namespace Ray1Map.Jade {
 				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PC();
 					break;
+				case GameModeSelection.BeyondGoodAndEvilAnniversarySwitch:
+					links = new AI_Links_BGE_Anniversary();
+					break;
 				case GameModeSelection.BeyondGoodAndEvilXbox360:
 					links = new AI_Links_BGE_HD_Xbox360();
 					break;

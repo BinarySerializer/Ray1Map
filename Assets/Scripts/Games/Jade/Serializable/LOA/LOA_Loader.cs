@@ -12,6 +12,7 @@ namespace Ray1Map.Jade {
 		public LOA_SpecialArray SpecialArray { get; set; }
 
 		public BIG_BigFile[] BigFiles { get; set; }
+		public BIG_PakFile[] PakFiles { get; set; }
 		public Dictionary<QueueType, LinkedList<FileReference>> LoadQueues = new Dictionary<QueueType, LinkedList<FileReference>>();// = new Queue<FileReference>();
 		public LinkedList<FileReference> LoadQueue => LoadQueues[CurrentQueueType];
 		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
@@ -28,6 +29,8 @@ namespace Ray1Map.Jade {
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
 		public bool LoadSingle { get; set; } = false;
 
+		public Jade_Key PresetUniverseKey { get; set; }
+		public Jade_Key UniverseKey => PresetUniverseKey ?? BigFiles[0].UniverseKey;
 		public Jade_Reference<AI_Instance> Universe { get; set; }
 
 		// Writing
@@ -208,9 +211,10 @@ namespace Ray1Map.Jade {
 		}
 
 
-		public LOA_Loader(BIG_BigFile[] bigFiles, Context context) {
+		public LOA_Loader(BIG_BigFile[] bigFiles, Context context, BIG_PakFile[] pakFiles = null) {
 			Context = context;
 			BigFiles = bigFiles;
+			PakFiles = pakFiles;
 			CreateFileDictionaries();
 			foreach (QueueType queue in (QueueType[])Enum.GetValues(typeof(QueueType))) {
 				LoadQueues[queue] = new LinkedList<FileReference>();
@@ -268,6 +272,20 @@ namespace Ray1Map.Jade {
 					}
 				}
 			}
+
+			for (int p = 0; p < PakFiles.Length; p++) {
+				var pak = PakFiles[p];
+				for (int i = 0; i < pak.FilesCount; i++) {
+					var file = pak.FileTable[i];
+					if (!file.IsKeyID) continue;
+					var fileInfo = new FileInfo() {
+						Key = file.Key,
+						FileIndex = i,
+						PakFile = PakFiles[p]
+					};
+					FileInfos[file.Key] = fileInfo;
+				}
+			}
 		}
 
 		public void ReinitFileDictionaries() => CreateFileDictionaries();
@@ -297,23 +315,34 @@ namespace Ray1Map.Jade {
 								currentRef.Size_ResolveAction(FileSize);
 							}
 						} else {
-							Pointer off_current = s.CurrentPointer;
 							FileInfo f = FileInfos[currentRef.Key];
-							Pointer off_target = f.FileOffset;
-							s.Goto(off_target);
-							s.Log("LOA: Loading file: {0}", f);
-							string previousState = Controller.DetailedState;
-							Controller.DetailedState = $"{previousState}\n{f}";
-							await s.FillCacheForReadAsync(4);
+							if (f.PakFile != null) {
+								await f.PakFile.SerializeFile(s, f.FileIndex, (filesize, isBranch) => {
+									IsBranch = isBranch;
+									FileSize = filesize;
 
-							s.DoBits<uint>(b => {
-								FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
-								IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
-							});
-							s.Goto(off_current);
-							if(IsBranch)
-								throw new NotImplementedException($"Loader does not support branches yet!");
-							currentRef.Size_ResolveAction(FileSize);
+									if (IsBranch)
+										throw new NotImplementedException($"Loader does not support branches yet!");
+									currentRef.Size_ResolveAction(FileSize);
+								});
+							} else {
+								Pointer off_current = s.CurrentPointer;
+								Pointer off_target = f.FileOffset;
+								s.Goto(off_target);
+								s.Log("LOA: Loading file: {0}", f);
+								string previousState = Controller.DetailedState;
+								Controller.DetailedState = $"{previousState}\n{f}";
+								await s.FillCacheForReadAsync(4);
+
+								s.DoBits<uint>(b => {
+									FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
+									IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
+								});
+								s.Goto(off_current);
+								if (IsBranch)
+									throw new NotImplementedException($"Loader does not support branches yet!");
+								currentRef.Size_ResolveAction(FileSize);
+							}
 						}
 					}
 					continue;
@@ -326,72 +355,98 @@ namespace Ray1Map.Jade {
 						if (currentRef.Flags.HasFlag(ReferenceFlags.HasUserCounter) && f != null) f.ReferencesCount++;
 						if (!currentRef.Flags.HasFlag(ReferenceFlags.OnlyOneRef)) currentRef.AlreadyLoadedCallback(f);
 					} else {
-						Pointer off_current = s.CurrentPointer;
 						FileInfo f = FileInfos[currentRef.Key];
-						Pointer off_target = f.FileOffset;
-						s.Goto(off_target);
-						s.Log("LOA: Loading file: {0}", f);
-						string previousState = Controller.DetailedState;
-						Controller.DetailedState = $"{previousState}\n{f}";
-						await s.FillCacheForReadAsync(4);
 						uint FileSize = default;
 						bool IsBranch = false;
-						s.DoBits<uint>(b => {
-							FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
-							IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
-						});
-						if (IsBranch)
-							throw new NotImplementedException($"Loader does not support branches yet!");
-
+						string previousState = Controller.DetailedState;
+						Controller.DetailedState = $"{previousState}\n{f}";
 						string regionName = f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}";
-						if (FileSize != 0) {
-							await s.FillCacheForReadAsync(FileSize);
+						if (f.PakFile != null) {
+							await f.PakFile.SerializeFile(s, f.FileIndex, (filesize, isBranch) => {
+								IsBranch = isBranch;
+								FileSize = filesize;
 
-							// Add region
-							off_target.File.AddRegion(off_target.FileOffset + 4, FileSize, regionName);
-						}
+								if (IsBranch)
+									throw new NotImplementedException($"Loader does not support branches yet!");
 
-						if (currentRef.IsBin && Bin != null) {
-							if (IsCompressed) {
-								Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(FileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
-									filename: regionName);
-								Bin.CurrentPosition = Bin.StartPosition;
-								s.Goto(Bin.StartPosition);
-								uint decompressedLength = s.CurrentLength32;
-								Bin.Serializer = s;
-								Bin.TotalSize = decompressedLength;
-								if (Bin?.SerializeAction != null) {
-									await Bin.SerializeAction(s);
-								} else {
-									await LoadLoopBINAsync();
-								}
-								//LoadLoopBIN_End();
-								s.EndEncoded(Bin.CurrentPosition);
-							} else {
-								Bin.Serializer = s;
-								Bin.TotalSize = FileSize;
-								if (Bin?.SerializeAction != null) {
-									await Bin.SerializeAction(s);
-								} else {
-									await LoadLoopBINAsync();
-								}
-							}
-						} else {
-							currentRef.LoadCallback(s, (f) => {
-								f.Key = currentRef.Key;
-								f.FileSize = FileSize;
-								f.Loader = this;
-								if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
-									TotalCache[f.Key] = f;
-								}
-								if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
-								f.SetIsBinaryData();
+								currentRef.LoadCallback(s, (f) => {
+									f.Key = currentRef.Key;
+									f.FileSize = FileSize;
+									f.Loader = this;
+									if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
+										TotalCache[f.Key] = f;
+									}
+									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+									f.SetIsBinaryData();
+
+									if(FileSize != 0)
+										s.CurrentBinaryFile.AddRegion(s.CurrentFileOffset, FileSize, regionName);
+									if (currentRef.Key?.Key == 0x62002794)
+										UnityEngine.Debug.Log($"yoooo {filesize} {f.GetType()}");
+								});
 							});
+						} else {
+							Pointer off_current = s.CurrentPointer;
+							Pointer off_target = f.FileOffset;
+							s.Goto(off_target);
+							s.Log("LOA: Loading file: {0}", f);
+							await s.FillCacheForReadAsync(4);
+							s.DoBits<uint>(b => {
+								FileSize = b.SerializeBits<uint>(FileSize, 31, name: nameof(FileSize));
+								IsBranch = b.SerializeBits<bool>(IsBranch, 1, name: nameof(IsBranch));
+							});
+							if (IsBranch)
+								throw new NotImplementedException($"Loader does not support branches yet!");
+
+							if (FileSize != 0) {
+								await s.FillCacheForReadAsync(FileSize);
+
+								// Add region
+								off_target.File.AddRegion(off_target.FileOffset + 4, FileSize, regionName);
+							}
+
+							if (currentRef.IsBin && Bin != null) {
+								if (IsCompressed) {
+									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(FileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
+										filename: regionName);
+									Bin.CurrentPosition = Bin.StartPosition;
+									s.Goto(Bin.StartPosition);
+									uint decompressedLength = s.CurrentLength32;
+									Bin.Serializer = s;
+									Bin.TotalSize = decompressedLength;
+									if (Bin?.SerializeAction != null) {
+										await Bin.SerializeAction(s);
+									} else {
+										await LoadLoopBINAsync();
+									}
+									//LoadLoopBIN_End();
+									s.EndEncoded(Bin.CurrentPosition);
+								} else {
+									Bin.Serializer = s;
+									Bin.TotalSize = FileSize;
+									if (Bin?.SerializeAction != null) {
+										await Bin.SerializeAction(s);
+									} else {
+										await LoadLoopBINAsync();
+									}
+								}
+							} else {
+								currentRef.LoadCallback(s, (f) => {
+									f.Key = currentRef.Key;
+									f.FileSize = FileSize;
+									f.Loader = this;
+									if (!(f is WOR_WorldList) && !TotalCache.ContainsKey(f.Key)) {
+										TotalCache[f.Key] = f;
+									}
+									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+									f.SetIsBinaryData();
+								});
+							}
+							s.Goto(off_current);
 						}
 
 						await Controller.WaitIfNecessary();
 						Controller.DetailedState = previousState;
-						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.MustExist)) {
 					s.SystemLogger?.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
@@ -883,6 +938,7 @@ namespace Ray1Map.Jade {
 			public BIG_FatFile FatFile { get; set; }
 			public int FileIndex { get; set; }
 			public BIG_FatFile.FileInfo FatFileInfo { get; set; }
+			public BIG_PakFile PakFile { get; set; }
 			public string FileName { get; set; }
 			public string DirectoryName { get; set; }
 			public string FilePath => FileName != null ? $"{DirectoryName}/{FileName}" : null;

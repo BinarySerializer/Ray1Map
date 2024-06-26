@@ -81,6 +81,7 @@ namespace Ray1Map.Jade
         public TEX_Content_JTX Content_JTX { get; set; }
         public DDS_Header Content_DDS_Header { get; set; }
         public DDS Content_DDS { get; set; }
+        public TEX_Content_Cooked Content_Cooked { get; set; }
         public byte[] Content { get; set; }
 
         public Pointer HeaderOffset => Loader.IsBinaryData ? Offset : (Offset + FileSize - 32);
@@ -252,6 +253,12 @@ namespace Ray1Map.Jade
                             }
                         }
                         break;
+                    case TexFileType.Cooked:
+						if (IsContent || !Loader.IsBinaryData) {
+                            Content_Cooked = s.SerializeObject<TEX_Content_Cooked>(Content_Cooked, onPreSerialize: t => t.Texture = this, name: nameof(Content_Cooked));
+                            hasReadContent = true;
+						}
+						break;
                     case TexFileType.Raw:
                     case TexFileType.Jpeg:
                     case TexFileType.Bmp:
@@ -380,6 +387,7 @@ namespace Ray1Map.Jade
                 TexFileType.Jpeg => ToTexture2DFromJpeg(),
                 TexFileType.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D(invertY: true) : Content_Xenon.ToTexture2D(),
                 TexFileType.Bmp when (Content == null || Content.Length == 0) => null,
+                TexFileType.Cooked => Content_Cooked != null ? Content_Cooked.ToTexture2D() : null,
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }
@@ -406,6 +414,10 @@ namespace Ray1Map.Jade
             Animated = 9,
             JTX = 10,
             DDS = 11,
+
+            // BGE Anniversary Edition
+            TextureSet = 12,
+            Cooked = 13,
         }
 
         public enum TexColorFormat : byte

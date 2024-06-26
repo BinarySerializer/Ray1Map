@@ -249,7 +249,7 @@ namespace Ray1Map.Jade {
 					// Hack for King Kong X360's Prefabs bin file
 					if (doPrefabsCheck) {
 						if (gao?.Value?.Name == "PNJ_RadoJack.gao") {
-							Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(Context, Loader.BigFiles[0].UniverseKey);
+							Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(Context, Loader.UniverseKey);
 							univers.Resolve(flags: LOA_Loader.ReferenceFlags.MustExist | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 							await Loader.LoadBinOrNot(s);
 						}

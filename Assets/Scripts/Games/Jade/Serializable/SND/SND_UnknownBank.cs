@@ -33,7 +33,7 @@ namespace Ray1Map.Jade {
 		protected override void SerializeFile(SerializerObject s) {
 			// Serialize file inline
 			if (ElementType.Type == Jade_FileType.FileType.SND_Bank) {
-				File = s.SerializeObject<SND_Metabank>((SND_Metabank)File, onPreSerialize: f => {
+				File = s.SerializeObject<SND_MetaBank>((SND_MetaBank)File, onPreSerialize: f => {
 					f.Key = Key;
 					f.FileSize = ContainedFileSize;
 					f.Loader = Loader;

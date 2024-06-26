@@ -47,6 +47,8 @@ namespace Ray1Map.Jade {
 		public long PhoenixMontreal_V12_Long { get; set; }
 
 		// Editor only
+		public Jade_FloatColor InstanceColor { get; set; }
+		public uint AdditionalFlagsMask { get; set; }
 		public Jade_Code PrefabFileMark { get; set; }
 		public Jade_Key Prefab { get; set; }
 		public Jade_Reference<OBJ_GameObject> PrefabObject { get; set; }
@@ -146,6 +148,14 @@ namespace Ray1Map.Jade {
 					MontrealEditor1 = s.Serialize<uint>(MontrealEditor1, name: nameof(MontrealEditor1));
 					MontrealEditor2 = s.Serialize<uint>(MontrealEditor2, name: nameof(MontrealEditor2));
 					MontrealEditor3 = s.Serialize<uint>(MontrealEditor3, name: nameof(MontrealEditor3));
+				}
+				if (s.CurrentAbsoluteOffset < Offset.AbsoluteOffset + FileSize
+					&& s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)
+					&& Version != 0) {
+					InstanceColor = s.SerializeObject<Jade_FloatColor>(InstanceColor, name: nameof(InstanceColor));
+					if (Version >= 2) {
+						AdditionalFlagsMask = s.Serialize<uint>(AdditionalFlagsMask, name: nameof(AdditionalFlagsMask));
+					}
 				}
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {

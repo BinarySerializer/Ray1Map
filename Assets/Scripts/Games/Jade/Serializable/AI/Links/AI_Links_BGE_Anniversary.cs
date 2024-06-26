@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Ray1Map.Jade {
-	public class AI_Links_BGE_20th : AI_Links_BGE_PS2_20030814 {
+	public class AI_Links_BGE_Anniversary : AI_Links_BGE_PS2_20030814 {
 		protected override void InitFunctionDefs() {
 			#region Function Defs
 			FunctionDefs = new AI_FunctionDef[] {

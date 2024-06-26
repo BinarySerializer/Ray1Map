@@ -40,7 +40,7 @@ namespace Ray1Map.Jade {
 		public override string ToString() {
 			if (!IsNull && Context != null) {
 				var loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-				if (loader != null && loader.FileInfos.ContainsKey(this)) {
+				if (loader != null && loader.FileInfos.ContainsKey(this) && loader.FileInfos[this].FileRegionName != null) {
 					return $"{Key:X8} ({loader.FileInfos[this].FileRegionName})";
 				}
 			}

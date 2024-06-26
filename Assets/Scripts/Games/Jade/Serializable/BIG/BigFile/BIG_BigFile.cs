@@ -1,7 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using BinarySerializer;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ray1Map.Jade {
 	public class BIG_BigFile : BinarySerializable {
@@ -67,7 +67,7 @@ namespace Ray1Map.Jade {
 			}
 		}
 
-		public async UniTask SerializeFile(SerializerObject s, int fatIndex, int fileIndex, Action<uint, bool> action) {
+		public async Task SerializeFile(SerializerObject s, int fatIndex, int fileIndex, Action<uint, bool> action) {
 			var fat = FatFiles[fatIndex];
 			Pointer off_current = s.CurrentPointer;
 			Pointer off_target = fat.Files[fileIndex].FileOffset;
@@ -91,7 +91,7 @@ namespace Ray1Map.Jade {
 			s.Goto(off_current);
 		}
 
-		public async UniTask SerializeAt(SerializerObject s, Pointer off_target, Action<uint> action) {
+		public async Task SerializeAt(SerializerObject s, Pointer off_target, Action<uint> action) {
 			Pointer off_current = s.CurrentPointer;
 			s.Goto(off_target);
 			await s.FillCacheForReadAsync(4);

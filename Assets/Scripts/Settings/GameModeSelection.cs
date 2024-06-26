@@ -770,8 +770,11 @@ namespace Ray1Map
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_HD, Game.Jade_BGE, "Beyond Good & Evil HD (Xbox 360)", typeof(Jade_BGE_HD_Manager), Platform.Xbox360)]
         BeyondGoodAndEvilXbox360,
 
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_Anniversary, Game.Jade_BGE, "Beyond Good & Evil 20th Anniversary (Switch)", typeof(Jade_BGE_Anniversary_Manager), Platform.Switch)]
+		BeyondGoodAndEvilAnniversarySwitch,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_KingKong_PC_Manager), Platform.PC)]
+
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_KingKong_PC_Manager), Platform.PC)]
         KingKongPC,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (GC)", typeof(Jade_KingKong_GC_Manager), Platform.GC)]

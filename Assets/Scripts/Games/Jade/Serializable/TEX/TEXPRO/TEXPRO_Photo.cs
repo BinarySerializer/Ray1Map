@@ -13,6 +13,9 @@ namespace Ray1Map.Jade
                 LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
                 if (!Loader.IsBinaryData) DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
                 Photo = s.Serialize<byte>(Photo, name: nameof(Photo));
+                if (!Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)) {
+					s.SerializePadding(3, logIfNotNull: true);
+				}
             }
         }
 	}

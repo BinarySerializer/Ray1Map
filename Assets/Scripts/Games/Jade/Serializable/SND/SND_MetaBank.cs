@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace Ray1Map.Jade {
-    public class SND_Metabank : Jade_File {
+    public class SND_MetaBank : Jade_File {
 		public override string Export_Extension => "msk";
 
 		public uint Count { get; set; }

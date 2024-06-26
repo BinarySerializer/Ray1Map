@@ -117,6 +117,8 @@ namespace Ray1Map {
 		public virtual string TexturesGearBFPath => null;
 		public virtual string GeometryBFPath => null;
 		public virtual string SoundGearBFPath => null;
+		public virtual string[] PakFiles { get; }
+		public virtual uint? PresetUniverseKey => null;
 
 		// Helpers
         public virtual async UniTask CreateLevelList(LOA_Loader l) {
@@ -202,6 +204,14 @@ namespace Ray1Map {
 			await s.FillCacheForReadAsync((int)bfFile.ArraysSize);
 			bfFile.SerializeArrays(s);
 			return bfFile;
+		}
+		public async UniTask<BIG_PakFile> LoadPAK(Context context, string pakPath) {
+			var s = context.Deserializer;
+			s.Goto(context.GetRequiredFile(pakPath).StartPointer);
+			await s.FillCacheForReadAsync((int)BIG_PakFile.HeaderLength);
+			var pakFile = FileFactory.Read<BIG_PakFile>(context, pakPath);
+			await pakFile.SerializeFileTable(s);
+			return pakFile;
 		}
 
 		public void LoadJadeSPE(Context context) {
@@ -866,7 +876,7 @@ namespace Ray1Map {
 			Controller.DetailedState = $"Loading universe";
 			await Controller.WaitIfNecessary();
 
-			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.BigFiles[0].UniverseKey);
+			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.UniverseKey);
 			loader.Universe = univers;
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(context, new Jade_Key(context, 0)) { ForceResolve = true };
@@ -914,9 +924,21 @@ namespace Ray1Map {
 				var bf = await LoadBF(context, bfPath);
 				bfs.Add(bf);
 			}
+			BIG_PakFile[] pakFiles = null;
+			if (PakFiles != null) {
+				List<BIG_PakFile> paks = new List<BIG_PakFile>();
+				foreach (var pakPath in PakFiles) {
+					var pak = await LoadPAK(context, pakPath);
+					paks.Add(pak);
+				}
+				pakFiles = paks.ToArray();
+			}
 
 			// Set up loader
-			LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+			LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context, pakFiles: pakFiles);
+			if (PresetUniverseKey.HasValue) {
+				loader.PresetUniverseKey = new Jade_Key(context, PresetUniverseKey.Value);
+			}
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 
 			if (initAI) {
@@ -997,6 +1019,11 @@ namespace Ray1Map {
 			if (JadeSpePath != null) await context.AddLinearFileAsync(JadeSpePath);
 			if (TexturesGearBFPath != null) await context.AddLinearFileAsync(TexturesGearBFPath, bigFileCacheLength: 8);
 			if (SoundGearBFPath != null) await context.AddLinearFileAsync(SoundGearBFPath, bigFileCacheLength: 8);
+			if (PakFiles != null) {
+				foreach (var bfPath in PakFiles) {
+					await context.AddLinearFileAsync(bfPath, bigFileCacheLength: 8);
+				}
+			}
 		}
 
 		// Constants
