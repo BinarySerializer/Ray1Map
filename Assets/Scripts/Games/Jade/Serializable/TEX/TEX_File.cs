@@ -3,6 +3,7 @@ using System;
 using BinarySerializer.Image;
 using System.Linq;
 using UnityEngine;
+using System.IO;
 
 namespace Ray1Map.Jade
 {
@@ -84,18 +85,21 @@ namespace Ray1Map.Jade
         public TEX_Content_Cooked Content_Cooked { get; set; }
         public byte[] Content { get; set; }
 
-        public Pointer HeaderOffset => Loader.IsBinaryData ? Offset : (Offset + FileSize - 32);
-        public Pointer ContentOffset => Loader.IsBinaryData ? (Offset + 32) : Offset;
+        public Pointer HeaderOffset => Loader.IsBinaryData ? Offset : (Offset + FileSize - HeaderSize);
+        public Pointer ContentOffset => Loader.IsBinaryData ? (Offset + HeaderSize) : Offset;
         public Pointer ContentEndOffset => Loader.IsBinaryData ? (Offset + FileSize) : HeaderOffset;
+        public const uint HeaderSize = 0x20;
 
         protected override void SerializeFile(SerializerObject s) 
         {
 			if (!Loader.IsBinaryData)
-				s.Goto(s.CurrentPointer + FileSize - 32);
+				s.Goto(s.CurrentPointer + FileSize - HeaderSize);
 
             if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Loader.IsBinaryData)
 				Montreal_Key = s.SerializeObject<Jade_Key>(Montreal_Key, name: nameof(Montreal_Key));
 			Mark = s.Serialize<int>(Mark, name: nameof(Mark));
+            if(Loader.StrongErrorChecking && Mark != -1)
+                throw new InvalidDataException("Data is not a correct TEX_File");
             if (Mark == -1) {
                 Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
                 Type = s.Serialize<TexFileType>(Type, name: nameof(Type));
@@ -108,11 +112,16 @@ namespace Ray1Map.Jade
                 Code_18 = s.Serialize<Jade_Code>(Code_18, name: nameof(Code_18));
                 Code_1C = s.Serialize<Jade_Code>(Code_1C, name: nameof(Code_1C));
 
-                if (!Loader.IsBinaryData)
+                if (Loader.StrongErrorChecking) {
+                    if (Code_1C != Jade_Code.CodeCode || (byte)Type == 0 || (byte)Type > 13 || Width == 0 || Height == 0)
+						throw new InvalidDataException("Data is not a correct TEX_File");
+				}
+
+				if (!Loader.IsBinaryData)
                     s.Goto(Offset);
 
                 bool hasReadContent = false;
-                ContentSize = Loader.IsBinaryData ? (FileSize - (uint)(s.CurrentPointer - Offset)) : (FileSize - 32);
+                ContentSize = Loader.IsBinaryData ? (FileSize - (uint)(s.CurrentPointer - Offset)) : (FileSize - HeaderSize);
                 switch (Type) 
                 {
                     case TexFileType.RawPal:
@@ -212,7 +221,7 @@ namespace Ray1Map.Jade
                             }, name: nameof(Content_TGA));
                             hasReadContent = true;
 
-                            if (!Loader.IsBinaryData && s.CurrentAbsoluteOffset + 26 + 0x20 == Offset.AbsoluteOffset + FileSize) {
+                            if (!Loader.IsBinaryData && s.CurrentAbsoluteOffset + 26 + HeaderSize == Offset.AbsoluteOffset + FileSize) {
                                 // TGAs can have an optional 26 byte footer
                                 Content_TGA.SerializeFooter(s);
                             }
@@ -280,7 +289,7 @@ namespace Ray1Map.Jade
                         lists.FontDescriptors[keyForTexture] = FontDesc;
                     }
                 }
-                if (!Loader.IsBinaryData) s.Goto(s.CurrentPointer + 0x20);
+                if (!Loader.IsBinaryData) s.Goto(s.CurrentPointer + HeaderSize);
             }
         }
 
@@ -303,20 +312,27 @@ namespace Ray1Map.Jade
                 if (oldContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) &&
                     !newContext.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
                     if (ContentSize >= 0x30) ContentSize = 0x30;
-                    FileSize = 32 + ContentSize;
+                    FileSize = HeaderSize + ContentSize;
                 }
             }
             switch (fileFormat) {
                 case TexFileType.DDS:
                 case TexFileType.JTX:
+                case TexFileType.TextureSet:
+                case TexFileType.Cooked:
                     convert = true;
                     break;
             }
             if (convert) {
-                if (Content_Xenon != null || Content_DDS != null || (Content_JTX != null && IsContent)) {
+                if (Content_Cooked != null || Content_Xenon != null || Content_DDS != null || (Content_JTX != null && IsContent)) {
                     Texture2D tex = ToTexture2D();
-                    if (tex.width > 512 || tex.height > 512) {
-                        tex.ResizeImageData(tex.width / 4, tex.height / 4, mipmap: false, filter: FilterMode.Bilinear);
+                    const int maxDimension = 512;
+                    if (tex.width > maxDimension || tex.height > maxDimension) {
+                        var factor = 2;
+                        while (tex.width / factor > maxDimension || tex.height / factor > maxDimension) {
+                            factor *= 2;
+						}
+						tex = TextureHelpers.ResizeImageData(tex, tex.width / factor, tex.height / factor, mipmap: false, filter: FilterMode.Bilinear);
                     }
                     var pixels = tex.GetPixels();
                     Width = (ushort)tex.width;
@@ -363,11 +379,11 @@ namespace Ray1Map.Jade
                     if(Info != null) Info.Type = TexFileType.Tga;
                     FileSize = size
                         + 18 // Tga header size
-                        + 32; // Jade header size
+                        + HeaderSize; // Jade header size
                 } else {
                     Type = TexFileType.Tga;
                     if (Info != null) Info.Type = TexFileType.Tga;
-                    if (Content_DDS != null || Content_JTX != null || Content_Xenon != null) FileSize = 32;
+                    if (Content_DDS != null || Content_JTX != null || Content_Xenon != null) FileSize = HeaderSize;
                 }
             }
         }

@@ -93,7 +93,24 @@ namespace Ray1Map
             return newTex;
         }
 
-        public static void ResizeImageData(this Texture2D texture2D, int targetX, int targetY, bool mipmap = true, FilterMode filter = FilterMode.Bilinear) {
+        public static Texture2D ResizeImageData(Texture2D texture2D, int targetX, int targetY, bool mipmap = true, FilterMode filter = FilterMode.Bilinear) {
+
+            switch (texture2D.format) {
+                case TextureFormat.DXT1:
+                case TextureFormat.DXT5:
+                case TextureFormat.ASTC_6x6:
+					try {
+						var newTex = new Texture2D(texture2D.width, texture2D.height);
+						var pixels = texture2D.GetPixels();
+						newTex.SetPixels(pixels);
+						newTex.Apply();
+						texture2D = newTex;
+					} catch {
+						Debug.LogError("Read/Write is not enabled on texture " + texture2D.name);
+					}
+					break;
+            }
+
             //create a temporary RenderTexture with the target size
             RenderTexture rt = RenderTexture.GetTemporary(targetX, targetY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 
@@ -117,6 +134,8 @@ namespace Ray1Map
 
 
             RenderTexture.ReleaseTemporary(rt);
+
+            return texture2D;
         }
     }
 }

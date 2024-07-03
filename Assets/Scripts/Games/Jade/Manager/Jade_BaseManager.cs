@@ -833,7 +833,7 @@ namespace Ray1Map {
 										} else {
 											if (e.MaterialID < texturesLength) {
 												mainTex = tex[e.MaterialID];
-												mat.SetTexture("_Tex0", tex[e.MaterialID]);
+												mat.SetTexture("_Tex0", mainTex);
 											}
 										}
 										if (mainTex != null) {

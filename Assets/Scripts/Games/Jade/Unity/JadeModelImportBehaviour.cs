@@ -205,7 +205,7 @@ public class JadeModelImportBehaviour : MonoBehaviour {
         };
         texFile.Init(loader.BigFiles[0].Offset); // Init with any pointer that has a context with the same R1Settings
         if (tex.width > 512 || tex.height > 512) {
-            tex.ResizeImageData(tex.width / 4, tex.height / 4, mipmap: false, filter: FilterMode.Bilinear);
+            tex = TextureHelpers.ResizeImageData(tex, tex.width / 4, tex.height / 4, mipmap: false, filter: FilterMode.Bilinear);
         }
         var pixels = tex.GetPixels();
         texFile.Width = (ushort)tex.width;

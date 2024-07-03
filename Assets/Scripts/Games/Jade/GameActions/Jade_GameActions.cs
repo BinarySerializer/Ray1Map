@@ -12,6 +12,8 @@ namespace Ray1Map {
 		protected async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey, LoadFlags loadFlags) => await Manager.LoadJadeAsync(context, worldKey, loadFlags);
 		protected async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) => await Manager.LoadBF(context, bfPath);
 		protected string[] BFFiles => Manager.BFFiles;
+		protected async UniTask<BIG_PakFile> LoadPAK(Context context, string pakPath) => await Manager.LoadPAK(context, pakPath);
+		protected string[] PakFiles => Manager.PakFiles;
 		protected LevelInfo[] LevelInfos => Manager.LevelInfos;
 		protected bool HasUnbinarizedData => Manager.HasUnbinarizedData;
 

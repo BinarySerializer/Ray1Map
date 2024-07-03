@@ -25,7 +25,7 @@ namespace Ray1Map.Jade
         public NoriTexture NormalMap { get; set; }
         public NoriTexture HeightEmissive { get; set; }
         public NoriTexture SpecGlossOccl { get; set; }
-		public NoriTexture BadData { get; set; }
+		//public NoriTexture BadData { get; set; }
 		public float ShaderParam0 { get; set; }
         public float ShaderParam1 { get; set; }
         public string CustomShaderName { get; set; }
@@ -113,7 +113,19 @@ namespace Ray1Map.Jade
             Texture2D texture = null;
             switch (CompressedFormat) {
                 case VirtuosRemasterFormat.DXT:
-					texture = new Texture2D(w, h, HasAlpha ? TextureFormat.DXT5 : TextureFormat.DXT1, (int)MipmapCount, false);
+                    if (!HasAlpha) {
+                        ushort nextMultiple(ushort u) {
+                            if (u % 4 != 0) {
+                                //u = (ushort)(u + (4 - (u % 4)));
+                                u = (ushort)((u / 4) * 4);
+                            }
+                            return u;
+                        }
+                        h = nextMultiple(h);
+                        w = nextMultiple(w);
+                    }
+
+                    texture = new Texture2D(w, h, HasAlpha ? TextureFormat.DXT5 : TextureFormat.DXT1, (int)MipmapCount, false);
 					texture.LoadRawTextureData(Albedo.Data);
 					texture.Apply();
 					break;
@@ -122,6 +134,8 @@ namespace Ray1Map.Jade
 					texture.LoadRawTextureData(Albedo.Data);
 					texture.Apply();
                     break;
+                default:
+                    throw new NotImplementedException($"Unimplemented type {CompressedFormat}");
 			}
             return texture;
         }

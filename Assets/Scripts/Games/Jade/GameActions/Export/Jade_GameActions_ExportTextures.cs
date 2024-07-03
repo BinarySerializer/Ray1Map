@@ -128,6 +128,11 @@ namespace Ray1Map {
 				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: true, initSound: false);
 				var texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
+				if (loader.PakFiles?.Any() ?? false) {
+					await ExportTexturesUnbinarizedPAK(settings, outputDir);
+					return;
+				}
+
 				foreach (var kvp in loader.FileInfos) {
 					var fileInfo = kvp.Value;
 					if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".tex") || fileInfo.FileName.EndsWith(".jtx"))) {
@@ -159,6 +164,76 @@ namespace Ray1Map {
 						await Controller.WaitIfNecessary();
 					}
 				}
+			}
+		}
+
+		public async UniTask ExportTexturesUnbinarizedPAK(GameSettings settings, string outputDir) {
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+
+				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: true, initSound: false);
+				loader.StrongErrorChecking = true;
+				var texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+
+				HashSet<Jade_Key> textures = new HashSet<Jade_Key>();
+				var s = loader.Context.Deserializer;
+				foreach (var f in loader.FileInfos) {
+					var key = f.Key;
+					var file = f.Value;
+					var pak = file.PakFile;
+					if (pak == null) continue;
+					var pakFileInfo = pak.FileTable[file.FileIndex];
+					if (pakFileInfo.Info.UncompressedSize < TEX_File.HeaderSize) continue;
+
+					try {
+						var texKey = key;
+						Jade_TextureReference texRef = new Jade_TextureReference(context, texKey);
+						texRef.Resolve();
+						await loader.LoadLoop(context.Deserializer);
+
+						var t = texList.Textures[0];
+
+						Texture2D tex = null;
+						uint currentKey = t.Key;
+						tex = (t.Content ?? t.Info).ToTexture2D();
+
+						if (tex == null)
+							continue;
+
+						var colors = tex.GetPixels();
+						var newTex = new Texture2D(tex.width, tex.height);
+						newTex.SetPixels(colors);
+						newTex.Apply();
+						Util.ByteArrayToFile(Path.Combine(outputDir, $"{texKey.Key:X8}.png"), newTex.EncodeToPNG());
+					} catch (Exception ex) {
+						if (ex is not InvalidDataException) {
+							UnityEngine.Debug.LogError(ex);
+						}
+					} finally {
+						texList.Textures?.Clear();
+						texList.Palettes?.Clear();
+					}
+					await Controller.WaitIfNecessary();
+
+
+					/*await pak.SerializeFile(s, file.FileIndex, (fSize, _) => {
+						var start = s.CurrentPointer;
+						s.Goto(start + fSize - TEX_File.HeaderSize);
+						int Mark = 0;
+						Jade_Code Code1C = Jade_Code.Unknown;
+						Mark = s.Serialize<int>(Mark, name: nameof(Mark));
+						if (Mark == -1) {
+							s.Goto(start + fSize - 4);
+							Code1C = s.Serialize<Jade_Code>(Code1C, name: nameof(Code1C));
+							if (Code1C == Jade_Code.CodeCode) {
+								textures.Add(key);
+							}
+						}
+						s.Goto(start + fSize);
+					});*/
+				}
+
+				Debug.Log($"Finished export");
 			}
 		}
 

@@ -32,6 +32,7 @@ namespace Ray1Map.Jade {
 		public Jade_Key PresetUniverseKey { get; set; }
 		public Jade_Key UniverseKey => PresetUniverseKey ?? BigFiles[0].UniverseKey;
 		public Jade_Reference<AI_Instance> Universe { get; set; }
+		public bool StrongErrorChecking = false;
 
 		// Writing
 		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
@@ -273,17 +274,19 @@ namespace Ray1Map.Jade {
 				}
 			}
 
-			for (int p = 0; p < PakFiles.Length; p++) {
-				var pak = PakFiles[p];
-				for (int i = 0; i < pak.FilesCount; i++) {
-					var file = pak.FileTable[i];
-					if (!file.IsKeyID) continue;
-					var fileInfo = new FileInfo() {
-						Key = file.Key,
-						FileIndex = i,
-						PakFile = PakFiles[p]
-					};
-					FileInfos[file.Key] = fileInfo;
+			if (PakFiles != null) {
+				for (int p = 0; p < PakFiles.Length; p++) {
+					var pak = PakFiles[p];
+					for (int i = 0; i < pak.FilesCount; i++) {
+						var file = pak.FileTable[i];
+						if (!file.IsKeyID) continue;
+						var fileInfo = new FileInfo() {
+							Key = file.Key,
+							FileIndex = i,
+							PakFile = PakFiles[p]
+						};
+						FileInfos[file.Key] = fileInfo;
+					}
 				}
 			}
 		}
@@ -607,7 +610,7 @@ namespace Ray1Map.Jade {
 										Context.SystemLogger?.LogInfo($"Filename length exceeds MAX_PATH: {outFilename}");
 									}
 									Util.ByteArrayToFile(outFilename, bytes);
-									if (FileInfos.ContainsKey(currentRef.Key)) {
+									if (FileInfos.ContainsKey(currentRef.Key) && FileInfos[currentRef.Key].FatFileInfo != null) {
 										File.SetLastWriteTime(outFilename, FileInfos[currentRef.Key].FatFileInfo.DateLastModified);
 									}
 									WrittenFileKeys[currentRef.Key.Key] = filename;

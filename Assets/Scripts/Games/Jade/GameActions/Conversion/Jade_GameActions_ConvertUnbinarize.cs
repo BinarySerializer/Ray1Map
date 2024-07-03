@@ -235,6 +235,15 @@ namespace Ray1Map {
 						var bf = await LoadBF(context, bfPath);
 						bfs.Add(bf);
 					}
+					BIG_PakFile[] pakFiles = null;
+					if (PakFiles != null) {
+						List<BIG_PakFile> paks = new List<BIG_PakFile>();
+						foreach (var pakPath in PakFiles) {
+							var pak = await LoadPAK(context, pakPath);
+							paks.Add(pak);
+						}
+						pakFiles = paks.ToArray();
+					}
 					// Also load filenames
 					string filenamesPath = context.GetAbsoluteFilePath("filenames.txt");
 					if (context.FileManager?.FileExists(filenamesPath) ?? false) {
@@ -262,7 +271,7 @@ namespace Ray1Map {
 						}
 					}
 					// Set up loader
-					LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context) {
+					LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context, pakFiles: pakFiles) {
 						LoadSingle = true
 					};
 					context.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -312,7 +321,7 @@ namespace Ray1Map {
 
 						using (var writeContext = new Ray1MapContext(outputDir, settings)) {
 							// Set up loader
-							LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext) {
+							LOA_Loader writeloader = new LOA_Loader(loader.BigFiles, writeContext, pakFiles: loader.PakFiles) {
 								Raw_WriteFilesAlreadyInBF = true,
 								Raw_UseOriginalFileNames = true,
 								LoadSingle = true
@@ -354,7 +363,8 @@ namespace Ray1Map {
 											addBasicRayman = true;
 											addBasicSound = true;
 											if ((context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE ||
-												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) &&
+												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD ||
+												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_Anniversary) &&
 												!wol.Worlds.Any(w => w.Key.Key == bgeMainFixKey))
 												addBGEMainFix = true;
 										} else {
@@ -1045,7 +1055,7 @@ namespace Ray1Map {
 
 								using (var writeContext = new Ray1MapContext(outputDir, newSettings)) {
 									// Set up loader
-									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext, pakFiles: actualLoader.PakFiles);
 
 									loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForDifferentGameMode;
 									if (exportForDifferentGameMode) {
@@ -1091,7 +1101,7 @@ namespace Ray1Map {
 
 							using (var writeContext = new Ray1MapContext(outputDir, newSettings)) {
 								// Set up loader
-								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+								LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext, pakFiles: actualLoader.PakFiles);
 
 								loader.Raw_WriteFilesAlreadyInBF = HasUnbinarizedData || exportForDifferentGameMode;
 								if (exportForDifferentGameMode) {
