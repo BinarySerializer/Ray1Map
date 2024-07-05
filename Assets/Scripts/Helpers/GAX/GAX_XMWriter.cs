@@ -243,7 +243,7 @@ namespace Ray1Map
 
         private XM_Pattern GetPattern(IGAX_Song song, int index) {
             XM_Pattern pat = new XM_Pattern {
-                NumChannels = song.Info.NumChannels,
+                Pre_NumChannels = song.Info.NumChannels,
                 NumRows = song.Info.NumRowsPerPattern
             };
             XM_PatternRow[] rows = Enumerable.Range(0, song.Info.NumChannels).SelectMany(c => GetPatternRows(song, index, c, song.Info.NumRowsPerPattern)).ToArray();
