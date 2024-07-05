@@ -6,11 +6,11 @@ namespace Ray1Map.Jade {
 	public class BIG_PakFile : BinarySerializable {
 		public static uint HeaderLength => 24;
 
-		public uint UInt0 { get; set; }
-		public uint UInt1 { get; set; }
-		public uint UInt2 { get; set; }
-		public uint FilesCount { get; set; }
-		public uint FileTableSize { get; set; }
+        public byte PakVersion { get; set; }
+        public uint Priority { get; set; }
+		public uint Uint_0C { get; set; }
+		public uint NumEntries { get; set; }
+		public uint FooterSize { get; set; }
 
 		public Pointer FilesBaseOffset { get; set; }
 		public Pointer FileTableOffset { get; set; }
@@ -18,16 +18,17 @@ namespace Ray1Map.Jade {
 		public BIG_PakFileTableEntry[] FileTable { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			s.SerializeMagicString("BPAK", 4);
-			UInt0 = s.Serialize<uint>(UInt0, name: nameof(UInt0));
-			UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+			s.SerializeMagicString("BPAK", 4, name: "ID");
+            PakVersion = s.Serialize<byte>(PakVersion, name: nameof(PakVersion));
+            s.Align();
+            Priority = s.Serialize<uint>(Priority, name: nameof(Priority));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)) {
-				UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
+				Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
 			}
-			FilesCount = s.Serialize<uint>(FilesCount, name: nameof(FilesCount));
-			FileTableSize = s.Serialize<uint>(FileTableSize, name: nameof(FileTableSize));
+			NumEntries = s.Serialize<uint>(NumEntries, name: nameof(NumEntries));
+			FooterSize = s.Serialize<uint>(FooterSize, name: nameof(FooterSize));
 			FilesBaseOffset = s.CurrentPointer;
-			FileTableOffset = s.CurrentBinaryFile.StartPointer + s.CurrentBinaryFile.Length - FileTableSize;
+			FileTableOffset = s.CurrentBinaryFile.StartPointer + s.CurrentBinaryFile.Length - FooterSize;
 		}
 
 		public async Task SerializeFileTable(SerializerObject s) {
@@ -35,8 +36,8 @@ namespace Ray1Map.Jade {
 			Pointer off_target = FileTableOffset;
 			s.Goto(off_target);
 
-			await s.FillCacheForReadAsync(FileTableSize);
-			FileTable = s.SerializeObjectArray<BIG_PakFileTableEntry>(FileTable, FilesCount, name: nameof(FileTable));
+			await s.FillCacheForReadAsync(FooterSize);
+			FileTable = s.SerializeObjectArray<BIG_PakFileTableEntry>(FileTable, NumEntries, name: nameof(FileTable));
 			
 			s.Goto(off_current);
 		}

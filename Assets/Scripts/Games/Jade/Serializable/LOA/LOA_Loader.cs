@@ -277,7 +277,7 @@ namespace Ray1Map.Jade {
 			if (PakFiles != null) {
 				for (int p = 0; p < PakFiles.Length; p++) {
 					var pak = PakFiles[p];
-					for (int i = 0; i < pak.FilesCount; i++) {
+					for (int i = 0; i < pak.NumEntries; i++) {
 						var file = pak.FileTable[i];
 						if (!file.IsKeyID) continue;
 						var fileInfo = new FileInfo() {
