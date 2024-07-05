@@ -27,7 +27,7 @@ namespace Ray1Map.Jade
             if (FileSize > 0) {
                 SerializedFileSize = s.Serialize<uint>(SerializedFileSize, name: nameof(SerializedFileSize));
                 if (FileSize != SerializedFileSize) return;
-                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)) {
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary_20230403)) {
                     BINK_Keys = s.SerializeObjectArray<Jade_Key>(BINK_Keys, 3, name: nameof(BINK_Keys));
                 } else {
                     Content = s.SerializeObject<Jade_Reference<TEXPRO_Mpeg_Content>>(Content, name: nameof(Content));

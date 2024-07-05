@@ -363,8 +363,7 @@ namespace Ray1Map {
 											addBasicRayman = true;
 											addBasicSound = true;
 											if ((context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE ||
-												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD ||
-												context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_Anniversary) &&
+												context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_HD)) &&
 												!wol.Worlds.Any(w => w.Key.Key == bgeMainFixKey))
 												addBGEMainFix = true;
 										} else {

@@ -2,6 +2,7 @@
 using Ray1Map.Jade;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using static Ray1Map.Jade_BaseManager;
@@ -15,6 +16,11 @@ namespace Ray1Map {
 
 			var levIndex = 0;
 			uint currentKey = 0;
+
+			if (PakFiles != null && PakFiles.Any()) {
+				await ExportSoundsUnbinarizedPAK(settings, outputDir);
+				return;
+			}
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -96,5 +102,66 @@ namespace Ray1Map {
 			Debug.Log($"Finished export");
 		}
 
+		public async UniTask ExportSoundsUnbinarizedPAK(GameSettings settings, string outputDir) {
+			const uint RIFFMinSize = 20;
+
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+				var filenamesPath = Path.Combine(context.BasePath, "filenames.txt");
+				Dictionary<uint, string> filenames = new Dictionary<uint, string>();
+				if (File.Exists(filenamesPath)) {
+					var lines = File.ReadAllLines(filenamesPath);
+
+					foreach (var l in lines) {
+						var lineSplit = l.Split(',');
+						if (lineSplit.Length != 2) continue;
+
+						if (uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out uint k)) {
+							var key = k;
+							var path = lineSplit[1].Replace('\\', '/');
+							filenames[key] = path;
+						}
+					}
+				}
+
+				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: false, initSound: false);
+
+				var s = loader.Context.Deserializer;
+				foreach (var f in loader.FileInfos) {
+					var key = f.Key;
+					var file = f.Value;
+					var pak = file.PakFile;
+					if (pak == null) continue;
+					var pakFileInfo = pak.FileTable[file.FileIndex];
+					if (pakFileInfo.Info.UncompressedSize < RIFFMinSize) continue;
+
+					try {
+						await pak.SerializeFile(s, f.Value.FileIndex, (size, _) => {
+							var start = s.CurrentPointer;
+							string magic = null;
+							magic = s.SerializeString(magic, length: 4, name: nameof(magic));
+							if (magic == "RIFF") {
+								s.Goto(start);
+								byte[] data = null;
+								data = s.SerializeArray<byte>(data, size, name: nameof(data));
+								if (filenames.ContainsKey(f.Key.Key)) {
+									Util.ByteArrayToFile(Path.Combine(outputDir, filenames[f.Key.Key]), data);
+								} else {
+									Util.ByteArrayToFile(Path.Combine(outputDir, $"{f.Key.Key:X8}.wad"), data);
+								}
+							}
+							s.Goto(start + size);
+						});
+					} catch (Exception ex) {
+						if (ex is not InvalidDataException) {
+							UnityEngine.Debug.LogError(ex);
+						}
+					}
+					await Controller.WaitIfNecessary();
+				}
+
+				Debug.Log($"Finished export");
+			}
+		}
 	}
 }

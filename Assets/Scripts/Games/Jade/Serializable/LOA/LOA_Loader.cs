@@ -384,8 +384,6 @@ namespace Ray1Map.Jade {
 
 									if(FileSize != 0)
 										s.CurrentBinaryFile.AddRegion(s.CurrentFileOffset, FileSize, regionName);
-									if (currentRef.Key?.Key == 0x62002794)
-										UnityEngine.Debug.Log($"yoooo {filesize} {f.GetType()}");
 								});
 							});
 						} else {

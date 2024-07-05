@@ -232,10 +232,58 @@ namespace Ray1Map {
 						s.Goto(start + fSize);
 					});*/
 				}
-
+				await ExportTexturesPNG(settings, outputDir);
 				Debug.Log($"Finished export");
 			}
 		}
 
+		public async UniTask ExportTexturesPNG(GameSettings settings, string outputDir) {
+			const ulong PNGSignature = 0x0A1A0A0D474E5089;
+			const uint PNGMinSize = 8 + 12 + 13 + 12; // Png header, IHDR chunk, IHDR chunk data, DAT chunk
+
+			using (var context = new Ray1MapContext(settings)) {
+				await LoadFilesAsync(context);
+
+				LOA_Loader loader = await InitJadeAsync(context, initAI: false, initTextures: true, initSound: false);
+				loader.StrongErrorChecking = true;
+				var texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+
+				HashSet<Jade_Key> textures = new HashSet<Jade_Key>();
+				var s = loader.Context.Deserializer;
+				foreach (var f in loader.FileInfos) {
+					var key = f.Key;
+					var file = f.Value;
+					var pak = file.PakFile;
+					if (pak == null) continue;
+					var pakFileInfo = pak.FileTable[file.FileIndex];
+					if (pakFileInfo.Info.UncompressedSize < PNGMinSize) continue;
+
+					try {
+						await pak.SerializeFile(s, f.Value.FileIndex, (size, _) => {
+							var start = s.CurrentPointer;
+							ulong signature = 0;
+							signature = s.Serialize<ulong>(signature, name: nameof(signature));
+							if (signature == PNGSignature) {
+								s.Goto(start);
+								byte[] data = null;
+								data = s.SerializeArray<byte>(data, size, name: nameof(data));
+								Util.ByteArrayToFile(Path.Combine(outputDir, $"{f.Key.Key:X8}.png"), data);
+							}
+							s.Goto(start + size);
+						});
+					} catch (Exception ex) {
+						if (ex is not InvalidDataException) {
+							UnityEngine.Debug.LogError(ex);
+						}
+					} finally {
+						texList.Textures?.Clear();
+						texList.Palettes?.Clear();
+					}
+					await Controller.WaitIfNecessary();
+				}
+
+				Debug.Log($"Finished export");
+			}
+		}
 	}
 }

@@ -144,6 +144,7 @@ namespace Ray1Map
 
         Jade_BGE,
         Jade_BGE_HD,
+		Jade_BGE_Anniversary_20230403,
 		Jade_BGE_Anniversary,
 
 		Jade_KingKong,

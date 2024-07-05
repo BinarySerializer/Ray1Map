@@ -776,6 +776,9 @@ namespace Ray1Map
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_Anniversary, Game.Jade_BGE, "Beyond Good & Evil 20th Anniversary (Switch)", typeof(Jade_BGE_Anniversary_Manager), Platform.Switch)]
 		BeyondGoodAndEvilAnniversarySwitch,
 
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_Anniversary_20230403, Game.Jade_BGE, "Beyond Good & Evil 20th Anniversary (PS4 - 2023/04/03)", typeof(Jade_BGE_Anniversary_20230403_Manager), Platform.PS4)]
+		BeyondGoodAndEvilAnniversaryPS4_20230403,
+
 
 		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_KingKong_PC_Manager), Platform.PC)]
         KingKongPC,

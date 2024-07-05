@@ -21,7 +21,9 @@ namespace Ray1Map.Jade {
 			s.SerializeMagicString("BPAK", 4);
 			UInt0 = s.Serialize<uint>(UInt0, name: nameof(UInt0));
 			UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
-			UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)) {
+				UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
+			}
 			FilesCount = s.Serialize<uint>(FilesCount, name: nameof(FilesCount));
 			FileTableSize = s.Serialize<uint>(FileTableSize, name: nameof(FileTableSize));
 			FilesBaseOffset = s.CurrentPointer;

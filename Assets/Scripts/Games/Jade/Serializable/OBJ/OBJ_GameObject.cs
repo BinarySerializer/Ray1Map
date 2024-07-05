@@ -150,7 +150,7 @@ namespace Ray1Map.Jade {
 					MontrealEditor3 = s.Serialize<uint>(MontrealEditor3, name: nameof(MontrealEditor3));
 				}
 				if (s.CurrentAbsoluteOffset < Offset.AbsoluteOffset + FileSize
-					&& s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary)
+					&& s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary_20230403)
 					&& Version != 0) {
 					InstanceColor = s.SerializeObject<Jade_FloatColor>(InstanceColor, name: nameof(InstanceColor));
 					if (Version >= 2) {

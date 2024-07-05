@@ -22,8 +22,10 @@ namespace Ray1Map
                     new(EngineVersion.Jade_Montpellier) {
                         new(EngineVersion.Jade_BGE) {
                             new(EngineVersion.Jade_BGE_HD) {
-                                new(EngineVersion.Jade_BGE_Anniversary)
-                            },
+                                new(EngineVersion.Jade_BGE_Anniversary_20230403) {
+								    new(EngineVersion.Jade_BGE_Anniversary)
+							    },
+							},
                             new(EngineVersion.Jade_KingKong) {
                                 new(EngineVersion.Jade_KingKong_Xenon),
                                 new(EngineVersion.Jade_RRRPrototype) {

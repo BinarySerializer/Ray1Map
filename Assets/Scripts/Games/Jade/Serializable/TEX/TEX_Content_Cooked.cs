@@ -58,13 +58,14 @@ namespace Ray1Map.Jade
                 HeightEmissive = SerializeTexture(HeightEmissive, 2, name: nameof(HeightEmissive));
                 SpecGlossOccl = SerializeTexture(SpecGlossOccl, 3, name: nameof(SpecGlossOccl));
             }
-            if (TextureSetType <= NoriTextureSetType.Type6 && TextureSetType != NoriTextureSetType.Invalid) {
-                ShaderParam0 = s.Serialize<float>(ShaderParam0, name: nameof(ShaderParam0));
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary) || TextureSetType > NoriTextureSetType.Standard) {
+                if (TextureSetType <= NoriTextureSetType.Type6 && TextureSetType != NoriTextureSetType.Invalid) {
+                    ShaderParam0 = s.Serialize<float>(ShaderParam0, name: nameof(ShaderParam0));
+                }
+                if (TextureSetType == NoriTextureSetType.Type6) {
+                    ShaderParam1 = s.Serialize<float>(ShaderParam1, name: nameof(ShaderParam1));
+                }
             }
-            if (TextureSetType == NoriTextureSetType.Type6) {
-                ShaderParam1 = s.Serialize<float>(ShaderParam1, name: nameof(ShaderParam1));
-            }
-
 			if (TextureSetType == NoriTextureSetType.Type6 || TextureSetType == NoriTextureSetType.Custom) {
                 CustomShaderName = s.SerializeString(CustomShaderName, length: 0x40, name: nameof(CustomShaderName));
             }
