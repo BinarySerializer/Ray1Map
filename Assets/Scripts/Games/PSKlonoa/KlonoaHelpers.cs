@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa

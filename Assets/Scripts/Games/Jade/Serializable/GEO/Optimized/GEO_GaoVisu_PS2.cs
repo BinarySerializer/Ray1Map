@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.PS2;
-using BinarySerializer.PSP;
+using BinarySerializer.PlayStation.PS2;
+using BinarySerializer.PlayStation.PSP;
 
 namespace Ray1Map.Jade {
 	public class GEO_GaoVisu_PS2 : BinarySerializable {

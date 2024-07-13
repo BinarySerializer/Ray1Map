@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using BinarySerializer.Ray1;
 using Ray1Map.Rayman1;
 using UnityEngine;

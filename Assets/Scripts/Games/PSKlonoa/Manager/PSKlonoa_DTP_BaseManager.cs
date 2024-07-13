@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using BinarySerializer;
 using BinarySerializer.Klonoa;
 using BinarySerializer.Klonoa.DTP;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;

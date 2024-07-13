@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;

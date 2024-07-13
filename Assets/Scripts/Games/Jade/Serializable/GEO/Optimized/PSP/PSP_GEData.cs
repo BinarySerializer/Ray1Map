@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.PSP;
+using BinarySerializer.PlayStation.PSP;
 using System.IO;
 
 namespace Ray1Map.Jade {

@@ -7,15 +7,9 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Ray1"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Ray1
 	url = https://github.com/BinarySerializer/BinarySerializer.Ray1
-[submodule "Assets/Scripts/Libraries/BinarySerializer.PS1"]
-	path = Assets/Scripts/Libraries/BinarySerializer.PS1
-	url = https://github.com/BinarySerializer/BinarySerializer.PS1
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Klonoa"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Klonoa
 	url = https://github.com/BinarySerializer/BinarySerializer.Klonoa
-[submodule "Assets/Scripts/Libraries/BinarySerializer.PS2"]
-	path = Assets/Scripts/Libraries/BinarySerializer.PS2
-	url = https://github.com/BinarySerializer/BinarySerializer.PS2
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Audio"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Audio
 	url = https://github.com/BinarySerializer/BinarySerializer.Audio
@@ -28,3 +22,6 @@
 [submodule "Assets/Plugins/psychoportal.unity"]
 	path = Assets/Plugins/psychoportal.unity
 	url = https://gitlab.com/scrunguscrungus/psychoportal.unity
+[submodule "Assets/Scripts/Libraries/BinarySerializer.PlayStation"]
+	path = Assets/Scripts/Libraries/BinarySerializer.PlayStation
+	url = https://github.com/BinarySerializer/BinarySerializer.PlayStation

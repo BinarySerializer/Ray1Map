@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;

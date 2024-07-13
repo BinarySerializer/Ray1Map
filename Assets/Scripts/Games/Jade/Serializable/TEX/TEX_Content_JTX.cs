@@ -2,7 +2,7 @@
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
-using BinarySerializer.PS2;
+using BinarySerializer.PlayStation.PS2;
 using UnityEngine;
 
 namespace Ray1Map.Jade

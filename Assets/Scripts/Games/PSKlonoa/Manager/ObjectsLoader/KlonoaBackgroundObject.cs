@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer.Klonoa.DTP;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using UnityEngine;
 
 namespace Ray1Map.PSKlonoa

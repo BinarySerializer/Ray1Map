@@ -1,11 +1,11 @@
 ﻿using BinarySerializer;
 using BinarySerializer.Klonoa.DTP;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Rect = BinarySerializer.PS1.Rect;
+using Rect = BinarySerializer.PlayStation.PS1.Rect;
 
 namespace Ray1Map.PSKlonoa
 {

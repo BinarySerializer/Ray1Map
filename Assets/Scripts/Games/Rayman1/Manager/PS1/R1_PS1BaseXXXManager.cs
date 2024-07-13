@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using BinarySerializer.Ray1;
 using BinarySerializer.Ray1.PS1;
 using Cysharp.Threading.Tasks;
@@ -321,7 +321,7 @@ namespace Ray1Map.Rayman1
 
                         for (int i = 0; i < bg.SpriteData.PalettesCount; i++)
                         {
-                            var rect = new BinarySerializer.PS1.Rect(clutX, (short)(clutY - i), 0x100, 1);
+                            var rect = new BinarySerializer.PlayStation.PS1.Rect(clutX, (short)(clutY - i), 0x100, 1);
                             vram.AddPalette(bg.SpriteData.Palettes[i].Palette, rect);
                         }
 

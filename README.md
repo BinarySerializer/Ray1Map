@@ -950,8 +950,7 @@ If you download the repo as a zip folder the sub-modules won't be included, caus
 * [BinarySerializer.Klonoa](https://github.com/BinarySerializer/BinarySerializer.Klonoa) (Assets\Scripts\Libraries\BinarySerializer.Klonoa)
 * [BinarySerializer.Nintendo](https://github.com/BinarySerializer/BinarySerializer.Nintendo) (Assets\Scripts\Libraries\BinarySerializer.Nintendo)
 * [BinarySerializer.GBA.Audio](https://github.com/BinarySerializer/BinarySerializer.GBA.Audio) (Assets\Scripts\Libraries\BinarySerializer.GBA.Audio)
-* [BinarySerializer.PS1](https://github.com/BinarySerializer/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
-* [BinarySerializer.PS2](https://github.com/BinarySerializer/BinarySerializer.PS2) (Assets\Scripts\Libraries\BinarySerializer.PS2)
+* [BinarySerializer.PlayStation](https://github.com/BinarySerializer/BinarySerializer.PlayStation) (Assets\Scripts\Libraries\BinarySerializer.PlayStation)
 * [psychoportal.unity](https://gitlab.com/scrunguscrungus/psychoportal.unity) (Assets\Plugins\psychoportal.unity)
 
 ## Screenshots

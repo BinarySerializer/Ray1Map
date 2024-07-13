@@ -1,5 +1,5 @@
 ﻿using BinarySerializer;
-using BinarySerializer.PS2;
+using BinarySerializer.PlayStation.PS2;
 
 namespace Ray1Map.Psychonauts {
 

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using BinarySerializer;
-using BinarySerializer.PSP;
+using BinarySerializer.PlayStation.PSP;
 
 namespace Ray1Map.Jade
 {

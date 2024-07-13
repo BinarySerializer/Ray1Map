@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using BinarySerializer.PS1;
+using BinarySerializer.PlayStation.PS1;
 using BinarySerializer.Ray1.PS1;
 using UnityEngine;
 using Animation = BinarySerializer.Ray1.Animation;
