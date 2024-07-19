@@ -118,7 +118,7 @@ namespace Ray1Map.Rayman1
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s, int palOffset = 0)
         {
             // Ignore dummy sprites
             if (s.IsDummySprite())
@@ -134,7 +134,7 @@ namespace Ray1Map.Rayman1
 
             // Select correct palette
             var palette = s.Depth == SpriteDepth.BPP_8 ? pal8.Value : pal4.Value;
-            var paletteOffset = 16 * s.SubPaletteIndex;
+            var paletteOffset = 16 * (s.SubPaletteIndex + palOffset);
 
             // Create the texture
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);

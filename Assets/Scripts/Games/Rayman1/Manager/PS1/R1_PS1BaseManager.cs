@@ -102,7 +102,7 @@ namespace Ray1Map.Rayman1
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
+        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s, int palOffset = 0)
         {
             // Get the loaded v-ram
             VRAM vram = context.GetRequiredStoredObject<VRAM>("vram");
@@ -119,7 +119,7 @@ namespace Ray1Map.Rayman1
                 return null;
 
             // Get palette coordinates
-            int paletteX = s.Clut.ClutX;
+            int paletteX = s.Clut.ClutX + palOffset;
             int paletteY = s.Clut.ClutY;
 
             // Get the palette size
@@ -817,20 +817,23 @@ namespace Ray1Map.Rayman1
             // Export each font DES
             if (!exportAnimFrames)
             {
-                for (int fontIndex = 0; fontIndex < fontData.Length; fontIndex++)
+                for (int colorIndex = 0; colorIndex < 16; colorIndex++)
                 {
-                    // Export every sprite
-                    for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
+                    for (int fontIndex = 0; fontIndex < fontData.Length; fontIndex++)
                     {
-                        // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites[spriteIndex]);
+                        // Export every sprite
+                        for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
+                        {
+                            // Get the sprite texture
+                            var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites[spriteIndex], colorIndex);
 
-                        // Make sure it's not null
-                        if (tex == null)
-                            continue;
+                            // Make sure it's not null
+                            if (tex == null)
+                                continue;
 
-                        // Export the font sprite
-                        Util.ByteArrayToFile(Path.Combine(outputPath, "Font", $"{fontIndex} - {spriteIndex}.png"), tex.EncodeToPNG());
+                            // Export the font sprite
+                            Util.ByteArrayToFile(Path.Combine(outputPath, "Font", $"{colorIndex} - {fontIndex} - {spriteIndex}.png"), tex.EncodeToPNG());
+                        }
                     }
                 }
             }

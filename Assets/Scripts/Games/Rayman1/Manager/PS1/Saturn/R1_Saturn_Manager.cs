@@ -232,7 +232,7 @@ namespace Ray1Map.Rayman1
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite img)
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite img, int palOffset = 0)
         {
             if (img.IsDummySprite())
                 return null;
