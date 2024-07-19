@@ -612,7 +612,9 @@ namespace Ray1Map.Jade {
 				bool hasNormals = true; // geo.Normals != null;
 				if (hasNormals) {
 					// ===== WRITE THE NORMALS ==========
-					if(geo.Normals == null) geo.ComputeNormals();
+					if(geo.Normals == null 
+						|| (geo.Context?.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_BGE_Anniversary_20230403) ?? false))
+						geo.ComputeNormals();
 					var normals = geo.Normals;
 					tempObjectSb.AppendLine("\t\tLayerElementNormal: 0 {");
 					tempObjectSb.AppendLine("\t\t\tVersion: 101");
@@ -1358,8 +1360,16 @@ namespace Ray1Map.Jade {
 			var fullPath = Path.Combine(outputPath, textureFilePathFullName);
 
 			if (extractTextures && !File.Exists(fullPath)) {
-				var tex = (texture.Content ?? texture.Info).ToTexture2D();
-				if (tex == null) tex = GeometryHelpers.CreateDummyTexture();
+				var tex = (texture.Content ?? texture.Info)?.ToTexture2D();
+				if (tex == null) {
+					tex = GeometryHelpers.CreateDummyTexture();
+				} else {
+					var colors = tex.GetPixels();
+					var newTex = new Texture2D(tex.width, tex.height);
+					newTex.SetPixels(colors);
+					newTex.Apply();
+					tex = newTex;
+				}
 				Util.ByteArrayToFile(fullPath, tex.EncodeToPNG());
 			}
 
