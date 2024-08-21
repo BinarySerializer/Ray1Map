@@ -26,13 +26,24 @@ public class UnityWindowSerializer : SerializerObject
     private bool tempFlag = false;
     public List<string> CurrentName { get; }
     public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
+	protected BinaryFile? CurrentFile { get; set; }
 
-    public override long CurrentLength => 0;
-    public override bool HasCurrentPointer => false;
-    public override BinaryFile CurrentBinaryFile => null;
-    public override long CurrentFileOffset => 0;
+	public override long CurrentLength => 0;
+	public override bool HasCurrentPointer => CurrentFile != null;
+	public override BinaryFile CurrentBinaryFile => CurrentFile ?? throw new SerializerMissingCurrentPointerException();
+	public override long CurrentFileOffset => 0;
 
-    public override void Goto(Pointer offset) { }
+    public override void Goto(Pointer offset) {
+		if (offset == null) {
+			CurrentFile = null;
+		} else {
+			BinaryFile newFile = offset.File;
+
+			if (newFile != CurrentFile || !HasCurrentPointer) {
+				CurrentFile = newFile;
+			}
+		}
+	}
     public override void Align(int alignBytes = 4, Pointer baseOffset = null, bool? logIfNotNull = null) { }
 
     public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {
@@ -308,7 +319,7 @@ public class UnityWindowSerializer : SerializerObject
 
     public override void DoBits<T>(Action<BitSerializerObject> serializeFunc) 
     {
-        serializeFunc(new UnityWindowBitSerializer(this, CurrentPointer, null, 0));
+        serializeFunc(new UnityWindowBitSerializer(this, HasCurrentPointer ? CurrentPointer : null, null, 0));
     }
 
     public override void Log(string logString, params object[] args)
