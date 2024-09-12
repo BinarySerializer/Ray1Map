@@ -1229,32 +1229,35 @@ namespace Ray1Map.Jade {
 				tempObjectSb.AppendLine("\t\tProperties70:  {");
 
 
+
 				// Colors
-				Jade_Color diffuse, ambient, specular;
+				Jade_Color diffuse = null, ambient = null, specular = null;
 				Jade_TextureReference texture = null;
-				switch (mat.RenderObject.Value) {
-					case MAT_SIN_SingleMaterial sin:
-						ambient = sin.Ambiant;
-						diffuse = sin.Diffuse;
-						specular = sin.Specular;
-						texture = sin.Texture;
-						break;
-					case MAT_MTT_MultiTextureMaterial mtt:
-						ambient = mtt.Ambiant;
-						diffuse = mtt.Diffuse;
-						specular = mtt.Specular;
-						if ((mtt.Levels?.Length ?? 0) > 0) {
-							for (int i = 0; i < mtt.Levels.Length; i++) {
-								var texRef = mtt.Levels[i].Texture;
-								if (!texRef.IsNull) {
-									texture = texRef;
-									break;
+				if (mat?.RenderObject?.Value != null) {
+					switch (mat.RenderObject.Value) {
+						case MAT_SIN_SingleMaterial sin:
+							ambient = sin.Ambiant;
+							diffuse = sin.Diffuse;
+							specular = sin.Specular;
+							texture = sin.Texture;
+							break;
+						case MAT_MTT_MultiTextureMaterial mtt:
+							ambient = mtt.Ambiant;
+							diffuse = mtt.Diffuse;
+							specular = mtt.Specular;
+							if ((mtt.Levels?.Length ?? 0) > 0) {
+								for (int i = 0; i < mtt.Levels.Length; i++) {
+									var texRef = mtt.Levels[i].Texture;
+									if (!texRef.IsNull) {
+										texture = texRef;
+										break;
+									}
 								}
 							}
-						}
-						break;
-					default:
-						throw new Exception($"Unexpected RenderObject of type {mat.RenderObject.Value.GetType()} being parsed as material!");
+							break;
+						default:
+							throw new Exception($"Unexpected RenderObject of type {mat.RenderObject.Value.GetType()} being parsed as material!");
+					}
 				}
 
 				void writeColor(string name, BinarySerializer.BaseColor color) {
