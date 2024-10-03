@@ -697,6 +697,8 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.DataTable] = 0x0817ba38,
 
                         [Spyro_DefinedPointer.LocalizationPointers] = 0x08002470,
+                        [Spyro_DefinedPointer.FontTileMap] = 0x081bef60,
+                        [Spyro_DefinedPointer.FontTileSet] = 0x081bd520,
 
                         [Spyro_DefinedPointer.ObjectTypes] = 0x08175a18,
                         [Spyro_DefinedPointer.AnimSets] = 0x081733e4,
@@ -723,6 +725,8 @@ namespace Ray1Map
                         [Spyro_DefinedPointer.DataTable] = 0x0817B728,
 
                         [Spyro_DefinedPointer.LocalizationPointers] = 0x08002450,
+                        [Spyro_DefinedPointer.FontTileMap] = 0x0818d410,
+                        [Spyro_DefinedPointer.FontTileSet] = 0x0818b9f0,
 
                         [Spyro_DefinedPointer.ObjectTypes] = 0x08175708,
                         [Spyro_DefinedPointer.AnimSets] = 0x081730f8,

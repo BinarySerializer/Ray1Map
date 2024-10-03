@@ -165,8 +165,6 @@ namespace Ray1Map.GBAIsometric
                         [113] = 'ü',
                     };
 
-                // TODO: Correct ones below by comparing to exported font (Spyro1 is correct)
-
                 case GameModeSelection.SpyroSeasonFlameEU:
                     return new Dictionary<byte, char>()
                     {
@@ -250,10 +248,10 @@ namespace Ray1Map.GBAIsometric
                         [74] = 'y',
                         [75] = 'z',
 
-                        [76] = ' ',
+                        [76] = '\u00a0',
                         [77] = '¡',
-                        [78] = '<',
-                        [79] = '>',
+                        [78] = '«',
+                        [79] = '»',
                         [80] = '¿',
 
                         [81] = 'Á',
@@ -374,8 +372,10 @@ namespace Ray1Map.GBAIsometric
                         [74] = 'y',
                         [75] = 'z',
 
-                        [97] = 'é', // TODO: Is this correct?
+                        [97] = 'é',
                     };
+
+                // TODO: Correct ones below by comparing to exported font (Ice and Flame are correct)
 
                 case GameModeSelection.SpyroAdventureEU:
                     return new Dictionary<byte, char>()
