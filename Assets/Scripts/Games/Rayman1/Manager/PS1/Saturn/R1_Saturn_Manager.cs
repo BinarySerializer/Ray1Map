@@ -384,7 +384,7 @@ namespace Ray1Map.Rayman1
             // Create a new context
             using (var context = new Ray1MapContext(settings))
             {
-                void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
+                void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8)
                 {
                     // Add the file to the context
                     context.AddFile(new LinearFile(context, file, Endian.Big));
@@ -395,39 +395,65 @@ namespace Ray1Map.Rayman1
                     // Get the texture
                     var tex = bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight, invertYAxis: true);
 
-                    if (sizes?.Any() == true)
+                    // Get the output file path
+                    var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
+
+                    Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
+                }
+
+                void exportMultiBit(string file, IList<Vector2> sizes)
+                {
+                    // Add the file to the context
+                    context.AddFile(new LinearFile(context, file, Endian.Big));
+
+                    // Read the file
+                    ObjectArray<RGBA5551Color> colors = FileFactory.Read<ObjectArray<RGBA5551Color>>(context, file, (s, x) => x.Pre_Length = s.CurrentLength / 2);
+
+                    int index = 0;
+                    int pixelOffset = 0;
+                    for (int i = 0; i < sizes.Count; i++)
                     {
-                        // Get the pixels
-                        var pixels = tex.GetPixels();
-
-                        var pixelOffset = 0;
-
-                        // TODO: This doesn't work...
-                        for (int i = 0; i < sizes.Count; i++)
+                        if (Single.IsNaN(sizes[i].y))
                         {
-                            // Get the output file path
-                            var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $" - {i}.png"));
-
-                            // Create a new texture
-                            var newTex = TextureHelpers.CreateTexture2D((int)sizes[i].x, (int)sizes[i].y);
-
-                            // Set the pixels
-                            newTex.SetPixels(pixels.Reverse().Skip(pixelOffset).Take(newTex.width * newTex.height).ToArray());
-
-                            newTex.Apply();
-
-                            pixelOffset += newTex.width * newTex.height;
-
-                            Util.ByteArrayToFile(outputPath, newTex.EncodeToPNG());
+                            pixelOffset += (int)sizes[i].x;
+                            continue;
                         }
-                    }
-                    else
-                    {
+
+                        int width = (int)sizes[i].x;
+                        int height = (int)sizes[i].y;
+
+                        // Get the texture
+                        BIT bit = new BIT() { Pixels = colors.Value.Skip(pixelOffset).Take(width * height).ToArray() };
+                        var tex = bit.ToTexture(width, swizzled: false, blockWidth: width, blockHeight: height, invertYAxis: true);
+
                         // Get the output file path
-                        var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
+                        var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $" - {index}.png"));
+
+                        pixelOffset += width * height;
 
                         Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
+
+                        index++;
                     }
+
+                    Debug.Log($"PixelOffset for {file}: {pixelOffset}");
+                }
+
+                void exportRawBit(string file, int width = 64, bool swizzled = false, int blockWidth = 64, int blockHeight = 64)
+                {
+                    // Add the file to the context
+                    context.AddFile(new LinearFile(context, file, Endian.Big));
+
+                    // Read the file
+                    BIT bit = FileFactory.Read<BIT>(context, file);
+
+                    // Get the texture
+                    var tex = bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight, invertYAxis: false);
+
+                    // Get the output file path
+                    var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, ".raw"));
+
+                    Util.ByteArrayToFile(outputPath, tex.GetPixels().SelectMany(x => new[] { (byte)(x.r * 255), (byte)(x.g * 255), (byte)(x.b * 255) }).ToArray());
                 }
 
                 void exportVig(string file, int width)
@@ -465,13 +491,19 @@ namespace Ray1Map.Rayman1
                 {
                     var relativePath = bitFile.Substring(context.BasePath.Length).Replace('\\', '/');
 
-                    if (!VigWidths.ContainsKey(relativePath))
+                    if (VigWidths.TryGetValue(relativePath, out int width))
+                    {
+                        exportBit(relativePath, width: width);
+                    }
+                    else if (MultiVigSizes.TryGetValue(relativePath, out Vector2[] sizes))
+                    {
+                        exportMultiBit(relativePath, sizes: sizes);
+                    }
+                    else
                     {
                         Debug.LogWarning($"Vignette file {relativePath} has no width");
-                        continue;
+                        exportRawBit(relativePath);
                     }
-
-                    exportBit(relativePath, width: VigWidths[relativePath]);
                 }
                 foreach (var vigFile in Directory.GetFiles(settings.GameDirectory, "*.vig", SearchOption.AllDirectories))
                 {
@@ -600,10 +632,6 @@ namespace Ray1Map.Rayman1
 
         public Dictionary<string, int> VigWidths { get; } = new Dictionary<string, int>()
         {
-            //["CAK/CAK_01.BIT"] = ,
-            //["CAK/EXPLOSE.BIT"] = ,
-            //["CAK/GAT1_SP.BIT"] = ,
-            //["CAK/GAT3_SP.BIT"] = ,
             ["CAK/GAT_F01P.BIT"] = 384,
             ["CAK/GAT_F01E.BIT"] = 384,
             ["CAK/GAT_F03.BIT"] = 384,
@@ -611,25 +639,17 @@ namespace Ray1Map.Rayman1
             ["CAK/GAT_F04P.BIT"] = 320,
             ["CAK/MDK_F01P.BIT"] = 320,
             ["CAK/MBLK_F01.BIT"] = 320,
-            //["CAK/VITRAUX.BIT"] = ,
 
-            //["CAV/CAV1_SP.BIT"] = ,
-            //["CAV/CAV_01.BIT"] = ,
             ["CAV/CAV_F01.BIT"] = 384,
             ["CAV/CAV_F01M.BIT"] = 384,
             ["CAV/CAV_F04P.BIT"] = 320,
             ["CAV/CAV_F04.BIT"] = 320,
             ["CAV/CAV_F1.BIT"] = 384,
             ["CAV/CAV_FJOE.BIT"] = 192,
-            //["CAV/JOE_01.BIT"] = ,
             ["CAV/CAV_FSKO.BIT"] = 384,
             ["CAV/FD_JOPAL.BIT"] = 320,
             ["CAV/FD_PBLJO.BIT"] = 320,
 
-            //["IMG/IMG2_SP.BIT"] = ,
-            //["IMG/IMG4_SP.BIT"] = ,
-            //["IMG/IMG5_SP.BIT"] = ,
-            //["IMG/IMG_01.BIT"] = ,
             ["IMG/IMG_F01.BIT"] = 192,
             ["IMG/IMG_F01B.BIT"] = 192,
             ["IMG/IMG_F02.BIT"] = 384,
@@ -639,9 +659,6 @@ namespace Ray1Map.Rayman1
             ["IMG/IMG_F06P.BIT"] = 320,
             ["IMG/IMG_F06.BIT"] = 320,
 
-            //["JUN/JUN2_SP.BIT"] = ,
-            //["JUN/JUN3_SP.BIT"] = ,
-            //["JUN/JUN_01.BIT"] = ,
             ["JUN/JUN_F01P.BIT"] = 192,
             ["JUN/JUN_F01.BIT"] = 192,
             ["JUN/JUN_F2JM.BIT"] = 384,
@@ -649,10 +666,6 @@ namespace Ray1Map.Rayman1
             ["JUN/JUN_MOPA.BIT"] = 320,
             ["JUN/JUN_MOSK.BIT"] = 320,
 
-            //["MON/MON1_SP.BIT"] = 320,
-            //["MON/MON2_SP.BIT"] = 320,
-            //["MON/MON7_SP.BIT"] = 320,
-            //["MON/MON_01.BIT"] = 320,
             ["MON/MON_F01.BIT"] = 192,
             ["MON/MON_F02.BIT"] = 384,
             ["MON/MON_F2W.BIT"] = 384,
@@ -660,10 +673,6 @@ namespace Ray1Map.Rayman1
             ["MON/MON_F05.BIT"] = 192,
             ["MON/MON_F05P.BIT"] = 192,
 
-            //["MUS/MUS2_SP.BIT"] = 320,
-            //["MUS/MUS3_SP.BIT"] = 320,
-            //["MUS/MUS4_SP.BIT"] = 320,
-            //["MUS/MUS_01.BIT"] = 320,
             ["MUS/MUS_F02.BIT"] = 384,
             ["MUS/MUS_F03.BIT"] = 320,
             ["MUS/MUS_F04.BIT"] = 384,
@@ -679,7 +688,6 @@ namespace Ray1Map.Rayman1
             ["VIGNET/LOGO.BIT"] = 320,
             ["VIGNET/NWORLD.BIT"] = 384,
             ["VIGNET/RAYMAN.BIT"] = 320,
-            //["VIGNET/SEGA.BIT"] = 55,
 
             ["VIGNET/VIG_PR1.VIG"] = 254,
             ["VIGNET/VIG_PR2.VIG"] = 208,
@@ -699,8 +707,77 @@ namespace Ray1Map.Rayman1
             ["VIGNET/VIG_RAP.VIG"] = 255,
             ["VIGNET/VIG_TRZ.VIG"] = 178,
             ["LANGUE.VIG"] = 320,
+        };
 
-            // VIGNET/VRAM_A.BIT and VIGNET/VRAM_B.BIT contain multiple images
+        public Dictionary<string, Vector2[]> MultiVigSizes { get; } = new Dictionary<string, Vector2[]>()
+        {
+            //["CAK/GAT1_SP.BIT"] = ,
+            //["CAK/GAT3_SP.BIT"] = ,
+            ["CAK/EXPLOSE.BIT"] = new Vector2[]
+            {
+                new Vector2(40, 62),
+                new Vector2(32, 65),
+                new Vector2(56, 53),
+                new Vector2(8, Single.NaN),
+                new Vector2(32, 49),
+                new Vector2(32, Single.NaN),
+                new Vector2(32, 50),
+                new Vector2(72, Single.NaN),
+                new Vector2(40, 37),
+                new Vector2(80, Single.NaN),
+                new Vector2(40, 39),
+                new Vector2(8, Single.NaN),
+                new Vector2(32, 40),
+                new Vector2(40, 68),
+                new Vector2(144, Single.NaN),
+                new Vector2(48, 53),
+                new Vector2(32, Single.NaN),
+                new Vector2(32, 29),
+                new Vector2(32, 61),
+                new Vector2(288, Single.NaN),
+                new Vector2(32, 61),
+                new Vector2(80, Single.NaN),
+                new Vector2(40, 27),
+                new Vector2(40, Single.NaN),
+                new Vector2(32, 35),
+                new Vector2(32, 70),
+                new Vector2(40, 64),
+                new Vector2(40, 56),
+            },
+            ["CAK/VITRAUX.BIT"] = new Vector2[]
+            {
+                new Vector2(56, 109),
+                new Vector2(24, Single.NaN),
+                new Vector2(56, 88),
+                new Vector2(16, Single.NaN),
+                new Vector2(56, 78),
+                new Vector2(16, Single.NaN),
+                new Vector2(48, 88),
+                new Vector2(16, Single.NaN),
+                new Vector2(64, 108),
+            },
+
+            //["CAV/CAV1_SP.BIT"] = ,
+
+            //["IMG/IMG2_SP.BIT"] = ,
+            //["IMG/IMG4_SP.BIT"] = ,
+            //["IMG/IMG5_SP.BIT"] = ,
+
+            //["JUN/JUN2_SP.BIT"] = ,
+            //["JUN/JUN3_SP.BIT"] = ,
+
+            //["MON/MON1_SP.BIT"] = 320,
+            //["MON/MON2_SP.BIT"] = 320,
+            //["MON/MON7_SP.BIT"] = 320,
+
+            //["MUS/MUS2_SP.BIT"] = 320,
+            //["MUS/MUS3_SP.BIT"] = 320,
+            //["MUS/MUS4_SP.BIT"] = 320,
+
+            //["VIGNET/SEGA.BIT"] = 55,
+
+            // VIGNET/VRAM_A.BIT
+            // VIGNET/VRAM_B.BIT
         };
 
         public override void AddContextPointers(Context context)
